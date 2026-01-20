@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "scheme": "ezcare",
+    "userInterfaceStyle": "automatic",
+    "orientation": "default",
+    "web": {
+      "bundler": "metro"
+    },
+    "name": "ezcare",
+    "slug": "ezcare",
+    "plugins": ["expo-font"],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

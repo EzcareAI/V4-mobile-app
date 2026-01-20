@@ -1,0 +1,25 @@
+{
+  "name": "@ezcare/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@better-auth/expo": "catalog:",
+    "@ezcare/db": "workspace:*",
+    "@ezcare/env": "workspace:*",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@ezcare/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}

@@ -1,77 +1,116 @@
-@theme {
-	/* EZCare AI Brand Colors - Light Mode */
-	--color-primary: oklch(75% 0.15 195);
-	--color-primary-foreground: oklch(100% 0 0);
+/** biome-ignore-all lint/suspicious/noDuplicateCustomProperties: biome bug */
+@layer theme {
+	:root {
+		@variant light {
+			/* Base Colors - Fresh, energizing mint */
+			--background: var(--white);
+			--foreground: oklch(0.22 0.05 170);
 
-	--color-accent: oklch(75% 0.15 195);
-	--color-accent-foreground: oklch(100% 0 0);
+			/* Surface: Used for non-overlay components (cards, accordions, disclosure groups) */
+			--surface: oklch(0.98 0.01 170);
+			--surface-foreground: oklch(0.28 0.055 170);
 
-	/* Softer background tint for that mint/cyan feel */
-	--color-background: oklch(98% 0.01 180);
-	--color-foreground: oklch(15% 0 0);
+			/* Overlay: Used for floating/overlay components (dialogs, popovers, modals, menus) */
+			--overlay: oklch(0.998 0.003 170);
+			--overlay-foreground: oklch(0.28 0.055 170);
 
-	/* Card and Surface colors */
-	--color-card: oklch(100% 0 0);
-	--color-card-foreground: oklch(15% 0 0);
+			--muted: oklch(0.52 0.04 170);
 
-	--color-surface: oklch(100% 0 0);
-	--color-surface-foreground: oklch(15% 0 0);
+			--default: oklch(0.94 0.02 170);
+			--default-foreground: oklch(0.38 0.06 170);
 
-	/* Muted text for subtitles */
-	--color-muted: oklch(60% 0.01 200);
-	--color-muted-foreground: oklch(55% 0.01 200);
+			/* Accent: Vibrant teal-mint with modern energy */
+			--accent: oklch(0.7952 0.1194 184.18);
+			--accent-foreground: oklch(0.98 0.005 175);
 
-	/* Secondary color - lighter turquoise */
-	--color-secondary: oklch(85% 0.08 195);
-	--color-secondary-foreground: oklch(25% 0.05 195);
+			/* Form Field Defaults - Colors */
+			--field-background: oklch(0.98 0.01 170);
+			--field-foreground: oklch(0.22 0.05 170);
+			--field-placeholder: var(--muted);
+			--field-border: transparent;
 
-	/* Success, Danger, Warning - keep defaults but align with brand */
-	--color-success: oklch(70% 0.18 150);
-	--color-success-foreground: oklch(100% 0 0);
+			/* Status Colors - Natural, organic palette */
+			--success: oklch(0.75 0.15 155);
+			--success-foreground: oklch(0.22 0.08 155);
 
-	/* Border radius - more rounded for friendly feel */
-	--radius: 0.75rem;
-}
+			--warning: oklch(0.8 0.13 95);
+			--warning-foreground: oklch(0.28 0.08 95);
 
-@theme dark {
-	/* Dark mode overrides - keep the turquoise theme */
-	--color-primary: oklch(70% 0.15 195);
-	--color-primary-foreground: oklch(100% 0 0);
+			--danger: oklch(0.66 0.19 25);
+			--danger-foreground: oklch(0.98 0.005 25);
 
-	--color-accent: oklch(70% 0.15 195);
-	--color-accent-foreground: oklch(100% 0 0);
+			/* Component Colors */
+			--segment: oklch(0.98 0.01 170);
+			--segment-foreground: oklch(0.22 0.05 170);
 
-	--color-background: oklch(15% 0.01 195);
-	--color-foreground: oklch(95% 0 0);
+			/* Misc Colors */
+			--border: oklch(0 0 0 / 0%);
+			--divider: oklch(0.92 0.016 170);
+			--link: oklch(0.62 0.15 175);
 
-	--color-card: oklch(20% 0.01 195);
-	--color-card-foreground: oklch(95% 0 0);
+			/* Shadows */
+			--surface-shadow:
+				0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+				0 0 1px 0 rgba(0, 0, 0, 0.06);
+			/* Overlay shadow */
+			--overlay-shadow:
+				0 4px 16px 0 rgba(24, 24, 27, 0.08), 0 8px 24px 0 rgba(24, 24, 27, 0.09);
+			--field-shadow:
+				0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+				0 0 1px 0 rgba(0, 0, 0, 0.06);
+		}
 
-	--color-surface: oklch(20% 0.01 195);
-	--color-surface-foreground: oklch(95% 0 0);
+		@variant dark {
+			/* Base Colors - Deep forest mint */
+			--background: oklch(0.14 0.045 170);
+			--foreground: oklch(0.95 0.01 170);
 
-	--color-muted: oklch(35% 0.02 195);
-	--color-muted-foreground: oklch(65% 0.02 195);
+			/* Surface: Used for non-overlay components (cards, accordions, disclosure groups) */
+			--surface: oklch(0.19 0.05 170);
+			--surface-foreground: oklch(0.91 0.015 170);
 
-	--color-secondary: oklch(30% 0.05 195);
-	--color-secondary-foreground: oklch(85% 0.05 195);
-}
+			/* Overlay: Used for floating/overlay components (dialogs, popovers, modals, menus) */
+			--overlay: oklch(0.22 0.048 170);
+			--overlay-foreground: oklch(0.91 0.015 170);
 
-/* Custom gradient utility for EZCare AI buttons */
-@layer utilities {
-	.bg-ezcare-gradient {
-		background: linear-gradient(
-			135deg,
-			oklch(75% 0.15 195) 0%,
-			oklch(78% 0.14 200) 100%
-		);
-	}
+			--muted: oklch(0.48 0.045 170);
 
-	.bg-ezcare-gradient-hover {
-		background: linear-gradient(
-			135deg,
-			oklch(70% 0.15 195) 0%,
-			oklch(73% 0.14 200) 100%
-		);
+			--default: oklch(0.24 0.052 170);
+			--default-foreground: oklch(0.89 0.018 170);
+
+			/* Accent: Glowing emerald-teal */
+			--accent: oklch(0.68 0.18 175);
+			--accent-foreground: oklch(0.12 0.045 175);
+
+			/* Form Field Defaults - Colors */
+			--field-background: var(--default);
+			--field-foreground: var(--foreground);
+			--field-placeholder: var(--muted);
+			--field-border: transparent;
+
+			/* Status Colors - Luminous dark mode palette */
+			--success: oklch(0.7 0.17 158);
+			--success-foreground: oklch(0.96 0.008 158);
+
+			--warning: oklch(0.76 0.15 98);
+			--warning-foreground: oklch(0.18 0.04 98);
+
+			--danger: oklch(0.64 0.2 28);
+			--danger-foreground: oklch(0.96 0.008 28);
+
+			/* Component Colors */
+			--segment: oklch(0.21 0.049 170);
+			--segment-foreground: oklch(0.91 0.015 170);
+
+			/* Misc Colors */
+			--border: oklch(0 0 0 / 0%);
+			--divider: oklch(0.26 0.048 170);
+			--link: oklch(0.72 0.16 175);
+
+			/* Shadows */
+			--surface-shadow: 0 0 0 0 transparent inset; /* No shadow on dark mode */
+			--overlay-shadow: 0 0 0 0 transparent inset; /* No shadow on dark mode */
+			--field-shadow: 0 0 0 0 transparent inset; /* Transparent shadow to allow ring utilities to work */
+		}
 	}
 }

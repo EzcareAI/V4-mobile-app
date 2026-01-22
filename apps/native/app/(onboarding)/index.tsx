@@ -4,14 +4,11 @@ import { Button } from "heroui-native";
 import { Check, Leaf } from "lucide-react-native";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export default function OnboardingIndex() {
 	const router = useRouter();
-	const reset = useOnboardingStore((state) => state.reset);
 
 	const handleStart = () => {
-		reset();
 		router.push("/(onboarding)/1");
 	};
 
@@ -31,13 +28,11 @@ export default function OnboardingIndex() {
 					<View className="items-center pb-6">
 						{/* Logo Badge */}
 						<View className="mb-6 flex-row items-center gap-3 rounded-2xl border border-white/50 bg-white/40 px-5 py-2.5">
-							<View className="h-10 w-10 items-center justify-center rounded-xl bg-[#4CD5C5]">
+							<View className="h-10 w-10 items-center justify-center rounded-xl bg-accent">
 								<View className="absolute h-0.5 w-3.5 rounded-full bg-white" />
 								<View className="absolute h-3.5 w-0.5 rounded-full bg-white" />
 							</View>
-							<Text className="font-bold text-2xl text-[#4CD5C5]">
-								EZCare AI
-							</Text>
+							<Text className="font-bold text-2xl text-accent">EZCare AI</Text>
 						</View>
 
 						{/* Headline */}
@@ -57,23 +52,15 @@ export default function OnboardingIndex() {
 					{/* 3. Footer Section - Fixed height */}
 					<View className="items-center gap-5 pb-4">
 						{/* Get Started Button */}
-						<View className="h-16 w-full">
-							<Button
-								className="h-full w-full overflow-hidden rounded-3xl border-0"
-								onPress={handleStart}
-							>
-								<LinearGradient
-									className="absolute inset-0 items-center justify-center"
-									colors={["#77D9F1", "#3EC9B5"]}
-									end={{ x: 1, y: 0.5 }}
-									start={{ x: 0, y: 0.5 }}
-								>
-									<Text className="font-bold text-[19px] text-white">
-										Get Started
-									</Text>
-								</LinearGradient>
-							</Button>
-						</View>
+						<Button
+							className="h-16 w-full rounded-3xl"
+							onPress={handleStart}
+							variant="primary"
+						>
+							<Button.Label className="font-bold text-[19px]">
+								Get Started
+							</Button.Label>
+						</Button>
 
 						{/* Sign In Link */}
 						<View className="flex-row items-center">

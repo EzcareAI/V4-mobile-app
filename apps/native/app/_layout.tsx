@@ -15,10 +15,13 @@ export const unstable_settings = {
 	initialRouteName: "(drawer)",
 };
 
+// Regex for matching onboarding step routes (/1, /2, etc.)
+const ONBOARDING_STEP_PATTERN = /^\/\d+$/;
+
 function StackLayout() {
 	const router = useRouter();
 	const pathname = usePathname();
-	const { data: session, isPending } = authClient.useSession();
+	const { isPending } = authClient.useSession();
 
 	// For Phase 1, we use local state to determine if onboarding is finished
 	// In a real app, this would come from session.user.profile.onboardingCompleted
@@ -29,8 +32,11 @@ function StackLayout() {
 			return;
 		}
 
-		const inOnboarding = pathname.startsWith("/(onboarding)");
-		const inDrawer = pathname.startsWith("/(drawer)");
+		// Expo Router strips group names from pathnames
+		// /(onboarding)/1 becomes /1, /(onboarding)/ becomes /
+		// /(drawer)/home becomes /home
+		const inOnboarding =
+			pathname === "/" || ONBOARDING_STEP_PATTERN.test(pathname);
 
 		// If onboarding is not completed (step < 20), redirect to onboarding
 		// We prioritize this over auth for now to ensure the user sees the flow

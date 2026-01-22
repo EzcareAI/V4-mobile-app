@@ -23,7 +23,7 @@ import { SymptomResultsScreen } from "@/components/onboarding/screens/symptom-re
 import { SymptomsScreen } from "@/components/onboarding/screens/symptoms-screen";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
-export default function OnboardingStep() {
+const OnboardingStep = () => {
 	const { step } = useLocalSearchParams<{ step: string }>();
 	const stepNumber = Number.parseInt(step ?? "1", 10);
 	const setAnswer = useOnboardingStore((state) => state.setAnswer);
@@ -80,4 +80,6 @@ export default function OnboardingStep() {
 	};
 
 	return <View className="flex-1 bg-background">{renderStep()}</View>;
-}
+};
+
+export default OnboardingStep;

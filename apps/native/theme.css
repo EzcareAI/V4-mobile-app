@@ -1,0 +1,77 @@
+@theme {
+	/* EZCare AI Brand Colors - Light Mode */
+	--color-primary: oklch(75% 0.15 195);
+	--color-primary-foreground: oklch(100% 0 0);
+
+	--color-accent: oklch(75% 0.15 195);
+	--color-accent-foreground: oklch(100% 0 0);
+
+	/* Softer background tint for that mint/cyan feel */
+	--color-background: oklch(98% 0.01 180);
+	--color-foreground: oklch(15% 0 0);
+
+	/* Card and Surface colors */
+	--color-card: oklch(100% 0 0);
+	--color-card-foreground: oklch(15% 0 0);
+
+	--color-surface: oklch(100% 0 0);
+	--color-surface-foreground: oklch(15% 0 0);
+
+	/* Muted text for subtitles */
+	--color-muted: oklch(60% 0.01 200);
+	--color-muted-foreground: oklch(55% 0.01 200);
+
+	/* Secondary color - lighter turquoise */
+	--color-secondary: oklch(85% 0.08 195);
+	--color-secondary-foreground: oklch(25% 0.05 195);
+
+	/* Success, Danger, Warning - keep defaults but align with brand */
+	--color-success: oklch(70% 0.18 150);
+	--color-success-foreground: oklch(100% 0 0);
+
+	/* Border radius - more rounded for friendly feel */
+	--radius: 0.75rem;
+}
+
+@theme dark {
+	/* Dark mode overrides - keep the turquoise theme */
+	--color-primary: oklch(70% 0.15 195);
+	--color-primary-foreground: oklch(100% 0 0);
+
+	--color-accent: oklch(70% 0.15 195);
+	--color-accent-foreground: oklch(100% 0 0);
+
+	--color-background: oklch(15% 0.01 195);
+	--color-foreground: oklch(95% 0 0);
+
+	--color-card: oklch(20% 0.01 195);
+	--color-card-foreground: oklch(95% 0 0);
+
+	--color-surface: oklch(20% 0.01 195);
+	--color-surface-foreground: oklch(95% 0 0);
+
+	--color-muted: oklch(35% 0.02 195);
+	--color-muted-foreground: oklch(65% 0.02 195);
+
+	--color-secondary: oklch(30% 0.05 195);
+	--color-secondary-foreground: oklch(85% 0.05 195);
+}
+
+/* Custom gradient utility for EZCare AI buttons */
+@layer utilities {
+	.bg-ezcare-gradient {
+		background: linear-gradient(
+			135deg,
+			oklch(75% 0.15 195) 0%,
+			oklch(78% 0.14 200) 100%
+		);
+	}
+
+	.bg-ezcare-gradient-hover {
+		background: linear-gradient(
+			135deg,
+			oklch(70% 0.15 195) 0%,
+			oklch(73% 0.14 200) 100%
+		);
+	}
+}

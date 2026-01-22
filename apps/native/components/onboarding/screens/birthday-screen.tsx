@@ -1,6 +1,6 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
-import { Button } from "heroui-native";
+import { Button, useThemeColor } from "heroui-native";
 import { useState } from "react";
 import { Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -11,6 +11,7 @@ export const BirthdayScreen = () => {
 	const [date, setDate] = useState(
 		birthDate ? new Date(birthDate) : new Date(2000, 0, 1)
 	);
+	const foregroundColor = useThemeColor("foreground");
 
 	const onChange = (_event: unknown, selectedDate?: Date) => {
 		const currentDate = selectedDate || date;
@@ -40,7 +41,7 @@ export const BirthdayScreen = () => {
 						mode="date"
 						onChange={onChange}
 						style={{ width: "100%", height: 200 }}
-						textColor="#0d2137"
+						textColor={foregroundColor}
 						value={date}
 					/>
 				</View>

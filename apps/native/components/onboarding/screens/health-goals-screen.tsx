@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
-import { Button } from "heroui-native";
+import { Button, PressableFeedback } from "heroui-native";
 import { Check } from "lucide-react-native";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 const GOAL_OPTIONS = [
@@ -38,7 +38,7 @@ export const HealthGoalsScreen = () => {
 					{GOAL_OPTIONS.map((option) => {
 						const isSelected = goals.includes(option.id);
 						return (
-							<Pressable
+							<PressableFeedback
 								className={`flex-row items-center rounded-3xl border-2 p-4 ${
 									isSelected
 										? "border-primary bg-primary/5"
@@ -72,7 +72,7 @@ export const HealthGoalsScreen = () => {
 								>
 									{isSelected && <Check color="white" size={14} />}
 								</View>
-							</Pressable>
+							</PressableFeedback>
 						);
 					})}
 				</View>

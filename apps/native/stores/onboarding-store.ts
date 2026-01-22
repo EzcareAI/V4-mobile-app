@@ -1,14 +1,6 @@
-import { MMKV } from "react-native-mmkv";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-
-const storage = new MMKV();
-
-const mmkvStorage = {
-	setItem: (name: string, value: string) => storage.set(name, value),
-	getItem: (name: string) => storage.getString(name) ?? null,
-	removeItem: (name: string) => storage.delete(name),
-};
 
 export type Gender = "male" | "female" | "other" | "prefer_not_to_say";
 export type ActivityLevel = 1 | 2 | 3 | 4 | 5;
@@ -89,7 +81,7 @@ export const useOnboardingStore = create<OnboardingState>()(
 		}),
 		{
 			name: "onboarding-storage",
-			storage: createJSONStorage(() => mmkvStorage),
+			storage: createJSONStorage(() => AsyncStorage),
 		}
 	)
 );

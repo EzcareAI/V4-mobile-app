@@ -1,7 +1,7 @@
 import { useRouter } from "expo-router";
-import { Button } from "heroui-native";
+import { Button, PressableFeedback, Surface } from "heroui-native";
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 const EMOJIS = ["😴", "😌", "😐", "😫", "😭"];
@@ -28,14 +28,14 @@ export const SleepScreen = () => {
 					Quality rest is vital for natural healing.
 				</Text>
 
-				<View className="items-center rounded-3xl border-2 border-secondary/10 bg-card py-8">
+				<Surface className="items-center rounded-3xl py-8" variant="secondary">
 					<Text className="mb-4 text-6xl">{EMOJIS[value - 1]}</Text>
 					<Text className="mb-8 font-bold text-2xl text-primary">
 						{LABELS[value - 1]}
 					</Text>
 					<View className="w-full flex-row items-center gap-x-2 px-8">
 						{[1, 2, 3, 4, 5].map((i) => (
-							<Pressable
+							<PressableFeedback
 								className={`h-3 flex-1 rounded-full ${value >= i ? "bg-primary" : "bg-secondary/20"}`}
 								key={i}
 								onPress={() => setValue(i)}
@@ -46,14 +46,14 @@ export const SleepScreen = () => {
 						<Text className="text-muted-foreground text-xs">1</Text>
 						<Text className="text-muted-foreground text-xs">5</Text>
 					</View>
-				</View>
-				<View className="mt-8 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+				</Surface>
+				<Surface className="mt-8 rounded-2xl p-4" variant="tertiary">
 					<Text className="mb-1 font-bold text-primary">Did you know?</Text>
 					<Text className="text-muted-foreground text-sm leading-5">
 						Consistent sleep improves glucose metabolism and reduces
 						inflammation by up to 30%.
 					</Text>
-				</View>
+				</Surface>
 			</View>
 			<Button className="h-14 rounded-full bg-primary" onPress={handleContinue}>
 				<Button.Label className="font-bold text-lg text-white">

@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { Button } from "heroui-native";
+import { Button, RadioGroup } from "heroui-native";
 import {
 	EyeOff,
 	type LucideIcon,
@@ -7,7 +7,7 @@ import {
 	UserPlus,
 	Users,
 } from "lucide-react-native";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { type Gender, useOnboardingStore } from "@/stores/onboarding-store";
 
 interface Option {
@@ -27,10 +27,6 @@ export const GenderScreen = () => {
 	const router = useRouter();
 	const { gender, setAnswer, nextStep } = useOnboardingStore();
 
-	const handleSelect = (id: Gender) => {
-		setAnswer("gender", id);
-	};
-
 	const handleContinue = () => {
 		nextStep();
 		router.push("/(onboarding)/2");
@@ -46,48 +42,44 @@ export const GenderScreen = () => {
 					This helps us personalize recommendations for your biology.
 				</Text>
 
-				<View className="gap-y-4">
+				<RadioGroup
+					className="gap-y-4"
+					onValueChange={(value) => setAnswer("gender", value as Gender)}
+					value={gender}
+				>
 					{GENDER_OPTIONS.map((option) => (
-						<Pressable
-							className={`flex-row items-center rounded-3xl border-2 p-4 ${
-								gender === option.id
-									? "border-primary bg-primary/5"
-									: "border-secondary/20 bg-card"
-							}`}
+						<RadioGroup.Item
+							className="flex-row items-center rounded-3xl border-2 p-4 data-[checked=false]:border-secondary/20 data-[checked=true]:border-primary data-[checked=false]:bg-card data-[checked=true]:bg-primary/5"
 							key={option.id}
-							onPress={() => handleSelect(option.id)}
+							value={option.id}
 						>
-							<View
-								className={`mr-4 h-12 w-12 items-center justify-center rounded-full ${
-									gender === option.id ? "bg-primary" : "bg-secondary/10"
-								}`}
-							>
-								<option.icon
-									color={gender === option.id ? "white" : "#666"}
-									size={24}
-								/>
-							</View>
-							<Text
-								className={`font-semibold text-lg ${
-									gender === option.id ? "text-primary" : "text-foreground"
-								}`}
-							>
-								{option.label}
-							</Text>
-							<View
-								className={`ml-auto h-6 w-6 items-center justify-center rounded-full border-2 ${
-									gender === option.id
-										? "border-primary bg-primary"
-										: "border-secondary/20"
-								}`}
-							>
-								{gender === option.id && (
-									<View className="h-2 w-2 rounded-full bg-white" />
-								)}
-							</View>
-						</Pressable>
+							{({ isSelected }) => (
+								<>
+									<View
+										className={`mr-4 h-12 w-12 items-center justify-center rounded-full ${
+											isSelected ? "bg-primary" : "bg-secondary/10"
+										}`}
+									>
+										<option.icon
+											color={isSelected ? "white" : "#666"}
+											size={24}
+										/>
+									</View>
+									<RadioGroup.Label
+										className={`font-semibold text-lg ${
+											isSelected ? "text-primary" : "text-foreground"
+										}`}
+									>
+										{option.label}
+									</RadioGroup.Label>
+									<RadioGroup.Indicator className="ml-auto">
+										<RadioGroup.IndicatorThumb />
+									</RadioGroup.Indicator>
+								</>
+							)}
+						</RadioGroup.Item>
 					))}
-				</View>
+				</RadioGroup>
 			</View>
 
 			<Button

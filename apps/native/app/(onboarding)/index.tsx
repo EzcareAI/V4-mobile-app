@@ -1,5 +1,7 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import { Button } from "heroui-native";
+import { Check, Leaf } from "lucide-react-native";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -14,38 +16,100 @@ export default function OnboardingIndex() {
 	};
 
 	return (
-		<SafeAreaView className="flex-1 justify-between bg-background px-6 py-12">
-			<View className="mt-8 items-center">
-				<View className="mb-8 h-32 w-32 items-center justify-center rounded-full bg-secondary/10">
-					{/* EZBuddy Mascot Placeholder */}
-					<Text className="text-center text-4xl">🤖</Text>
+		<LinearGradient colors={["#F8FEFE", "#E6F7F7"]} style={{ flex: 1 }}>
+			<SafeAreaView style={{ flex: 1, paddingHorizontal: 24 }}>
+				<View className="flex-1 flex-col">
+					{/* 1. Character Card Section - Takes remaining space */}
+					<View className="flex-1 items-center justify-center">
+						<View className="h-56 w-56 items-center justify-center rounded-[32px] bg-white shadow-[#40E0D0]/20 shadow-lg">
+							<Text className="text-[80px]">🤖</Text>
+							<View className="mt-4 h-1.5 w-16 rounded-full bg-[#40E0D0]/20" />
+						</View>
+					</View>
+
+					{/* 2. Branding Section - Fixed height */}
+					<View className="items-center pb-6">
+						{/* Logo Badge */}
+						<View className="mb-6 flex-row items-center gap-3 rounded-2xl border border-white/50 bg-white/40 px-5 py-2.5">
+							<View className="h-10 w-10 items-center justify-center rounded-xl bg-[#4CD5C5]">
+								<View className="absolute h-0.5 w-3.5 rounded-full bg-white" />
+								<View className="absolute h-3.5 w-0.5 rounded-full bg-white" />
+							</View>
+							<Text className="font-bold text-2xl text-[#4CD5C5]">
+								EZCare AI
+							</Text>
+						</View>
+
+						{/* Headline */}
+						<Text className="text-center font-bold text-[#0d2137] text-[32px] leading-10">
+							Welcome to
+						</Text>
+						<Text className="text-center font-bold text-[#0d2137] text-[32px] leading-10">
+							EZCare AI
+						</Text>
+
+						{/* Subheadline */}
+						<Text className="mt-3 text-center font-medium text-base text-slate-500">
+							Your Natural Healing Companion.
+						</Text>
+					</View>
+
+					{/* 3. Footer Section - Fixed height */}
+					<View className="items-center gap-5 pb-4">
+						{/* Get Started Button */}
+						<View className="h-16 w-full">
+							<Button
+								className="h-full w-full overflow-hidden rounded-3xl border-0"
+								onPress={handleStart}
+							>
+								<LinearGradient
+									className="absolute inset-0 items-center justify-center"
+									colors={["#77D9F1", "#3EC9B5"]}
+									end={{ x: 1, y: 0.5 }}
+									start={{ x: 0, y: 0.5 }}
+								>
+									<Text className="font-bold text-[19px] text-white">
+										Get Started
+									</Text>
+								</LinearGradient>
+							</Button>
+						</View>
+
+						{/* Sign In Link */}
+						<View className="flex-row items-center">
+							<Text className="font-medium text-[15px] text-slate-400">
+								Already have an account?{" "}
+							</Text>
+							<Link asChild href="/sign-in">
+								<Text className="font-bold text-[#3EC9B5] text-[15px]">
+									Sign in
+								</Text>
+							</Link>
+						</View>
+
+						{/* Trust Indicators */}
+						<View className="mt-2 flex-row items-center justify-center gap-4">
+							<View className="flex-row items-center gap-2">
+								<View className="h-6 w-6 items-center justify-center rounded-full bg-[#3EC9B5]/10">
+									<Check color="#3EC9B5" size={14} />
+								</View>
+								<Text className="font-semibold text-[13px] text-slate-500">
+									Clinically Trusted
+								</Text>
+							</View>
+							<View className="h-1 w-1 rounded-full bg-slate-300" />
+							<View className="flex-row items-center gap-2">
+								<View className="h-6 w-6 items-center justify-center rounded-full bg-[#3EC9B5]/10">
+									<Leaf color="#3EC9B5" size={14} />
+								</View>
+								<Text className="font-semibold text-[13px] text-slate-500">
+									100% Natural
+								</Text>
+							</View>
+						</View>
+					</View>
 				</View>
-
-				<Text className="mb-4 text-center font-bold text-3xl text-foreground">
-					Welcome to EZCare AI
-				</Text>
-				<Text className="mb-8 text-center text-lg text-muted-foreground">
-					Your personalized natural healing companion. Let's start by getting to
-					know you.
-				</Text>
-			</View>
-
-			<View className="gap-y-4">
-				<Button
-					className="rounded-full"
-					color="primary"
-					onPress={handleStart}
-					size="lg"
-					variant="solid"
-				>
-					Get Started
-				</Button>
-				<Link asChild href="/sign-in">
-					<Button size="lg" variant="light">
-						Already have an account? Sign In
-					</Button>
-				</Link>
-			</View>
-		</SafeAreaView>
+			</SafeAreaView>
+		</LinearGradient>
 	);
 }

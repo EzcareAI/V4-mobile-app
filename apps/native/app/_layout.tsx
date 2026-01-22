@@ -25,23 +25,19 @@ function StackLayout() {
 	const { currentStep } = useOnboardingStore();
 
 	useEffect(() => {
-		if (isPending) return;
+		if (isPending) {
+			return;
+		}
 
 		const inOnboarding = pathname.startsWith("/(onboarding)");
 		const inDrawer = pathname.startsWith("/(drawer)");
 
-		// If signed in but onboarding not finished
-		if (session?.user && currentStep < 20 && inDrawer) {
-			// Redirect to onboarding if they try to access the app
-			// router.replace("/(onboarding)");
-			// Note: For now, we'll let them explore, but this is the logic
+		// If onboarding is not completed (step < 20), redirect to onboarding
+		// We prioritize this over auth for now to ensure the user sees the flow
+		if (currentStep < 20 && !inOnboarding) {
+			router.replace("/(onboarding)");
 		}
-
-		// If not signed in and trying to access app
-		if (!session?.user && inDrawer && pathname !== "/(drawer)") {
-			// router.replace("/(onboarding)");
-		}
-	}, [session, isPending, currentStep, pathname, router]);
+	}, [isPending, currentStep, pathname, router]);
 
 	return (
 		<Stack screenOptions={{ headerShown: false }}>
@@ -55,7 +51,7 @@ function StackLayout() {
 	);
 }
 
-export default function Layout() {
+const Layout = () => {
 	return (
 		<QueryClientProvider client={queryClient}>
 			<GestureHandlerRootView style={{ flex: 1 }}>
@@ -69,4 +65,6 @@ export default function Layout() {
 			</GestureHandlerRootView>
 		</QueryClientProvider>
 	);
-}
+};
+
+export default Layout;

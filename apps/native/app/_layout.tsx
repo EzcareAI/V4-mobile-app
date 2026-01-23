@@ -11,10 +11,6 @@ import { authClient } from "@/lib/auth-client";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { queryClient } from "@/utils/trpc";
 
-export const unstable_settings = {
-	initialRouteName: "(drawer)",
-};
-
 // Regex for matching onboarding step routes (/1, /2, etc.)
 const ONBOARDING_STEP_PATTERN = /^\/\d+$/;
 
@@ -42,6 +38,9 @@ function StackLayout() {
 		// We prioritize this over auth for now to ensure the user sees the flow
 		if (currentStep < 20 && !inOnboarding) {
 			router.replace("/(onboarding)");
+		} else if (currentStep >= 20 && inOnboarding) {
+			// If onboarding is completed but user is on onboarding screen, go to drawer
+			router.replace("/(drawer)");
 		}
 	}, [isPending, currentStep, pathname, router]);
 

@@ -1,12 +1,13 @@
 import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
-import { Button } from "heroui-native";
+import { Tabs } from "heroui-native";
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import {
 	type UnitPreference,
 	useOnboardingStore,
 } from "@/stores/onboarding-store";
+import { ContinueButton } from "../common/continue-button";
 
 export const HeightWeightScreen = () => {
 	const router = useRouter();
@@ -30,38 +31,33 @@ export const HeightWeightScreen = () => {
 	return (
 		<View className="flex-1 justify-between px-6 py-8">
 			<View>
-				<Text className="mt-4 mb-2 font-bold text-3xl text-foreground">
+				<Text className="mt-4 mb-3 font-bold text-3xl text-foreground">
 					What is your body size?
 				</Text>
-				<Text className="mb-4 text-lg text-muted-foreground">
+				<Text className="mb-8 text-base text-muted leading-6">
 					We use this to calculate your metabolic health score.
 				</Text>
 
-				<View className="mb-8 flex-row self-center rounded-2xl bg-secondary/10 p-1">
-					<Pressable
-						className={`rounded-xl px-6 py-2 ${unitPreference === "metric" ? "bg-white shadow-sm" : ""}`}
-						onPress={() => toggleUnits("metric")}
-					>
-						<Text
-							className={`font-semibold ${unitPreference === "metric" ? "text-primary" : "text-muted-foreground"}`}
-						>
-							Metric
-						</Text>
-					</Pressable>
-					<Pressable
-						className={`rounded-xl px-6 py-2 ${unitPreference === "imperial" ? "bg-white shadow-sm" : ""}`}
-						onPress={() => toggleUnits("imperial")}
-					>
-						<Text
-							className={`font-semibold ${unitPreference === "imperial" ? "text-primary" : "text-muted-foreground"}`}
-						>
-							Imperial
-						</Text>
-					</Pressable>
-				</View>
+				<Tabs
+					className="mb-4 self-center"
+					onValueChange={(value: string) =>
+						toggleUnits(value as UnitPreference)
+					}
+					value={unitPreference}
+				>
+					<Tabs.List>
+						<Tabs.Indicator />
+						<Tabs.Trigger value="imperial">
+							<Tabs.Label>Imperial</Tabs.Label>
+						</Tabs.Trigger>
+						<Tabs.Trigger value="metric">
+							<Tabs.Label>Metric</Tabs.Label>
+						</Tabs.Trigger>
+					</Tabs.List>
+				</Tabs>
 
 				<View className="mb-8">
-					<Text className="mb-2 text-center font-bold text-xl">Height</Text>
+					<Text className="mb-10 text-center font-bold text-xl">Height</Text>
 					<View className="h-32 justify-center">
 						{unitPreference === "metric" ? (
 							<Picker
@@ -83,7 +79,7 @@ export const HeightWeightScreen = () => {
 									style={{ width: 100 }}
 								>
 									{Array.from({ length: 6 }, (_, i) => i + 3).map((v) => (
-										<Picker.Item key={v} label={`${v} ft`} value={v} />
+										<Picker.Item key={v} label={`${v}'`} value={v} />
 									))}
 								</Picker>
 								<Picker
@@ -95,7 +91,7 @@ export const HeightWeightScreen = () => {
 									style={{ width: 100 }}
 								>
 									{Array.from({ length: 12 }, (_, i) => i).map((v) => (
-										<Picker.Item key={v} label={`${v} in`} value={v} />
+										<Picker.Item key={v} label={`${v}"`} value={v} />
 									))}
 								</Picker>
 							</View>
@@ -104,7 +100,7 @@ export const HeightWeightScreen = () => {
 				</View>
 
 				<View>
-					<Text className="mb-2 text-center font-bold text-xl">Weight</Text>
+					<Text className="mb-10 text-center font-bold text-xl">Weight</Text>
 					<View className="h-32 justify-center">
 						<Picker
 							onValueChange={(val) => {
@@ -130,11 +126,7 @@ export const HeightWeightScreen = () => {
 				</View>
 			</View>
 
-			<Button className="h-14 rounded-full bg-primary" onPress={handleContinue}>
-				<Button.Label className="font-bold text-lg text-white">
-					Continue
-				</Button.Label>
-			</Button>
+			<ContinueButton onPress={handleContinue} />
 		</View>
 	);
 };

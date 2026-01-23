@@ -1,9 +1,11 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
-import { Button, useThemeColor } from "heroui-native";
+import { useThemeColor } from "heroui-native";
 import { useState } from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+import { ContinueButton } from "../common/continue-button";
+import { StepHeader } from "../common/step-header";
 
 export const BirthdayScreen = () => {
 	const router = useRouter();
@@ -26,15 +28,14 @@ export const BirthdayScreen = () => {
 	};
 
 	return (
-		<View className="flex-1 justify-between px-6 py-8">
+		<View className="flex-1 justify-between bg-background px-6 py-8">
 			<View>
-				<Text className="mt-4 mb-2 font-bold text-3xl text-foreground">
-					When is your birthday?
-				</Text>
-				<Text className="mb-8 text-lg text-muted-foreground">
-					This helps us calculate your health stats accurately.
-				</Text>
-				<View className="items-center justify-center py-12">
+				<StepHeader
+					description="We use your age to personalize recommendations."
+					title="When were you born?"
+				/>
+
+				<View className="items-center justify-center py-6">
 					<DateTimePicker
 						display="spinner"
 						maximumDate={new Date()}
@@ -46,11 +47,7 @@ export const BirthdayScreen = () => {
 					/>
 				</View>
 			</View>
-			<Button className="h-14 rounded-full bg-primary" onPress={handleContinue}>
-				<Button.Label className="font-bold text-lg text-white">
-					Continue
-				</Button.Label>
-			</Button>
+			<ContinueButton onPress={handleContinue} />
 		</View>
 	);
 };

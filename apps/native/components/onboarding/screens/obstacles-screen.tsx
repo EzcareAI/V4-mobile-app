@@ -1,16 +1,22 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Button } from "heroui-native";
-import { View } from "react-native";
+import { Bot, HelpCircle } from "lucide-react-native";
+import { ScrollView, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+import { ContinueButton } from "../common/continue-button";
+import { StepHeader } from "../common/step-header";
 import { MultiSelectGrid, type MultiSelectOption } from "../multi-select-grid";
 
 const OBSTACLE_OPTIONS: MultiSelectOption[] = [
-	{ id: "lack_of_time", label: "Lack of time", emoji: "⏰" },
-	{ id: "picky_eater", label: "Picky eater", emoji: "🥦" },
-	{ id: "stress", label: "Stress", emoji: "🤯" },
-	{ id: "cravings", label: "Cravings", emoji: "🍩" },
-	{ id: "low_motivation", label: "Low motivation", emoji: "📉" },
-	{ id: "cost", label: "Cost", emoji: "💰" },
+	{ id: "lack_of_consistency", label: "Lack of consistency", emoji: "📅" },
+	{ id: "stress", label: "Stress", emoji: "😥" },
+	{ id: "busy_schedule", label: "Busy schedule", emoji: "🕒" },
+	{ id: "unhealthy_eating", label: "Unhealthy eating", emoji: "🍔" },
+	{ id: "low_motivation", label: "Low motivation", emoji: "🔋" },
+	{ id: "cravings", label: "Cravings", emoji: "🍪" },
+	{ id: "poor_sleep", label: "Poor sleep routine", emoji: "🛌" },
+	{ id: "low_discipline", label: "Low discipline", emoji: "🏋️" },
+	{ id: "no_support", label: "No support", emoji: "👥", fullWidth: true },
 ];
 
 export const ObstaclesScreen = () => {
@@ -24,28 +30,83 @@ export const ObstaclesScreen = () => {
 		setAnswer("obstacles", newObstacles);
 	};
 
+	const handleContinue = () => {
+		nextStep();
+		router.push("/(onboarding)/13");
+	};
+
 	return (
-		<View className="flex-1 justify-between px-6 py-8">
-			<MultiSelectGrid
-				onToggle={handleToggle}
-				options={OBSTACLE_OPTIONS}
-				selectedIds={obstacles}
-				subtitle="Identifying obstacles is the first step to overcoming them."
-				title="What's holding you back?"
+		<View className="flex-1 bg-background">
+			<LinearGradient
+				colors={["#F0F9FF", "#E1F5FE"]}
+				style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
 			/>
 
-			<Button
-				className="mt-4 h-14 rounded-full bg-primary"
-				isDisabled={obstacles.length === 0}
-				onPress={() => {
-					nextStep();
-					router.push("/(onboarding)/13");
-				}}
-			>
-				<Button.Label className="font-bold text-lg text-white">
-					Continue
-				</Button.Label>
-			</Button>
+			<View className="flex-1 justify-between px-6 py-8">
+				<ScrollView
+					className="flex-1"
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					showsVerticalScrollIndicator={false}
+				>
+					<View className="flex-1">
+						{/* Robot Header */}
+						<View className="mt-4 items-center">
+							<View className="relative">
+								<View
+									className="h-28 w-28 items-center justify-center rounded-full bg-white"
+									style={{
+										shadowColor: "#000",
+										shadowOffset: { width: 0, height: 10 },
+										shadowOpacity: 0.1,
+										shadowRadius: 15,
+										elevation: 10,
+									}}
+								>
+									<View className="h-20 w-20 items-center justify-center rounded-full border-4 border-blue-50/50 bg-blue-50/30">
+										<Bot color="#3BAFDA" size={48} />
+									</View>
+								</View>
+								{/* Question Mark Badge */}
+								<View
+									className="absolute top-0 -left-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-white"
+									style={{
+										shadowColor: "#000",
+										shadowOffset: { width: 0, height: 4 },
+										shadowOpacity: 0.1,
+										shadowRadius: 5,
+										elevation: 5,
+									}}
+								>
+									<HelpCircle color="#3BAFDA" size={20} />
+								</View>
+							</View>
+						</View>
+
+						<StepHeader
+							align="center"
+							className="mt-8"
+							description="Select all that apply"
+							title="What's stopping you from reaching your goals?"
+						/>
+
+						<View className="mt-10">
+							<MultiSelectGrid
+								onToggle={handleToggle}
+								options={OBSTACLE_OPTIONS}
+								selectedIds={obstacles}
+								variant="bottom-center"
+							/>
+						</View>
+					</View>
+				</ScrollView>
+
+				<View className="pt-4">
+					<ContinueButton
+						isDisabled={obstacles.length === 0}
+						onPress={handleContinue}
+					/>
+				</View>
+			</View>
 		</View>
 	);
 };

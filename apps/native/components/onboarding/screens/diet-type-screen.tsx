@@ -1,88 +1,114 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Button } from "heroui-native";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Salad } from "lucide-react-native";
+import { ScrollView, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+import { ContinueButton } from "../common/continue-button";
+import {
+	SingleSelectList,
+	type SingleSelectOption,
+} from "../common/single-select-list";
+import { StepHeader } from "../common/step-header";
 
-const DIET_OPTIONS = [
-	{ id: "anything", label: "I eat anything", emoji: "🍽️" },
-	{ id: "pescatarian", label: "Pescatarian", emoji: "🐟" },
-	{ id: "vegetarian", label: "Vegetarian", emoji: "🥚" },
-	{ id: "vegan", label: "Vegan", emoji: "🌿" },
-	{ id: "keto", label: "Keto / Low Carb", emoji: "🥩" },
+const DIET_OPTIONS: SingleSelectOption[] = [
+	{
+		id: "classic",
+		label: "Classic",
+		description: "Balanced omnivore diet",
+		emoji: "🍴",
+	},
+	{
+		id: "vegetarian",
+		label: "Vegetarian",
+		description: "No meat, includes dairy & eggs",
+		emoji: "🥬",
+	},
+	{ id: "vegan", label: "Vegan", description: "Plant-based only", emoji: "🌱" },
+	{
+		id: "pescatarian",
+		label: "Pescatarian",
+		description: "Fish & seafood included",
+		emoji: "🐟",
+	},
+	{
+		id: "gluten_free",
+		label: "Gluten-free",
+		description: "No wheat, barley, or rye",
+		emoji: "🌾",
+	},
+	{
+		id: "carnivore",
+		label: "Carnivore",
+		description: "Animal products only",
+		emoji: "🥩",
+	},
+	{
+		id: "mediterranean",
+		label: "Mediterranean",
+		description: "Olive oil, fish, whole grains",
+		emoji: "🫒",
+	},
+	{
+		id: "keto",
+		label: "Keto-ish",
+		description: "Low carb, high fat",
+		emoji: "🥑",
+	},
 ];
 
 export const DietTypeScreen = () => {
 	const router = useRouter();
 	const { dietType, setAnswer, nextStep } = useOnboardingStore();
 
-	const handleSelect = (id: string) => {
-		setAnswer("dietType", id);
+	const handleContinue = () => {
+		nextStep();
+		router.push("/(onboarding)/14");
 	};
 
 	return (
-		<View className="flex-1 justify-between px-6 py-8">
-			<ScrollView showsVerticalScrollIndicator={false}>
-				<Text className="mt-4 mb-2 font-bold text-3xl text-foreground">
-					What's your current diet?
-				</Text>
-				<Text className="mb-8 text-lg text-muted-foreground">
-					We'll tailor your meal plans to your preference.
-				</Text>
+		<View className="flex-1 bg-background">
+			<LinearGradient
+				colors={["#F0F9FF", "#E1F5FE"]}
+				style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+			/>
 
-				<View className="mb-4 gap-y-4">
-					{DIET_OPTIONS.map((option) => (
-						<Pressable
-							className={`h-20 flex-row items-center rounded-3xl border-2 p-4 ${
-								dietType === option.id
-									? "border-primary bg-primary/5"
-									: "border-secondary/20 bg-card"
-							}`}
-							key={option.id}
-							onPress={() => handleSelect(option.id)}
-						>
-							<View
-								className={`mr-4 h-12 w-12 items-center justify-center rounded-full ${
-									dietType === option.id ? "bg-primary" : "bg-secondary/10"
-								}`}
-							>
-								<Text className="text-2xl">{option.emoji}</Text>
+			<View className="flex-1 justify-between px-6 py-8">
+				<ScrollView
+					className="flex-1"
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					showsVerticalScrollIndicator={false}
+				>
+					<View className="flex-1">
+						{/* Icon Header */}
+						<View className="mt-4 items-center">
+							<View className="h-24 w-24 items-center justify-center rounded-full bg-white shadow-blue-100 shadow-lg">
+								<View className="h-16 w-16 items-center justify-center rounded-full bg-blue-50/50">
+									<Salad color="#3BAFDA" fill="#3BAFDA" size={40} />
+								</View>
 							</View>
-							<Text
-								className={`flex-1 font-semibold text-lg ${
-									dietType === option.id ? "text-primary" : "text-foreground"
-								}`}
-							>
-								{option.label}
-							</Text>
+						</View>
 
-							<View
-								className={`h-6 w-6 items-center justify-center rounded-full border-2 ${
-									dietType === option.id
-										? "border-primary bg-primary"
-										: "border-secondary/20"
-								}`}
-							>
-								{dietType === option.id && (
-									<View className="h-2 w-2 rounded-full bg-white" />
-								)}
-							</View>
-						</Pressable>
-					))}
+						<StepHeader
+							align="center"
+							className="mt-6"
+							description="We'll tailor your meal plans to your preference."
+							title="What's your current diet?"
+						/>
+
+						<View className="mt-8">
+							<SingleSelectList
+								onSelect={(value) => setAnswer("dietType", value)}
+								options={DIET_OPTIONS}
+								selectedId={dietType ?? null}
+							/>
+						</View>
+					</View>
+				</ScrollView>
+
+				<View className="pt-4">
+					<ContinueButton isDisabled={!dietType} onPress={handleContinue} />
 				</View>
-			</ScrollView>
-
-			<Button
-				className="h-14 rounded-full bg-primary"
-				isDisabled={!dietType}
-				onPress={() => {
-					nextStep();
-					router.push("/(onboarding)/14");
-				}}
-			>
-				<Button.Label className="font-bold text-lg text-white">
-					Continue
-				</Button.Label>
-			</Button>
+			</View>
 		</View>
 	);
 };

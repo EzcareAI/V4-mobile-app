@@ -1,96 +1,145 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Button } from "heroui-native";
-import { ShieldAlert, ShieldCheck } from "lucide-react-native";
-import { Pressable, Text, View } from "react-native";
+import { Lightbulb } from "lucide-react-native";
+import { ScrollView, Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+import { ContinueButton } from "../common/continue-button";
+import {
+	SingleSelectList,
+	type SingleSelectOption,
+} from "../common/single-select-list";
+import { StepHeader } from "../common/step-header";
 
-const DIGESTION_OPTIONS = [
+const DIGESTION_OPTIONS: SingleSelectOption[] = [
 	{
 		id: "sensitive",
 		label: "Sensitive",
-		desc: "Frequent bloating, gas, or discomfort",
-		icon: ShieldAlert,
+		description:
+			"I often experience bloating, discomfort, or reactions to certain foods",
+		emoji: "🤢",
+		iconColor: "#FB7185",
 	},
 	{
 		id: "normal",
 		label: "Normal",
-		desc: "Generally good, no major issues",
-		icon: ShieldCheck,
+		description:
+			"I can eat most foods without major issues, occasional mild discomfort",
+		emoji: "😌",
+		iconColor: "#3B82F6",
 	},
-] as const;
+	{
+		id: "strong",
+		label: "Strong",
+		description:
+			"I can eat anything without problems, iron stomach, no sensitivities",
+		emoji: "🛡️",
+		iconColor: "#10B981",
+	},
+];
 
 export const DigestionScreen = () => {
 	const router = useRouter();
 	const { digestionSensitivity, setAnswer, nextStep } = useOnboardingStore();
 
-	const handleSelect = (id: (typeof DIGESTION_OPTIONS)[number]["id"]) => {
-		setAnswer("digestionSensitivity", id);
+	const handleContinue = () => {
+		nextStep();
+		router.push("/(onboarding)/16");
 	};
 
 	return (
-		<View className="flex-1 justify-between px-6 py-8">
-			<View>
-				<Text className="mt-4 mb-2 font-bold text-3xl text-foreground">
-					How's your digestion?
-				</Text>
-				<Text className="mb-8 text-lg text-muted-foreground">
-					Gut health is the foundation of overall wellness.
-				</Text>
+		<View className="flex-1 bg-background">
+			<LinearGradient
+				colors={["#F0F9FF", "#E1F5FE"]}
+				style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+			/>
 
-				<View className="gap-y-4">
-					{DIGESTION_OPTIONS.map((option) => (
-						<Pressable
-							className={`flex-row items-center rounded-3xl border-2 p-6 ${
-								digestionSensitivity === option.id
-									? "border-primary bg-primary/5"
-									: "border-secondary/20 bg-card"
-							}`}
-							key={option.id}
-							onPress={() => handleSelect(option.id)}
-						>
-							<View
-								className={`mr-4 h-12 w-12 items-center justify-center rounded-full ${
-									digestionSensitivity === option.id
-										? "bg-primary"
-										: "bg-secondary/10"
-								}`}
-							>
-								<option.icon
-									color={digestionSensitivity === option.id ? "white" : "#666"}
-									size={24}
-								/>
-							</View>
-							<View className="flex-1">
-								<Text
-									className={`font-semibold text-lg ${
-										digestionSensitivity === option.id
-											? "text-primary"
-											: "text-foreground"
-									}`}
+			<View className="flex-1 justify-between px-6 py-8">
+				<ScrollView
+					className="flex-1"
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					showsVerticalScrollIndicator={false}
+				>
+					<View className="flex-1">
+						{/* Illustrative Header */}
+						<View className="mt-4 items-center">
+							<View className="relative">
+								<LinearGradient
+									colors={["#4FD1C5", "#3BAFDA"]}
+									start={{ x: 0, y: 0 }}
+									style={{
+										height: 112,
+										width: 112,
+										borderRadius: 56,
+										alignItems: "center",
+										justifyContent: "center",
+										shadowColor: "#3BAFDA",
+										shadowOffset: { width: 0, height: 10 },
+										shadowOpacity: 0.2,
+										shadowRadius: 15,
+										elevation: 10,
+									}}
 								>
-									{option.label}
-								</Text>
-								<Text className="text-muted-foreground text-sm">
-									{option.desc}
-								</Text>
+									<Text style={{ fontSize: 48 }}>🤗</Text>
+								</LinearGradient>
+								{/* Fork/Knife Badge */}
+								<View
+									className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-[#FFD43B]"
+									style={{
+										shadowColor: "#000",
+										shadowOffset: { width: 0, height: 4 },
+										shadowOpacity: 0.1,
+										shadowRadius: 5,
+										elevation: 5,
+									}}
+								>
+									<Text style={{ fontSize: 16 }}>🍴</Text>
+								</View>
 							</View>
-						</Pressable>
-					))}
+						</View>
+
+						<StepHeader
+							align="center"
+							className="mt-10"
+							description="This helps us create a personalized meal healing plan for you."
+							title="How sensitive is your digestion?"
+						/>
+
+						<View className="mt-10">
+							<SingleSelectList
+								onSelect={(value) => setAnswer("digestionSensitivity", value)}
+								options={DIGESTION_OPTIONS}
+								selectedId={digestionSensitivity ?? null}
+							/>
+						</View>
+
+						{/* Why this matters card */}
+						<View className="mt-10 rounded-[32px] bg-[#FFFBEB] p-8 shadow-sm">
+							<View className="flex-row items-start gap-4">
+								<View className="h-12 w-12 items-center justify-center rounded-full bg-amber-100">
+									<Lightbulb color="#D97706" size={24} />
+								</View>
+								<View className="flex-1">
+									<Text className="font-bold text-[#92400E] text-lg">
+										Why this matters
+									</Text>
+									<Text className="mt-2 text-[#B45309] text-[16px] leading-6">
+										Your digestion sensitivity helps us recommend the right
+										foods, timing, and preparation methods to optimize your
+										healing journey.
+									</Text>
+								</View>
+							</View>
+						</View>
+					</View>
+				</ScrollView>
+
+				<View className="pt-4">
+					<ContinueButton
+						isDisabled={!digestionSensitivity}
+						onPress={handleContinue}
+					/>
 				</View>
 			</View>
-
-			<Button
-				className="h-14 rounded-full bg-primary"
-				isDisabled={!digestionSensitivity}
-				onPress={() => {
-					nextStep();
-					router.push("/(onboarding)/16");
-				}}
-			>
-				<Button.Label className="font-bold text-lg text-white">
-					Continue
-				</Button.Label>
-			</Button>
 		</View>
 	);
 };

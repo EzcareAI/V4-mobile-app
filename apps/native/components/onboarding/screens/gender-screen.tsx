@@ -1,6 +1,7 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { CircleDot, Mars, Venus } from "lucide-react-native";
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import {
@@ -43,20 +44,48 @@ export const GenderScreen = () => {
 	};
 
 	return (
-		<View className="flex-1 justify-between bg-background px-6 py-8">
-			<View>
-				<StepHeader
-					description="This helps us personalize recommendations for your biology."
-					title="What is your gender?"
-				/>
-				<SingleSelectList
-					onSelect={(value) => setAnswer("gender", value)}
-					options={GENDER_OPTIONS}
-					selectedId={gender ?? null}
-				/>
-			</View>
+		<View className="flex-1 bg-background">
+			<LinearGradient
+				colors={["#F0F9FF", "#E1F5FE"]}
+				style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+			/>
 
-			<ContinueButton isDisabled={!gender} onPress={handleContinue} />
+			<View className="flex-1 justify-between px-6 py-8">
+				<ScrollView
+					className="flex-1"
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					showsVerticalScrollIndicator={false}
+				>
+					<View className="flex-1">
+						{/* Icon Header */}
+						<View className="mt-4 items-center">
+							<View className="h-24 w-24 items-center justify-center rounded-full bg-white shadow-blue-100 shadow-lg">
+								<View className="h-16 w-16 items-center justify-center rounded-full bg-blue-50/50">
+									<CircleDot color="#3BAFDA" fill="#3BAFDA" size={40} />
+								</View>
+							</View>
+						</View>
+
+						<StepHeader
+							align="center"
+							className="mt-6"
+							description="This helps us personalize recommendations for your biology."
+							title="What is your gender?"
+						/>
+						<View className="mt-8">
+							<SingleSelectList
+								onSelect={(value) => setAnswer("gender", value)}
+								options={GENDER_OPTIONS}
+								selectedId={gender ?? null}
+							/>
+						</View>
+					</View>
+				</ScrollView>
+
+				<View className="pt-4">
+					<ContinueButton isDisabled={!gender} onPress={handleContinue} />
+				</View>
+			</View>
 		</View>
 	);
 };

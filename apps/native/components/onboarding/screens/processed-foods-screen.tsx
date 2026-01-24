@@ -1,27 +1,39 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Button } from "heroui-native";
-import { Pizza, Salad, Utensils } from "lucide-react-native";
-import { Pressable, Text, View } from "react-native";
-import { useOnboardingStore } from "@/stores/onboarding-store";
+import { Pizza, Salad, TrendingUp, Utensils } from "lucide-react-native";
+import { ScrollView, Text, View } from "react-native";
+import {
+	type OnboardingState,
+	useOnboardingStore,
+} from "@/stores/onboarding-store";
+import { ContinueButton } from "../common/continue-button";
+import { SingleSelectList } from "../common/single-select-list";
+import { StepHeader } from "../common/step-header";
 
 const FREQUENCY_OPTIONS = [
 	{
 		id: "rarely",
 		label: "Rarely",
-		desc: "Real, whole foods 90% of the time",
+		description:
+			"I mostly eat whole foods, fresh ingredients, and home-cooked meals",
 		icon: Salad,
+		iconColor: "#10B981",
 	},
 	{
 		id: "sometimes",
 		label: "Sometimes",
-		desc: "Mixed whole foods and processed",
+		description:
+			"I have a balanced mix of fresh foods and some packaged/convenience items",
 		icon: Utensils,
+		iconColor: "#F59E0B",
 	},
 	{
 		id: "often",
 		label: "Often",
-		desc: "Mostly packaged or fast foods",
+		description:
+			"I frequently eat packaged foods, takeout, and convenience meals",
 		icon: Pizza,
+		iconColor: "#EF4444",
 	},
 ] as const;
 
@@ -29,76 +41,82 @@ export const ProcessedFoodsScreen = () => {
 	const router = useRouter();
 	const { processedFoodsFrequency, setAnswer, nextStep } = useOnboardingStore();
 
-	const handleSelect = (id: (typeof FREQUENCY_OPTIONS)[number]["id"]) => {
-		setAnswer("processedFoodsFrequency", id);
+	const handleSelect = (id: string) => {
+		setAnswer(
+			"processedFoodsFrequency",
+			id as OnboardingState["processedFoodsFrequency"]
+		);
+	};
+
+	const handleContinue = () => {
+		nextStep();
+		router.push("/(onboarding)/17");
 	};
 
 	return (
-		<View className="flex-1 justify-between px-6 py-8">
-			<View>
-				<Text className="mt-4 mb-2 font-bold text-3xl text-foreground">
-					How often do you eat processed foods?
-				</Text>
-				<Text className="mb-8 text-lg text-muted-foreground">
-					This includes packaged snacks, fast food, and refined sugars.
-				</Text>
+		<View className="flex-1 bg-background">
+			<LinearGradient
+				colors={["#F0F9FF", "#E1F5FE"]}
+				style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+			/>
 
-				<View className="gap-y-4">
-					{FREQUENCY_OPTIONS.map((option) => (
-						<Pressable
-							className={`flex-row items-center rounded-3xl border-2 p-6 ${
-								processedFoodsFrequency === option.id
-									? "border-primary bg-primary/5"
-									: "border-secondary/20 bg-card"
-							}`}
-							key={option.id}
-							onPress={() => handleSelect(option.id)}
-						>
-							<View
-								className={`mr-4 h-12 w-12 items-center justify-center rounded-full ${
-									processedFoodsFrequency === option.id
-										? "bg-primary"
-										: "bg-secondary/10"
-								}`}
-							>
-								<option.icon
-									color={
-										processedFoodsFrequency === option.id ? "white" : "#666"
-									}
-									size={24}
-								/>
+			<View className="flex-1 justify-between px-6 py-8">
+				<ScrollView
+					className="flex-1"
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					showsVerticalScrollIndicator={false}
+				>
+					<View className="flex-1">
+						{/* Icon Header */}
+						<View className="mt-4 items-center">
+							<View className="h-24 w-24 items-center justify-center rounded-full bg-white shadow-blue-100 shadow-lg">
+								<View className="h-16 w-16 items-center justify-center rounded-full bg-blue-50/50">
+									<Utensils color="#3BAFDA" fill="#3BAFDA" size={40} />
+								</View>
+							</View>
+						</View>
+
+						<StepHeader
+							align="center"
+							className="mt-6"
+							description="This includes packaged snacks, fast food, and refined sugars."
+							title="How often do you eat processed foods?"
+						/>
+
+						<View className="mt-8">
+							<SingleSelectList
+								onSelect={handleSelect}
+								options={FREQUENCY_OPTIONS}
+								selectedId={processedFoodsFrequency ?? null}
+							/>
+						</View>
+
+						{/* Healing Score Impact */}
+						<View className="mt-10 flex-row items-start rounded-[32px] border border-indigo-50/50 bg-[#F8FAFF] p-6">
+							<View className="mr-4 rounded-2xl bg-[#FFF4E5] p-3.5">
+								<TrendingUp color="#818CF8" size={22} />
 							</View>
 							<View className="flex-1">
-								<Text
-									className={`font-semibold text-lg ${
-										processedFoodsFrequency === option.id
-											? "text-primary"
-											: "text-foreground"
-									}`}
-								>
-									{option.label}
+								<Text className="font-bold text-[#0d2137] text-[17px] leading-6">
+									Healing Score Impact
 								</Text>
-								<Text className="text-muted-foreground text-sm">
-									{option.desc}
+								<Text className="mt-1 text-[14px] text-slate-500 leading-[22px]">
+									Understanding your current eating patterns helps us create
+									realistic goals and track meaningful improvements in your
+									health journey.
 								</Text>
 							</View>
-						</Pressable>
-					))}
+						</View>
+					</View>
+				</ScrollView>
+
+				<View className="pt-4">
+					<ContinueButton
+						isDisabled={!processedFoodsFrequency}
+						onPress={handleContinue}
+					/>
 				</View>
 			</View>
-
-			<Button
-				className="h-14 rounded-full bg-primary"
-				isDisabled={!processedFoodsFrequency}
-				onPress={() => {
-					nextStep();
-					router.push("/(onboarding)/17");
-				}}
-			>
-				<Button.Label className="font-bold text-lg text-white">
-					Continue
-				</Button.Label>
-			</Button>
 		</View>
 	);
 };

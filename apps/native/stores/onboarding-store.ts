@@ -22,7 +22,7 @@ export interface OnboardingState {
 	primaryGoal?: string;
 	obstacles: string[];
 	dietType?: string;
-	digestionSensitivity?: "sensitive" | "normal";
+	digestionSensitivity?: "sensitive" | "normal" | "strong";
 	processedFoodsFrequency?: "rarely" | "sometimes" | "often";
 	cravings: string[];
 	notificationsEnabled: boolean;

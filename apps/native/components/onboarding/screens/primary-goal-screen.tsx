@@ -46,6 +46,7 @@ export const PrimaryGoalScreen = () => {
 
 			<ContinueButton
 				isDisabled={!primaryGoal}
+				label="Set Primary Goal"
 				onPress={() => {
 					nextStep();
 					router.push("/(onboarding)/12");

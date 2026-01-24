@@ -8,6 +8,7 @@ export interface MultiSelectOption {
 	label: string;
 	emoji?: string;
 	icon?: LucideIcon;
+	iconColor?: string;
 }
 
 interface MultiSelectListProps {
@@ -16,6 +17,56 @@ interface MultiSelectListProps {
 	onToggle: (id: string) => void;
 }
 
+const MultiSelectItem = ({
+	option,
+	isSelected,
+	onPress,
+}: {
+	option: MultiSelectOption;
+	isSelected: boolean;
+	onPress: () => void;
+}) => {
+	return (
+		<PressableFeedback
+			className={`flex-row items-center rounded-[24px] border p-5 transition-all ${
+				isSelected
+					? "border-[#3EC9B5] bg-white shadow-emerald-100 shadow-md"
+					: "border-slate-100 bg-white/60"
+			}`}
+			onPress={onPress}
+		>
+			<View
+				className={`mr-4 h-14 w-14 items-center justify-center rounded-2xl ${
+					isSelected ? "bg-[#3EC9B5]" : "bg-slate-100"
+				}`}
+			>
+				{option.emoji ? (
+					<Text className="text-3xl">{option.emoji}</Text>
+				) : option.icon ? (
+					<option.icon
+						color={isSelected ? "white" : (option.iconColor ?? "#64748B")}
+						size={28}
+					/>
+				) : null}
+			</View>
+			<Text
+				className={`flex-1 font-bold text-lg ${
+					isSelected ? "text-[#0d2137]" : "text-slate-700"
+				}`}
+			>
+				{option.label}
+			</Text>
+			<View
+				className={`h-7 w-7 items-center justify-center rounded-full border-2 transition-all ${
+					isSelected ? "border-[#3EC9B5] bg-[#3EC9B5]" : "border-slate-200"
+				}`}
+			>
+				{isSelected && <Check color="white" size={16} strokeWidth={3} />}
+			</View>
+		</PressableFeedback>
+	);
+};
+
 export const MultiSelectList = ({
 	options,
 	selectedIds,
@@ -23,46 +74,14 @@ export const MultiSelectList = ({
 }: MultiSelectListProps) => {
 	return (
 		<View className="gap-y-4">
-			{options.map((option) => {
-				const isSelected = selectedIds.includes(option.id);
-				return (
-					<PressableFeedback
-						className={`flex-row items-center rounded-3xl border-2 p-4 ${
-							isSelected
-								? "border-accent bg-accent/5"
-								: "border-secondary/20 bg-card"
-						}`}
-						key={option.id}
-						onPress={() => onToggle(option.id)}
-					>
-						<View
-							className={`mr-4 h-12 w-12 items-center justify-center rounded-full ${
-								isSelected ? "bg-accent" : "border border-secondary/10 bg-card"
-							}`}
-						>
-							{option.emoji ? (
-								<Text className="text-2xl">{option.emoji}</Text>
-							) : option.icon ? (
-								<option.icon color={isSelected ? "white" : "#666"} size={24} />
-							) : null}
-						</View>
-						<Text
-							className={`flex-1 font-semibold text-lg ${
-								isSelected ? "text-accent" : "text-foreground"
-							}`}
-						>
-							{option.label}
-						</Text>
-						<View
-							className={`h-6 w-6 items-center justify-center rounded-full border-2 ${
-								isSelected ? "border-accent bg-accent" : "border-secondary/20"
-							}`}
-						>
-							{isSelected && <Check color="white" size={14} />}
-						</View>
-					</PressableFeedback>
-				);
-			})}
+			{options.map((option) => (
+				<MultiSelectItem
+					isSelected={selectedIds.includes(option.id)}
+					key={option.id}
+					onPress={() => onToggle(option.id)}
+					option={option}
+				/>
+			))}
 		</View>
 	);
 };

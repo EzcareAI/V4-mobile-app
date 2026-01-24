@@ -1,3 +1,4 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Dumbbell, Flame, Target, Trophy, Zap } from "lucide-react-native";
 import { ScrollView, View } from "react-native";
@@ -56,30 +57,60 @@ export const ActivityLevelScreen = () => {
 
 	const selectedId = activityLevel ? String(activityLevel) : null;
 
-	return (
-		<View className="flex-1 justify-between px-6 py-8">
-			<ScrollView showsVerticalScrollIndicator={false}>
-				<StepHeader
-					description="This helps us calculate your daily metabolic needs."
-					title="What is your activity level?"
-				/>
-				<SingleSelectList
-					onSelect={(value) =>
-						setAnswer("activityLevel", Number(value) as ActivityLevel)
-					}
-					options={ACTIVITY_OPTIONS}
-					selectedId={selectedId}
-				/>
-				<View className="h-8" />
-			</ScrollView>
+	const handleContinue = () => {
+		nextStep();
+		router.push("/(onboarding)/5");
+	};
 
-			<ContinueButton
-				isDisabled={!activityLevel}
-				onPress={() => {
-					nextStep();
-					router.push("/(onboarding)/5");
-				}}
+	return (
+		<View className="flex-1 bg-background">
+			<LinearGradient
+				colors={["#F0F9FF", "#E1F5FE"]}
+				style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
 			/>
+
+			<View className="flex-1 justify-between px-6 py-8">
+				<ScrollView
+					className="flex-1"
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					showsVerticalScrollIndicator={false}
+				>
+					<View className="flex-1">
+						{/* Icon Header */}
+						<View className="mt-4 items-center">
+							<View className="h-24 w-24 items-center justify-center rounded-full bg-white shadow-blue-100 shadow-lg">
+								<View className="h-16 w-16 items-center justify-center rounded-full bg-blue-50/50">
+									<Trophy color="#3BAFDA" fill="#3BAFDA" size={40} />
+								</View>
+							</View>
+						</View>
+
+						<StepHeader
+							align="center"
+							className="mt-6"
+							description="This helps us calculate your daily metabolic needs."
+							title="What is your activity level?"
+						/>
+
+						<View className="mt-8">
+							<SingleSelectList
+								onSelect={(value) =>
+									setAnswer("activityLevel", Number(value) as ActivityLevel)
+								}
+								options={ACTIVITY_OPTIONS}
+								selectedId={selectedId}
+							/>
+						</View>
+					</View>
+				</ScrollView>
+
+				<View className="pt-4">
+					<ContinueButton
+						isDisabled={!activityLevel}
+						onPress={handleContinue}
+					/>
+				</View>
+			</View>
 		</View>
 	);
 };

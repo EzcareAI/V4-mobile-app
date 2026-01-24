@@ -2,7 +2,7 @@ import { Text, View } from "react-native";
 
 interface StepHeaderProps {
 	title: string;
-	description?: string;
+	description?: string | React.ReactNode;
 	className?: string;
 	align?: "start" | "center" | "end";
 }
@@ -33,11 +33,17 @@ export const StepHeader = ({
 				{title}
 			</Text>
 			{description && (
-				<Text
-					className={`mb-8 text-base text-muted leading-6 ${textAlignClasses[align]}`}
-				>
-					{description}
-				</Text>
+				<View>
+					{typeof description === "string" ? (
+						<Text
+							className={`mb-8 text-base text-muted leading-6 ${textAlignClasses[align]}`}
+						>
+							{description}
+						</Text>
+					) : (
+						<View className="mb-8">{description}</View>
+					)}
+				</View>
 			)}
 		</View>
 	);

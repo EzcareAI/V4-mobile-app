@@ -1,11 +1,20 @@
+import Slider from "@react-native-community/slider";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Button, PressableFeedback, Surface } from "heroui-native";
+import { Lightbulb, Moon } from "lucide-react-native";
 import { useState } from "react";
-import { Text, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+import { ContinueButton } from "../common/continue-button";
+import { StepHeader } from "../common/step-header";
 
-const EMOJIS = ["😴", "😌", "😐", "😫", "😭"];
-const LABELS = ["Excellent", "Good", "Fair", "Poor", "Very Poor"];
+const LEVELS = [
+	{ id: 1, label: "Very poor", emoji: "😢" },
+	{ id: 2, label: "Poor", emoji: "🙁" },
+	{ id: 3, label: "Fair", emoji: "😐" },
+	{ id: 4, label: "Good", emoji: "😊" },
+	{ id: 5, label: "Excellent", emoji: "😁" },
+];
 
 export const SleepScreen = () => {
 	const router = useRouter();
@@ -18,48 +27,135 @@ export const SleepScreen = () => {
 		router.push("/(onboarding)/7");
 	};
 
-	return (
-		<View className="flex-1 justify-between px-6 py-8">
-			<View>
-				<Text className="mt-4 mb-2 font-bold text-3xl text-foreground">
-					How's your sleep?
-				</Text>
-				<Text className="mb-12 text-lg text-muted-foreground">
-					Quality rest is vital for natural healing.
-				</Text>
+	const getTipText = () => {
+		if (value <= 2) {
+			return "Improving sleep quality can reduce inflammation by up to 30%. We'll show you how.";
+		}
+		if (value === 3) {
+			return "Fair sleep quality is a good start. We'll help you improve it naturally.";
+		}
+		return "Great sleep helps maintain a healthy immune system and balanced glucose levels.";
+	};
 
-				<Surface className="items-center rounded-3xl py-8" variant="secondary">
-					<Text className="mb-4 text-6xl">{EMOJIS[value - 1]}</Text>
-					<Text className="mb-8 font-bold text-2xl text-primary">
-						{LABELS[value - 1]}
-					</Text>
-					<View className="w-full flex-row items-center gap-x-2 px-8">
-						{[1, 2, 3, 4, 5].map((i) => (
-							<PressableFeedback
-								className={`h-3 flex-1 rounded-full ${value >= i ? "bg-primary" : "bg-secondary/20"}`}
-								key={i}
-								onPress={() => setValue(i)}
-							/>
-						))}
+	return (
+		<View className="flex-1 bg-background">
+			<LinearGradient
+				colors={["#F0F9FF", "#E1F5FE"]}
+				style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+			/>
+
+			<View className="flex-1 justify-between px-6 py-8">
+				<ScrollView
+					className="flex-1"
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					showsVerticalScrollIndicator={false}
+				>
+					<View className="flex-1">
+						{/* Icon Header */}
+						<View className="mt-4 items-center">
+							<View className="h-24 w-24 items-center justify-center rounded-full bg-white shadow-blue-100 shadow-lg">
+								<View className="h-16 w-16 items-center justify-center rounded-full bg-blue-50/50">
+									<Moon color="#3BAFDA" fill="#3BAFDA" size={40} />
+								</View>
+							</View>
+						</View>
+
+						<StepHeader
+							align="center"
+							className="mt-6"
+							description="Quality sleep reduces inflammation and stress"
+							title="How would you rate your sleep?"
+						/>
+
+						{/* Rating Selector */}
+						<View className="mt-8">
+							<View className="flex-row items-end justify-between px-2">
+								{LEVELS.map((level) => {
+									const isSelected = value === level.id;
+									return (
+										<Pressable
+											className="items-center"
+											key={level.id}
+											onPress={() => setValue(level.id)}
+										>
+											<View
+												className={`mb-2 h-16 w-16 items-center justify-center rounded-full ${
+													isSelected
+														? "bg-white shadow-blue-200 shadow-lg"
+														: "bg-transparent opacity-60"
+												}`}
+											>
+												<Text
+													className={`${isSelected ? "text-4xl" : "text-3xl"}`}
+												>
+													{level.emoji}
+												</Text>
+											</View>
+											<Text
+												className={`font-semibold text-xs ${
+													isSelected ? "text-[#3EC9B5]" : "text-slate-400"
+												}`}
+											>
+												{level.label}
+											</Text>
+										</Pressable>
+									);
+								})}
+							</View>
+
+							{/* Slider Control */}
+							<View className="mt-10 px-4">
+								<Slider
+									maximumTrackTintColor="#E2E8F0"
+									maximumValue={5}
+									minimumTrackTintColor="#3EC9B5"
+									minimumValue={1}
+									onValueChange={(v) => setValue(v)}
+									step={1}
+									style={{ width: "100%", height: 40 }}
+									thumbTintColor="#3EC9B5"
+									value={value}
+								/>
+
+								{/* Scale Labels */}
+								<View className="flex-row justify-between px-1">
+									{LEVELS.map((l) => (
+										<Text
+											className={`font-bold text-[10px] ${
+												value === l.id ? "text-slate-800" : "text-slate-400"
+											}`}
+											key={l.id}
+										>
+											{l.id}
+										</Text>
+									))}
+								</View>
+							</View>
+						</View>
+
+						{/* Tip Card */}
+						<View className="mt-12 mb-10 overflow-hidden rounded-[32px] bg-[#E8F8F5] p-6 shadow-emerald-100 shadow-sm">
+							<View className="flex-row items-center gap-4">
+								<View className="h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm">
+									<Lightbulb color="#3EC9B5" fill="#3EC9B5" size={24} />
+								</View>
+								<View className="flex-1">
+									<Text className="font-bold text-[#0d2137] text-lg">
+										Did you know?
+									</Text>
+									<Text className="mt-1 text-slate-500 text-sm leading-5">
+										{getTipText()}
+									</Text>
+								</View>
+							</View>
+						</View>
 					</View>
-					<View className="mt-2 w-full flex-row justify-between px-8">
-						<Text className="text-muted-foreground text-xs">1</Text>
-						<Text className="text-muted-foreground text-xs">5</Text>
-					</View>
-				</Surface>
-				<Surface className="mt-8 rounded-2xl p-4" variant="tertiary">
-					<Text className="mb-1 font-bold text-primary">Did you know?</Text>
-					<Text className="text-muted-foreground text-sm leading-5">
-						Consistent sleep improves glucose metabolism and reduces
-						inflammation by up to 30%.
-					</Text>
-				</Surface>
+				</ScrollView>
+
+				<View className="pt-4">
+					<ContinueButton onPress={handleContinue} />
+				</View>
 			</View>
-			<Button className="h-14 rounded-full bg-primary" onPress={handleContinue}>
-				<Button.Label className="font-bold text-lg text-white">
-					Continue
-				</Button.Label>
-			</Button>
 		</View>
 	);
 };

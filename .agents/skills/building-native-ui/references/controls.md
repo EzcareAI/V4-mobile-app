@@ -1,66 +1,118 @@
 # Native Controls
 
-Native iOS controls provide built-in haptics, accessibility, and platform-appropriate styling.
+Use HeroUI Native components for a consistent, theme-aware, and accessible experience.
 
 ## Switch
 
-Use for binary on/off settings. Has built-in haptics.
+Use for binary on/off settings.
 
 ```tsx
-import { Switch } from "react-native";
+import { Switch } from "heroui-native";
 import { useState } from "react";
 
-const [enabled, setEnabled] = useState(false);
+const [isSelected, setIsSelected] = useState(false);
 
-<Switch value={enabled} onValueChange={setEnabled} />;
+<Switch isSelected={isSelected} onSelectedChange={setIsSelected}>
+  <Switch.Label>Enable Notifications</Switch.Label>
+</Switch>;
 ```
 
-### Customization
+### With Description
 
 ```tsx
-<Switch
-  value={enabled}
-  onValueChange={setEnabled}
-  trackColor={{ false: "#767577", true: "#81b0ff" }}
-  thumbColor={enabled ? "#f5dd4b" : "#f4f3f4"}
-  ios_backgroundColor="#3e3e3e"
-/>
+<Switch isSelected={isSelected} onSelectedChange={setIsSelected}>
+  <View>
+    <Switch.Label>Dark Mode</Switch.Label>
+    <Text className="text-sm text-muted-foreground">
+      Use a dark theme for the interface
+    </Text>
+  </View>
+</Switch>
 ```
 
-## Segmented Control
+## Tabs (Segmented Control)
 
-Use for non-navigational tabs or mode selection. Avoid changing default colors.
+Use `Tabs` for non-navigational interactions like switching views or modes.
 
 ```tsx
-import SegmentedControl from "@react-native-segmented-control/segmented-control";
+import { Tabs } from "heroui-native";
 import { useState } from "react";
 
-const [index, setIndex] = useState(0);
+const [selectedTab, setSelectedTab] = useState("photos");
 
-<SegmentedControl
-  values={["All", "Active", "Done"]}
-  selectedIndex={index}
-  onChange={({ nativeEvent }) => setIndex(nativeEvent.selectedSegmentIndex)}
-/>;
+<Tabs value={selectedTab} onValueChange={setSelectedTab}>
+  <Tabs.List>
+    <Tabs.Trigger value="photos">
+      <Tabs.Label>Photos</Tabs.Label>
+    </Tabs.Trigger>
+    <Tabs.Trigger value="videos">
+      <Tabs.Label>Videos</Tabs.Label>
+    </Tabs.Trigger>
+    <Tabs.Trigger value="albums">
+      <Tabs.Label>Albums</Tabs.Label>
+    </Tabs.Trigger>
+  </Tabs.List>
+</Tabs>;
 ```
 
-### Rules
+## TextField
 
-- Maximum 4 options — use a picker for more
-- Keep labels short (1-2 words)
-- Avoid custom colors — native styling adapts to dark mode
-
-### With Icons (iOS 14+)
+Use `TextField` for text input. It includes labels, error states, and descriptions.
 
 ```tsx
-<SegmentedControl
-  values={[
-    { label: "List", icon: "list.bullet" },
-    { label: "Grid", icon: "square.grid.2x2" },
-  ]}
-  selectedIndex={index}
-  onChange={({ nativeEvent }) => setIndex(nativeEvent.selectedSegmentIndex)}
-/>
+import { TextField } from "heroui-native";
+
+<TextField>
+  <TextField.Label>Username</TextField.Label>
+  <TextField.Input placeholder="Enter username" />
+  <TextField.Description>
+    This will be your public display name.
+  </TextField.Description>
+</TextField>;
+```
+
+### With Error State
+
+```tsx
+<TextField isInvalid>
+  <TextField.Label>Email</TextField.Label>
+  <TextField.Input placeholder="user@example.com" />
+  <TextField.ErrorMessage>Please enter a valid email.</TextField.ErrorMessage>
+</TextField>
+```
+
+## Checkbox
+
+For multiple selection options.
+
+```tsx
+import { Checkbox } from "heroui-native";
+
+const [accepted, setAccepted] = useState(false);
+
+<Checkbox isSelected={accepted} onSelectedChange={setAccepted}>
+  <Checkbox.Label>I accept the terms and conditions</Checkbox.Label>
+</Checkbox>;
+```
+
+## Radio Group
+
+For single selection from a list.
+
+```tsx
+import { RadioGroup } from "heroui-native";
+
+const [value, setValue] = useState("light");
+
+<RadioGroup value={value} onValueChange={setValue}>
+  <RadioGroup.Label>Theme</RadioGroup.Label>
+  <RadioGroup.Item value="light">
+    <RadioGroup.ItemLabel>Light</RadioGroup.ItemLabel>
+  </RadioGroup.Item>
+  <RadioGroup.Item value="dark">
+    <RadioGroup.ItemLabel>Dark</RadioGroup.ItemLabel>
+  </RadioGroup.Item>
+</RadioGroup>;
 ```
 
 ## Slider
@@ -190,51 +242,66 @@ const [count, setCount] = useState(0);
 />;
 ```
 
-## TextInput
+## TextField
 
-Native text input with various keyboard types.
+Use `TextField` for text input. It wraps the native TextInput and adds labels, descriptions, and error states.
 
 ```tsx
-import { TextInput } from "react-native";
+import { TextField } from "heroui-native";
 
-<TextInput
-  placeholder="Enter text..."
-  placeholderTextColor="#999"
-  className="rounded-lg bg-gray-100 p-3 text-base"
-/>;
+<TextField>
+  <TextField.Label>Username</TextField.Label>
+  <TextField.Input placeholder="Enter username" />
+</TextField>;
 ```
 
 ### Keyboard Types
 
+The `TextField.Input` component accepts all standard React Native TextInput props.
+
 ```tsx
 // Email
-<TextInput keyboardType="email-address" autoCapitalize="none" />
+<TextField>
+  <TextField.Label>Email</TextField.Label>
+  <TextField.Input 
+    placeholder="Enter email"
+    keyboardType="email-address" 
+    autoCapitalize="none" 
+  />
+</TextField>
 
-// Phone
-<TextInput keyboardType="phone-pad" />
-
-// Number
-<TextInput keyboardType="numeric" />
+// Phone (with start content/icon)
+<TextField>
+  <TextField.Label>Phone</TextField.Label>
+  <TextField.Input 
+    placeholder="(555) 555-5555"
+    keyboardType="phone-pad"
+  />
+</TextField>
 
 // Password
-<TextInput secureTextEntry />
-
-// Search
-<TextInput
-  returnKeyType="search"
-  enablesReturnKeyAutomatically
-/>
+<TextField>
+  <TextField.Label>Password</TextField.Label>
+  <TextField.Input 
+    placeholder="Enter password"
+    secureTextEntry 
+  />
+</TextField>
 ```
 
 ### Multiline
 
 ```tsx
-<TextInput
-  multiline
-  numberOfLines={4}
-  textAlignVertical="top"
-  className="min-h-[100px]"
-/>
+<TextField>
+  <TextField.Label>Bio</TextField.Label>
+  <TextField.Input
+    placeholder="Tell us about yourself"
+    multiline
+    numberOfLines={4}
+    textAlignVertical="top"
+    className="min-h-[100px]"
+  />
+</TextField>
 ```
 
 ## Picker (Wheel)
@@ -257,9 +324,7 @@ const [selected, setSelected] = useState("js");
 
 ## Best Practices
 
-- **Haptics**: Switch and DateTimePicker have built-in haptics — don't add extra
-- **Accessibility**: Native controls have proper accessibility labels by default
-- **Dark Mode**: Avoid custom colors — native styling adapts automatically
-- **Spacing**: Use consistent padding around controls (12-16pt)
-- **Labels**: Place labels above or to the left of controls
-- **Grouping**: Group related controls in sections with headers
+- **Theme**: HeroUI components automatically adapt to the app's theme (light/dark).
+- **Accessibility**: Components like `Switch`, `Checkbox`, and `TextField` have built-in accessibility support.
+- **Validation**: Use `isInvalid` and `ErrorMessage` props/subcomponents for form validation feedback.
+- **Composition**: Most HeroUI components are composable (e.g., `TextField.Label`, `Tabs.Trigger`), allowing for flexible layouts.

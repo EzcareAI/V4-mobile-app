@@ -1,4 +1,7 @@
+import { selectionAsync } from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import { Button } from "heroui-native";
+import { StyleSheet } from "react-native";
 
 interface ContinueButtonProps {
 	onPress: () => void;
@@ -13,10 +16,23 @@ export const ContinueButton = ({
 }: ContinueButtonProps) => {
 	return (
 		<Button
-			className="h-14 rounded-full bg-accent shadow-surface"
+			// className="h-14 rounded-full bg-accent shadow-surface"
 			isDisabled={isDisabled}
-			onPress={onPress}
+			onPress={() => {
+				if (!isDisabled) {
+					selectionAsync();
+					onPress();
+				}
+			}}
+			pressableFeedbackVariant="none"
+			size="lg"
 		>
+			<LinearGradient
+				colors={["#3BAFDA", "#3EC9B5"]}
+				end={{ x: 1, y: 0 }}
+				start={{ x: 0, y: 0 }}
+				style={StyleSheet.absoluteFill}
+			/>
 			<Button.Label className="font-bold text-accent-foreground text-lg">
 				{label}
 			</Button.Label>

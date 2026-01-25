@@ -1,6 +1,6 @@
 # Form Sheets in Expo Router
 
-This skill covers implementing form sheets with footers using Expo Router's Stack navigator and react-native-screens.
+This skill covers implementing form sheets with footers using Expo Router's Stack navigator and HeroUI Native components.
 
 ## Overview
 
@@ -14,6 +14,7 @@ Form sheets are modal presentations that appear as a card sliding up from the bo
 **Requirements:**
 
 - Expo Router Stack navigator
+- HeroUI Native
 
 ## Basic Usage
 
@@ -48,9 +49,7 @@ export default function Layout() {
 
 ### Form Sheet Screen Content
 
-> Requires Expo SDK 55 or later.
-
-Use `flex-1` to allow the content to fill available space, enabling footer positioning:
+Use `flex-1` to allow the content to fill available space.
 
 ```tsx
 // app/about.tsx
@@ -123,32 +122,41 @@ export default function Layout() {
 
 ```tsx
 // app/confirm.tsx
-import { View, Text, Pressable } from "react-native";
+// app/confirm.tsx
+import { View, Text } from "react-native";
 import { router } from "expo-router";
+import { Button } from "heroui-native";
 
 export default function ConfirmSheet() {
   return (
     <View className="flex-1">
       <View className="flex-1 items-center justify-center p-5">
-        <Text className="mb-2 text-lg font-semibold">Confirm Action</Text>
-        <Text className="text-center text-sm text-gray-500">
-          Are you sure you want to proceed?
+        <Text className="mb-2 text-xl font-bold text-foreground">
+          Confirm Action
+        </Text>
+        <Text className="text-center text-base text-muted-foreground">
+          Are you sure you want to proceed? This action cannot be undone.
         </Text>
       </View>
 
       <View className="flex-row gap-3 p-4">
-        <Pressable
-          className="flex-1 items-center rounded-xl bg-gray-100 p-3.5"
+        <Button
+          variant="flat"
+          className="flex-1"
           onPress={() => router.back()}
         >
-          <Text className="text-base font-medium">Cancel</Text>
-        </Pressable>
-        <Pressable
-          className="flex-1 items-center rounded-xl bg-accent p-3.5"
-          onPress={() => router.back()}
+          Cancel
+        </Button>
+        <Button
+          color="primary"
+          className="flex-1"
+          onPress={() => {
+            // Perform action
+            router.back();
+          }}
         >
-          <Text className="text-base font-medium text-white">Confirm</Text>
-        </Pressable>
+          Confirm
+        </Button>
       </View>
     </View>
   );

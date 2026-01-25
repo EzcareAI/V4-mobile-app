@@ -1,5 +1,4 @@
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Cake } from "lucide-react-native";
 import { useState } from "react";
@@ -29,18 +28,14 @@ export const BirthdayScreen = () => {
 
 	return (
 		<View className="flex-1 bg-background">
-			<LinearGradient
-				colors={["#F0F9FF", "#E1F5FE"]}
-				style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
-			/>
-
-			<View className="flex-1 justify-between px-6 py-8">
+			<View className="flex-1 justify-between px-5 pb-8">
 				<ScrollView
 					className="flex-1"
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					contentInsetAdjustmentBehavior="automatic"
 					showsVerticalScrollIndicator={false}
 				>
-					<View className="flex-1">
+					<View className="flex-1 px-1">
 						{/* Icon Header */}
 						<View className="mt-4 items-center">
 							<View className="h-24 w-24 items-center justify-center rounded-full bg-white shadow-blue-100 shadow-lg">
@@ -57,7 +52,7 @@ export const BirthdayScreen = () => {
 							title="When were you born?"
 						/>
 
-						<View className="mt-8 items-center justify-center rounded-[32px] bg-white/40 p-6 py-10 shadow-sm">
+						<View className="mt-8 items-center justify-center rounded-[32px] bg-white/40 p-6 py-10 shadow">
 							<DateTimePicker
 								display="spinner"
 								maximumDate={new Date()}

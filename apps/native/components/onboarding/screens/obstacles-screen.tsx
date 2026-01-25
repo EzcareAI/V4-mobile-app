@@ -1,4 +1,3 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Bot, HelpCircle } from "lucide-react-native";
 import { ScrollView, View } from "react-native";
@@ -37,18 +36,14 @@ export const ObstaclesScreen = () => {
 
 	return (
 		<View className="flex-1 bg-background">
-			<LinearGradient
-				colors={["#F0F9FF", "#E1F5FE"]}
-				style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
-			/>
-
-			<View className="flex-1 justify-between px-6 py-8">
+			<View className="flex-1 justify-between px-5 pb-8">
 				<ScrollView
 					className="flex-1"
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					contentInsetAdjustmentBehavior="automatic"
 					showsVerticalScrollIndicator={false}
 				>
-					<View className="flex-1">
+					<View className="flex-1 px-1">
 						{/* Robot Header */}
 						<View className="mt-4 items-center">
 							<View className="relative">
@@ -94,7 +89,7 @@ export const ObstaclesScreen = () => {
 								onToggle={handleToggle}
 								options={OBSTACLE_OPTIONS}
 								selectedIds={obstacles}
-								variant="bottom-center"
+								// variant="bottom-center"
 							/>
 						</View>
 					</View>

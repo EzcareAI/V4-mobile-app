@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/style/noNestedTernary: false positive */
+import { selectionAsync } from "expo-haptics";
 import { RadioGroup } from "heroui-native";
 import type { LucideIcon } from "lucide-react-native";
 import { Text, View } from "react-native";
@@ -40,6 +40,7 @@ const SelectItem = ({
 			>
 				{option.emoji ? (
 					<Text className="text-3xl">{option.emoji}</Text>
+					// biome-ignore lint/style/noNestedTernary: biome false positive
 				) : option.icon ? (
 					<option.icon
 						color={isSelected ? "white" : (option.iconColor ?? "#64748B")}
@@ -78,7 +79,10 @@ export const SingleSelectList = <T extends string = string>({
 	return (
 		<RadioGroup
 			className="gap-y-4"
-			onValueChange={(value) => onSelect(value as T)}
+			onValueChange={(value) => {
+				selectionAsync();
+				onSelect(value as T);
+			}}
 			value={selectedId ?? undefined}
 		>
 			{options.map((option) => (

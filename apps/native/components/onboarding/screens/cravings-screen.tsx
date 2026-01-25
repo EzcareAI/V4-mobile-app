@@ -1,4 +1,3 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Brain, Cookie } from "lucide-react-native";
 import { ScrollView, Text, View } from "react-native";
@@ -42,18 +41,14 @@ export const CravingsScreen = () => {
 
 	return (
 		<View className="flex-1 bg-background">
-			<LinearGradient
-				colors={["#F0F9FF", "#E1F5FE"]}
-				style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
-			/>
-
-			<View className="flex-1 justify-between px-6 py-8">
+			<View className="flex-1 justify-between px-5 pb-8">
 				<ScrollView
 					className="flex-1"
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					contentInsetAdjustmentBehavior="automatic"
 					showsVerticalScrollIndicator={false}
 				>
-					<View className="flex-1">
+					<View className="flex-1 px-1">
 						{/* Icon Header */}
 						<View className="mt-4 items-center">
 							<View className="h-28 w-28 items-center justify-center rounded-full bg-blue-50/50">

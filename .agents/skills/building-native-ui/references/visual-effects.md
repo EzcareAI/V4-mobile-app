@@ -82,6 +82,19 @@ import { GlassView } from "expo-glass-effect";
 </GlassView>;
 ```
 
+### Standard Cards with HeroUI
+
+For standard cards, use HeroUI `Card`:
+
+```tsx
+import { Card } from "heroui-native";
+
+<Card className="p-4">
+  <Card.Title>Title</Card.Title>
+  <Card.Description>Description</Card.Description>
+</Card>;
+```
+
 ### Interactive Glass
 
 Add `isInteractive` for buttons and pressable glass:
@@ -90,11 +103,18 @@ Add `isInteractive` for buttons and pressable glass:
 import { GlassView } from "expo-glass-effect";
 import { SymbolView } from "expo-symbols";
 import { PlatformColor } from "react-native";
+import { Button } from "heroui-native";
 
 <GlassView isInteractive className="rounded-full">
-  <Pressable className="p-3" onPress={handlePress}>
-    <SymbolView name="plus" tintColor={PlatformColor("label")} size={36} />
-  </Pressable>
+  <Button
+    size="lg"
+    variant="ghost"
+    isIconOnly
+    className="rounded-full"
+    onPress={handlePress}
+  >
+    <SymbolView name="plus" tintColor={PlatformColor("label")} size={32} />
+  </Button>
 </GlassView>;
 ```
 
@@ -188,3 +208,4 @@ Make sheet backgrounds liquid glass on iOS 26+:
 - Check `isLiquidGlassAvailable()` and provide fallbacks
 - Avoid nesting blur views (performance impact)
 - Keep blur intensity reasonable (50-100) for readability
+- Use HeroUI `Card` for standard content containers instead of custom blur/glass implementations unless a specific effect is needed.

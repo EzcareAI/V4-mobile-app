@@ -1,3 +1,4 @@
+import { selectionAsync } from "expo-haptics";
 import { usePathname, useRouter } from "expo-router";
 import { useThemeColor } from "heroui-native";
 import { ChevronLeft } from "lucide-react-native";
@@ -23,6 +24,7 @@ export const ProgressHeader = () => {
 	}
 
 	const handleBack = () => {
+		selectionAsync();
 		if (currentStep > 1) {
 			prevStep();
 			router.back();

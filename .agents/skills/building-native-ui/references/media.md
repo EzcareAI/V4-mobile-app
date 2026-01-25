@@ -4,7 +4,7 @@
 
 - Hide navigation headers when there's a full screen camera
 - Ensure to flip the camera with `mirror` to emulate social apps
-- Use liquid glass buttons on cameras
+- Use liquid glass buttons on cameras or HeroUI icon-only buttons
 - Icons: `arrow.triangle.2.circlepath` (flip), `photo` (gallery), `bolt` (flash)
 - Eagerly request camera permission
 - Lazily request media library permission
@@ -20,6 +20,7 @@ import { SymbolView } from "expo-symbols";
 import { PlatformColor } from "react-native";
 import { GlassView } from "expo-glass-effect";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Button } from "heroui-native";
 
 function Camera({ onPicture }: { onPicture: (uri: string) => Promise<void> }) {
   const [permission, requestPermission] = useCameraPermissions();
@@ -74,11 +75,11 @@ function Camera({ onPicture }: { onPicture: (uri: string) => Promise<void> }) {
         style={{ bottom }}
       >
         <GlassView isInteractive className="rounded-full p-2">
-          <TouchableOpacity
-            onPress={takePhoto}
+            <TouchableOpacity
+              onPress={takePhoto}
             className="size-16 rounded-full bg-white"
-          />
-        </GlassView>
+            />
+          </GlassView>
         <View className="flex-row justify-around px-2">
           <GlassButton onPress={selectPhoto} icon="photo" />
           <GlassButton
@@ -98,12 +99,13 @@ Use `expo-audio` not `expo-av`:
 
 ```tsx
 import { useAudioPlayer } from "expo-audio";
+import { Button } from "heroui-native";
 
 const player = useAudioPlayer({
   uri: "https://stream.nightride.fm/rektory.mp3",
 });
 
-<Button title="Play" onPress={() => player.play()} />;
+<Button onPress={() => player.play()}>Play</Button>;
 ```
 
 ## Audio Recording (Microphone)
@@ -117,7 +119,8 @@ import {
   useAudioRecorderState,
 } from "expo-audio";
 import { useEffect } from "react";
-import { Alert, Button } from "react-native";
+import { Alert } from "react-native";
+import { Button } from "heroui-native";
 
 function App() {
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
@@ -143,9 +146,11 @@ function App() {
 
   return (
     <Button
-      title={recorderState.isRecording ? "Stop" : "Start"}
+      color={recorderState.isRecording ? "danger" : "primary"}
       onPress={recorderState.isRecording ? stop : record}
-    />
+    >
+      {recorderState.isRecording ? "Stop Recording" : "Start Recording"}
+    </Button>
   );
 }
 ```

@@ -1,5 +1,4 @@
 import Slider from "@react-native-community/slider";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Lightbulb, Moon } from "lucide-react-native";
 import { useState } from "react";
@@ -39,18 +38,14 @@ export const SleepScreen = () => {
 
 	return (
 		<View className="flex-1 bg-background">
-			<LinearGradient
-				colors={["#F0F9FF", "#E1F5FE"]}
-				style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
-			/>
-
-			<View className="flex-1 justify-between px-6 py-8">
+			<View className="flex-1 justify-between px-5 pb-8">
 				<ScrollView
 					className="flex-1"
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					contentInsetAdjustmentBehavior="automatic"
 					showsVerticalScrollIndicator={false}
 				>
-					<View className="flex-1">
+					<View className="flex-1 px-1">
 						{/* Icon Header */}
 						<View className="mt-4 items-center">
 							<View className="h-24 w-24 items-center justify-center rounded-full bg-white shadow-blue-100 shadow-lg">
@@ -93,7 +88,7 @@ export const SleepScreen = () => {
 											</View>
 											<Text
 												className={`font-semibold text-xs ${
-													isSelected ? "text-[#3EC9B5]" : "text-slate-400"
+													isSelected ? "text-[#3BAFDA]" : "text-slate-400"
 												}`}
 											>
 												{level.label}
@@ -108,12 +103,12 @@ export const SleepScreen = () => {
 								<Slider
 									maximumTrackTintColor="#E2E8F0"
 									maximumValue={5}
-									minimumTrackTintColor="#3EC9B5"
+									minimumTrackTintColor="#3BAFDA"
 									minimumValue={1}
 									onValueChange={(v) => setValue(v)}
 									step={1}
 									style={{ width: "100%", height: 40 }}
-									thumbTintColor="#3EC9B5"
+									thumbTintColor="#3BAFDA"
 									value={value}
 								/>
 
@@ -134,10 +129,10 @@ export const SleepScreen = () => {
 						</View>
 
 						{/* Tip Card */}
-						<View className="mt-12 mb-10 overflow-hidden rounded-[32px] bg-[#E8F8F5] p-6 shadow-emerald-100 shadow-sm">
+						<View className="mt-12 mb-10 overflow-hidden rounded-[32px] bg-[#E1F5FE]/50 p-6 shadow-[#3BAFDA]/20 shadow-sm">
 							<View className="flex-row items-center gap-4">
 								<View className="h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm">
-									<Lightbulb color="#3EC9B5" fill="#3EC9B5" size={24} />
+									<Lightbulb color="#3BAFDA" fill="#3BAFDA" size={24} />
 								</View>
 								<View className="flex-1">
 									<Text className="font-bold text-[#0d2137] text-lg">

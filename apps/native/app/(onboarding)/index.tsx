@@ -1,9 +1,8 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
-import { Button } from "heroui-native";
 import { Check, Leaf } from "lucide-react-native";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ContinueButton } from "@/components/onboarding/common/continue-button";
 
 export default function OnboardingIndex() {
 	const router = useRouter();
@@ -13,9 +12,9 @@ export default function OnboardingIndex() {
 	};
 
 	return (
-		<LinearGradient colors={["#F8FEFE", "#E6F7F7"]} style={{ flex: 1 }}>
+		<View className="flex-1 bg-background">
 			<SafeAreaView style={{ flex: 1, paddingHorizontal: 24 }}>
-				<View className="flex-1 flex-col">
+				<View className="flex-1 flex-col px-1">
 					{/* 1. Character Card Section - Takes remaining space */}
 					<View className="flex-1 items-center justify-center">
 						<View className="h-56 w-56 items-center justify-center rounded-[32px] bg-white shadow-[#40E0D0]/20 shadow-lg">
@@ -50,20 +49,13 @@ export default function OnboardingIndex() {
 					</View>
 
 					{/* 3. Footer Section - Fixed height */}
-					<View className="items-center gap-5 pb-4">
+					<View className="gap-5 pb-4">
 						{/* Get Started Button */}
-						<Button
-							className="h-16 w-full rounded-3xl"
-							onPress={handleStart}
-							variant="primary"
-						>
-							<Button.Label className="font-bold text-[19px]">
-								Get Started
-							</Button.Label>
-						</Button>
+
+						<ContinueButton label="Get Started" onPress={handleStart} />
 
 						{/* Sign In Link */}
-						<View className="flex-row items-center">
+						<View className="flex-row items-center justify-center">
 							<Text className="font-medium text-[15px] text-slate-400">
 								Already have an account?{" "}
 							</Text>
@@ -97,6 +89,6 @@ export default function OnboardingIndex() {
 					</View>
 				</View>
 			</SafeAreaView>
-		</LinearGradient>
+		</View>
 	);
 }

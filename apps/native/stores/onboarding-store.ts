@@ -42,7 +42,7 @@ export const useOnboardingStore = create<OnboardingState>()(
 		(set) => ({
 			currentStep: 0,
 			totalSteps: 20,
-			unitPreference: "metric",
+			unitPreference: "imperial",
 			symptoms: [],
 			goals: [],
 			obstacles: [],

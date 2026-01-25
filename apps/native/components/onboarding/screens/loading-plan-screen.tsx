@@ -1,4 +1,3 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
 	Bot,
@@ -51,7 +50,7 @@ export const LoadingPlanScreen = () => {
 	const progressAnim = useRef(new Animated.Value(0)).current;
 
 	useEffect(() => {
-		const duration = 6000; // 6 seconds for the sequence
+		const duration = 3000; // 6 seconds for the sequence
 		const interval = 50;
 		const step = 100 / (duration / interval);
 
@@ -90,20 +89,16 @@ export const LoadingPlanScreen = () => {
 
 	return (
 		<View className="flex-1 bg-background">
-			<LinearGradient
-				colors={["#F0F9FF", "#E1F5FE"]}
-				style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
-			/>
-
-			<View className="flex-1 justify-between px-6 py-8">
+			<View className="flex-1 justify-between px-5 pb-8">
 				<ScrollView
 					className="flex-1"
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					contentInsetAdjustmentBehavior="automatic"
 					showsVerticalScrollIndicator={false}
 				>
-					<View className="flex-1">
+					<View className="flex-1 px-1">
 						{/* Bot Header */}
-						<View className="mt-8 items-center">
+						<View className="mt-4 items-center">
 							<View className="h-36 w-36 items-center justify-center">
 								<View className="h-32 w-32 items-center justify-center rounded-full bg-cyan-400/20">
 									<View className="h-28 w-28 items-center justify-center rounded-full bg-cyan-400/40">
@@ -123,7 +118,7 @@ export const LoadingPlanScreen = () => {
 						</View>
 
 						{/* Progress Section */}
-						<View className="mt-10 items-center">
+						<View className="mt-6 items-center">
 							<View className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200/50">
 								<Animated.View
 									className="h-full bg-[#3EC9B5]"
@@ -141,7 +136,7 @@ export const LoadingPlanScreen = () => {
 						</View>
 
 						{/* Stages List */}
-						<View className="mt-10 gap-y-4">
+						<View className="mt-8 gap-y-4">
 							{STAGES.map((stage) => {
 								const isVisible = progress >= stage.doneAt - 10;
 								const isDone = progress >= stage.doneAt;

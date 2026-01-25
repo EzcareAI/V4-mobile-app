@@ -1,8 +1,7 @@
-import { useOnboardingStore } from "@/stores/onboarding-store";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Leaf, Search, Stethoscope } from "lucide-react-native";
 import { ScrollView, Text, View } from "react-native";
+import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
 import { MultiSelectGrid, type MultiSelectOption } from "../multi-select-grid";
@@ -38,18 +37,14 @@ export const SymptomsScreen = () => {
 
 	return (
 		<View className="flex-1 bg-background">
-			<LinearGradient
-				colors={["#F0F9FF", "#E1F5FE"]}
-				style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
-			/>
-
-			<View className="flex-1 justify-between px-6 py-8">
+			<View className="flex-1 justify-between px-5 pb-8">
 				<ScrollView
 					className="flex-1"
-					showsVerticalScrollIndicator={false}
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					contentInsetAdjustmentBehavior="automatic"
+					showsVerticalScrollIndicator={false}
 				>
-					<View className="flex-1">
+					<View className="flex-1 px-1">
 						{/* Stethoscope Header with Search Badge */}
 						<View className="mt-4 items-center">
 							<View className="relative">
@@ -69,7 +64,7 @@ export const SymptomsScreen = () => {
 								</View>
 								{/* Search Badge */}
 								<View
-									className="absolute bottom-1 -right-1 h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-[#00BFA5]"
+									className="absolute -right-1 bottom-1 h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-[#00BFA5]"
 									style={{
 										shadowColor: "#000",
 										shadowOffset: { width: 0, height: 4 },
@@ -101,7 +96,7 @@ export const SymptomsScreen = () => {
 						{/* Selection Counter */}
 						{symptoms.length > 0 && (
 							<View className="mt-8 items-center">
-								<Text className="font-bold text-muted text-base">
+								<Text className="font-bold text-base text-muted">
 									<Text className="text-[#3EC9B5]">{symptoms.length}</Text>{" "}
 									symptoms selected
 								</Text>

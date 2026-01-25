@@ -1,4 +1,3 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Bot, Clock, Heart, Leaf, Sparkles, Star } from "lucide-react-native";
 import { ScrollView, Text, View } from "react-native";
@@ -13,18 +12,14 @@ export const SymptomResultsScreen = () => {
 
 	return (
 		<View className="flex-1 bg-background">
-			<LinearGradient
-				colors={["#F0F9FF", "#E1F5FE"]}
-				style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
-			/>
-
-			<View className="flex-1 justify-between px-6 py-8">
+			<View className="flex-1 justify-between px-5 pb-8">
 				<ScrollView
 					className="flex-1"
-					showsVerticalScrollIndicator={false}
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					contentInsetAdjustmentBehavior="automatic"
+					showsVerticalScrollIndicator={false}
 				>
-					<View className="flex-1">
+					<View className="flex-1 px-1">
 						{/* Robot Header */}
 						<View className="mt-4 items-center">
 							<View className="relative">
@@ -81,13 +76,12 @@ export const SymptomResultsScreen = () => {
 									<Text className="font-bold text-4xl text-white">69%</Text>
 								</View>
 
-								<Text className="mt-8 text-center font-bold text-[#0d2137] text-2xl leading-9">
-									Great news!{" "}
-									<Text className="text-[#3BAFDA]">69%</Text> of your symptoms
-									can improve naturally
+								<Text className="mt-8 text-center font-bold text-2xl text-[#0d2137] leading-9">
+									Great news! <Text className="text-[#3BAFDA]">69%</Text> of
+									your symptoms can improve naturally
 								</Text>
 
-								<Text className="mt-4 text-center text-slate-400 text-lg leading-7">
+								<Text className="mt-4 text-center text-lg text-slate-400 leading-7">
 									In the first <Text className="text-[#3BAFDA]">30 days</Text>{" "}
 									when you follow the right routine
 								</Text>
@@ -134,7 +128,7 @@ export const SymptomResultsScreen = () => {
 									<Bot color="#3BAFDA" size={32} />
 								</View>
 								<View className="flex-1">
-									<View className="flex-row justify-between items-center">
+									<View className="flex-row items-center justify-between">
 										<View className="flex-row gap-0.5">
 											{[1, 2, 3, 4, 5].map((i) => (
 												<Star

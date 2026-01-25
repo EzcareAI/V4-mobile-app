@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import {
@@ -31,27 +31,41 @@ export const PrimaryGoalScreen = () => {
 		.filter((g) => g.label);
 
 	return (
-		<View className="flex-1 justify-between px-6 py-8">
-			<View>
-				<StepHeader
-					description="This will be the main focus of your initial healing plan."
-					title="Which goal is most important?"
-				/>
-				<SingleSelectList
-					onSelect={(id) => setAnswer("primaryGoal", id)}
-					options={selectedGoalOptions}
-					selectedId={primaryGoal ?? null}
-				/>
-			</View>
+		<View className="flex-1 bg-background">
+			<View className="flex-1 justify-between px-5 pb-8">
+				<ScrollView
+					className="flex-1"
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					contentInsetAdjustmentBehavior="automatic"
+					showsVerticalScrollIndicator={false}
+				>
+					<View className="flex-1 px-1">
+						<StepHeader
+							className="mt-6"
+							description="This will be the main focus of your initial healing plan."
+							title="Which goal is most important?"
+						/>
+						<View className="mt-8">
+							<SingleSelectList
+								onSelect={(id) => setAnswer("primaryGoal", id)}
+								options={selectedGoalOptions}
+								selectedId={primaryGoal ?? null}
+							/>
+						</View>
+					</View>
+				</ScrollView>
 
-			<ContinueButton
-				isDisabled={!primaryGoal}
-				label="Set Primary Goal"
-				onPress={() => {
-					nextStep();
-					router.push("/(onboarding)/12");
-				}}
-			/>
+				<View className="pt-4">
+					<ContinueButton
+						isDisabled={!primaryGoal}
+						label="Set Primary Goal"
+						onPress={() => {
+							nextStep();
+							router.push("/(onboarding)/12");
+						}}
+					/>
+				</View>
+			</View>
 		</View>
 	);
 };

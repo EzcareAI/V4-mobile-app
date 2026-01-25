@@ -24,6 +24,7 @@
     "@react-native-picker/picker": "2.11.1",
     "@react-navigation/drawer": "^7.7.13",
     "@react-navigation/elements": "^2.9.5",
+    "@shopify/react-native-skia": "2.2.12",
     "@tanstack/react-query": "catalog:",
     "@trpc/client": "catalog:",
     "@trpc/server": "catalog:",
@@ -58,6 +59,7 @@
     "tailwind-variants": "^3.2.2",
     "tailwindcss": "^4.1.18",
     "uniwind": "^1.2.5",
+    "victory-native": "^41.20.2",
     "zod": "catalog:",
     "zustand": "^5.0.10",
     "zustand-persist": "^0.4.0"

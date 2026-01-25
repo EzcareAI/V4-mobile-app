@@ -49,10 +49,7 @@ BlurView requires `overflow: 'hidden'` to clip rounded corners:
 <BlurView
   tint="systemMaterial"
   intensity={100}
-  style={{
-    borderRadius: 16,
-    overflow: 'hidden',
-  }}
+  className="overflow-hidden rounded-2xl"
 />
 ```
 
@@ -61,20 +58,14 @@ BlurView requires `overflow: 'hidden'` to clip rounded corners:
 Common pattern for overlaying blur on content:
 
 ```tsx
-<View style={{ position: 'relative' }}>
-  <Image source={{ uri: '...' }} style={{ width: '100%', height: 200 }} />
+<View className="relative">
+  <Image source={{ uri: "..." }} className="h-[200px] w-full" />
   <BlurView
     tint="systemUltraThinMaterial"
     intensity={80}
-    style={{
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      padding: 16,
-    }}
+    className="absolute inset-x-0 bottom-0 p-4"
   >
-    <Text style={{ color: 'white' }}>Caption</Text>
+    <Text className="text-white">Caption</Text>
   </BlurView>
 </View>
 ```
@@ -86,9 +77,9 @@ Use `expo-glass-effect` for liquid glass backdrops on iOS 26+.
 ```tsx
 import { GlassView } from "expo-glass-effect";
 
-<GlassView style={{ borderRadius: 16, padding: 16 }}>
+<GlassView className="rounded-2xl p-4">
   <Text>Content inside glass</Text>
-</GlassView>
+</GlassView>;
 ```
 
 ### Interactive Glass
@@ -100,11 +91,11 @@ import { GlassView } from "expo-glass-effect";
 import { SymbolView } from "expo-symbols";
 import { PlatformColor } from "react-native";
 
-<GlassView isInteractive style={{ borderRadius: 50 }}>
-  <Pressable style={{ padding: 12 }} onPress={handlePress}>
+<GlassView isInteractive className="rounded-full">
+  <Pressable className="p-3" onPress={handlePress}>
     <SymbolView name="plus" tintColor={PlatformColor("label")} size={36} />
   </Pressable>
-</GlassView>
+</GlassView>;
 ```
 
 ### Glass Buttons
@@ -114,9 +105,13 @@ Create liquid glass buttons:
 ```tsx
 function GlassButton({ icon, onPress }) {
   return (
-    <GlassView isInteractive style={{ borderRadius: 50 }}>
-      <Pressable style={{ padding: 12 }} onPress={onPress}>
-        <SymbolView name={icon} tintColor={PlatformColor("label")} size={24} />
+    <GlassView isInteractive className="rounded-full">
+      <Pressable className="p-3" onPress={onPress}>
+        <SymbolView
+          name={icon}
+          tintColor={PlatformColor("label")}
+          size={24}
+        />
       </Pressable>
     </GlassView>
   );
@@ -130,11 +125,9 @@ function GlassButton({ icon, onPress }) {
 ### Glass Card
 
 ```tsx
-<GlassView style={{ borderRadius: 20, padding: 20 }}>
-  <Text style={{ fontSize: 18, fontWeight: '600', color: PlatformColor("label") }}>
-    Card Title
-  </Text>
-  <Text style={{ color: PlatformColor("secondaryLabel"), marginTop: 8 }}>
+<GlassView className="rounded-[20px] p-5">
+  <Text className="text-lg font-semibold text-foreground">Card Title</Text>
+  <Text className="mt-2 text-secondary-foreground">
     Card content goes here
   </Text>
 </GlassView>
@@ -158,13 +151,13 @@ if (isLiquidGlassAvailable()) {
 import { GlassView, isLiquidGlassAvailable } from "expo-glass-effect";
 import { BlurView } from "expo-blur";
 
-function AdaptiveGlass({ children, style }) {
+function AdaptiveGlass({ children, className }) {
   if (isLiquidGlassAvailable()) {
-    return <GlassView style={style}>{children}</GlassView>;
+    return <GlassView className={className}>{children}</GlassView>;
   }
 
   return (
-    <BlurView tint="systemMaterial" intensity={80} style={style}>
+    <BlurView tint="systemMaterial" intensity={80} className={className}>
       {children}
     </BlurView>
   );
@@ -190,7 +183,7 @@ Make sheet backgrounds liquid glass on iOS 26+:
 ## Best Practices
 
 - Use `systemMaterial` tints for automatic dark mode support
-- Always set `overflow: 'hidden'` on BlurView for rounded corners
+- Always set `overflow-hidden` on BlurView for rounded corners
 - Use `isInteractive` on GlassView for buttons and pressables
 - Check `isLiquidGlassAvailable()` and provide fallbacks
 - Avoid nesting blur views (performance impact)

@@ -144,7 +144,7 @@ const [date, setDate] = useState(new Date());
   value={date}
   mode="date"
   display="spinner"
-  style={{ width: 200, height: 150 }}
+  className="h-[150px] w-[200px]"
 />
 
 // Full calendar
@@ -200,13 +200,8 @@ import { TextInput } from "react-native";
 <TextInput
   placeholder="Enter text..."
   placeholderTextColor="#999"
-  style={{
-    padding: 12,
-    fontSize: 16,
-    borderRadius: 8,
-    backgroundColor: "#f0f0f0",
-  }}
-/>
+  className="rounded-lg bg-gray-100 p-3 text-base"
+/>;
 ```
 
 ### Keyboard Types
@@ -238,7 +233,7 @@ import { TextInput } from "react-native";
   multiline
   numberOfLines={4}
   textAlignVertical="top"
-  style={{ minHeight: 100 }}
+  className="min-h-[100px]"
 />
 ```
 

@@ -3,7 +3,7 @@ import { Button } from "heroui-native";
 interface ContinueButtonProps {
 	onPress: () => void;
 	isDisabled?: boolean;
-	label?: string;
+	label?: string | React.ReactNode;
 }
 
 export const ContinueButton = ({

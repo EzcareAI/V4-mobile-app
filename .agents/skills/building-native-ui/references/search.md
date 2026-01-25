@@ -96,7 +96,7 @@ export function useSearch(options: any = {}) {
 function SearchScreen() {
   const search = useSearch({ placeholder: "Search items..." });
 
-  const filteredItems = items.filter(item =>
+  const filteredItems = items.filter((item) =>
     item.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -114,7 +114,7 @@ function SearchScreen() {
 ### Simple Text Filter
 
 ```tsx
-const filtered = items.filter(item =>
+const filtered = items.filter((item) =>
   item.name.toLowerCase().includes(search.toLowerCase())
 );
 ```
@@ -122,12 +122,12 @@ const filtered = items.filter(item =>
 ### Multiple Fields
 
 ```tsx
-const filtered = items.filter(item => {
+const filtered = items.filter((item) => {
   const query = search.toLowerCase();
   return (
     item.name.toLowerCase().includes(query) ||
     item.description.toLowerCase().includes(query) ||
-    item.tags.some(tag => tag.toLowerCase().includes(query))
+    item.tags.some((tag) => tag.toLowerCase().includes(query))
   );
 });
 ```
@@ -154,10 +154,11 @@ function SearchScreen() {
   const search = useSearch();
   const debouncedSearch = useDebounce(search, 300);
 
-  const filteredItems = useMemo(() =>
-    items.filter(item =>
-      item.name.toLowerCase().includes(debouncedSearch.toLowerCase())
-    ),
+  const filteredItems = useMemo(
+    () =>
+      items.filter((item) =>
+        item.name.toLowerCase().includes(debouncedSearch.toLowerCase())
+      ),
     [debouncedSearch]
   );
 
@@ -207,8 +208,8 @@ function SearchResults({ search, items }) {
 
   if (search && filtered.length === 0) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text style={{ color: PlatformColor("secondaryLabel") }}>
+      <View className="flex-1 items-center justify-center">
+        <Text className="text-secondary-foreground">
           No results for "{search}"
         </Text>
       </View>
@@ -231,9 +232,7 @@ function SearchScreen() {
   if (!search && recentSearches.length > 0) {
     return (
       <View>
-        <Text style={{ color: PlatformColor("secondaryLabel") }}>
-          Recent Searches
-        </Text>
+        <Text className="text-secondary-foreground">Recent Searches</Text>
         {recentSearches.map((term) => (
           <Pressable key={term} onPress={() => /* apply search */}>
             <Text>{term}</Text>

@@ -39,7 +39,7 @@ export default function Layout() {
           sheetGrabberVisible: true,
         }}
       >
-        <Stack.Header style={{ backgroundColor: "transparent" }}></Stack.Header>
+        <Stack.Header className="bg-transparent"></Stack.Header>
       </Stack.Screen>
     </Stack>
   );
@@ -50,40 +50,27 @@ export default function Layout() {
 
 > Requires Expo SDK 55 or later.
 
-Use `flex: 1` to allow the content to fill available space, enabling footer positioning:
+Use `flex-1` to allow the content to fill available space, enabling footer positioning:
 
 ```tsx
 // app/about.tsx
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
 
 export default function AboutSheet() {
   return (
-    <View style={styles.container}>
+    <View className="flex-1">
       {/* Main content */}
-      <View style={styles.content}>
+      <View className="flex-1 p-4">
         <Text>Sheet Content</Text>
       </View>
 
       {/* Footer - stays at bottom */}
-      <View style={styles.footer}>
+      <View className="p-4">
         <Text>Footer Content</Text>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  footer: {
-    padding: 16,
-  },
-});
 ```
 
 ## Key Options
@@ -125,7 +112,7 @@ export default function Layout() {
           headerTransparent: true,
         }}
       >
-        <Stack.Header style={{ backgroundColor: "transparent" }}>
+        <Stack.Header className="bg-transparent">
           <Stack.Header.Right />
         </Stack.Header>
       </Stack.Screen>
@@ -136,90 +123,46 @@ export default function Layout() {
 
 ```tsx
 // app/confirm.tsx
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { router } from "expo-router";
 
 export default function ConfirmSheet() {
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Confirm Action</Text>
-        <Text style={styles.description}>
+    <View className="flex-1">
+      <View className="flex-1 items-center justify-center p-5">
+        <Text className="mb-2 text-lg font-semibold">Confirm Action</Text>
+        <Text className="text-center text-sm text-gray-500">
           Are you sure you want to proceed?
         </Text>
       </View>
 
-      <View style={styles.footer}>
-        <Pressable style={styles.cancelButton} onPress={() => router.back()}>
-          <Text style={styles.cancelText}>Cancel</Text>
+      <View className="flex-row gap-3 p-4">
+        <Pressable
+          className="flex-1 items-center rounded-xl bg-gray-100 p-3.5"
+          onPress={() => router.back()}
+        >
+          <Text className="text-base font-medium">Cancel</Text>
         </Pressable>
-        <Pressable style={styles.confirmButton} onPress={() => router.back()}>
-          <Text style={styles.confirmText}>Confirm</Text>
+        <Pressable
+          className="flex-1 items-center rounded-xl bg-accent p-3.5"
+          onPress={() => router.back()}
+        >
+          <Text className="text-base font-medium text-white">Confirm</Text>
         </Pressable>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 14,
-    color: "#666",
-    textAlign: "center",
-  },
-  footer: {
-    flexDirection: "row",
-    padding: 16,
-    gap: 12,
-  },
-  cancelButton: {
-    flex: 1,
-    padding: 14,
-    borderRadius: 10,
-    backgroundColor: "#f0f0f0",
-    alignItems: "center",
-  },
-  cancelText: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-  confirmButton: {
-    flex: 1,
-    padding: 14,
-    borderRadius: 10,
-    backgroundColor: "#007AFF",
-    alignItems: "center",
-  },
-  confirmText: {
-    fontSize: 16,
-    fontWeight: "500",
-    color: "white",
-  },
-});
 ```
 
 ## Troubleshooting
 
 ### Content not filling sheet
 
-Make sure the root View uses `flex: 1`:
+Make sure the root View uses `flex-1`:
 
 ```tsx
-<View style={{ flex: 1 }}>{/* content */}</View>
+<View className="flex-1">{/* content */}</View>
 ```
 
 ### Sheet background showing through

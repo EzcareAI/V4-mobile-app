@@ -7,6 +7,7 @@ import { ChevronLeft } from "lucide-react-native";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
+	Alert,
 	Pressable,
 	ScrollView,
 	StyleSheet,
@@ -20,6 +21,7 @@ import { z } from "zod";
 
 import { KeyboardAvoidingContainer } from "@/components/keyboard-avoiding-container";
 import { ContinueButton } from "@/components/onboarding/common/continue-button";
+import { supabase } from "@/lib/supabase";
 
 const StyledIonicons = withUniwind(Ionicons);
 
@@ -33,6 +35,7 @@ type SignInForm = z.infer<typeof signInSchema>;
 export default function SignInScreen() {
 	const router = useRouter();
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const { control, handleSubmit } = useForm<SignInForm>({
 		resolver: zodResolver(signInSchema),
@@ -42,10 +45,35 @@ export default function SignInScreen() {
 		},
 	});
 
-	const onSubmit = (data: SignInForm) => {
-		console.log("Form Data:", data);
-		// TODO: Implement sign in logic
-		router.replace("/(drawer)");
+	const onSubmit = async (data: SignInForm) => {
+		setIsLoading(true);
+		try {
+			const { error } = await supabase.auth.signInWithPassword({
+				email: data.email,
+				password: data.password,
+			});
+
+			if (error) {
+				Alert.alert("Error", error.message);
+				return;
+			}
+
+			router.replace("/(drawer)");
+		} catch (error) {
+			Alert.alert("Error", "An unexpected error occurred");
+			console.error(error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const handleSocialLogin = (provider: "google" | "apple") => {
+		// Note: For native social auth, you typically need to use keys and deep linking.
+		// This is a placeholder for the standard Supabase flow.
+		Alert.alert(
+			"Not Implemented",
+			`Social login with ${provider} is coming soon!`
+		);
 	};
 
 	return (
@@ -179,7 +207,11 @@ export default function SignInScreen() {
 					</View>
 
 					{/* Sign In Button */}
-					<ContinueButton label="Sign In" onPress={handleSubmit(onSubmit)} />
+					<ContinueButton
+						isDisabled={isLoading}
+						label={isLoading ? "Signing In..." : "Sign In"}
+						onPress={handleSubmit(onSubmit)}
+					/>
 
 					{/* Or Divider */}
 					<View className="flex-row items-center gap-4 py-1">
@@ -191,6 +223,7 @@ export default function SignInScreen() {
 					{/* Social Buttons */}
 					<Button
 						className="border-default-200 bg-surface shadow-sm"
+						onPress={() => handleSocialLogin("google")}
 						size="lg"
 						variant="ghost"
 					>
@@ -207,6 +240,7 @@ export default function SignInScreen() {
 
 					<Button
 						className="bg-[#1e1e1e] shadow-sm"
+						onPress={() => handleSocialLogin("apple")}
 						size="lg"
 						variant="primary"
 					>

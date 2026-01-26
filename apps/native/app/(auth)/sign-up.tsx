@@ -7,6 +7,7 @@ import { ChevronLeft } from "lucide-react-native";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
+	Alert,
 	Pressable,
 	ScrollView,
 	StyleSheet,
@@ -20,6 +21,7 @@ import { z } from "zod";
 
 import { KeyboardAvoidingContainer } from "@/components/keyboard-avoiding-container";
 import { ContinueButton } from "@/components/onboarding/common/continue-button";
+import { supabase } from "@/lib/supabase";
 
 const StyledIonicons = withUniwind(Ionicons);
 
@@ -47,6 +49,7 @@ export default function SignUpScreen() {
 	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 	const [isConfirmPasswordVisible, setIsConfirmPasswordVisible] =
 		useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
 	const { control, handleSubmit } = useForm<SignUpForm>({
 		resolver: zodResolver(signUpSchema),
@@ -59,10 +62,35 @@ export default function SignUpScreen() {
 		},
 	});
 
-	const onSubmit = (data: SignUpForm) => {
-		console.log("Sign Up Data:", data);
-		// TODO: Implement sign up logic
-		router.replace("/(drawer)");
+	const onSubmit = async (data: SignUpForm) => {
+		setIsLoading(true);
+		try {
+			const { error } = await supabase.auth.signUp({
+				email: data.email,
+				password: data.password,
+				options: {
+					data: {
+						full_name: data.fullName,
+					},
+				},
+			});
+
+			if (error) {
+				Alert.alert("Error", error.message);
+				return;
+			}
+
+			Alert.alert(
+				"Success",
+				"Account created! Please check your email for verification.",
+				[{ text: "OK", onPress: () => router.replace("/(auth)/sign-in") }]
+			);
+		} catch (error) {
+			Alert.alert("Error", "An unexpected error occurred");
+			console.error(error);
+		} finally {
+			setIsLoading(false);
+		}
 	};
 
 	return (
@@ -136,7 +164,6 @@ export default function SignUpScreen() {
 							/>
 						</KeyboardAvoidingContainer>
 					</View>
-
 					{/* Email */}
 					<View className="gap-2">
 						<KeyboardAvoidingContainer>
@@ -174,7 +201,6 @@ export default function SignUpScreen() {
 							/>
 						</KeyboardAvoidingContainer>
 					</View>
-
 					{/* Password */}
 					<View className="gap-2">
 						<KeyboardAvoidingContainer>
@@ -225,7 +251,6 @@ export default function SignUpScreen() {
 							/>
 						</KeyboardAvoidingContainer>
 					</View>
-
 					{/* Confirm Password */}
 					<View className="gap-2">
 						<KeyboardAvoidingContainer>
@@ -278,7 +303,6 @@ export default function SignUpScreen() {
 							/>
 						</KeyboardAvoidingContainer>
 					</View>
-
 					{/* Terms Checkbox */}
 					<Controller
 						control={control}
@@ -314,20 +338,18 @@ export default function SignUpScreen() {
 							</View>
 						)}
 					/>
-
 					{/* Sign Up Button */}
 					<ContinueButton
-						label="Create Account"
+						isDisabled={isLoading}
+						label={isLoading ? "Creating Account..." : "Create Account"}
 						onPress={handleSubmit(onSubmit)}
 					/>
-
 					{/* Or Divider */}
 					<View className="flex-row items-center gap-4 py-1">
 						<View className="h-px flex-1 bg-muted/10" />
 						<Text className="text-muted-foreground text-sm">or</Text>
 						<View className="h-px flex-1 bg-muted/10" />
 					</View>
-
 					{/* Social Buttons */}
 					<Button
 						className="border-default-200 bg-surface shadow-sm"
@@ -344,7 +366,6 @@ export default function SignUpScreen() {
 							Continue with Google
 						</Text>
 					</Button>
-
 					<Button
 						className="bg-[#1e1e1e] shadow-sm"
 						size="lg"
@@ -360,7 +381,6 @@ export default function SignUpScreen() {
 							Continue with Apple
 						</Text>
 					</Button>
-
 					{/* Footer */}
 					<View className="flex-row justify-center">
 						<Text className="text-muted-foreground">

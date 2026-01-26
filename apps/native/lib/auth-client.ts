@@ -6,7 +6,7 @@ import Constants from "expo-constants";
 import * as SecureStore from "expo-secure-store";
 
 export const authClient = createAuthClient({
-	baseURL: env.EXPO_PUBLIC_SERVER_URL,
+	baseURL: env.EXPO_PUBLIC_SUPABASE_URL,
 	plugins: [
 		expoClient({
 			scheme: Constants.expoConfig?.scheme as string,

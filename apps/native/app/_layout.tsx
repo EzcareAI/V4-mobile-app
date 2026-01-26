@@ -34,9 +34,11 @@ function StackLayout() {
 		const inOnboarding =
 			pathname === "/" || ONBOARDING_STEP_PATTERN.test(pathname);
 
+		const inAuth = pathname.includes("sign-in") || pathname.includes("sign-up");
+
 		// If onboarding is not completed (step < 20), redirect to onboarding
 		// We prioritize this over auth for now to ensure the user sees the flow
-		if (currentStep < 20 && !inOnboarding) {
+		if (currentStep < 20 && !inOnboarding && !inAuth) {
 			router.replace("/(onboarding)");
 		} else if (currentStep > 20 && inOnboarding) {
 			// If onboarding is completed but user is on onboarding screen, go to drawer
@@ -48,6 +50,7 @@ function StackLayout() {
 		<Stack screenOptions={{ headerShown: false }}>
 			<Stack.Screen name="(drawer)" />
 			<Stack.Screen name="(onboarding)" />
+			<Stack.Screen name="(auth)" />
 			<Stack.Screen
 				name="modal"
 				options={{ title: "Modal", presentation: "modal" }}

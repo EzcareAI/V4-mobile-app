@@ -51,7 +51,7 @@ export default function SignUpScreen() {
 		useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
-	const { control, handleSubmit } = useForm<SignUpForm>({
+	const { control, handleSubmit, watch } = useForm<SignUpForm>({
 		resolver: zodResolver(signUpSchema),
 		defaultValues: {
 			fullName: "",
@@ -61,6 +61,8 @@ export default function SignUpScreen() {
 			agree: false,
 		},
 	});
+
+	const isAgreed = watch("agree");
 
 	const onSubmit = async (data: SignUpForm) => {
 		setIsLoading(true);
@@ -310,24 +312,32 @@ export default function SignUpScreen() {
 						render={({ field: { onChange, value }, fieldState: { error } }) => (
 							<View>
 								<FormField
-									className="flex-row items-start gap-3"
+									className="flex-row items-center gap-3"
 									isSelected={value}
 									onSelectedChange={onChange}
 								>
 									<FormField.Indicator>
 										<Checkbox />
 									</FormField.Indicator>
-									<View className="-mt-1 flex-1">
+									<View className="-mt-1 flex-1 flex-row items-center">
 										<Text className="text-muted-foreground leading-5">
 											I agree to the{" "}
+										</Text>
+										<TouchableOpacity
+											onPress={() => router.push("/privacy-policy")}
+										>
 											<Text className="font-medium text-accent">
-												Privacy Policy
-											</Text>{" "}
-											and{" "}
+												Privacy Policy{" "}
+											</Text>
+										</TouchableOpacity>
+										<Text className="text-muted-foreground">and </Text>
+										<TouchableOpacity
+											onPress={() => router.push("/terms-of-service")}
+										>
 											<Text className="font-medium text-accent">
 												Terms of Service
 											</Text>
-										</Text>
+										</TouchableOpacity>
 									</View>
 								</FormField>
 								{error && (
@@ -340,7 +350,7 @@ export default function SignUpScreen() {
 					/>
 					{/* Sign Up Button */}
 					<ContinueButton
-						isDisabled={isLoading}
+						isDisabled={isLoading || !isAgreed}
 						label={isLoading ? "Creating Account..." : "Create Account"}
 						onPress={handleSubmit(onSubmit)}
 					/>

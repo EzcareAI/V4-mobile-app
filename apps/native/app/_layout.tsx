@@ -34,7 +34,11 @@ function StackLayout() {
 		const inOnboarding =
 			pathname === "/" || ONBOARDING_STEP_PATTERN.test(pathname);
 
-		const inAuth = pathname.includes("sign-in") || pathname.includes("sign-up");
+		const inAuth =
+			pathname.includes("sign-in") ||
+			pathname.includes("sign-up") ||
+			pathname.includes("privacy-policy") ||
+			pathname.includes("terms-of-service");
 
 		// If onboarding is not completed (step < 20), redirect to onboarding
 		// We prioritize this over auth for now to ensure the user sees the flow

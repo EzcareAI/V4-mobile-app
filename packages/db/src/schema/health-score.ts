@@ -32,18 +32,11 @@ export const healthScore = pgTable(
 		// Overall score (0-100)
 		overallScore: integer("overall_score").notNull(),
 
-		// Sub-scores (0-100)
-		sleepSubScore: integer("sleep_sub_score"),
-		stressSubScore: integer("stress_sub_score"),
-		nutritionSubScore: integer("nutrition_sub_score"),
-		activitySubScore: integer("activity_sub_score"),
-		painSubScore: integer("pain_sub_score"),
-
 		// Trend compared to previous period
 		trend: trendEnum("trend").default("stable"),
 
-		// Change from previous score
-		changeFromPrevious: integer("change_from_previous").default(0),
+		// Today's focus summary
+		todayFocus: text("today_focus"),
 
 		// Timestamps
 		calculatedAt: timestamp("calculated_at").defaultNow().notNull(),

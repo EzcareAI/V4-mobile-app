@@ -18,7 +18,8 @@
     "@trpc/server": "catalog:",
     "dotenv": "catalog:",
     "drizzle-orm": "^0.45.1",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@anthropic-ai/sdk": "^0.28.0"
   },
   "devDependencies": {
     "@ezcare/config": "workspace:*",

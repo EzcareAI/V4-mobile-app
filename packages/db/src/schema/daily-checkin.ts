@@ -1,6 +1,5 @@
 import { relations } from "drizzle-orm";
 import {
-	boolean,
 	date,
 	index,
 	integer,
@@ -27,16 +26,11 @@ export const dailyCheckin = pgTable(
 		date: date("date").notNull(),
 
 		// Health metrics (1-5 scale)
-		sleepScore: integer("sleep_score").notNull(), // 1-5
-		energyScore: integer("energy_score").notNull(), // 1-5
-		stressScore: integer("stress_score").notNull(), // 1-5
-		digestionScore: integer("digestion_score").notNull(), // 1-5
-
-		// Pain indicator
-		hasPain: boolean("has_pain").default(false).notNull(),
-
-		// AI feedback generated after check-in
-		aiFeedback: text("ai_feedback"),
+		energy: integer("energy").notNull(),
+		mood: integer("mood").notNull(),
+		pain: integer("pain").notNull(), // 1-5 scale
+		digestion: integer("digestion").notNull(),
+		sleepQuality: integer("sleep_quality").notNull(),
 
 		// Timestamps
 		createdAt: timestamp("created_at").defaultNow().notNull(),

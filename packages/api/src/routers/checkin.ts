@@ -4,13 +4,15 @@ import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { protectedProcedure, router } from "../index";
+import { calculateEZScore } from "../logic/ezScore";
+import { getTodayFocus } from "../logic/todayFocus";
 
 const submitCheckinSchema = z.object({
-	sleepScore: z.number().min(1).max(5),
-	energyScore: z.number().min(1).max(5),
-	stressScore: z.number().min(1).max(5),
-	digestionScore: z.number().min(1).max(5),
-	hasPain: z.boolean(),
+	energy: z.number().min(1).max(5),
+	mood: z.number().min(1).max(5),
+	pain: z.number().min(1).max(5),
+	digestion: z.number().min(1).max(5),
+	sleep_quality: z.number().min(1).max(5),
 });
 
 // Helper to get today's date as string (YYYY-MM-DD)
@@ -27,67 +29,40 @@ function getYesterdayDate(): string {
 	return parts[0] ?? "";
 }
 
-// Helper to calculate trend from previous score
-function calculateTrend(
-	previousScore: number | undefined,
-	currentScore: number
-): "up" | "down" | "stable" {
-	if (previousScore === undefined) {
-		return "stable";
-	}
-	if (currentScore > previousScore) {
-		return "up";
-	}
-	if (currentScore < previousScore) {
-		return "down";
-	}
-	return "stable";
-}
-
-// Calculate health score from check-in data (0-100)
-function calculateOverallScore(checkin: {
-	sleepScore: number;
-	energyScore: number;
-	stressScore: number;
-	digestionScore: number;
-	hasPain: boolean;
-}): number {
-	// Each metric is 1-5, we need to convert to 0-100
-	// Sleep: 25% weight
-	// Energy: 25% weight
-	// Stress: 20% weight (inverted - lower stress = higher score)
-	// Digestion: 20% weight
-	// Pain: 10% weight (no pain = 100, pain = 0)
-
-	const sleepContribution = ((checkin.sleepScore - 1) / 4) * 25;
-	const energyContribution = ((checkin.energyScore - 1) / 4) * 25;
-	const stressContribution = ((6 - checkin.stressScore - 1) / 4) * 20; // Inverted
-	const digestionContribution = ((checkin.digestionScore - 1) / 4) * 20;
-	const painContribution = checkin.hasPain ? 0 : 10;
-
-	return Math.round(
-		sleepContribution +
-			energyContribution +
-			stressContribution +
-			digestionContribution +
-			painContribution
-	);
-}
-
 export const checkinRouter = router({
-	// Get today's check-in (if exists)
-	today: protectedProcedure.query(async ({ ctx }) => {
+	// Get today's state
+	getToday: protectedProcedure.query(async ({ ctx }) => {
 		const userId = ctx.session.user.id;
 		const today = getTodayDate();
 
 		const [todayCheckin] = await db
 			.select()
 			.from(dailyCheckin)
-			.where(
-				and(eq(dailyCheckin.userId, userId), eq(dailyCheckin.date, today))
-			);
+			.where(and(eq(dailyCheckin.userId, userId), eq(dailyCheckin.date, today)))
+			.orderBy(desc(dailyCheckin.createdAt))
+			.limit(1);
 
-		return todayCheckin ?? null;
+		const [latestScore] = await db
+			.select()
+			.from(healthScore)
+			.where(eq(healthScore.userId, userId))
+			.orderBy(desc(healthScore.date))
+			.limit(1);
+
+		const [userStreak] = await db
+			.select()
+			.from(streak)
+			.where(eq(streak.userId, userId));
+
+		return {
+			ezScore: latestScore?.overallScore ?? 0,
+			today_focus: latestScore?.todayFocus ?? "Check in to see your focus",
+			streak_info: {
+				current: userStreak?.currentStreak ?? 0,
+				longest: userStreak?.longestStreak ?? 0,
+			},
+			hasCheckedInToday: !!todayCheckin,
+		};
 	}),
 
 	// Submit daily check-in
@@ -98,54 +73,74 @@ export const checkinRouter = router({
 			const today = getTodayDate();
 			const yesterday = getYesterdayDate();
 
-			// Check if already checked in today
-			const [existing] = await db
+			// Enforce daily limit (Max 2 check-ins per day per user as per PRD)
+			const existingToday = await db
 				.select()
 				.from(dailyCheckin)
-				.where(
-					and(eq(dailyCheckin.userId, userId), eq(dailyCheckin.date, today))
-				);
+				.where(and(eq(dailyCheckin.userId, userId), eq(dailyCheckin.date, today)));
 
-			if (existing) {
-				throw new Error("Already checked in today");
+			if (existingToday.length >= 2) {
+				throw new Error("Maximum 2 check-ins per day allowed");
 			}
 
-			// Create check-in
-			const [checkin] = await db
+			// Save check-in
+			await db
 				.insert(dailyCheckin)
 				.values({
 					userId,
 					date: today,
-					...input,
-				})
-				.returning();
+					energy: input.energy,
+					mood: input.mood,
+					pain: input.pain,
+					digestion: input.digestion,
+					sleepQuality: input.sleep_quality,
+				});
 
-			// Calculate and save health score
-			const overallScore = calculateOverallScore(input);
-
-			// Get previous score for trend calculation
-			const [previousScore] = await db
+			// Get latest previous score (might be from earlier today or yesterday)
+			const [previousScoreRecord] = await db
 				.select()
 				.from(healthScore)
 				.where(eq(healthScore.userId, userId))
-				.orderBy(desc(healthScore.date))
+				.orderBy(desc(healthScore.date), desc(healthScore.calculatedAt))
 				.limit(1);
 
-			const trend = calculateTrend(previousScore?.overallScore, overallScore);
+			// Update EZ Score
+			const newScore = calculateEZScore(
+				{
+					energy: input.energy,
+					mood: input.mood,
+					pain: input.pain,
+					digestion: input.digestion,
+					sleepQuality: input.sleep_quality,
+				},
+				previousScoreRecord?.overallScore
+			);
 
-			const changeFromPrevious = previousScore
-				? overallScore - previousScore.overallScore
-				: 0;
+			const todayFocus = getTodayFocus(
+				{
+					energy: input.energy,
+					mood: input.mood,
+					pain: input.pain,
+					digestion: input.digestion,
+					sleepQuality: input.sleep_quality,
+				}
+			);
 
+			// Determine trend
+			let trend: "up" | "down" | "stable" = "stable";
+			if (previousScoreRecord) {
+				if (newScore > previousScoreRecord.overallScore) trend = "up";
+				else if (newScore < previousScoreRecord.overallScore) trend = "down";
+			}
+
+			// Upsert today's health score (or keep a history?)
+			// PRD says "Updates EZ Score", let's insert a new record for history but timeline asks for max 30 days
 			await db.insert(healthScore).values({
 				userId,
 				date: today,
-				overallScore,
-				sleepSubScore: ((input.sleepScore - 1) / 4) * 100,
-				stressSubScore: ((6 - input.stressScore - 1) / 4) * 100,
-				painSubScore: input.hasPain ? 0 : 100,
-				trend: trend as "up" | "down" | "stable",
-				changeFromPrevious,
+				overallScore: newScore,
+				trend,
+				todayFocus,
 			});
 
 			// Update streak
@@ -154,54 +149,72 @@ export const checkinRouter = router({
 				.from(streak)
 				.where(eq(streak.userId, userId));
 
+			let streakInfo;
 			if (existingStreak) {
-				const isConsecutive = existingStreak.lastCheckinDate === yesterday;
+				const isConsecutive =
+					existingStreak.lastCheckinDate === today ||
+					existingStreak.lastCheckinDate === yesterday;
+
 				const newCurrentStreak = isConsecutive
-					? existingStreak.currentStreak + 1
+					? (existingStreak.lastCheckinDate === today ? existingStreak.currentStreak : existingStreak.currentStreak + 1)
 					: 1;
+
 				const newLongestStreak = Math.max(
 					existingStreak.longestStreak,
 					newCurrentStreak
 				);
 
-				await db
+				const [updatedStreak] = await db
 					.update(streak)
 					.set({
 						currentStreak: newCurrentStreak,
 						longestStreak: newLongestStreak,
 						lastCheckinDate: today,
 					})
-					.where(eq(streak.userId, userId));
+					.where(eq(streak.userId, userId))
+					.returning();
+
+				if (!updatedStreak) {
+					throw new Error("Failed to update streak");
+				}
+				streakInfo = { current: updatedStreak.currentStreak, longest: updatedStreak.longestStreak };
 			} else {
-				await db.insert(streak).values({
+				const [newStreak] = await db.insert(streak).values({
 					userId,
 					currentStreak: 1,
 					longestStreak: 1,
 					lastCheckinDate: today,
-				});
+				}).returning();
+
+				if (!newStreak) {
+					throw new Error("Failed to create streak");
+				}
+				streakInfo = { current: newStreak.currentStreak, longest: newStreak.longestStreak };
 			}
 
 			return {
-				checkin,
-				score: overallScore,
-				trend,
-				changeFromPrevious,
+				ezScore: newScore,
+				today_focus: todayFocus,
+				streak_info: streakInfo,
 			};
 		}),
 
-	// Get recent check-ins
-	history: protectedProcedure
-		.input(z.object({ limit: z.number().min(1).max(30).default(7) }))
-		.query(async ({ ctx, input }) => {
-			const userId = ctx.session.user.id;
+	// Get timeline for progress (Max 30 days)
+	timeline: protectedProcedure.query(async ({ ctx }) => {
+		const userId = ctx.session.user.id;
 
-			const checkins = await db
-				.select()
-				.from(dailyCheckin)
-				.where(eq(dailyCheckin.userId, userId))
-				.orderBy(desc(dailyCheckin.date))
-				.limit(input.limit);
+		const scores = await db
+			.select()
+			.from(healthScore)
+			.where(eq(healthScore.userId, userId))
+			.orderBy(desc(healthScore.date))
+			.limit(30);
 
-			return checkins;
-		}),
+		// Format for timeline: date, ezScore, status
+		return scores.map(s => ({
+			date: s.date,
+			ezScore: s.overallScore,
+			status: s.trend === "up" ? "improving" : s.trend === "down" ? "declining" : "stable"
+		})).reverse();
+	}),
 });

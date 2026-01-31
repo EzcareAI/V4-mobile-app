@@ -4,5 +4,5 @@ export * from "./chat-message";
 export * from "./daily-checkin";
 export * from "./health-score";
 export * from "./streak";
-export * from "./subscription";
+export * from "./scan";
 export * from "./user-profile";

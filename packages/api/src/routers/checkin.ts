@@ -77,24 +77,24 @@ export const checkinRouter = router({
 			const existingToday = await db
 				.select()
 				.from(dailyCheckin)
-				.where(and(eq(dailyCheckin.userId, userId), eq(dailyCheckin.date, today)));
+				.where(
+					and(eq(dailyCheckin.userId, userId), eq(dailyCheckin.date, today))
+				);
 
 			if (existingToday.length >= 2) {
 				throw new Error("Maximum 2 check-ins per day allowed");
 			}
 
 			// Save check-in
-			await db
-				.insert(dailyCheckin)
-				.values({
-					userId,
-					date: today,
-					energy: input.energy,
-					mood: input.mood,
-					pain: input.pain,
-					digestion: input.digestion,
-					sleepQuality: input.sleep_quality,
-				});
+			await db.insert(dailyCheckin).values({
+				userId,
+				date: today,
+				energy: input.energy,
+				mood: input.mood,
+				pain: input.pain,
+				digestion: input.digestion,
+				sleepQuality: input.sleep_quality,
+			});
 
 			// Get latest previous score (might be from earlier today or yesterday)
 			const [previousScoreRecord] = await db
@@ -116,15 +116,13 @@ export const checkinRouter = router({
 				previousScoreRecord?.overallScore
 			);
 
-			const todayFocus = getTodayFocus(
-				{
-					energy: input.energy,
-					mood: input.mood,
-					pain: input.pain,
-					digestion: input.digestion,
-					sleepQuality: input.sleep_quality,
-				}
-			);
+			const todayFocus = getTodayFocus({
+				energy: input.energy,
+				mood: input.mood,
+				pain: input.pain,
+				digestion: input.digestion,
+				sleepQuality: input.sleep_quality,
+			});
 
 			// Determine trend
 			let trend: "up" | "down" | "stable" = "stable";
@@ -156,7 +154,9 @@ export const checkinRouter = router({
 					existingStreak.lastCheckinDate === yesterday;
 
 				const newCurrentStreak = isConsecutive
-					? (existingStreak.lastCheckinDate === today ? existingStreak.currentStreak : existingStreak.currentStreak + 1)
+					? existingStreak.lastCheckinDate === today
+						? existingStreak.currentStreak
+						: existingStreak.currentStreak + 1
 					: 1;
 
 				const newLongestStreak = Math.max(
@@ -177,19 +177,28 @@ export const checkinRouter = router({
 				if (!updatedStreak) {
 					throw new Error("Failed to update streak");
 				}
-				streakInfo = { current: updatedStreak.currentStreak, longest: updatedStreak.longestStreak };
+				streakInfo = {
+					current: updatedStreak.currentStreak,
+					longest: updatedStreak.longestStreak,
+				};
 			} else {
-				const [newStreak] = await db.insert(streak).values({
-					userId,
-					currentStreak: 1,
-					longestStreak: 1,
-					lastCheckinDate: today,
-				}).returning();
+				const [newStreak] = await db
+					.insert(streak)
+					.values({
+						userId,
+						currentStreak: 1,
+						longestStreak: 1,
+						lastCheckinDate: today,
+					})
+					.returning();
 
 				if (!newStreak) {
 					throw new Error("Failed to create streak");
 				}
-				streakInfo = { current: newStreak.currentStreak, longest: newStreak.longestStreak };
+				streakInfo = {
+					current: newStreak.currentStreak,
+					longest: newStreak.longestStreak,
+				};
 			}
 
 			return {
@@ -211,10 +220,17 @@ export const checkinRouter = router({
 			.limit(30);
 
 		// Format for timeline: date, ezScore, status
-		return scores.map(s => ({
-			date: s.date,
-			ezScore: s.overallScore,
-			status: s.trend === "up" ? "improving" : s.trend === "down" ? "declining" : "stable"
-		})).reverse();
+		return scores
+			.map((s) => ({
+				date: s.date,
+				ezScore: s.overallScore,
+				status:
+					s.trend === "up"
+						? "improving"
+						: s.trend === "down"
+							? "declining"
+							: "stable",
+			}))
+			.reverse();
 	}),
 });

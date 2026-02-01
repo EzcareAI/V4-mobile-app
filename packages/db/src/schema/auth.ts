@@ -1,5 +1,21 @@
 import { relations } from "drizzle-orm";
-import { boolean, index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+	boolean,
+	index,
+	pgEnum,
+	pgTable,
+	text,
+	timestamp,
+} from "drizzle-orm/pg-core";
+
+// Subscription status enum
+export const subscriptionStatusEnum = pgEnum("subscription_status", [
+	"free",
+	"active",
+	"expired",
+	"cancelled",
+	"trial",
+]);
 
 export const user = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -11,6 +27,9 @@ export const user = pgTable("user", {
 	updatedAt: timestamp("updated_at")
 		.defaultNow()
 		.$onUpdate(() => /* @__PURE__ */ new Date())
+		.notNull(),
+	subscriptionStatus: subscriptionStatusEnum("subscription_status")
+		.default("free")
 		.notNull(),
 });
 

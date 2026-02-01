@@ -1,5 +1,14 @@
 import { relations } from "drizzle-orm";
-import { index, integer, jsonb, pgEnum, pgTable, real, text, timestamp } from "drizzle-orm/pg-core";
+import {
+	index,
+	integer,
+	jsonb,
+	pgEnum,
+	pgTable,
+	real,
+	text,
+	timestamp,
+} from "drizzle-orm/pg-core";
 
 import { user } from "./auth";
 
@@ -36,9 +45,7 @@ export const scan = pgTable(
 			.$onUpdate(() => new Date())
 			.notNull(),
 	},
-	(table) => [
-		index("scan_user_id_idx").on(table.userId),
-	]
+	(table) => [index("scan_user_id_idx").on(table.userId)]
 );
 
 // Scan answers table (storing the raw input data)
@@ -52,16 +59,14 @@ export const scanAnswer = pgTable(
 			.notNull()
 			.unique()
 			.references(() => scan.id, { onDelete: "cascade" }),
-		
+
 		// Detailed fields as JSON for flexibility, but could also be individual columns
 		// Since we have a strict contract, we'll store the object to match it
-		answers: jsonb("answers").notNull(), 
-		
+		answers: jsonb("answers").notNull(),
+
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 	},
-	(table) => [
-		index("scan_answer_scan_id_idx").on(table.scanId),
-	]
+	(table) => [index("scan_answer_scan_id_idx").on(table.scanId)]
 );
 
 // Scan results table (storing AI interpreted output)
@@ -75,20 +80,18 @@ export const scanResult = pgTable(
 			.notNull()
 			.unique()
 			.references(() => scan.id, { onDelete: "cascade" }),
-		
+
 		confidence: real("confidence").notNull(),
 		processingTimeMs: integer("processing_time_ms").notNull(),
-		
+
 		// The main result object from the contract
-		result: jsonb("result").notNull(), 
-		
+		result: jsonb("result").notNull(),
+
 		disclaimer: text("disclaimer").notNull(),
-		
+
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 	},
-	(table) => [
-		index("scan_result_scan_id_idx").on(table.scanId),
-	]
+	(table) => [index("scan_result_scan_id_idx").on(table.scanId)]
 );
 
 // Relations

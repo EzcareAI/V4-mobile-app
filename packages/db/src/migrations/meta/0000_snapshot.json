@@ -110,12 +110,8 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -202,12 +198,8 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -217,9 +209,7 @@
         "session_token_unique": {
           "name": "session_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -283,9 +273,7 @@
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -439,12 +427,8 @@
           "name": "chat_message_user_id_user_id_fk",
           "tableFrom": "chat_message",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -559,12 +543,8 @@
           "name": "daily_checkin_user_id_user_id_fk",
           "tableFrom": "daily_checkin",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -574,10 +554,7 @@
         "daily_checkin_user_date_unique": {
           "name": "daily_checkin_user_date_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id",
-            "date"
-          ]
+          "columns": ["user_id", "date"]
         }
       },
       "policies": {},
@@ -702,12 +679,8 @@
           "name": "health_score_user_id_user_id_fk",
           "tableFrom": "health_score",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -717,10 +690,7 @@
         "health_score_user_date_unique": {
           "name": "health_score_user_date_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id",
-            "date"
-          ]
+          "columns": ["user_id", "date"]
         }
       },
       "policies": {},
@@ -800,12 +770,8 @@
           "name": "streak_user_id_user_id_fk",
           "tableFrom": "streak",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -815,9 +781,7 @@
         "streak_user_id_unique": {
           "name": "streak_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id"
-          ]
+          "columns": ["user_id"]
         }
       },
       "policies": {},
@@ -891,12 +855,8 @@
           "name": "scan_user_id_user_id_fk",
           "tableFrom": "scan",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -959,12 +919,8 @@
           "name": "scan_answer_scan_id_scan_id_fk",
           "tableFrom": "scan_answer",
           "tableTo": "scan",
-          "columnsFrom": [
-            "scan_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["scan_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -974,9 +930,7 @@
         "scan_answer_scan_id_unique": {
           "name": "scan_answer_scan_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "scan_id"
-          ]
+          "columns": ["scan_id"]
         }
       },
       "policies": {},
@@ -1053,12 +1007,8 @@
           "name": "scan_result_scan_id_scan_id_fk",
           "tableFrom": "scan_result",
           "tableTo": "scan",
-          "columnsFrom": [
-            "scan_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["scan_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1068,9 +1018,7 @@
         "scan_result_scan_id_unique": {
           "name": "scan_result_scan_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "scan_id"
-          ]
+          "columns": ["scan_id"]
         }
       },
       "policies": {},
@@ -1225,12 +1173,8 @@
           "name": "user_profile_user_id_user_id_fk",
           "tableFrom": "user_profile",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1240,9 +1184,7 @@
         "user_profile_user_id_unique": {
           "name": "user_profile_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id"
-          ]
+          "columns": ["user_id"]
         }
       },
       "policies": {},
@@ -1349,12 +1291,8 @@
           "name": "subscription_user_id_user_id_fk",
           "tableFrom": "subscription",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1364,9 +1302,7 @@
         "subscription_user_id_unique": {
           "name": "subscription_user_id_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "user_id"
-          ]
+          "columns": ["user_id"]
         }
       },
       "policies": {},
@@ -1378,102 +1314,52 @@
     "public.message_role": {
       "name": "message_role",
       "schema": "public",
-      "values": [
-        "user",
-        "assistant"
-      ]
+      "values": ["user", "assistant"]
     },
     "public.health_trend": {
       "name": "health_trend",
       "schema": "public",
-      "values": [
-        "up",
-        "down",
-        "stable"
-      ]
+      "values": ["up", "down", "stable"]
     },
     "public.scan_status": {
       "name": "scan_status",
       "schema": "public",
-      "values": [
-        "in_progress",
-        "completed",
-        "failed"
-      ]
+      "values": ["in_progress", "completed", "failed"]
     },
     "public.scan_urgency": {
       "name": "scan_urgency",
       "schema": "public",
-      "values": [
-        "none",
-        "monitor",
-        "consult_soon",
-        "seek_immediate"
-      ]
+      "values": ["none", "monitor", "consult_soon", "seek_immediate"]
     },
     "public.age_range": {
       "name": "age_range",
       "schema": "public",
-      "values": [
-        "18-24",
-        "25-34",
-        "35-44",
-        "45-54",
-        "55-64",
-        "65+"
-      ]
+      "values": ["18-24", "25-34", "35-44", "45-54", "55-64", "65+"]
     },
     "public.diet_type": {
       "name": "diet_type",
       "schema": "public",
-      "values": [
-        "classic",
-        "vegan",
-        "carnivore",
-        "mixed"
-      ]
+      "values": ["classic", "vegan", "carnivore", "mixed"]
     },
     "public.gender": {
       "name": "gender",
       "schema": "public",
-      "values": [
-        "male",
-        "female",
-        "other",
-        "prefer_not_to_say"
-      ]
+      "values": ["male", "female", "other", "prefer_not_to_say"]
     },
     "public.health_goal": {
       "name": "health_goal",
       "schema": "public",
-      "values": [
-        "energy",
-        "sleep",
-        "digestion",
-        "stress",
-        "longevity"
-      ]
+      "values": ["energy", "sleep", "digestion", "stress", "longevity"]
     },
     "public.symptom": {
       "name": "symptom",
       "schema": "public",
-      "values": [
-        "fatigue",
-        "brain_fog",
-        "digestive",
-        "anxiety",
-        "pain"
-      ]
+      "values": ["fatigue", "brain_fog", "digestive", "anxiety", "pain"]
     },
     "public.subscription_status": {
       "name": "subscription_status",
       "schema": "public",
-      "values": [
-        "active",
-        "expired",
-        "cancelled",
-        "trial"
-      ]
+      "values": ["active", "expired", "cancelled", "trial"]
     }
   },
   "schemas": {},

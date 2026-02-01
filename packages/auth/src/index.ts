@@ -11,14 +11,20 @@ export const auth = betterAuth({
 
 		schema,
 	}),
-	trustedOrigins: [env.CORS_ORIGIN, "mybettertapp://", "exp://"],
+	trustedOrigins: [
+		env.CORS_ORIGIN,
+		"http://localhost:8081",
+		"http://192.168.137.122:8081",
+		"mybettertapp://",
+		"exp://",
+	],
 	emailAndPassword: {
 		enabled: true,
 	},
 	advanced: {
 		defaultCookieAttributes: {
-			sameSite: "none",
-			secure: true,
+			sameSite: env.NODE_ENV === "production" ? "none" : "lax",
+			secure: env.NODE_ENV === "production",
 			httpOnly: true,
 		},
 	},

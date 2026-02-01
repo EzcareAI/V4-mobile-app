@@ -1,7 +1,6 @@
 import { createContext } from "@ezcare/api/context";
 import { appRouter } from "@ezcare/api/routers/index";
 import { auth } from "@ezcare/auth";
-import { env } from "@ezcare/env/server";
 import { trpcServer } from "@hono/trpc-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -11,11 +10,26 @@ const app = new Hono();
 
 app.use(logger());
 app.use(
-	"/*",
+	"*",
 	cors({
-		origin: env.CORS_ORIGIN,
+		origin: (origin) => {
+			if (
+				origin?.includes("localhost") ||
+				origin?.includes("127.0.0.1") ||
+				origin?.includes("192.168.137.122")
+			) {
+				return origin;
+			}
+			return "http://localhost:3001";
+		},
 		allowMethods: ["GET", "POST", "OPTIONS"],
-		allowHeaders: ["Content-Type", "Authorization"],
+		allowHeaders: [
+			"Content-Type",
+			"Authorization",
+			"x-trpc-source",
+			"Origin",
+			"Accept",
+		],
 		credentials: true,
 	})
 );

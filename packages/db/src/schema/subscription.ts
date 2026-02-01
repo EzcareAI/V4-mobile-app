@@ -1,15 +1,7 @@
 import { relations } from "drizzle-orm";
-import { index, pgEnum, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { index, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
-import { user } from "./auth";
-
-// Subscription status enum
-export const subscriptionStatusEnum = pgEnum("subscription_status", [
-	"active",
-	"expired",
-	"cancelled",
-	"trial",
-]);
+import { subscriptionStatusEnum, user } from "./auth";
 
 // RevenueCat subscription tracking
 export const subscription = pgTable(

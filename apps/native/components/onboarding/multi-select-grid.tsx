@@ -81,7 +81,9 @@ const GridItem = ({
 						);
 					}
 
-					const indicatorBorderColor = isSelected ? "border-[#3EC9B5]" : "border-slate-200";
+					const indicatorBorderColor = isSelected
+						? "border-[#3EC9B5]"
+						: "border-slate-200";
 					const indicatorBgColor = isSelected ? "bg-white" : "bg-transparent";
 
 					return (

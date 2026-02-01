@@ -1,11 +1,11 @@
-import { ScanAIInput } from "../schemas";
+import type { ScanAIInput } from "../schemas";
 
 /**
  * Generates the system prompt for Claude to process a wellness scan.
  * Enforces strict JSON output and non-diagnostic language.
  */
 export function getScanSystemPrompt(): string {
-    return `You are a high-end health and wellness assistant for EZCare AI. 
+	return `You are a high-end health and wellness assistant for EZCare AI. 
 Your task is to analyze user-submitted symptom data and provide a personalized wellness interpretation.
 
 ### STRICTURE RULES:
@@ -56,13 +56,13 @@ Your task is to analyze user-submitted symptom data and provide a personalized w
  * Formats the user data into a clean prompt for Claude.
  */
 export function formatScanUserPrompt(data: ScanAIInput): string {
-    return `Here is the user's scan data to analyze:
+	return `Here is the user's scan data to analyze:
 
 SYMPTOMS:
 - Primary: ${data.symptoms.primary.category} (${data.symptoms.primary.description})
 - Severity: ${data.symptoms.primary.severity}/10
 - Duration: ${data.symptoms.primary.duration_days} days
-- Secondary: ${data.symptoms.secondary.map(s => `${s.name} (${s.severity}/10, present: ${s.present})`).join(", ")}
+- Secondary: ${data.symptoms.secondary.map((s) => `${s.name} (${s.severity}/10, present: ${s.present})`).join(", ")}
 
 LIFESTYLE:
 - Sleep: ${data.lifestyle.sleep_hours}h
@@ -83,7 +83,7 @@ Please generate the JSON response now.`;
  * Simplified prompt for retry on failure.
  */
 export function getSimplifiedScanPrompt(): string {
-    return `The previous attempt failed or was malformed. 
+	return `The previous attempt failed or was malformed. 
 Please provide a very simple, conservative wellness interpretation for the provided data. 
 Ensure the JSON structure exactly matches the requested schema. 
 Keep explanations extremely brief.`;

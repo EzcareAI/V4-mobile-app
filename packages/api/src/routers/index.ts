@@ -1,8 +1,8 @@
-import type { Context } from "../context";
 import { protectedProcedure, publicProcedure, router } from "../index";
 import { checkinRouter } from "./checkin";
 import { companionRouter } from "./companion";
 import { healthRouter } from "./health";
+import { insightRouter } from "./insight";
 import { profileRouter } from "./profile";
 import { scanRouter } from "./scan";
 import { subscriptionRouter } from "./subscription";
@@ -14,7 +14,7 @@ export const appRouter = router({
 	}),
 
 	// Private data (for testing auth)
-	privateData: protectedProcedure.query(({ ctx }: { ctx: Context }) => {
+	privateData: protectedProcedure.query(({ ctx }) => {
 		return {
 			message: "This is private",
 			user: ctx.session.user,
@@ -28,6 +28,7 @@ export const appRouter = router({
 	companion: companionRouter,
 	subscription: subscriptionRouter,
 	scan: scanRouter,
+	insight: insightRouter,
 });
 
 export type AppRouter = typeof appRouter;

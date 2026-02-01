@@ -1,9 +1,10 @@
 import { db } from "@ezcare/db";
-import { subscription } from "@ezcare/db/schema";
+import { subscription, user, type Subscription } from "@ezcare/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { protectedProcedure, router } from "../index";
+import { logger } from "../logic/logger";
 
 // Feature access levels
 const FREE_FEATURES = [
@@ -205,6 +206,8 @@ export const subscriptionRouter = router({
 				expiresAt.setMonth(expiresAt.getMonth() + 1);
 			}
 
+			let subResult: Subscription;
+
 			if (existing) {
 				const [updated] = await db
 					.update(subscription)
@@ -217,22 +220,70 @@ export const subscriptionRouter = router({
 					})
 					.where(eq(subscription.userId, userId))
 					.returning();
-
-				return { success: true, subscription: updated };
+				subResult = updated;
+			} else {
+				const [created] = await db
+					.insert(subscription)
+					.values({
+						userId,
+						productId: input.productId,
+						revenuecatUserId: input.revenuecatUserId,
+						status: "active",
+						expiresAt,
+						originalPurchaseDate: new Date(),
+					})
+					.returning();
+				subResult = created;
 			}
 
-			const [created] = await db
-				.insert(subscription)
-				.values({
-					userId,
-					productId: input.productId,
-					revenuecatUserId: input.revenuecatUserId,
-					status: "active",
-					expiresAt,
-					originalPurchaseDate: new Date(),
-				})
-				.returning();
+			// Update user table status as well
+			await db
+				.update(user)
+				.set({ subscriptionStatus: "active" })
+				.where(eq(user.id, userId));
 
-			return { success: true, subscription: created };
+			logger.payment(userId, "verifyPurchase", "active");
+
+			return { success: true, subscription: subResult };
+		}),
+
+	// Manual subscription override for testing (POC-only)
+	overrideStatus: protectedProcedure
+		.input(z.object({ status: z.enum(["free", "active", "trial", "expired"]) }))
+		.mutation(async ({ ctx, input }) => {
+			const userId = ctx.session.user.id;
+
+			await db
+				.update(user)
+				.set({ subscriptionStatus: input.status })
+				.where(eq(user.id, userId));
+
+			// Also update or create subscription record for consistency
+			const [existing] = await db
+				.select()
+				.from(subscription)
+				.where(eq(subscription.userId, userId));
+
+			if (existing) {
+				await db
+					.update(subscription)
+					.set({
+						status:
+							input.status === "free"
+								? "cancelled"
+								: (input.status as Subscription["status"]),
+					})
+					.where(eq(subscription.userId, userId));
+			} else if (input.status !== "free") {
+				await db.insert(subscription).values({
+					userId,
+					status: input.status as Subscription["status"],
+					productId: "test_manual_override",
+				});
+			}
+
+			logger.payment(userId, "overrideStatus", input.status);
+
+			return { success: true, status: input.status };
 		}),
 });

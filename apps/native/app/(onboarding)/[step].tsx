@@ -1,3 +1,6 @@
+import { useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
+import { View } from "react-native";
 import { ActivityLevelScreen } from "@/components/onboarding/screens/activity-level-screen";
 import { BirthdayScreen } from "@/components/onboarding/screens/birthday-screen";
 import { CravingsScreen } from "@/components/onboarding/screens/cravings-screen";
@@ -19,9 +22,6 @@ import { StressLevelScreen } from "@/components/onboarding/screens/stress-level-
 import { SymptomResultsScreen } from "@/components/onboarding/screens/symptom-results-screen";
 import { SymptomsScreen } from "@/components/onboarding/screens/symptoms-screen";
 import { useOnboardingStore } from "@/stores/onboarding-store";
-import { useLocalSearchParams } from "expo-router";
-import { useEffect } from "react";
-import { View } from "react-native";
 
 const OnboardingStep = () => {
 	const { step } = useLocalSearchParams<{ step: string }>();

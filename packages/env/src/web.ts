@@ -1,11 +1,19 @@
-import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 
-export const env = createEnv({
-	clientPrefix: "VITE_",
-	client: {
-		VITE_SERVER_URL: z.url(),
-	},
-	runtimeEnv: (import.meta as any).env,
-	emptyStringAsUndefined: true,
+// Simple environment validation without @t3-oss/env-core
+const schema = z.object({
+	VITE_SERVER_URL: z.string().url(),
 });
+
+const runtimeEnv = typeof process !== "undefined" ? process.env : {};
+const parsed = schema.safeParse(runtimeEnv);
+
+if (!parsed.success) {
+	console.error(
+		"❌ Invalid environment variables:",
+		parsed.error.flatten().fieldErrors
+	);
+	throw new Error("Invalid environment variables");
+}
+
+export const env = parsed.data;

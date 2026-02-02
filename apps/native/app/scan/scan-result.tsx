@@ -1,4 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
 import { ActivityIndicator, Text } from "react-native";
 
 import { Container } from "@/components/container";
@@ -8,8 +9,15 @@ import { trpc } from "@/utils/trpc";
 export default function ScanResult() {
 	const { scanId } = useLocalSearchParams<{ scanId: string }>();
 
-	const { data: result, isLoading } = trpc.scan.generateResult.useMutation();
+	const generateResult = trpc.scan.generateResult.useMutation();
 	const { data: subscription } = trpc.subscription.getStatus.useQuery();
+
+	// Call mutation on mount
+	useEffect(() => {
+		if (scanId && !generateResult.data && !generateResult.isPending) {
+			generateResult.mutate({ scanId });
+		}
+	}, [scanId, generateResult.data, generateResult.isPending, generateResult]);
 
 	const isSubscribed =
 		subscription?.status === "active" || subscription?.status === "trial";
@@ -18,7 +26,7 @@ export default function ScanResult() {
 		router.push("/paywall/paywall-value");
 	};
 
-	if (isLoading || !result) {
+	if (generateResult.isPending || !generateResult.data) {
 		return (
 			<Container className="items-center justify-center">
 				<ActivityIndicator size="large" />
@@ -26,6 +34,16 @@ export default function ScanResult() {
 			</Container>
 		);
 	}
+
+	if (generateResult.error) {
+		return (
+			<Container className="items-center justify-center">
+				<Text className="text-danger">Error: {generateResult.error.message}</Text>
+			</Container>
+		);
+	}
+
+	const result = generateResult.data;
 
 	return (
 		<Container>
@@ -39,3 +57,4 @@ export default function ScanResult() {
 		</Container>
 	);
 }
+

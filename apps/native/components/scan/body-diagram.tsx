@@ -1,6 +1,6 @@
 import * as Haptics from "expo-haptics";
 import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import Svg, { Circle, Ellipse, Rect } from "react-native-svg";
 
 interface BodyDiagramProps {
@@ -27,13 +27,13 @@ export function BodyDiagram({ onZoneSelect }: BodyDiagramProps) {
 					className={`rounded-full px-6 py-2 ${view === "front" ? "bg-primary" : "bg-secondary"}`}
 					onPress={() => setView("front")}
 				>
-					<View className="font-medium text-sm">Front</View>
+					<Text className={`font-medium text-sm ${view === "front" ? "text-white" : "text-foreground"}`}>Front</Text>
 				</Pressable>
 				<Pressable
 					className={`rounded-full px-6 py-2 ${view === "back" ? "bg-primary" : "bg-secondary"}`}
 					onPress={() => setView("back")}
 				>
-					<View className="font-medium text-sm">Back</View>
+					<Text className={`font-medium text-sm ${view === "back" ? "text-white" : "text-foreground"}`}>Back</Text>
 				</Pressable>
 			</View>
 

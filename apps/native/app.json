@@ -16,6 +16,15 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "android": {
+      "package": "com.anonymous.ezcare"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3bc4fe3b-6d6d-43dd-832f-23a08e52e4c5"
+      }
     }
   }
 }

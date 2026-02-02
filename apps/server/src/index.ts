@@ -16,7 +16,7 @@ app.use(
 			if (
 				origin?.includes("localhost") ||
 				origin?.includes("127.0.0.1") ||
-				origin?.includes("192.168.137.122")
+				origin?.includes("192.168.137.1")
 			) {
 				return origin;
 			}

@@ -1,7 +1,7 @@
 import * as Haptics from "expo-haptics";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import Svg, { Circle, Ellipse, Rect } from "react-native-svg";
+import Svg, { Circle, Ellipse, G, Rect } from "react-native-svg";
 
 interface BodyDiagramProps {
 	onZoneSelect: (zone: string) => void;
@@ -18,6 +18,9 @@ export function BodyDiagram({ onZoneSelect }: BodyDiagramProps) {
 		setSelectedZone(zone);
 		onZoneSelect(zone);
 	};
+
+	const getZoneColor = (zone: BodyZone) =>
+		selectedZone === zone ? "#3b82f6" : "#e5e7eb";
 
 	return (
 		<View className="items-center">
@@ -38,110 +41,107 @@ export function BodyDiagram({ onZoneSelect }: BodyDiagramProps) {
 			</View>
 
 			{/* Body SVG */}
-			<Svg height="400" viewBox="0 0 200 400" width="200">
+			<Svg height={400} viewBox="0 0 200 400" width={200}>
 				{view === "front" ? (
 					<>
 						{/* Head */}
-						<Pressable onPress={() => handleZonePress("head")}>
+						<G onPress={() => handleZonePress("head")}>
 							<Circle
-								cx="100"
-								cy="40"
-								fill={selectedZone === "head" ? "#3b82f6" : "#e5e7eb"}
+								cx={100}
+								cy={40}
+								fill={getZoneColor("head")}
 								opacity={0.8}
-								r="30"
+								r={30}
 							/>
-						</Pressable>
+						</G>
 
 						{/* Chest */}
-						<Pressable onPress={() => handleZonePress("chest")}>
+						<G onPress={() => handleZonePress("chest")}>
 							<Rect
-								fill={selectedZone === "chest" ? "#3b82f6" : "#e5e7eb"}
-								height="60"
+								fill={getZoneColor("chest")}
+								height={60}
 								opacity={0.8}
-								rx="10"
-								width="80"
-								x="60"
-								y="75"
+								rx={10}
+								width={80}
+								x={60}
+								y={75}
 							/>
-						</Pressable>
+						</G>
 
 						{/* Stomach */}
-						<Pressable onPress={() => handleZonePress("stomach")}>
+						<G onPress={() => handleZonePress("stomach")}>
 							<Ellipse
-								cx="100"
-								cy="165"
-								fill={selectedZone === "stomach" ? "#3b82f6" : "#e5e7eb"}
+								cx={100}
+								cy={165}
+								fill={getZoneColor("stomach")}
 								opacity={0.8}
-								rx="40"
-								ry="35"
+								rx={40}
+								ry={35}
 							/>
-						</Pressable>
+						</G>
 
 						{/* Arms */}
-						<Pressable onPress={() => handleZonePress("arms")}>
-							<>
-								<Rect
-									fill={selectedZone === "arms" ? "#3b82f6" : "#e5e7eb"}
-									height="100"
-									opacity={0.8}
-									rx="10"
-									width="20"
-									x="30"
-									y="80"
-								/>
-								<Rect
-									fill={selectedZone === "arms" ? "#3b82f6" : "#e5e7eb"}
-									height="100"
-									opacity={0.8}
-									rx="10"
-									width="20"
-									x="150"
-									y="80"
-								/>
-							</>
-						</Pressable>
+						<G onPress={() => handleZonePress("arms")}>
+							<Rect
+								fill={getZoneColor("arms")}
+								height={100}
+								opacity={0.8}
+								rx={10}
+								width={20}
+								x={30}
+								y={80}
+							/>
+							<Rect
+								fill={getZoneColor("arms")}
+								height={100}
+								opacity={0.8}
+								rx={10}
+								width={20}
+								x={150}
+								y={80}
+							/>
+						</G>
 
 						{/* Legs */}
-						<Pressable onPress={() => handleZonePress("legs")}>
-							<>
-								<Rect
-									fill={selectedZone === "legs" ? "#3b82f6" : "#e5e7eb"}
-									height="150"
-									opacity={0.8}
-									rx="12"
-									width="25"
-									x="70"
-									y="210"
-								/>
-								<Rect
-									fill={selectedZone === "legs" ? "#3b82f6" : "#e5e7eb"}
-									height="150"
-									opacity={0.8}
-									rx="12"
-									width="25"
-									x="105"
-									y="210"
-								/>
-							</>
-						</Pressable>
+						<G onPress={() => handleZonePress("legs")}>
+							<Rect
+								fill={getZoneColor("legs")}
+								height={150}
+								opacity={0.8}
+								rx={12}
+								width={25}
+								x={70}
+								y={210}
+							/>
+							<Rect
+								fill={getZoneColor("legs")}
+								height={150}
+								opacity={0.8}
+								rx={12}
+								width={25}
+								x={105}
+								y={210}
+							/>
+						</G>
 					</>
 				) : (
 					<>
 						{/* Back view - simplified */}
-						<Pressable onPress={() => handleZonePress("back")}>
+						<G onPress={() => handleZonePress("back")}>
 							<Rect
-								fill={selectedZone === "back" ? "#3b82f6" : "#e5e7eb"}
-								height="120"
+								fill={getZoneColor("back")}
+								height={120}
 								opacity={0.8}
-								rx="10"
-								width="80"
-								x="60"
-								y="75"
+								rx={10}
+								width={80}
+								x={60}
+								y={75}
 							/>
-						</Pressable>
+						</G>
 					</>
 				)}
 			</Svg>
 		</View>
 	);
 }
+

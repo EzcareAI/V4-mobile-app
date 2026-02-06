@@ -4,7 +4,12 @@
     "userInterfaceStyle": "automatic",
     "orientation": "default",
     "web": {
-      "bundler": "metro"
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png",
+      "output": "server"
+    },
+    "cli": {
+      "skipValidation": true
     },
     "name": "ezcare",
     "slug": "ezcare",
@@ -15,7 +20,7 @@
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true
+      "reactCompiler": false
     },
     "android": {
       "package": "com.anonymous.ezcare"

@@ -33,6 +33,7 @@ export interface OnboardingState {
 	stressLevel?: "low" | "moderate" | "high";
 	smokingFrequency?: "never" | "occasionally" | "regularly";
 	alcoholFrequency?: "never" | "occasionally" | "weekly" | "often";
+	healthConditions?: string;
 
 	// Phase 3: Body Diagram Intent
 	bodyZoneSelected?: BodyZone;

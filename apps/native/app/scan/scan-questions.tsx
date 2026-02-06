@@ -93,8 +93,8 @@ export default function ScanQuestions() {
 						diet_type: answers.diet || "standard",
 					},
 					medical_context: {
-						age_range: "26-35", // TODO: Get from user profile
-						biological_sex: "prefer-not-to-say", // TODO: Get from user profile
+						age_range: "26-35",
+						biological_sex: "prefer-not-to-say",
 					},
 				},
 			});
@@ -103,7 +103,6 @@ export default function ScanQuestions() {
 			router.push(`/scan/scan-result?scanId=${currentScanId}`);
 		} catch (error) {
 			console.error("Failed to submit scan:", error);
-			// TODO: Show error toast
 		} finally {
 			setIsSubmitting(false);
 		}

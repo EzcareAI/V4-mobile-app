@@ -1,12 +1,15 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function OverallPriorityScreen() {
+	const router = useRouter();
 	const { setAnswer, nextStep } = useOnboardingStore();
 
 	const handleSelect = (priority: "energy" | "sleep" | "digestion" | "stress" | "weight") => {
 		setAnswer("overallPriority", priority);
 		nextStep();
+		router.push("/(onboarding)/15");
 	};
 
 	return (

@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, ScrollView, Dimensions } from "react-nati
 import { useOnboardingStore, type BodyZone } from "@/stores/onboarding-store";
 import { useState } from "react";
 import Svg, { Circle, Path, G, Rect } from "react-native-svg";
+import { useRouter } from "expo-router";
 
 const BODY_ZONES = [
 	{ id: "head", label: "Head", color: "#10B981", y: 60 },
@@ -13,6 +14,7 @@ const BODY_ZONES = [
 ];
 
 export default function BodyDiagramScreen() {
+	const router = useRouter();
 	const { setAnswer, nextStep } = useOnboardingStore();
 	const [selectedZone, setSelectedZone] = useState<string | null>(null);
 	const { width } = Dimensions.get("window");
@@ -21,14 +23,20 @@ export default function BodyDiagramScreen() {
 		setSelectedZone(zoneId);
 		setAnswer("bodyZoneSelected", zoneId);
 		setAnswer("intentType", "zone");
-		setTimeout(() => nextStep(), 300);
+		setTimeout(() => {
+			nextStep();
+			router.push("/(onboarding)/14");
+		}, 300);
 	};
 
 	const handleOverallHealth = () => {
 		setSelectedZone(null);
 		setAnswer("bodyZoneSelected", null);
 		setAnswer("intentType", "overall");
-		setTimeout(() => nextStep(), 300);
+		setTimeout(() => {
+			nextStep();
+			router.push("/(onboarding)/14");
+		}, 300);
 	};
 
 	return (

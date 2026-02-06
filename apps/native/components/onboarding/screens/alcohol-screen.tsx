@@ -1,12 +1,15 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function AlcoholScreen() {
+	const router = useRouter();
 	const { setAnswer, nextStep } = useOnboardingStore();
 
 	const handleSelect = (frequency: "never" | "occasionally" | "weekly" | "often") => {
 		setAnswer("alcoholFrequency", frequency);
 		nextStep();
+		router.push("/(onboarding)/9");
 	};
 
 	return (

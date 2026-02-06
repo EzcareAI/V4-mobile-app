@@ -1,13 +1,16 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import { useOnboardingStore } from "@/stores/onboarding-store";
+import { useRouter } from "expo-router";
+import { useOnboardingStore, type BodyZone } from "@/stores/onboarding-store";
 
 export function ZoneImpactScreen() {
+	const router = useRouter();
 	const { bodyZoneSelected, setAnswer, nextStep } = useOnboardingStore();
 	const zoneName = bodyZoneSelected || "this area";
 
 	const handleSelect = (impact: number) => {
 		setAnswer("zoneImpact", impact);
 		nextStep();
+		router.push("/(onboarding)/19");
 	};
 
 	return (

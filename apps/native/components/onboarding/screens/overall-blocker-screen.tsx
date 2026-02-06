@@ -1,12 +1,15 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function OverallBlockerScreen() {
+	const router = useRouter();
 	const { setAnswer, nextStep } = useOnboardingStore();
 
 	const handleSelect = (blocker: "consistency" | "stress" | "time" | "nutrition" | "other") => {
 		setAnswer("overallBlocker", blocker);
 		nextStep();
+		router.push("/(onboarding)/16");
 	};
 
 	return (

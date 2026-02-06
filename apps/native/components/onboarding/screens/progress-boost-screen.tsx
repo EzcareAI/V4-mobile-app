@@ -1,11 +1,14 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function ProgressBoostScreen() {
+	const router = useRouter();
 	const { setAnswer, nextStep } = useOnboardingStore();
 
 	const handleContinue = () => {
 		nextStep();
+		router.push("/(onboarding)/14");
 	};
 
 	return (

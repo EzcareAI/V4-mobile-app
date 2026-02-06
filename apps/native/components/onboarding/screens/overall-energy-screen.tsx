@@ -1,12 +1,15 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function OverallEnergyScreen() {
+	const router = useRouter();
 	const { setAnswer, nextStep } = useOnboardingStore();
 
 	const handleSelect = (energyLevel: number) => {
 		setAnswer("currentEnergyLevel", energyLevel);
 		nextStep();
+		router.push("/(onboarding)/17");
 	};
 
 	return (

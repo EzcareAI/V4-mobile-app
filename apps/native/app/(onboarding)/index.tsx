@@ -1,6 +1,6 @@
 import { Link, useRouter } from "expo-router";
 import { Check, Leaf } from "lucide-react-native";
-import { Text, View } from "react-native";
+import { Text, View, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ContinueButton } from "@/components/onboarding/common/continue-button";
 
@@ -12,33 +12,27 @@ export default function OnboardingIndex() {
 	};
 
 	return (
-		<View className="flex-1 bg-background">
+		<View className="flex-1 bg-gradient-to-b from-teal-50 via-blue-50 to-white">
 			<SafeAreaView style={{ flex: 1, paddingHorizontal: 24 }}>
 				<View className="flex-1 flex-col px-1">
-					{/* 1. Character Card Section - Takes remaining space */}
+					{/* Logo Section - Takes remaining space */}
 					<View className="flex-1 items-center justify-center">
-						<View className="h-56 w-56 items-center justify-center rounded-[32px] bg-white shadow-[#40E0D0]/20 shadow-lg">
-							<Text className="text-[80px]">🤖</Text>
-							<View className="mt-4 h-1.5 w-16 rounded-full bg-[#40E0D0]/20" />
+						<View className="h-56 w-56 items-center justify-center rounded-[32px] bg-white shadow-lg shadow-teal-200/50">
+							<Image
+								source={require("@/assets/images/EZCare_Logo.jpg")}
+								style={{ width: 200, height: 200 }}
+								resizeMode="contain"
+							/>
 						</View>
 					</View>
 
-					{/* 2. Branding Section - Fixed height */}
+					{/* Branding Section - Fixed height */}
 					<View className="items-center pb-6">
-						{/* Logo Badge */}
-						<View className="mb-6 flex-row items-center gap-3 rounded-2xl border border-white/50 bg-white/40 px-5 py-2.5">
-							<View className="h-10 w-10 items-center justify-center rounded-xl bg-accent">
-								<View className="absolute h-0.5 w-3.5 rounded-full bg-white" />
-								<View className="absolute h-3.5 w-0.5 rounded-full bg-white" />
-							</View>
-							<Text className="font-bold text-2xl text-accent">EZCare AI</Text>
-						</View>
-
 						{/* Headline */}
-						<Text className="text-center font-bold text-[#0d2137] text-[32px] leading-10">
+						<Text className="text-center font-bold text-[#0d2137] text-[32px] leading-10 mb-2">
 							Welcome to
 						</Text>
-						<Text className="text-center font-bold text-[#0d2137] text-[32px] leading-10">
+						<Text className="text-center font-bold bg-gradient-to-r from-teal-600 to-green-600 bg-clip-text text-transparent text-[32px] leading-10">
 							EZCare AI
 						</Text>
 
@@ -48,10 +42,9 @@ export default function OnboardingIndex() {
 						</Text>
 					</View>
 
-					{/* 3. Footer Section - Fixed height */}
+					{/* Footer Section - Fixed height */}
 					<View className="gap-5 pb-4">
 						{/* Get Started Button */}
-
 						<ContinueButton label="Get Started" onPress={handleStart} />
 
 						{/* Sign In Link */}

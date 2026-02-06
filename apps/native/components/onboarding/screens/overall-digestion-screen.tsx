@@ -1,12 +1,15 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function OverallDigestionScreen() {
+	const router = useRouter();
 	const { setAnswer, nextStep } = useOnboardingStore();
 
-	const handleSelect = (digestion: number) => {
-		setAnswer("currentDigestionComfort", digestion);
+	const handleSelect = (digestionComfort: number) => {
+		setAnswer("currentDigestionComfort", digestionComfort);
 		nextStep();
+		router.push("/(onboarding)/18");
 	};
 
 	return (

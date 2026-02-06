@@ -1,13 +1,16 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function ZoneSymptomIntensityScreen() {
+	const router = useRouter();
 	const { bodyZoneSelected, setAnswer, nextStep } = useOnboardingStore();
 	const zoneName = bodyZoneSelected || "this area";
 
 	const handleSelect = (intensity: number) => {
 		setAnswer("zoneSymptomIntensity", intensity);
 		nextStep();
+		router.push("/(onboarding)/15");
 	};
 
 	return (

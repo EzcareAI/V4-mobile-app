@@ -1,12 +1,15 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function ZoneDurationScreen() {
+	const router = useRouter();
 	const { setAnswer, nextStep } = useOnboardingStore();
 
 	const handleSelect = (duration: "days" | "weeks" | "months" | "longterm") => {
 		setAnswer("zoneDuration", duration);
 		nextStep();
+		router.push("/(onboarding)/16");
 	};
 
 	return (

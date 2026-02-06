@@ -1,12 +1,15 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function OverallMotivationScreen() {
+	const router = useRouter();
 	const { setAnswer, nextStep } = useOnboardingStore();
 
-	const handleSelect = (motivation: number) => {
-		setAnswer("motivationLevel", motivation);
+	const handleSelect = (motivationLevel: number) => {
+		setAnswer("motivationLevel", motivationLevel);
 		nextStep();
+		router.push("/(onboarding)/19");
 	};
 
 	return (

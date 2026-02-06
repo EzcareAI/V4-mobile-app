@@ -1,12 +1,15 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function ZoneTriggerScreen() {
+	const router = useRouter();
 	const { setAnswer, nextStep } = useOnboardingStore();
 
 	const handleSelect = (triggers: string[]) => {
 		setAnswer("zoneTriggers", triggers);
 		nextStep();
+		router.push("/(onboarding)/18");
 	};
 
 	const triggerOptions = [

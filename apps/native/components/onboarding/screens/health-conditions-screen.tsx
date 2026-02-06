@@ -1,11 +1,20 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function HealthConditionsScreen() {
+	const router = useRouter();
 	const { setAnswer, nextStep } = useOnboardingStore();
 
-	const handleSelect = () => {
+	const handleSelect = (id: string) => {
+		setAnswer("healthConditions", id);
 		nextStep();
+		router.push("/(onboarding)/13");
+	};
+
+	const handleContinue = () => {
+		nextStep();
+		router.push("/(onboarding)/13");
 	};
 
 	return (
@@ -33,7 +42,7 @@ export function HealthConditionsScreen() {
 					].map(({ id, label, icon }) => (
 						<TouchableOpacity
 							key={id}
-							onPress={() => handleSelect()}
+							onPress={() => handleSelect(id)}
 							className="bg-gradient-to-r from-teal-50 to-blue-50 border-2 border-teal-200 rounded-xl p-4 flex-row justify-between items-center active:bg-teal-100"
 						>
 							<Text className="font-semibold text-gray-900">{label}</Text>
@@ -44,7 +53,7 @@ export function HealthConditionsScreen() {
 
 				{/* Skip Option */}
 				<TouchableOpacity
-					onPress={() => handleSelect()}
+					onPress={() => handleContinue()}
 					className="bg-gray-100 rounded-lg py-3 px-4 border border-gray-300"
 				>
 					<Text className="text-gray-900 font-semibold text-center">

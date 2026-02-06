@@ -1,12 +1,15 @@
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useRouter } from "expo-router";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function SmokingScreen() {
+	const router = useRouter();
 	const { setAnswer, nextStep } = useOnboardingStore();
 
 	const handleSelect = (frequency: "never" | "occasionally" | "regularly") => {
 		setAnswer("smokingFrequency", frequency);
 		nextStep();
+		router.push("/(onboarding)/8");
 	};
 
 	return (

@@ -6,8 +6,11 @@ const config = getDefaultConfig(__dirname);
 config.resolver.unstable_enablePackageExports = true;
 config.resolver.disableHierarchicalLookup = false;
 
-// Limit workers to prevent memory exhaustion on EAS Cloud
-config.maxWorkers = 2;
+// Robust worker limit to prevent memory/CPU exhaustion on EAS
+config.maxWorkers = 1;
+
+// Use custom transformer to fix import.meta issues
+config.transformer.babelTransformerPath = require.resolve("./metro-transformer.js");
 
 module.exports = withUniwindConfig(config, {
     cssEntryFile: "./global.css",

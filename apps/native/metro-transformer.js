@@ -1,14 +1,12 @@
-const upstreamTransformer = require("@expo/metro-runtime/build/transform-worker/transform-worker");
+const worker = require("metro-react-native-babel-transformer");
 
-module.exports.transform = async (config) => {
-    const result = await upstreamTransformer.transform(config);
+module.exports.transform = async (props) => {
+    const { src, filename, options } = props;
 
-    // Replace import.meta with a safe alternative
-    if (result.output && result.output[0]) {
-        result.output[0].data.code = result.output[0].data.code
-            .replace(/import\.meta\.env/g, "process.env")
-            .replace(/import\.meta/g, "({})");
-    }
+    // Replace import.meta with a safe alternative to prevent Metro crashes on some environments
+    const safeSrc = src
+        .replace(/import\.meta\.env/g, "process.env")
+        .replace(/import\.meta/g, "({})");
 
-    return result;
+    return worker.transform({ ...props, src: safeSrc });
 };

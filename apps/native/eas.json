@@ -14,7 +14,6 @@
       "env": {
         "EAS_SKIP_AUTO_FINGERPRINT": "1",
         "NODE_OPTIONS": "--max-old-space-size=8192",
-        "NODE_ENV": "production",
         "EXPO_PUBLIC_SUPABASE_URL": "https://gutftkmzvskuyxlldzkx.supabase.co",
         "EXPO_PUBLIC_SUPABASE_KEY": "sb_publishable_thKn4C49wc02Uz0rTPuJag_oeUdKJqu",
         "EXPO_PUBLIC_SERVER_URL": "http://192.168.137.1:3000"
@@ -25,7 +24,6 @@
       "env": {
         "EAS_SKIP_AUTO_FINGERPRINT": "1",
         "NODE_OPTIONS": "--max-old-space-size=8192",
-        "NODE_ENV": "production",
         "EXPO_PUBLIC_SUPABASE_URL": "https://gutftkmzvskuyxlldzkx.supabase.co",
         "EXPO_PUBLIC_SUPABASE_KEY": "sb_publishable_thKn4C49wc02Uz0rTPuJag_oeUdKJqu",
         "EXPO_PUBLIC_SERVER_URL": "http://192.168.137.1:3000"
@@ -36,7 +34,6 @@
       "env": {
         "EAS_SKIP_AUTO_FINGERPRINT": "1",
         "NODE_OPTIONS": "--max-old-space-size=8192",
-        "NODE_ENV": "production",
         "EXPO_PUBLIC_SUPABASE_URL": "https://gutftkmzvskuyxlldzkx.supabase.co",
         "EXPO_PUBLIC_SUPABASE_KEY": "sb_publishable_thKn4C49wc02Uz0rTPuJag_oeUdKJqu",
         "EXPO_PUBLIC_SERVER_URL": "http://192.168.137.1:3000"

@@ -1,7 +1,7 @@
-import { View, Text, TouchableOpacity, ScrollView, Dimensions } from "react-native";
+import { useEffect, useState } from "react";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import Svg, { Circle, Text as SvgText } from "react-native-svg";
 import { useOnboardingStore } from "@/stores/onboarding-store";
-import { useState, useEffect } from "react";
-import Svg, { Circle, G, Text as SvgText } from "react-native-svg";
 
 const ZONE_NAMES = {
 	head: "Mental Clarity",
@@ -13,8 +13,18 @@ const ZONE_NAMES = {
 };
 
 const getScoreColor = (score: number) => {
-	if (score >= 70) return { bg: "bg-green-50", border: "border-green-300", text: "text-green-700" };
-	if (score >= 50) return { bg: "bg-amber-50", border: "border-amber-300", text: "text-amber-700" };
+	if (score >= 70)
+		return {
+			bg: "bg-green-50",
+			border: "border-green-300",
+			text: "text-green-700",
+		};
+	if (score >= 50)
+		return {
+			bg: "bg-amber-50",
+			border: "border-amber-300",
+			text: "text-amber-700",
+		};
 	return { bg: "bg-red-50", border: "border-red-300", text: "text-red-700" };
 };
 
@@ -69,45 +79,62 @@ export default function ResultsPreviewScreen() {
 		<ScrollView className="flex-1 bg-white">
 			{/* Header */}
 			<View className="bg-gradient-to-b from-teal-50 to-blue-50 px-6 pt-8 pb-8">
-				<Text className="text-2xl font-bold text-gray-900 text-center mb-2">
+				<Text className="mb-2 text-center font-bold text-2xl text-gray-900">
 					Your Health Core is Ready ✨
 				</Text>
-				<Text className="text-gray-600 text-center text-sm mb-6">
+				<Text className="mb-6 text-center text-gray-600 text-sm">
 					Here's what we discovered about your wellness
 				</Text>
 
 				{/* Health Score Display */}
 				<View
-					className={`${scoreInfo.bg} border-2 ${scoreInfo.border} rounded-2xl p-8 items-center mb-6`}
+					className={`${scoreInfo.bg} border-2 ${scoreInfo.border} mb-6 items-center rounded-2xl p-8`}
 				>
-					<Svg width={140} height={140} viewBox="0 0 140 140">
-						<Circle cx="70" cy="70" r="65" fill="none" stroke="#E0E7FF" strokeWidth="2" />
+					<Svg height={140} viewBox="0 0 140 140" width={140}>
 						<Circle
 							cx="70"
 							cy="70"
-							r="60"
 							fill="none"
+							r="65"
+							stroke="#E0E7FF"
+							strokeWidth="2"
+						/>
+						<Circle
+							cx="70"
+							cy="70"
+							fill="none"
+							r="60"
 							stroke={getZoneColor(score)}
-							strokeWidth="8"
 							strokeDasharray={`${(score / 100) * 377} 377`}
+							strokeWidth="8"
 						/>
 						<SvgText
-							x="70"
-							y="75"
-							textAnchor="middle"
+							fill={getZoneColor(score)}
 							fontSize="48"
 							fontWeight="bold"
-							fill={getZoneColor(score)}
+							textAnchor="middle"
+							x="70"
+							y="75"
 						>
 							{score}
 						</SvgText>
-						<SvgText x="70" y="100" textAnchor="middle" fontSize="12" fill="#6B7280">
+						<SvgText
+							fill="#6B7280"
+							fontSize="12"
+							textAnchor="middle"
+							x="70"
+							y="100"
+						>
 							/ 100
 						</SvgText>
 					</Svg>
 
-					<Text className={`text-lg font-semibold mt-4 ${scoreInfo.text}`}>
-						{score >= 70 ? "Excellent" : score >= 50 ? "Good" : "Needs Attention"}
+					<Text className={`mt-4 font-semibold text-lg ${scoreInfo.text}`}>
+						{score >= 70
+							? "Excellent"
+							: score >= 50
+								? "Good"
+								: "Needs Attention"}
 					</Text>
 				</View>
 			</View>
@@ -116,15 +143,15 @@ export default function ResultsPreviewScreen() {
 			<View className="px-6 pt-6">
 				{/* Zone Status (if zone selected) */}
 				{intentType === "zone" && bodyZoneSelected && (
-					<View className="bg-blue-50 rounded-xl p-4 mb-6 border border-blue-200">
-						<Text className="text-sm font-semibold text-blue-900 mb-2">
+					<View className="mb-6 rounded-xl border border-blue-200 bg-blue-50 p-4">
+						<Text className="mb-2 font-semibold text-blue-900 text-sm">
 							📍 Area of Focus
 						</Text>
-						<Text className="text-lg font-bold text-blue-900">
+						<Text className="font-bold text-blue-900 text-lg">
 							{ZONE_NAMES[bodyZoneSelected as keyof typeof ZONE_NAMES] ||
 								bodyZoneSelected}
 						</Text>
-						<Text className="text-xs text-blue-700 mt-2">
+						<Text className="mt-2 text-blue-700 text-xs">
 							We're creating a personalized plan for this area
 						</Text>
 					</View>
@@ -132,75 +159,92 @@ export default function ResultsPreviewScreen() {
 
 				{/* Probable Causes */}
 				<View className="mb-6">
-					<Text className="text-lg font-bold text-gray-900 mb-3">Probable Causes</Text>
+					<Text className="mb-3 font-bold text-gray-900 text-lg">
+						Probable Causes
+					</Text>
 					{probableCauses.map((cause, idx) => (
-						<View key={idx} className="flex-row items-center mb-2">
-							<Text className="text-base mr-3">{cause.split(" ")[0]}</Text>
-							<Text className="text-gray-700 text-sm">{cause.split(" ").slice(1).join(" ")}</Text>
+						<View className="mb-2 flex-row items-center" key={idx}>
+							<Text className="mr-3 text-base">{cause.split(" ")[0]}</Text>
+							<Text className="text-gray-700 text-sm">
+								{cause.split(" ").slice(1).join(" ")}
+							</Text>
 						</View>
 					))}
 				</View>
 
 				{/* Blurred Preview Section */}
 				<View className="mb-8">
-					<Text className="text-lg font-bold text-gray-900 mb-3">Your Plan Preview</Text>
+					<Text className="mb-3 font-bold text-gray-900 text-lg">
+						Your Plan Preview
+					</Text>
 
 					{/* Blurred 7-Day Plan */}
 					<View
-						className="bg-gradient-to-b from-gray-100 to-gray-50 rounded-xl p-6 mb-4 opacity-40 blur-sm"
+						className="mb-4 rounded-xl bg-gradient-to-b from-gray-100 to-gray-50 p-6 opacity-40 blur-sm"
 						style={{ pointerEvents: "none" }}
 					>
-						<Text className="text-sm font-semibold text-gray-600 mb-3">
+						<Text className="mb-3 font-semibold text-gray-600 text-sm">
 							📅 7-Day Action Plan
 						</Text>
 						<View className="space-y-2">
-							<Text className="text-xs text-gray-500">Day 1-2: Assessment & Baseline</Text>
-							<Text className="text-xs text-gray-500">Day 3-4: Quick Wins</Text>
-							<Text className="text-xs text-gray-500">Day 5-7: Building Momentum</Text>
+							<Text className="text-gray-500 text-xs">
+								Day 1-2: Assessment & Baseline
+							</Text>
+							<Text className="text-gray-500 text-xs">Day 3-4: Quick Wins</Text>
+							<Text className="text-gray-500 text-xs">
+								Day 5-7: Building Momentum
+							</Text>
 						</View>
 					</View>
 
 					{/* Blurred Next Actions */}
 					<View
-						className="bg-gradient-to-b from-gray-100 to-gray-50 rounded-xl p-6 opacity-40 blur-sm"
+						className="rounded-xl bg-gradient-to-b from-gray-100 to-gray-50 p-6 opacity-40 blur-sm"
 						style={{ pointerEvents: "none" }}
 					>
-						<Text className="text-sm font-semibold text-gray-600 mb-3">
+						<Text className="mb-3 font-semibold text-gray-600 text-sm">
 							🎯 Next Actions
 						</Text>
 						<View className="space-y-2">
-							<Text className="text-xs text-gray-500">• Personalized recommendations</Text>
-							<Text className="text-xs text-gray-500">• Daily check-ins</Text>
-							<Text className="text-xs text-gray-500">• Progress tracking</Text>
+							<Text className="text-gray-500 text-xs">
+								• Personalized recommendations
+							</Text>
+							<Text className="text-gray-500 text-xs">• Daily check-ins</Text>
+							<Text className="text-gray-500 text-xs">• Progress tracking</Text>
 						</View>
 					</View>
 
 					{/* Unlock CTA Overlay */}
-					<View className="absolute inset-0 flex items-center justify-center pointer-events-none">
-						<View className="bg-white rounded-lg px-4 py-2">
-							<Text className="text-xs font-bold text-gray-600">🔒 Unlock to view</Text>
+					<View className="pointer-events-none absolute inset-0 flex items-center justify-center">
+						<View className="rounded-lg bg-white px-4 py-2">
+							<Text className="font-bold text-gray-600 text-xs">
+								🔒 Unlock to view
+							</Text>
 						</View>
 					</View>
 				</View>
 
 				{/* Why This Score */}
-				<View className="bg-green-50 rounded-lg p-4 mb-8 border border-green-200">
-					<Text className="text-xs font-semibold text-green-900 mb-2">✨ How We Calculate</Text>
-					<Text className="text-xs text-green-800 leading-5">
-						Your score is based on sleep quality, stress level, activity, lifestyle habits, and
-						health concerns. Higher scores indicate better overall wellness potential.
+				<View className="mb-8 rounded-lg border border-green-200 bg-green-50 p-4">
+					<Text className="mb-2 font-semibold text-green-900 text-xs">
+						✨ How We Calculate
+					</Text>
+					<Text className="text-green-800 text-xs leading-5">
+						Your score is based on sleep quality, stress level, activity,
+						lifestyle habits, and health concerns. Higher scores indicate better
+						overall wellness potential.
 					</Text>
 				</View>
 
 				{/* Unlock Button */}
 				<TouchableOpacity
+					className="mb-12 rounded-xl bg-gradient-to-r from-teal-500 to-green-500 px-6 py-4 shadow-lg active:opacity-90"
 					onPress={nextStep}
-					className="bg-gradient-to-r from-teal-500 to-green-500 rounded-xl py-4 px-6 mb-12 shadow-lg active:opacity-90"
 				>
-					<Text className="text-white font-bold text-center text-lg">
+					<Text className="text-center font-bold text-lg text-white">
 						Unlock Full Results
 					</Text>
-					<Text className="text-white text-center text-xs opacity-90 mt-1">
+					<Text className="mt-1 text-center text-white text-xs opacity-90">
 						€39.99/year or €11.99/month
 					</Text>
 				</TouchableOpacity>

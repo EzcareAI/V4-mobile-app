@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function HealthConditionsScreen() {
@@ -20,17 +20,15 @@ export function HealthConditionsScreen() {
 	return (
 		<ScrollView className="flex-1 bg-white">
 			<View className="px-6 pt-8 pb-8">
-				<Text className="text-2xl font-bold text-gray-900 mb-2">
+				<Text className="mb-2 font-bold text-2xl text-gray-900">
 					Any existing conditions?
 				</Text>
-				<Text className="text-gray-600 mb-1">
-					Select any that apply to you
-				</Text>
-				<Text className="text-xs text-gray-500 mb-8">
+				<Text className="mb-1 text-gray-600">Select any that apply to you</Text>
+				<Text className="mb-8 text-gray-500 text-xs">
 					(You can pick multiple or skip)
 				</Text>
 
-				<View className="gap-3 mb-8">
+				<View className="mb-8 gap-3">
 					{[
 						{ id: "none", label: "No conditions", icon: "✓" },
 						{ id: "diabetes", label: "Diabetes", icon: "🩺" },
@@ -41,9 +39,9 @@ export function HealthConditionsScreen() {
 						{ id: "depression", label: "Depression/Anxiety", icon: "🧠" },
 					].map(({ id, label, icon }) => (
 						<TouchableOpacity
+							className="flex-row items-center justify-between rounded-xl border-2 border-teal-200 bg-gradient-to-r from-teal-50 to-blue-50 p-4 active:bg-teal-100"
 							key={id}
 							onPress={() => handleSelect(id)}
-							className="bg-gradient-to-r from-teal-50 to-blue-50 border-2 border-teal-200 rounded-xl p-4 flex-row justify-between items-center active:bg-teal-100"
 						>
 							<Text className="font-semibold text-gray-900">{label}</Text>
 							<Text className="text-2xl">{icon}</Text>
@@ -53,10 +51,10 @@ export function HealthConditionsScreen() {
 
 				{/* Skip Option */}
 				<TouchableOpacity
+					className="rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
 					onPress={() => handleContinue()}
-					className="bg-gray-100 rounded-lg py-3 px-4 border border-gray-300"
 				>
-					<Text className="text-gray-900 font-semibold text-center">
+					<Text className="text-center font-semibold text-gray-900">
 						Prefer not to share
 					</Text>
 				</TouchableOpacity>

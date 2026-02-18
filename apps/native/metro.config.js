@@ -5,9 +5,9 @@ let config = getDefaultConfig(__dirname);
 
 // Apply Uniwind first
 config = withUniwindConfig(config, {
-    cssEntryFile: "./global.css",
-    dtsFile: "./uniwind-types.d.ts",
-    extraThemes: ["light", "dark"],
+	cssEntryFile: "./global.css",
+	dtsFile: "./uniwind-types.d.ts",
+	extraThemes: ["light", "dark"],
 });
 
 // Manual overrides AFTER Uniwind to ensure they take priority
@@ -18,6 +18,8 @@ config.resolver.disableHierarchicalLookup = false;
 config.maxWorkers = 1;
 
 // Use custom transformer to fix import.meta issues
-config.transformer.babelTransformerPath = require.resolve("./metro-transformer.js");
+config.transformer.babelTransformerPath = require.resolve(
+	"./metro-transformer.js"
+);
 
 module.exports = config;

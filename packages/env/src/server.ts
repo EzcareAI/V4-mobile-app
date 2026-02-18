@@ -1,4 +1,9 @@
-import "dotenv/config";
+import path from "node:path";
+import { config } from "dotenv";
+
+config({ path: path.resolve(process.cwd(), "../../.env") });
+config({ path: path.resolve(process.cwd(), "./.env") });
+
 import { createEnv } from "@t3-oss/env-core";
 import { z } from "zod";
 

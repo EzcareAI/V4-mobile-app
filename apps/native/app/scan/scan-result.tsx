@@ -38,7 +38,9 @@ export default function ScanResult() {
 	if (generateResult.error) {
 		return (
 			<Container className="items-center justify-center">
-				<Text className="text-danger">Error: {generateResult.error.message}</Text>
+				<Text className="text-danger">
+					Error: {generateResult.error.message}
+				</Text>
 			</Container>
 		);
 	}
@@ -57,4 +59,3 @@ export default function ScanResult() {
 		</Container>
 	);
 }
-

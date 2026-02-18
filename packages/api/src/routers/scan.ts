@@ -7,7 +7,10 @@ import { generateScanResult } from "../ai/scanAI";
 import { type ScanAIInput, ScanAIInputSchema } from "../ai/schemas";
 import { protectedProcedure, router } from "../index";
 import { logger } from "../logic/logger";
-import { hasPaidAccess, type UserWithSubscription } from "../logic/subscription";
+import {
+	hasPaidAccess,
+	type UserWithSubscription,
+} from "../logic/subscription";
 
 export const scanRouter = router({
 	// 1. Create a new scan session
@@ -138,7 +141,9 @@ export const scanRouter = router({
 
 			// 3. Call AI service
 			const startAi = Date.now();
-			const aiOutput = await generateScanResult(aiInput as unknown as ScanAIInput);
+			const aiOutput = await generateScanResult(
+				aiInput as unknown as ScanAIInput
+			);
 			logger.ai(userId, "scan", Date.now() - startAi);
 
 			// 4. Save result to DB

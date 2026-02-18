@@ -1,5 +1,5 @@
 import { db } from "@ezcare/db";
-import { subscription, user, type Subscription } from "@ezcare/db/schema";
+import { type Subscription, subscription, user } from "@ezcare/db/schema";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 

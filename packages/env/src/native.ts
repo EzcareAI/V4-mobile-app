@@ -9,11 +9,11 @@ const schema = z.object({
 
 const parsed = schema.safeParse(process.env);
 
-// Default fallback values for production builds
+// Default fallback values for development builds
 const defaults = {
 	EXPO_PUBLIC_SUPABASE_URL: "https://gutftkmzvskuyxlldzkx.supabase.co",
 	EXPO_PUBLIC_SUPABASE_KEY: "sb_publishable_thKn4C49wc02Uz0rTPuJag_oeUdKJqu",
-	EXPO_PUBLIC_SERVER_URL: "http://192.168.137.1:3000",
+	EXPO_PUBLIC_SERVER_URL: "http://192.168.1.24:3000",
 };
 
 if (!parsed.success) {

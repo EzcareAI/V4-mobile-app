@@ -1,6 +1,6 @@
 import { Link, useRouter } from "expo-router";
 import { Check, Leaf } from "lucide-react-native";
-import { Text, View, Image } from "react-native";
+import { Image, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ContinueButton } from "@/components/onboarding/common/continue-button";
 
@@ -19,9 +19,9 @@ export default function OnboardingIndex() {
 					<View className="flex-1 items-center justify-center">
 						<View className="h-56 w-56 items-center justify-center rounded-[32px] bg-white shadow-lg shadow-teal-200/50">
 							<Image
+								resizeMode="contain"
 								source={require("@/assets/images/EZCare_Logo.jpg")}
 								style={{ width: 200, height: 200 }}
-								resizeMode="contain"
 							/>
 						</View>
 					</View>
@@ -29,10 +29,10 @@ export default function OnboardingIndex() {
 					{/* Branding Section - Fixed height */}
 					<View className="items-center pb-6">
 						{/* Headline */}
-						<Text className="text-center font-bold text-[#0d2137] text-[32px] leading-10 mb-2">
+						<Text className="mb-2 text-center font-bold text-[#0d2137] text-[32px] leading-10">
 							Welcome to
 						</Text>
-						<Text className="text-center font-bold bg-gradient-to-r from-teal-600 to-green-600 bg-clip-text text-transparent text-[32px] leading-10">
+						<Text className="bg-gradient-to-r from-teal-600 to-green-600 bg-clip-text text-center font-bold text-[32px] text-transparent leading-10">
 							EZCare AI
 						</Text>
 

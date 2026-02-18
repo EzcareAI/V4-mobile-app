@@ -48,12 +48,7 @@ export interface OnboardingState {
 
 	// Phase 3B: Overall Health Smart Questions
 	overallPriority?: "energy" | "sleep" | "digestion" | "stress" | "weight";
-	overallBlocker?:
-		| "consistency"
-		| "stress"
-		| "time"
-		| "nutrition"
-		| "other";
+	overallBlocker?: "consistency" | "stress" | "time" | "nutrition" | "other";
 	currentEnergyLevel?: number;
 	currentDigestionComfort?: number;
 	motivationLevel?: number;
@@ -99,15 +94,15 @@ export const useOnboardingStore = create<OnboardingState>()(
 			onboardingComplete: false,
 
 			setAnswer: (key, value) => set((state) => ({ ...state, [key]: value })),
-			
+
 			nextStep: () =>
 				set((state) => ({
 					currentStep: Math.min(state.currentStep + 1, state.totalSteps),
 				})),
-			
+
 			prevStep: () =>
 				set((state) => ({ currentStep: Math.max(state.currentStep - 1, 0) })),
-			
+
 			reset: () =>
 				set({
 					currentStep: 0,

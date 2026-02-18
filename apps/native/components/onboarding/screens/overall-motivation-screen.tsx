@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function OverallMotivationScreen() {
@@ -15,39 +15,66 @@ export function OverallMotivationScreen() {
 	return (
 		<ScrollView className="flex-1 bg-white">
 			<View className="px-6 pt-8 pb-8">
-				<Text className="text-2xl font-bold text-gray-900 mb-2">
+				<Text className="mb-2 font-bold text-2xl text-gray-900">
 					What motivates you?
 				</Text>
-				<Text className="text-gray-600 mb-8">
+				<Text className="mb-8 text-gray-600">
 					What drives you to make health changes?
 				</Text>
 
-				<View className="gap-3 mb-8">
+				<View className="mb-8 gap-3">
 					{[
-					{ value: 5, label: "Feel Better", emoji: "😊", desc: "Want more vitality & comfort" },
-					{ value: 4, label: "Perform Better", emoji: "🏃", desc: "Want to be stronger/faster" },
-					{ value: 3, label: "Prevent Disease", emoji: "🛡️", desc: "Family history concerns" },
-					{ value: 2, label: "Live Longer", emoji: "⏰", desc: "Want a long healthy life" },
-					{ value: 1, label: "Look Better", emoji: "💪", desc: "Want to look & feel great" },
+						{
+							value: 5,
+							label: "Feel Better",
+							emoji: "😊",
+							desc: "Want more vitality & comfort",
+						},
+						{
+							value: 4,
+							label: "Perform Better",
+							emoji: "🏃",
+							desc: "Want to be stronger/faster",
+						},
+						{
+							value: 3,
+							label: "Prevent Disease",
+							emoji: "🛡️",
+							desc: "Family history concerns",
+						},
+						{
+							value: 2,
+							label: "Live Longer",
+							emoji: "⏰",
+							desc: "Want a long healthy life",
+						},
+						{
+							value: 1,
+							label: "Look Better",
+							emoji: "💪",
+							desc: "Want to look & feel great",
+						},
 					].map(({ value, label, emoji, desc }) => (
 						<TouchableOpacity
+							className="rounded-xl border-2 border-teal-200 bg-gradient-to-r from-teal-50 to-blue-50 p-4 active:bg-teal-100"
 							key={value}
 							onPress={() => handleSelect(value)}
-							className="bg-gradient-to-r from-teal-50 to-blue-50 border-2 border-teal-200 rounded-xl p-4 active:bg-teal-100"
 						>
-							<View className="flex-row justify-between items-start">
+							<View className="flex-row items-start justify-between">
 								<View className="flex-1">
-									<Text className="font-semibold text-gray-900 text-lg">{label}</Text>
-									<Text className="text-xs text-gray-600 mt-1">{desc}</Text>
+									<Text className="font-semibold text-gray-900 text-lg">
+										{label}
+									</Text>
+									<Text className="mt-1 text-gray-600 text-xs">{desc}</Text>
 								</View>
-								<Text className="text-2xl ml-2">{emoji}</Text>
+								<Text className="ml-2 text-2xl">{emoji}</Text>
 							</View>
 						</TouchableOpacity>
 					))}
 				</View>
 
-				<View className="bg-green-50 rounded-lg p-3 border border-green-200">
-					<Text className="text-xs text-green-900 leading-4">
+				<View className="rounded-lg border border-green-200 bg-green-50 p-3">
+					<Text className="text-green-900 text-xs leading-4">
 						✨ Your motivation will shape how we frame your personalized plan.
 					</Text>
 				</View>

@@ -8,9 +8,6 @@
       "favicon": "./assets/favicon.png",
       "output": "static"
     },
-    "cli": {
-      "skipValidation": true
-    },
     "name": "ezcare",
     "slug": "ezcare",
     "plugins": [
@@ -23,7 +20,7 @@
       "reactCompiler": false
     },
     "android": {
-      "package": "com.anonymous.ezcare"
+      "package": "com.blastshoum.ezcare"
     },
     "extra": {
       "router": {},

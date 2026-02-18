@@ -30,13 +30,21 @@ export function BodyDiagram({ onZoneSelect }: BodyDiagramProps) {
 					className={`rounded-full px-6 py-2 ${view === "front" ? "bg-primary" : "bg-secondary"}`}
 					onPress={() => setView("front")}
 				>
-					<Text className={`font-medium text-sm ${view === "front" ? "text-white" : "text-foreground"}`}>Front</Text>
+					<Text
+						className={`font-medium text-sm ${view === "front" ? "text-white" : "text-foreground"}`}
+					>
+						Front
+					</Text>
 				</Pressable>
 				<Pressable
 					className={`rounded-full px-6 py-2 ${view === "back" ? "bg-primary" : "bg-secondary"}`}
 					onPress={() => setView("back")}
 				>
-					<Text className={`font-medium text-sm ${view === "back" ? "text-white" : "text-foreground"}`}>Back</Text>
+					<Text
+						className={`font-medium text-sm ${view === "back" ? "text-white" : "text-foreground"}`}
+					>
+						Back
+					</Text>
 				</Pressable>
 			</View>
 
@@ -144,4 +152,3 @@ export function BodyDiagram({ onZoneSelect }: BodyDiagramProps) {
 		</View>
 	);
 }
-

@@ -5,7 +5,7 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start --no-dev",
-    "dev": "node node_modules/expo/bin/cli.js start --clear",
+    "dev": "expo start --clear",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "prebuild": "expo prebuild",
@@ -14,6 +14,7 @@
   "dependencies": {
     "@better-auth/expo": "catalog:",
     "@expo/metro-runtime": "~6.1.2",
+    "@expo/ngrok": "^4.1.0",
     "@expo/vector-icons": "^15.0.3",
     "@ezcare/api": "workspace:*",
     "@ezcare/env": "workspace:*",

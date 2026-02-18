@@ -1,53 +1,50 @@
 import { createContext } from "@ezcare/api/context";
 import { appRouter } from "@ezcare/api/routers/index";
 import { auth } from "@ezcare/auth";
+import { env } from "@ezcare/env/server";
 import { trpcServer } from "@hono/trpc-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
 
 const app = new Hono();
 
-app.use(logger());
+// CORS configuration - allowing Expo Go and local development origins
 app.use(
 	"*",
 	cors({
-		origin: (origin) => {
-			if (
-				origin?.includes("localhost") ||
-				origin?.includes("127.0.0.1") ||
-				origin?.includes("192.168.137.1")
-			) {
-				return origin;
-			}
-			return "http://localhost:3001";
-		},
-		allowMethods: ["GET", "POST", "OPTIONS"],
-		allowHeaders: [
-			"Content-Type",
-			"Authorization",
-			"x-trpc-source",
-			"Origin",
-			"Accept",
+		origin: [
+			env.CORS_ORIGIN,
+			"http://localhost:8081",
+			"exp://",
+			"http://192.168.1.24:8081",
+			"http://192.168.1.24:3000",
 		],
+		allowHeaders: ["Content-Type", "Authorization", "x-trpc-source"],
+		allowMethods: ["POST", "GET", "OPTIONS"],
+		exposeHeaders: ["Content-Length", "X-Kuma-Revision"],
+		maxAge: 600,
 		credentials: true,
 	})
 );
 
+// Better Auth handler
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
+// tRPC handler
 app.use(
-	"/trpc/*",
+	"/api/trpc/*",
 	trpcServer({
 		router: appRouter,
-		createContext: (_opts, context) => {
-			return createContext({ context });
-		},
+		createContext: (_opts, c) => createContext({ context: c }),
 	})
 );
 
-app.get("/", (c) => {
-	return c.text("OK");
-});
+// Health check
+app.get("/", (c) => c.text("EZCare AI Server is running"));
 
-export default app;
+console.log("Server is running on port 3000");
+
+export default {
+	port: 3000,
+	fetch: app.fetch,
+};

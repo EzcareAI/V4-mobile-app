@@ -6,7 +6,7 @@
     "web": {
       "bundler": "metro",
       "favicon": "./assets/favicon.png",
-      "output": "server"
+      "output": "static"
     },
     "cli": {
       "skipValidation": true
@@ -28,8 +28,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "3bc4fe3b-6d6d-43dd-832f-23a08e52e4c5"
+        "projectId": "66e16e7e-88e3-48ae-acc0-4679c1f03dd1"
       }
-    }
+    },
+    "owner": "blastshoum"
   }
 }

@@ -15,9 +15,13 @@ const trpcClient = createTRPCClient<AppRouter>({
 			url: `${env.EXPO_PUBLIC_SERVER_URL}/trpc`,
 			headers() {
 				const headers = new Map<string, string>();
-				const cookies = authClient.getCookie();
-				if (cookies) {
-					headers.set("Cookie", cookies);
+				try {
+					const cookies = authClient.getCookie();
+					if (cookies) {
+						headers.set("Cookie", cookies);
+					}
+				} catch (error) {
+					console.warn("Failed to get auth cookies:", error);
 				}
 				return Object.fromEntries(headers);
 			},

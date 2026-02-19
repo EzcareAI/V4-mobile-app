@@ -1,4 +1,4 @@
-﻿{
+{
   "expo": {
     "scheme": "ezcare",
     "userInterfaceStyle": "automatic",
@@ -13,9 +13,14 @@
       "@react-native-community/datetimepicker",
       "expo-router"
     ],
+    "version": "1.0.0",
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true
-    }
+      "reactCompiler": false
+    },
+    "android": {
+      "package": "com.blastshoum.ezcare"
+    },
+    "owner": "blastshoum"
   }
 }

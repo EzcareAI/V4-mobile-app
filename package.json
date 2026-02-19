@@ -31,7 +31,9 @@
     "db:push": "turbo -F @ezcare/db db:push",
     "db:studio": "turbo -F @ezcare/db db:studio",
     "db:generate": "turbo -F @ezcare/db db:generate",
-    "db:migrate": "turbo -F @ezcare/db db:migrate"
+    "db:migrate": "turbo -F @ezcare/db db:migrate",
+    "prebuild": "bun -C apps/native expo prebuild",
+    "expo": "bun -C apps/native expo"
   },
   "dependencies": {
     "@ezcare/env": "workspace:*",
@@ -44,6 +46,7 @@
     "@ezcare/config": "workspace:*",
     "@types/bun": "^1.3.6",
     "@types/react": "~19.1.10",
+    "expo": "^54.0.33",
     "native": "workspace:*",
     "turbo": "^2.7.5",
     "typescript": "^5.9.3",

@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "ezcare",
+    "slug": "ezcare",
+    "version": "1.0.0",
+    "android": {
+      "package": "com.blastshoum.ezcare"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "66e16e7e-88e3-48ae-acc0-4679c1f03dd1"
+      }
+    }
+  }
+}

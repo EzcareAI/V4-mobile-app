@@ -22,7 +22,7 @@ export const ContinueButton = ({
 				if (!isDisabled) {
 					try {
 						await selectionAsync();
-					} catch (e) {
+					} catch {
 						// Ignore haptics errors to prevent app crash
 					}
 					onPress();

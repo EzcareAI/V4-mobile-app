@@ -94,7 +94,7 @@ export default function SignInScreen() {
 
 				{/* Welcome Card */}
 				<Card
-					className="mb-8 h-30 justify-center rounded-3xl p-8"
+					className="mb-8 h-32 justify-center rounded-3xl p-8"
 					variant="secondary"
 				>
 					<LinearGradient

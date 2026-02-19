@@ -18,10 +18,10 @@ export const ContinueButton = ({
 		<Button
 			// className="h-14 rounded-full bg-accent shadow-surface"
 			isDisabled={isDisabled}
-			onPress={async () => {
+			onPress={() => {
 				if (!isDisabled) {
 					try {
-						await selectionAsync();
+						selectionAsync();
 					} catch {
 						// Ignore haptics errors to prevent app crash
 					}

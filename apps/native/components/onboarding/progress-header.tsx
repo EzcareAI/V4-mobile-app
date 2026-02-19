@@ -24,7 +24,11 @@ export const ProgressHeader = () => {
 	}
 
 	const handleBack = () => {
-		selectionAsync();
+		try {
+			selectionAsync();
+		} catch {
+			// Ignore haptics errors
+		}
 		if (currentStep > 1) {
 			prevStep();
 			router.back();

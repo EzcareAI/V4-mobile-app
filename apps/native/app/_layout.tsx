@@ -44,7 +44,7 @@ function StackLayout() {
 		// We prioritize this over auth for now to ensure the user sees the flow
 		if (currentStep < 20 && !inOnboarding && !inAuth) {
 			router.replace("/(onboarding)");
-		} else if (currentStep > 20 && inOnboarding) {
+		} else if (currentStep >= 20 && inOnboarding) {
 			// If onboarding is completed but user is on onboarding screen, go to drawer
 			router.replace("/(drawer)");
 		}

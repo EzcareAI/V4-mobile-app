@@ -11,6 +11,7 @@ export default function OnboardingLayout() {
 					headerShown: false,
 					animation: "slide_from_right",
 				}}
+				style={{ flex: 1 }}
 			/>
 		</View>
 	);

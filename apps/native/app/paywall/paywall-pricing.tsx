@@ -10,7 +10,7 @@ export default function PaywallPricing() {
 	const [selectedPlan, setSelectedPlan] = useState<PlanType>("yearly");
 	const [isProcessing, setIsProcessing] = useState(false);
 
-	const handleSubscribe = async () => {
+	const handleSubscribe = () => {
 		setIsProcessing(true);
 
 		// POC: Mock subscription (no RevenueCat yet)

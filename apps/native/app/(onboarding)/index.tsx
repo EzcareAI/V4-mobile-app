@@ -1,8 +1,10 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import { Check, Leaf } from "lucide-react-native";
-import { Image, Text, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ContinueButton } from "@/components/onboarding/common/continue-button";
+
+const logoSource = require("@/assets/images/EZCare_Logo.jpg");
 
 export default function OnboardingIndex() {
 	const router = useRouter();
@@ -12,76 +14,217 @@ export default function OnboardingIndex() {
 	};
 
 	return (
-		<View className="flex-1 bg-gradient-to-b from-teal-50 via-blue-50 to-white">
-			<SafeAreaView style={{ flex: 1, paddingHorizontal: 24 }}>
-				<View className="flex-1 flex-col px-1">
-					{/* Logo Section - Takes remaining space */}
-					<View className="flex-1 items-center justify-center">
-						<View className="h-56 w-56 items-center justify-center rounded-[32px] bg-white shadow-lg shadow-teal-200/50">
-							<Image
-								resizeMode="contain"
-								source={require("@/assets/images/EZCare_Logo.jpg")}
-								style={{ width: 200, height: 200 }}
-							/>
-						</View>
+		<LinearGradient
+			colors={["#e8faf6", "#ddf0f9", "#ffffff"]}
+			end={{ x: 0.5, y: 1 }}
+			start={{ x: 0.5, y: 0 }}
+			style={styles.gradient}
+		>
+			<SafeAreaView style={styles.safeArea}>
+				{/* Logo Section */}
+				<View style={styles.logoSection}>
+					<View style={styles.logoCard}>
+						<Image
+							resizeMode="contain"
+							source={logoSource}
+							style={styles.logoImage}
+						/>
+					</View>
+				</View>
+
+				{/* Branding */}
+				<View style={styles.brandSection}>
+					<Text style={styles.headline}>Welcome to</Text>
+					<LinearGradient
+						colors={["#3BAFDA", "#3EC9B5"]}
+						end={{ x: 1, y: 0 }}
+						start={{ x: 0, y: 0 }}
+						style={styles.gradientTextWrapper}
+					>
+						<Text style={styles.gradientText}>EZCare AI</Text>
+					</LinearGradient>
+					<Text style={styles.subheadline}>
+						Your Natural Healing Companion.
+					</Text>
+				</View>
+
+				{/* Footer */}
+				<View style={styles.footer}>
+					{/* Get Started Button */}
+					<TouchableOpacity
+						activeOpacity={0.88}
+						onPress={handleStart}
+						style={styles.ctaButton}
+					>
+						<LinearGradient
+							colors={["#3BAFDA", "#3EC9B5"]}
+							end={{ x: 1, y: 0 }}
+							start={{ x: 0, y: 0 }}
+							style={StyleSheet.absoluteFill}
+						/>
+						<Text style={styles.ctaText}>Get Started</Text>
+					</TouchableOpacity>
+
+					{/* Sign In Link */}
+					<View style={styles.signInRow}>
+						<Text style={styles.signInNote}>Already have an account? </Text>
+						<Link asChild href="/sign-in">
+							<Text style={styles.signInLink}>Sign in</Text>
+						</Link>
 					</View>
 
-					{/* Branding Section - Fixed height */}
-					<View className="items-center pb-6">
-						{/* Headline */}
-						<Text className="mb-2 text-center font-bold text-[#0d2137] text-[32px] leading-10">
-							Welcome to
-						</Text>
-						<Text className="bg-gradient-to-r from-teal-600 to-green-600 bg-clip-text text-center font-bold text-[32px] text-transparent leading-10">
-							EZCare AI
-						</Text>
-
-						{/* Subheadline */}
-						<Text className="mt-3 text-center font-medium text-base text-slate-500">
-							Your Natural Healing Companion.
-						</Text>
-					</View>
-
-					{/* Footer Section - Fixed height */}
-					<View className="gap-5 pb-4">
-						{/* Get Started Button */}
-						<ContinueButton label="Get Started" onPress={handleStart} />
-
-						{/* Sign In Link */}
-						<View className="flex-row items-center justify-center">
-							<Text className="font-medium text-[15px] text-slate-400">
-								Already have an account?{" "}
-							</Text>
-							<Link asChild href="/sign-in">
-								<Text className="font-bold text-[#3EC9B5] text-[15px]">
-									Sign in
-								</Text>
-							</Link>
+					{/* Trust Indicators */}
+					<View style={styles.trustRow}>
+						<View style={styles.trustItem}>
+							<View style={styles.trustIcon}>
+								<Check color="#3EC9B5" size={13} />
+							</View>
+							<Text style={styles.trustLabel}>Clinically Trusted</Text>
 						</View>
 
-						{/* Trust Indicators */}
-						<View className="mt-2 flex-row items-center justify-center gap-4">
-							<View className="flex-row items-center gap-2">
-								<View className="h-6 w-6 items-center justify-center rounded-full bg-[#3EC9B5]/10">
-									<Check color="#3EC9B5" size={14} />
-								</View>
-								<Text className="font-semibold text-[13px] text-slate-500">
-									Clinically Trusted
-								</Text>
+						<View style={styles.trustDot} />
+
+						<View style={styles.trustItem}>
+							<View style={styles.trustIcon}>
+								<Leaf color="#3EC9B5" size={13} />
 							</View>
-							<View className="h-1 w-1 rounded-full bg-slate-300" />
-							<View className="flex-row items-center gap-2">
-								<View className="h-6 w-6 items-center justify-center rounded-full bg-[#3EC9B5]/10">
-									<Leaf color="#3EC9B5" size={14} />
-								</View>
-								<Text className="font-semibold text-[13px] text-slate-500">
-									100% Natural
-								</Text>
-							</View>
+							<Text style={styles.trustLabel}>100% Natural</Text>
 						</View>
 					</View>
 				</View>
 			</SafeAreaView>
-		</View>
+		</LinearGradient>
 	);
 }
+
+const styles = StyleSheet.create({
+	gradient: {
+		flex: 1,
+	},
+	safeArea: {
+		flex: 1,
+		paddingHorizontal: 24,
+	},
+	// Logo
+	logoSection: {
+		flex: 1,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	logoCard: {
+		width: 220,
+		height: 220,
+		borderRadius: 40,
+		backgroundColor: "#ffffff",
+		alignItems: "center",
+		justifyContent: "center",
+		shadowColor: "#3BAFDA",
+		shadowOffset: { width: 0, height: 12 },
+		shadowOpacity: 0.2,
+		shadowRadius: 32,
+		elevation: 12,
+	},
+	logoImage: {
+		width: 190,
+		height: 190,
+	},
+	// Branding
+	brandSection: {
+		alignItems: "center",
+		paddingBottom: 24,
+	},
+	headline: {
+		fontSize: 34,
+		fontWeight: "800",
+		color: "#0d2137",
+		textAlign: "center",
+		lineHeight: 42,
+	},
+	gradientTextWrapper: {
+		borderRadius: 4,
+		marginBottom: 12,
+	},
+	gradientText: {
+		fontSize: 34,
+		fontWeight: "800",
+		color: "#ffffff",
+		textAlign: "center",
+		lineHeight: 42,
+		paddingHorizontal: 6,
+	},
+	subheadline: {
+		fontSize: 16,
+		fontWeight: "500",
+		color: "#64748b",
+		textAlign: "center",
+	},
+	// Footer
+	footer: {
+		gap: 16,
+		paddingBottom: 8,
+	},
+	ctaButton: {
+		height: 56,
+		borderRadius: 16,
+		alignItems: "center",
+		justifyContent: "center",
+		overflow: "hidden",
+		shadowColor: "#3BAFDA",
+		shadowOffset: { width: 0, height: 6 },
+		shadowOpacity: 0.35,
+		shadowRadius: 14,
+		elevation: 8,
+	},
+	ctaText: {
+		fontSize: 17,
+		fontWeight: "700",
+		color: "#ffffff",
+		letterSpacing: 0.3,
+	},
+	signInRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	signInNote: {
+		fontSize: 15,
+		fontWeight: "500",
+		color: "#94a3b8",
+	},
+	signInLink: {
+		fontSize: 15,
+		fontWeight: "700",
+		color: "#3EC9B5",
+	},
+	trustRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 12,
+		paddingBottom: 4,
+	},
+	trustItem: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 6,
+	},
+	trustIcon: {
+		width: 22,
+		height: 22,
+		borderRadius: 11,
+		backgroundColor: "rgba(62,201,181,0.12)",
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	trustLabel: {
+		fontSize: 13,
+		fontWeight: "600",
+		color: "#64748b",
+	},
+	trustDot: {
+		width: 4,
+		height: 4,
+		borderRadius: 2,
+		backgroundColor: "#cbd5e1",
+	},
+});

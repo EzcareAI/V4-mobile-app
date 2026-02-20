@@ -32,8 +32,8 @@
     "db:studio": "turbo -F @ezcare/db db:studio",
     "db:generate": "turbo -F @ezcare/db db:generate",
     "db:migrate": "turbo -F @ezcare/db db:migrate",
-    "prebuild": "bun -C apps/native expo prebuild",
-    "expo": "bun -C apps/native expo"
+    "prebuild": "bun --cwd apps/native expo prebuild",
+    "expo": "bun --cwd apps/native expo"
   },
   "dependencies": {
     "@ezcare/env": "workspace:*",

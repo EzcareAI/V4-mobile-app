@@ -1,0 +1,16 @@
+node_modules
+.expo
+.turbo
+dist
+build
+*.log
+.pnp
+.pnp.js
+.alchemy
+.cache
+tmp
+temp
+packages/*/node_modules
+apps/*/node_modules
+apps/*/dist
+apps/*/build

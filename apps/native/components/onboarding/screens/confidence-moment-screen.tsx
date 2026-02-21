@@ -4,7 +4,7 @@ import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function ConfidenceMomentScreen() {
 	const router = useRouter();
-	const { setAnswer, nextStep } = useOnboardingStore();
+	const { nextStep } = useOnboardingStore();
 
 	const handleContinue = () => {
 		nextStep();

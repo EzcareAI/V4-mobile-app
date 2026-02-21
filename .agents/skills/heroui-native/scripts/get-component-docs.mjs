@@ -109,7 +109,7 @@ async function main() {
 	console.error(`# Fetching Native docs for: ${components.join(", ")}...`);
 	const data = await fetchApi("/v1/components/docs", "POST", { components });
 
-	if (data && data.results) {
+	if (data?.results) {
 		// Output results
 		if (data.results.length === 1) {
 			// Single component - output content directly for easier reading

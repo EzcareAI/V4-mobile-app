@@ -36,14 +36,22 @@ export function ResultPreview({
 	onUnlock,
 }: ResultPreviewProps) {
 	const getConfidenceColor = () => {
-		if (confidence >= 0.7) return "text-green-600";
-		if (confidence >= 0.4) return "text-yellow-600";
+		if (confidence >= 0.7) {
+			return "text-green-600";
+		}
+		if (confidence >= 0.4) {
+			return "text-yellow-600";
+		}
 		return "text-red-600";
 	};
 
 	const getConfidenceLabel = () => {
-		if (confidence >= 0.7) return "High";
-		if (confidence >= 0.4) return "Medium";
+		if (confidence >= 0.7) {
+			return "High";
+		}
+		if (confidence >= 0.4) {
+			return "Medium";
+		}
 		return "Low";
 	};
 
@@ -71,8 +79,8 @@ export function ResultPreview({
 				{/* Possible Contributors (Always Visible) */}
 				<View className="mb-4">
 					<Text className="mb-3 font-bold text-xl">Possible Contributors</Text>
-					{result.possible_contributors.map((contributor, index) => (
-						<Card className="mb-2" key={index} variant="secondary">
+					{result.possible_contributors.map((contributor) => (
+						<Card className="mb-2" key={contributor.factor} variant="secondary">
 							<Card.Body>
 								<View className="flex-row items-start gap-3">
 									<CheckCircle2 color="#3b82f6" size={20} />
@@ -97,8 +105,8 @@ export function ResultPreview({
 				<View className="mb-4">
 					<Text className="mb-3 font-bold text-xl">Recommended Actions</Text>
 					{isSubscribed ? (
-						result.recommended_actions.map((action, index) => (
-							<Card className="mb-2" key={index} variant="secondary">
+						result.recommended_actions.map((action) => (
+							<Card className="mb-2" key={action.action} variant="secondary">
 								<Card.Body>
 									<Text className="font-semibold">{action.action}</Text>
 									<Text className="mt-1 text-muted text-xs uppercase">
@@ -133,8 +141,8 @@ export function ResultPreview({
 				<View className="mb-4">
 					<Text className="mb-3 font-bold text-xl">Things to Avoid</Text>
 					{isSubscribed ? (
-						result.things_to_avoid.map((item, index) => (
-							<Card className="mb-2" key={index} variant="secondary">
+						result.things_to_avoid.map((item) => (
+							<Card className="mb-2" key={item} variant="secondary">
 								<Card.Body>
 									<Text>{item}</Text>
 								</Card.Body>
@@ -165,11 +173,15 @@ export function ResultPreview({
 								<AlertCircle color="#eab308" size={24} />
 								<View className="flex-1">
 									<Text className="mb-1 font-semibold">
-										{result.escalation.urgency === "seek_immediate"
-											? "Seek Immediate Attention"
-											: result.escalation.urgency === "consult_soon"
-												? "Consult a Professional Soon"
-												: "Monitor Closely"}
+										{(() => {
+											if (result.escalation.urgency === "seek_immediate") {
+												return "Seek Immediate Attention";
+											}
+											if (result.escalation.urgency === "consult_soon") {
+												return "Consult a Professional Soon";
+											}
+											return "Monitor Closely";
+										})()}
 									</Text>
 									{result.escalation.reason && (
 										<Text className="text-muted text-sm">

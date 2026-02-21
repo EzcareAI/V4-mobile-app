@@ -14,6 +14,9 @@ const API_BASE =
 const APP_PARAM = "app=native-skills";
 const LLMS_TXT_URL = "https://v3.heroui.com/native/llms.txt";
 
+const COMPONENT_LINK_PATTERN =
+	/^\s*-\s*\[([^\]]+)\]\(https:\/\/v3\.heroui\.com\/docs\/native\/components\/[a-z]/;
+
 /**
  * Fetch data from HeroUI Native API with app parameter for analytics.
  */
@@ -78,9 +81,7 @@ async function fetchFallback() {
 			// Match: - [ComponentName](https://v3.heroui.com/docs/native/components/component-name)
 			// Skip "All Components" which links to /components without a specific component
 			if (inComponentsSection) {
-				const match = line.match(
-					/^\s*-\s*\[([^\]]+)\]\(https:\/\/v3\.heroui\.com\/docs\/native\/components\/[a-z]/
-				);
+				const match = line.match(COMPONENT_LINK_PATTERN);
 
 				if (match) {
 					components.push(match[1]);
@@ -113,12 +114,12 @@ async function main() {
 	let data = await fetchApi("/v1/components");
 
 	// Check if API returned valid data with components
-	if (!(data && data.components) || data.components.length === 0) {
+	if (!data?.components || data.components.length === 0) {
 		console.error("# API returned no components, trying fallback...");
 		data = await fetchFallback();
 	}
 
-	if (!(data && data.components) || data.components.length === 0) {
+	if (!data?.components || data.components.length === 0) {
 		console.error(
 			"Error: Failed to fetch component list from API and fallback"
 		);

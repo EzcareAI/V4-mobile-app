@@ -127,8 +127,11 @@ export const checkinRouter = router({
 			// Determine trend
 			let trend: "up" | "down" | "stable" = "stable";
 			if (previousScoreRecord) {
-				if (newScore > previousScoreRecord.overallScore) trend = "up";
-				else if (newScore < previousScoreRecord.overallScore) trend = "down";
+				if (newScore > previousScoreRecord.overallScore) {
+					trend = "up";
+				} else if (newScore < previousScoreRecord.overallScore) {
+					trend = "down";
+				}
 			}
 
 			// Upsert today's health score (or keep a history?)
@@ -147,17 +150,19 @@ export const checkinRouter = router({
 				.from(streak)
 				.where(eq(streak.userId, userId));
 
-			let streakInfo;
+			let streakInfo: { current: number; longest: number };
 			if (existingStreak) {
 				const isConsecutive =
 					existingStreak.lastCheckinDate === today ||
 					existingStreak.lastCheckinDate === yesterday;
 
-				const newCurrentStreak = isConsecutive
-					? existingStreak.lastCheckinDate === today
-						? existingStreak.currentStreak
-						: existingStreak.currentStreak + 1
-					: 1;
+				let newCurrentStreak = 1;
+				if (isConsecutive) {
+					newCurrentStreak =
+						existingStreak.lastCheckinDate === today
+							? existingStreak.currentStreak
+							: existingStreak.currentStreak + 1;
+				}
 
 				const newLongestStreak = Math.max(
 					existingStreak.longestStreak,
@@ -221,16 +226,20 @@ export const checkinRouter = router({
 
 		// Format for timeline: date, ezScore, status
 		return scores
-			.map((s) => ({
-				date: s.date,
-				ezScore: s.overallScore,
-				status:
-					s.trend === "up"
-						? "improving"
-						: s.trend === "down"
-							? "declining"
-							: "stable",
-			}))
+			.map((s) => {
+				let status: "improving" | "declining" | "stable" = "stable";
+				if (s.trend === "up") {
+					status = "improving";
+				} else if (s.trend === "down") {
+					status = "declining";
+				}
+
+				return {
+					date: s.date,
+					ezScore: s.overallScore,
+					status,
+				};
+			})
 			.reverse();
 	}),
 });

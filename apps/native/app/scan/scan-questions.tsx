@@ -59,7 +59,7 @@ export default function ScanQuestions() {
 	const createScan = trpc.scan.create.useMutation();
 	const submitAnswers = trpc.scan.submitAnswers.useMutation();
 
-	const handleComplete = async (answers: Record<string, any>) => {
+	const handleComplete = async (answers: Record<string, unknown>) => {
 		try {
 			setIsSubmitting(true);
 
@@ -73,24 +73,27 @@ export default function ScanQuestions() {
 				setScanId(currentScanId);
 			}
 
-			// Submit answers
+			if (!currentScanId) {
+				return;
+			}
+
 			await submitAnswers.mutateAsync({
-				scanId: currentScanId!,
+				scanId: currentScanId,
 				answers: {
 					symptoms: {
 						primary: {
-							category: zone as any,
+							category: zone as string,
 							description: symptom || "",
-							severity: answers.severity || 5,
-							duration_days: getDurationDays(answers.duration),
+							severity: (answers.severity as number) || 5,
+							duration_days: getDurationDays(answers.duration as string),
 						},
 						secondary: [],
 					},
 					lifestyle: {
-						sleep_hours: answers.sleep || 7,
-						stress_level: answers.stress || 5,
-						exercise_frequency: mapExercise(answers.exercise),
-						diet_type: answers.diet || "standard",
+						sleep_hours: (answers.sleep as number) || 7,
+						stress_level: (answers.stress as number) || 5,
+						exercise_frequency: mapExercise(answers.exercise as string),
+						diet_type: (answers.diet as string) || "standard",
 					},
 					medical_context: {
 						age_range: "26-35",
@@ -126,17 +129,29 @@ export default function ScanQuestions() {
 
 // Helper functions
 function getDurationDays(duration: string): number {
-	if (duration === "Less than a day") return 0;
-	if (duration === "1-3 days") return 2;
-	if (duration === "4-7 days") return 5;
+	if (duration === "Less than a day") {
+		return 0;
+	}
+	if (duration === "1-3 days") {
+		return 2;
+	}
+	if (duration === "4-7 days") {
+		return 5;
+	}
 	return 14;
 }
 
 function mapExercise(
 	exercise: string
 ): "none" | "light" | "moderate" | "intense" {
-	if (exercise === "Never") return "none";
-	if (exercise === "1-2 times/week") return "light";
-	if (exercise === "3-4 times/week") return "moderate";
+	if (exercise === "Never") {
+		return "none";
+	}
+	if (exercise === "1-2 times/week") {
+		return "light";
+	}
+	if (exercise === "3-4 times/week") {
+		return "moderate";
+	}
 	return "intense";
 }

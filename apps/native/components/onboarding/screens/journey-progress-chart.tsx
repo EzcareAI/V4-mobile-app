@@ -31,7 +31,8 @@ const EnergyValue = ({
 		const val = value.value ?? 0;
 		return {
 			text: `Energy Level: ${Math.round(val)}%`,
-		} as any;
+			// biome-ignore lint/suspicious/noExplicitAny: Victory Native / Reanimated type mismatch
+		} as unknown as any;
 	});
 	return (
 		<AnimatedTextInput
@@ -51,7 +52,8 @@ const InflammationValue = ({
 		const val = value.value ?? 0; // Default to 0 if null
 		return {
 			text: `Inflammation: ${Math.round(val)}%`,
-		} as any;
+			// biome-ignore lint/suspicious/noExplicitAny: Victory Native / Reanimated type mismatch
+		} as unknown as any;
 	});
 	return (
 		<AnimatedTextInput
@@ -71,7 +73,8 @@ const WeekValue = ({
 		const val = value.value ?? 0;
 		return {
 			text: `Week ${Math.round(val)}`,
-		} as any;
+			// biome-ignore lint/suspicious/noExplicitAny: Victory Native / Reanimated type mismatch
+		} as unknown as any;
 	});
 	return (
 		<AnimatedTextInput
@@ -87,6 +90,8 @@ const WeekValue = ({
 		/>
 	);
 };
+
+// ... ToolTip component remains unchanged ...
 
 const ToolTip = ({
 	x,
@@ -207,8 +212,14 @@ export const JourneyProgressChart = () => {
 								start={vec(0, 0)}
 							/>
 						</Line>
-						{points.energy.map((p, i) => (
-							<Circle color="#60A5FA" cx={p.x} cy={p.y} key={`e-${i}`} r={4} />
+						{points.energy.map((p) => (
+							<Circle
+								color="#60A5FA"
+								cx={p.x ?? 0}
+								cy={p.y ?? 0}
+								key={`energy-${p.x}-${p.y}`}
+								r={4}
+							/>
 						))}
 
 						<Line
@@ -224,8 +235,14 @@ export const JourneyProgressChart = () => {
 								start={vec(0, 0)}
 							/>
 						</Line>
-						{points.inflammation.map((p, i) => (
-							<Circle color="#3EC9B5" cx={p.x} cy={p.y} key={`i-${i}`} r={4} />
+						{points.inflammation.map((p) => (
+							<Circle
+								color="#3EC9B5"
+								cx={p.x ?? 0}
+								cy={p.y ?? 0}
+								key={`inflam-${p.x}-${p.y}`}
+								r={4}
+							/>
 						))}
 
 						{isActive && (
@@ -269,10 +286,14 @@ export const JourneyProgressChart = () => {
 
 			<ToolTip
 				isActive={isActive}
-				x={state.x.position}
-				xValue={state.x.value}
-				yEnergy={state.y.energy.value}
-				yInflammation={state.y.inflammation.value}
+				// biome-ignore lint/suspicious/noExplicitAny: Library type mismatch
+				x={state.x.position as any}
+				// biome-ignore lint/suspicious/noExplicitAny: Library type mismatch
+				xValue={state.x.value as any}
+				// biome-ignore lint/suspicious/noExplicitAny: Library type mismatch
+				yEnergy={state.y.energy.value as any}
+				// biome-ignore lint/suspicious/noExplicitAny: Library type mismatch
+				yInflammation={state.y.inflammation.value as any}
 			/>
 
 			{/* Legend */}

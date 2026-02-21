@@ -5,13 +5,13 @@ interface ScanStore {
 	scanId: string | null;
 	zone: string | null;
 	symptom: string | null;
-	answers: Record<string, any>;
+	answers: Record<string, unknown>;
 
 	// Actions
 	setScanId: (id: string) => void;
 	setZone: (zone: string) => void;
 	setSymptom: (symptom: string) => void;
-	setAnswer: (cardId: string, value: any) => void;
+	setAnswer: (cardId: string, value: unknown) => void;
 	reset: () => void;
 }
 

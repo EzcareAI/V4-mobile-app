@@ -2,7 +2,7 @@ import { db } from "@ezcare/db";
 import { dailyCheckin, healthScore, scan, streak } from "@ezcare/db/schema";
 import { and, desc, eq, gte, lte } from "drizzle-orm";
 import { z } from "zod";
-import { generateDailyInsight } from "../ai/dailyInsightAI";
+import { generateDailyInsight } from "../ai/daily-insight-ai";
 import { protectedProcedure, router } from "../index";
 
 export const insightRouter = router({
@@ -23,7 +23,7 @@ export const insightRouter = router({
 			// 2. Fetch Yesterday's EZ Score
 			const yesterday = new Date(todayDate);
 			yesterday.setDate(yesterday.getDate() - 1);
-			const yesterdayDate = yesterday.toISOString().split("T")[0]!;
+			const yesterdayDate = yesterday.toISOString().split("T")[0] ?? "";
 
 			const yesterdayScore = await db.query.healthScore.findFirst({
 				where: and(
@@ -35,7 +35,7 @@ export const insightRouter = router({
 			// 3. Fetch Recent Check-ins (last 7 days)
 			const sevenDaysAgo = new Date(todayDate);
 			sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-			const sevenDaysAgoDate = sevenDaysAgo.toISOString().split("T")[0]!;
+			const sevenDaysAgoDate = sevenDaysAgo.toISOString().split("T")[0] ?? "";
 
 			const checkins = await db.query.dailyCheckin.findMany({
 				where: and(
@@ -61,7 +61,7 @@ export const insightRouter = router({
 			});
 
 			const scanSummary = lastScan?.result?.result
-				? (lastScan.result.result as any).summary
+				? (lastScan.result.result as Record<string, unknown>).summary
 				: null;
 
 			// 6. Map to DailyInsightInput
@@ -79,7 +79,7 @@ export const insightRouter = router({
 					digestion: c.digestion,
 					sleepQuality: c.sleepQuality,
 				})),
-				lastScanSummary: scanSummary,
+				lastScanSummary: scanSummary as string | null,
 			};
 
 			// 7. Generate or return cached insight

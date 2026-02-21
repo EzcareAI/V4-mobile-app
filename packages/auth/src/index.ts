@@ -1,6 +1,14 @@
 import { expo } from "@better-auth/expo";
 import { db } from "@ezcare/db";
-import * as schema from "@ezcare/db/schema/auth";
+import {
+	account,
+	accountRelations,
+	session,
+	sessionRelations,
+	user,
+	userRelations,
+	verification,
+} from "@ezcare/db/schema/auth";
 import { env } from "@ezcare/env/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
@@ -9,7 +17,15 @@ export const auth = betterAuth({
 	database: drizzleAdapter(db, {
 		provider: "pg",
 
-		schema,
+		schema: {
+			user,
+			session,
+			account,
+			verification,
+			userRelations,
+			sessionRelations,
+			accountRelations,
+		},
 	}),
 	trustedOrigins: [
 		env.CORS_ORIGIN,

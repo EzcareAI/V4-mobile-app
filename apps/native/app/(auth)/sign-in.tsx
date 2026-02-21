@@ -21,7 +21,7 @@ import { z } from "zod";
 
 import { KeyboardAvoidingContainer } from "@/components/keyboard-avoiding-container";
 import { ContinueButton } from "@/components/onboarding/common/continue-button";
-import { supabase } from "@/lib/supabase";
+import { authClient } from "@/lib/auth-client";
 
 const StyledIonicons = withUniwind(Ionicons);
 
@@ -48,17 +48,17 @@ export default function SignInScreen() {
 	const onSubmit = async (data: SignInForm) => {
 		setIsLoading(true);
 		try {
-			const { error } = await supabase.auth.signInWithPassword({
+			const { error } = await authClient.signIn.email({
 				email: data.email,
 				password: data.password,
 			});
 
 			if (error) {
-				Alert.alert("Error", error.message);
+				Alert.alert("Error", error.message || "Invalid email or password");
 				return;
 			}
 
-			router.replace("/(drawer)");
+			// Redirection is handled by root layout's session check
 		} catch (error) {
 			Alert.alert("Error", "An unexpected error occurred");
 			console.error(error);

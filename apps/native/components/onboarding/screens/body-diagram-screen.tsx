@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import type React from "react";
 import { useState } from "react";
 import {
 	Dimensions,
@@ -10,14 +11,71 @@ import {
 import Svg, { Circle, G, Path, Rect } from "react-native-svg";
 import { type BodyZone, useOnboardingStore } from "@/stores/onboarding-store";
 
-const BODY_ZONES = [
-	{ id: "head", label: "Head", color: "#10B981", y: 60 },
-	{ id: "chest", label: "Chest", color: "#10B981", y: 120 },
-	{ id: "stomach", label: "Stomach", color: "#10B981", y: 180 },
-	{ id: "energy", label: "Energy", color: "#10B981", y: 240 },
-	{ id: "joints", label: "Joints", color: "#10B981", y: 300 },
-	{ id: "inflammation", label: "Immune", color: "#10B981", y: 360 },
-];
+const BodyPart = ({
+	id,
+	selectedZone,
+	color = "#E0F2FE",
+	stroke = "#0EA5E9",
+	children,
+}: {
+	id: string;
+	selectedZone: string | null;
+	color?: string;
+	stroke?: string;
+	children: React.ReactNode;
+}) => {
+	const isSelected = selectedZone === id;
+	const activeColor = isSelected ? "#10B981" : color;
+	const activeStroke = isSelected ? "#059669" : stroke;
+	const opacity = isSelected ? 1 : 0.6;
+
+	return (
+		<G opacity={opacity}>
+			<G fill={activeColor} stroke={activeStroke} strokeWidth="2">
+				{children}
+			</G>
+		</G>
+	);
+};
+
+const BodyDiagram = ({
+	selectedZone,
+	width,
+}: {
+	selectedZone: string | null;
+	width: number;
+}) => {
+	return (
+		<View className="mb-8 items-center rounded-2xl bg-gradient-to-b from-teal-50 to-green-50 py-8">
+			<Svg height={420} viewBox="0 0 200 420" width={width - 48}>
+				<G>
+					<BodyPart id="head" selectedZone={selectedZone}>
+						<Circle cx="100" cy="60" r="35" />
+					</BodyPart>
+
+					<BodyPart id="chest" selectedZone={selectedZone}>
+						<Path d="M 90 90 L 90 110 L 110 110 L 110 90" />
+						<Rect height="50" rx="10" width="50" x="75" y="110" />
+					</BodyPart>
+
+					<BodyPart id="stomach" selectedZone={selectedZone}>
+						<Rect height="50" rx="10" width="50" x="75" y="165" />
+					</BodyPart>
+
+					<BodyPart id="energy" selectedZone={selectedZone}>
+						<Rect height="60" rx="5" width="15" x="80" y="220" />
+						<Rect height="60" rx="5" width="15" x="105" y="220" />
+					</BodyPart>
+
+					<BodyPart id="joints" selectedZone={selectedZone}>
+						<Rect height="50" rx="5" width="15" x="45" y="125" />
+						<Rect height="50" rx="5" width="15" x="140" y="125" />
+					</BodyPart>
+				</G>
+			</Svg>
+		</View>
+	);
+};
 
 export default function BodyDiagramScreen() {
 	const router = useRouter();
@@ -57,107 +115,7 @@ export default function BodyDiagramScreen() {
 				</Text>
 			</View>
 
-			{/* Body Diagram SVG */}
-			<View className="mb-8 items-center rounded-2xl bg-gradient-to-b from-teal-50 to-green-50 py-8">
-				<Svg height={420} viewBox="0 0 200 420" width={width - 48}>
-					{/* Simple body silhouette */}
-					<G>
-						{/* Head */}
-						<Circle
-							cx="100"
-							cy="60"
-							fill={selectedZone === "head" ? "#10B981" : "#E0F2FE"}
-							opacity={selectedZone === "head" ? 1 : 0.6}
-							r="35"
-							stroke={selectedZone === "head" ? "#059669" : "#0EA5E9"}
-							strokeWidth="2"
-						/>
-
-						{/* Neck connection */}
-						<Path
-							d="M 90 90 L 90 110 L 110 110 L 110 90"
-							fill={selectedZone === "chest" ? "#10B981" : "#E0F2FE"}
-							opacity={selectedZone === "chest" ? 1 : 0.6}
-							stroke={selectedZone === "chest" ? "#059669" : "#0EA5E9"}
-							strokeWidth="2"
-						/>
-
-						{/* Chest */}
-						<Rect
-							fill={selectedZone === "chest" ? "#10B981" : "#E0F2FE"}
-							height="50"
-							opacity={selectedZone === "chest" ? 1 : 0.6}
-							rx="10"
-							stroke={selectedZone === "chest" ? "#059669" : "#0EA5E9"}
-							strokeWidth="2"
-							width="50"
-							x="75"
-							y="110"
-						/>
-
-						{/* Stomach */}
-						<Rect
-							fill={selectedZone === "stomach" ? "#10B981" : "#E0F2FE"}
-							height="50"
-							opacity={selectedZone === "stomach" ? 1 : 0.6}
-							rx="10"
-							stroke={selectedZone === "stomach" ? "#059669" : "#0EA5E9"}
-							strokeWidth="2"
-							width="50"
-							x="75"
-							y="165"
-						/>
-
-						{/* Legs (Energy/Overall) */}
-						<Rect
-							fill={selectedZone === "energy" ? "#10B981" : "#E0F2FE"}
-							height="60"
-							opacity={selectedZone === "energy" ? 1 : 0.6}
-							rx="5"
-							stroke={selectedZone === "energy" ? "#059669" : "#0EA5E9"}
-							strokeWidth="2"
-							width="15"
-							x="80"
-							y="220"
-						/>
-						<Rect
-							fill={selectedZone === "energy" ? "#10B981" : "#E0F2FE"}
-							height="60"
-							opacity={selectedZone === "energy" ? 1 : 0.6}
-							rx="5"
-							stroke={selectedZone === "energy" ? "#059669" : "#0EA5E9"}
-							strokeWidth="2"
-							width="15"
-							x="105"
-							y="220"
-						/>
-
-						{/* Arms (Joints/Inflammation) */}
-						<Rect
-							fill={selectedZone === "joints" ? "#10B981" : "#E0F2FE"}
-							height="50"
-							opacity={selectedZone === "joints" ? 1 : 0.6}
-							rx="5"
-							stroke={selectedZone === "joints" ? "#059669" : "#0EA5E9"}
-							strokeWidth="2"
-							width="15"
-							x="45"
-							y="125"
-						/>
-						<Rect
-							fill={selectedZone === "joints" ? "#10B981" : "#E0F2FE"}
-							height="50"
-							opacity={selectedZone === "joints" ? 1 : 0.6}
-							rx="5"
-							stroke={selectedZone === "joints" ? "#059669" : "#0EA5E9"}
-							strokeWidth="2"
-							width="15"
-							x="140"
-							y="125"
-						/>
-					</G>
-				</Svg>
-			</View>
+			<BodyDiagram selectedZone={selectedZone} width={width} />
 
 			{/* Zone Selection Buttons */}
 			<View className="mb-8 gap-3">

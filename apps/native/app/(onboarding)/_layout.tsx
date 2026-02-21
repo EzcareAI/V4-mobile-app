@@ -4,15 +4,16 @@ import { ProgressHeader } from "@/components/onboarding/progress-header";
 
 export default function OnboardingLayout() {
 	return (
-		<View style={{ flex: 1 }}>
+		<View style={{ flex: 1, backgroundColor: "#ffffff" }}>
 			<ProgressHeader />
-			<Stack
-				screenOptions={{
-					headerShown: false,
-					animation: "slide_from_right",
-				}}
-				style={{ flex: 1 }}
-			/>
+			<View style={{ flex: 1 }}>
+				<Stack
+					screenOptions={{
+						headerShown: false,
+						animation: "slide_from_right",
+					}}
+				/>
+			</View>
 		</View>
 	);
 }

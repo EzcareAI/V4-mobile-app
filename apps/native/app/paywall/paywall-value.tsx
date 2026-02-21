@@ -26,8 +26,8 @@ export default function PaywallValue() {
 				</View>
 
 				<View className="mb-8 gap-3">
-					{BENEFITS.map((benefit, index) => (
-						<Card key={index} variant="secondary">
+					{BENEFITS.map((benefit) => (
+						<Card key={benefit} variant="secondary">
 							<Card.Body>
 								<View className="flex-row items-center gap-3">
 									<View className="rounded-full bg-primary p-1">

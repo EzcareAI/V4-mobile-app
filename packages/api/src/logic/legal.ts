@@ -9,7 +9,9 @@ export const GLOBAL_DISCLAIMER =
  * Helper to ensure a disclaimer is non-empty and consistent
  */
 export function getDisclaimer(customText?: string): string {
-	if (!customText) return GLOBAL_DISCLAIMER;
+	if (!customText) {
+		return GLOBAL_DISCLAIMER;
+	}
 
 	// If custom text doesn't already contain the core disclaimer or mention medical advice,
 	// we append the global one to be safe.

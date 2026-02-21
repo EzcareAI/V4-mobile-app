@@ -1,6 +1,6 @@
-export type UserWithSubscription = {
+export interface UserWithSubscription {
 	subscriptionStatus: "free" | "active" | "expired" | "cancelled" | "trial";
-};
+}
 
 /**
  * Checks if a user has paid access (active or trial)

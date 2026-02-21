@@ -1,6 +1,6 @@
 import { Anthropic } from "@anthropic-ai/sdk";
 import { env } from "@ezcare/env/server";
-import { detectHealthPatterns } from "../logic/healthMemory";
+import { detectHealthPatterns } from "../logic/health-memory";
 import { GLOBAL_DISCLAIMER, SAFETY_PROMPT_INJECTION } from "../logic/legal";
 import { logger } from "../logic/logger";
 import {
@@ -43,7 +43,9 @@ export async function generateDailyInsight(
 
 	// 1. Check Cache
 	const cached = insightCache.get(cacheKey);
-	if (cached) return cached;
+	if (cached) {
+		return cached;
+	}
 
 	try {
 		return await callAIWithRetry(input, cacheKey);
@@ -59,11 +61,10 @@ async function callAIWithRetry(
 	retries = 1
 ): Promise<DailyInsightOutput> {
 	const healthMemory = detectHealthPatterns(input);
-	const systemPrompt =
-		getDailyInsightSystemPrompt() + `\n\n${SAFETY_PROMPT_INJECTION}`;
+	const systemPrompt = `${getDailyInsightSystemPrompt()}\n\n${SAFETY_PROMPT_INJECTION}`;
 	const userPrompt = formatDailyInsightUserPrompt(input, healthMemory);
 
-	let lastError: any;
+	let lastError: unknown;
 	for (let i = 0; i <= retries; i++) {
 		const abortController = new AbortController();
 		const timeoutId = setTimeout(() => abortController.abort(), 10_000); // 10s timeout
@@ -106,7 +107,9 @@ async function callAIWithRetry(
 				`AI attempt ${i + 1} failed:`,
 				error instanceof Error ? error.message : error
 			);
-			if (i === retries) break;
+			if (i === retries) {
+				break;
+			}
 			// Small delay before retry
 			await new Promise((resolve) => setTimeout(resolve, 500));
 		}

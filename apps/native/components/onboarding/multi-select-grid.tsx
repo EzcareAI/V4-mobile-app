@@ -30,7 +30,7 @@ const GridItem = ({
 }) => {
 	const iconColor = isSelected ? "#3EC9B5" : "#64748B";
 
-	let optionContent = null;
+	let optionContent: React.ReactNode = null;
 	if (option.emoji) {
 		optionContent = <Text className="text-4xl">{option.emoji}</Text>;
 	} else if (option.icon) {

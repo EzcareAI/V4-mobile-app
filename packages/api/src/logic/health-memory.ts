@@ -19,8 +19,11 @@ export function detectHealthPatterns(input: DailyInsightInput): string {
 	// 1. EZ Score Trend
 	if (input.ezScoreYesterday !== null) {
 		const scoreDiff = input.ezScoreToday - input.ezScoreYesterday;
-		if (scoreDiff > 5) patterns.push("EZ Score is trending up significantly.");
-		else if (scoreDiff < -5) patterns.push("EZ Score took a dip recently.");
+		if (scoreDiff > 5) {
+			patterns.push("EZ Score is trending up significantly.");
+		} else if (scoreDiff < -5) {
+			patterns.push("EZ Score took a dip recently.");
+		}
 	}
 
 	// 2. Check-in Metric Trends (Energy, Sleep, Pain)
@@ -37,23 +40,30 @@ export function detectHealthPatterns(input: DailyInsightInput): string {
 	// Energy Trend
 	const energyDelta =
 		getAvg(secondHalf, "energy") - getAvg(firstHalf, "energy");
-	if (energyDelta > 0.5) patterns.push("Energy levels are improving.");
-	else if (energyDelta < -0.5)
+	if (energyDelta > 0.5) {
+		patterns.push("Energy levels are improving.");
+	} else if (energyDelta < -0.5) {
 		patterns.push("Energy levels have been declining.");
+	}
 
 	// Sleep Quality Trend
 	const sleepDelta =
 		getAvg(secondHalf, "sleepQuality") - getAvg(firstHalf, "sleepQuality");
-	if (sleepDelta > 0.5) patterns.push("Sleep quality is getting better.");
-	else if (sleepDelta < -0.5)
+	if (sleepDelta > 0.5) {
+		patterns.push("Sleep quality is getting better.");
+	} else if (sleepDelta < -0.5) {
 		patterns.push("Sleep quality has been unstable recently.");
+	}
 
 	// Pain Trend (Inverse: higher is worse in some contexts, but let's assume 1=low pain, 5=high pain based on schema comment)
 	// Wait, schema says "1-5 scale" for metrics. Usually 5 is "good" for mood/energy.
 	// For pain, 1 is usually "no pain" and 5 is "severe pain".
 	const painDelta = getAvg(secondHalf, "pain") - getAvg(firstHalf, "pain");
-	if (painDelta > 0.5) patterns.push("Reported pain levels are increasing.");
-	else if (painDelta < -0.5) patterns.push("Pain levels are trending down.");
+	if (painDelta > 0.5) {
+		patterns.push("Reported pain levels are increasing.");
+	} else if (painDelta < -0.5) {
+		patterns.push("Pain levels are trending down.");
+	}
 
 	return patterns.length > 0
 		? patterns.join(" ")

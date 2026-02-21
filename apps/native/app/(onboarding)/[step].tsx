@@ -52,63 +52,103 @@ const OnboardingStep = () => {
 		setAnswer("currentStep", stepNumber);
 	}, [stepNumber, setAnswer]);
 
-	const renderStep = () => {
-		// ===== BASELINE SCREENS (Steps 1-11) =====
-		// These are universal - all users go through them
-		if (stepNumber === 1) return <GenderScreen />;
-		if (stepNumber === 2) return <BirthdayScreen />;
-		if (stepNumber === 3) return <HeightWeightScreen />;
-		if (stepNumber === 4) return <ActivityLevelScreen />;
-		if (stepNumber === 5) return <SleepScreen />;
-		if (stepNumber === 6) return <StressLevelScreen />;
-		if (stepNumber === 7) return <SmokingScreen />;
-		if (stepNumber === 8) return <AlcoholScreen />;
-		if (stepNumber === 9) return <HealthGoalsScreen />;
-		if (stepNumber === 10) return <PrimaryGoalScreen />;
-		if (stepNumber === 11) return <HealthConditionsScreen />;
-		if (stepNumber === 12) return <ProgressBoostScreen />;
+	const renderBaseline = () => {
+		switch (stepNumber) {
+			case 1:
+				return <GenderScreen />;
+			case 2:
+				return <BirthdayScreen />;
+			case 3:
+				return <HeightWeightScreen />;
+			case 4:
+				return <ActivityLevelScreen />;
+			case 5:
+				return <SleepScreen />;
+			case 6:
+				return <StressLevelScreen />;
+			case 7:
+				return <SmokingScreen />;
+			case 8:
+				return <AlcoholScreen />;
+			case 9:
+				return <HealthGoalsScreen />;
+			case 10:
+				return <PrimaryGoalScreen />;
+			case 11:
+				return <HealthConditionsScreen />;
+			case 12:
+				return <ProgressBoostScreen />;
+			case 13:
+				return <BodyDiagramScreen />;
+			default:
+				return null;
+		}
+	};
 
-		// ===== INTENT SELECTOR (Step 13) =====
-		// User chooses: zone-specific path OR overall health path
-		if (stepNumber === 13) return <BodyDiagramScreen />;
+	const renderConditionalPath = () => {
+		if (intentType === "zone") {
+			switch (stepNumber) {
+				case 14:
+					return <ZoneSymptomIntensityScreen />;
+				case 15:
+					return <ZoneDurationScreen />;
+				case 16:
+					return <ZoneFrequencyScreen />;
+				case 17:
+					return <ZoneTriggerScreen />;
+				case 18:
+					return <ZoneImpactScreen />;
+				default:
+					return null;
+			}
+		}
 
-		// ===== CONDITIONAL PATH BRANCHING (Steps 14-18) =====
-		// Path A: Zone-Specific (5 questions tailored to selected body zone)
-		if (stepNumber === 14 && intentType === "zone")
-			return <ZoneSymptomIntensityScreen />;
-		if (stepNumber === 15 && intentType === "zone")
-			return <ZoneDurationScreen />;
-		if (stepNumber === 16 && intentType === "zone")
-			return <ZoneFrequencyScreen />;
-		if (stepNumber === 17 && intentType === "zone")
-			return <ZoneTriggerScreen />;
-		if (stepNumber === 18 && intentType === "zone") return <ZoneImpactScreen />;
-
-		// Path B: Overall Health (5 questions about general wellness priorities)
-		if (stepNumber === 14 && intentType === "overall")
-			return <OverallPriorityScreen />;
-		if (stepNumber === 15 && intentType === "overall")
-			return <OverallBlockerScreen />;
-		if (stepNumber === 16 && intentType === "overall")
-			return <OverallEnergyScreen />;
-		if (stepNumber === 17 && intentType === "overall")
-			return <OverallDigestionScreen />;
-		if (stepNumber === 18 && intentType === "overall")
-			return <OverallMotivationScreen />;
-
-		// ===== SHARED CONVERGENCE SCREENS (Steps 19+) =====
-		// All users rejoin here after their path-specific questions
-		if (stepNumber === 19) return <ConfidenceMomentScreen />;
-		if (stepNumber === 20) return <ResultsPreviewScreen />;
-		if (stepNumber === 21) return <PaywallScreen />;
-		if (stepNumber === 22) return <DiscountWheelScreen />;
-		if (stepNumber === 23) return <AccountCreationScreen />;
-		if (stepNumber === 24) return <LoadingPlanScreen />;
-		if (stepNumber === 25) return <PerfectPlanScreen />;
-		if (stepNumber === 26) return <NotificationsScreen />;
-		if (stepNumber === 27) return <ReferralScreen />;
-
+		if (intentType === "overall") {
+			switch (stepNumber) {
+				case 14:
+					return <OverallPriorityScreen />;
+				case 15:
+					return <OverallBlockerScreen />;
+				case 16:
+					return <OverallEnergyScreen />;
+				case 17:
+					return <OverallDigestionScreen />;
+				case 18:
+					return <OverallMotivationScreen />;
+				default:
+					return null;
+			}
+		}
 		return null;
+	};
+
+	const renderConvergence = () => {
+		switch (stepNumber) {
+			case 19:
+				return <ConfidenceMomentScreen />;
+			case 20:
+				return <ResultsPreviewScreen />;
+			case 21:
+				return <PaywallScreen />;
+			case 22:
+				return <DiscountWheelScreen />;
+			case 23:
+				return <AccountCreationScreen />;
+			case 24:
+				return <LoadingPlanScreen />;
+			case 25:
+				return <PerfectPlanScreen />;
+			case 26:
+				return <NotificationsScreen />;
+			case 27:
+				return <ReferralScreen />;
+			default:
+				return null;
+		}
+	};
+
+	const renderStep = () => {
+		return renderBaseline() || renderConditionalPath() || renderConvergence();
 	};
 
 	return <View className="flex-1 bg-white">{renderStep()}</View>;

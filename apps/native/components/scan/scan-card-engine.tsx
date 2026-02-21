@@ -3,32 +3,34 @@ import { Button } from "heroui-native";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
-export type ScanCard = {
+export interface ScanCard {
 	id: string;
 	type: "yesno" | "scale" | "choice";
 	question: string;
 	options?: string[];
-};
+}
 
 interface ScanCardEngineProps {
 	cards: ScanCard[];
-	onComplete: (answers: Record<string, any>) => void;
+	onComplete: (answers: Record<string, unknown>) => void;
 }
 
 export function ScanCardEngine({ cards, onComplete }: ScanCardEngineProps) {
 	const [currentIndex, setCurrentIndex] = useState(0);
-	const [answers, setAnswers] = useState<Record<string, any>>({});
-	const [currentAnswer, setCurrentAnswer] = useState<any>(null);
+	const [answers, setAnswers] = useState<Record<string, unknown>>({});
+	const [currentAnswer, setCurrentAnswer] = useState<unknown>(null);
 
 	const progress = ((currentIndex + 1) / cards.length) * 100;
 	const currentCard = cards[currentIndex];
 
-	const handleAnswer = (value: any) => {
+	const handleAnswer = (value: unknown) => {
 		setCurrentAnswer(value);
 	};
 
 	const handleNext = () => {
-		if (currentAnswer === null) return;
+		if (currentAnswer === null) {
+			return;
+		}
 
 		const newAnswers = { ...answers, [currentCard.id]: currentAnswer };
 		setAnswers(newAnswers);
@@ -89,7 +91,7 @@ export function ScanCardEngine({ cards, onComplete }: ScanCardEngineProps) {
 				{currentCard.type === "scale" && (
 					<View>
 						<Text className="mb-4 text-center font-bold text-4xl">
-							{currentAnswer ?? 5}
+							{(currentAnswer as number) ?? 5}
 						</Text>
 						<Slider
 							maximumTrackTintColor="#e5e7eb"
@@ -98,7 +100,7 @@ export function ScanCardEngine({ cards, onComplete }: ScanCardEngineProps) {
 							minimumValue={0}
 							onValueChange={handleAnswer}
 							step={1}
-							value={currentAnswer ?? 5}
+							value={(currentAnswer as number) ?? 5}
 						/>
 						<View className="mt-2 flex-row justify-between">
 							<Text className="text-muted text-sm">0 - None</Text>

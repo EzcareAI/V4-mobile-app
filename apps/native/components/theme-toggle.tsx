@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-// biome-ignore lint/performance/noNamespaceImport: <explanation>
+// biome-ignore lint/performance/noNamespaceImport: Haptics requires namespace import for better interop in some expo versions
 import * as Haptics from "expo-haptics";
 import { Platform, Pressable } from "react-native";
 import Animated, { FadeOut, ZoomIn } from "react-native-reanimated";

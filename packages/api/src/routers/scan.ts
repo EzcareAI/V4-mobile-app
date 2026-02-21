@@ -3,7 +3,7 @@ import { scan, scanAnswer, scanResult } from "@ezcare/db/schema";
 import { TRPCError } from "@trpc/server";
 import { and, eq, gte } from "drizzle-orm";
 import { z } from "zod";
-import { generateScanResult } from "../ai/scanAI";
+import { generateScanResult } from "../ai/scan-ai";
 import { type ScanAIInput, ScanAIInputSchema } from "../ai/schemas";
 import { protectedProcedure, router } from "../index";
 import { logger } from "../logic/logger";

@@ -68,10 +68,10 @@ async function callClaude(
 	startTime: number,
 	isRetry = false
 ): Promise<ScanAIOutput> {
-	const systemPrompt =
-		(isRetry
-			? `${getScanSystemPrompt()}\n\n${getSimplifiedScanPrompt()}`
-			: getScanSystemPrompt()) + `\n\n${SAFETY_PROMPT_INJECTION}`;
+	const basePrompt = isRetry
+		? `${getScanSystemPrompt()}\n\n${getSimplifiedScanPrompt()}`
+		: getScanSystemPrompt();
+	const systemPrompt = `${basePrompt}\n\n${SAFETY_PROMPT_INJECTION}`;
 
 	const userPrompt = formatScanUserPrompt(input);
 

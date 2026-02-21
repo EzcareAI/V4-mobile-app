@@ -145,42 +145,14 @@ export const useOnboardingStore = create<OnboardingState>()(
 				const state = get();
 				let score = 50; // Baseline
 
-				// Lifestyle signals
-				if (state.sleepQuality && state.sleepQuality >= 4) score += 5;
-				if (state.sleepQuality && state.sleepQuality <= 2) score -= 5;
+				// Adjustments grouped by concern
+				score += computeLifestyleScore(state);
+				score += computeActivityScore(state);
 
-				if (state.stressLevel === "low") score += 5;
-				if (state.stressLevel === "high") score -= 5;
-
-				if (state.smokingFrequency === "never") score += 5;
-				if (state.smokingFrequency === "regularly") score -= 8;
-
-				if (
-					state.alcoholFrequency === "never" ||
-					state.alcoholFrequency === "occasionally"
-				)
-					score += 3;
-				if (state.alcoholFrequency === "often") score -= 5;
-
-				// Activity
-				if (state.activityLevel && state.activityLevel >= 3) score += 5;
-
-				// Zone-specific adjustments (if path A)
 				if (state.intentType === "zone") {
-					score -= state.zoneSymptomIntensity || 0; // -1 to -5 points
-					if (state.zoneFrequency === "constantly") score -= 3;
-				}
-
-				// Overall health adjustments (if path B)
-				if (state.intentType === "overall") {
-					if (state.currentEnergyLevel && state.currentEnergyLevel <= 2)
-						score -= 5;
-					if (
-						state.currentDigestionComfort &&
-						state.currentDigestionComfort <= 2
-					)
-						score -= 5;
-					if (state.motivationLevel && state.motivationLevel >= 4) score += 5;
+					score += computeZoneScore(state);
+				} else if (state.intentType === "overall") {
+					score += computeOverallScore(state);
 				}
 
 				return Math.max(30, Math.min(95, score)); // Clamp 30–95
@@ -192,3 +164,70 @@ export const useOnboardingStore = create<OnboardingState>()(
 		}
 	)
 );
+
+// Helper functions for score calculation to keep complexity low
+function computeLifestyleScore(state: OnboardingState): number {
+	let adjustment = 0;
+
+	if (state.sleepQuality && state.sleepQuality >= 4) {
+		adjustment += 5;
+	}
+	if (state.sleepQuality && state.sleepQuality <= 2) {
+		adjustment -= 5;
+	}
+
+	if (state.stressLevel === "low") {
+		adjustment += 5;
+	}
+	if (state.stressLevel === "high") {
+		adjustment -= 5;
+	}
+
+	if (state.smokingFrequency === "never") {
+		adjustment += 5;
+	}
+	if (state.smokingFrequency === "regularly") {
+		adjustment -= 8;
+	}
+
+	if (
+		state.alcoholFrequency === "never" ||
+		state.alcoholFrequency === "occasionally"
+	) {
+		adjustment += 3;
+	}
+	if (state.alcoholFrequency === "often") {
+		adjustment -= 5;
+	}
+
+	return adjustment;
+}
+
+function computeActivityScore(state: OnboardingState): number {
+	if (state.activityLevel && state.activityLevel >= 3) {
+		return 5;
+	}
+	return 0;
+}
+
+function computeZoneScore(state: OnboardingState): number {
+	let adjustment = -(state.zoneSymptomIntensity || 0);
+	if (state.zoneFrequency === "constantly") {
+		adjustment -= 3;
+	}
+	return adjustment;
+}
+
+function computeOverallScore(state: OnboardingState): number {
+	let adjustment = 0;
+	if (state.currentEnergyLevel && state.currentEnergyLevel <= 2) {
+		adjustment -= 5;
+	}
+	if (state.currentDigestionComfort && state.currentDigestionComfort <= 2) {
+		adjustment -= 5;
+	}
+	if (state.motivationLevel && state.motivationLevel >= 4) {
+		adjustment += 5;
+	}
+	return adjustment;
+}

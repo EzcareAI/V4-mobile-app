@@ -1,4 +1,4 @@
-/** biome-ignore-all lint/performance/noBarrelFile: <explanation> */
+/** biome-ignore-all lint/performance/noBarrelFile: This is a schema entry point */
 export * from "./auth";
 export * from "./chat-message";
 export * from "./daily-checkin";

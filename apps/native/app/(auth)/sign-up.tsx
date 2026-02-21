@@ -21,7 +21,7 @@ import { z } from "zod";
 
 import { KeyboardAvoidingContainer } from "@/components/keyboard-avoiding-container";
 import { ContinueButton } from "@/components/onboarding/common/continue-button";
-import { supabase } from "@/lib/supabase";
+import { authClient } from "@/lib/auth-client";
 
 const StyledIonicons = withUniwind(Ionicons);
 
@@ -67,26 +67,20 @@ export default function SignUpScreen() {
 	const onSubmit = async (data: SignUpForm) => {
 		setIsLoading(true);
 		try {
-			const { error } = await supabase.auth.signUp({
+			const { error } = await authClient.signUp.email({
 				email: data.email,
 				password: data.password,
-				options: {
-					data: {
-						full_name: data.fullName,
-					},
-				},
+				name: data.fullName,
 			});
 
 			if (error) {
-				Alert.alert("Error", error.message);
+				Alert.alert("Error", error.message || "Failed to create account");
 				return;
 			}
 
-			Alert.alert(
-				"Success",
-				"Account created! Please check your email for verification.",
-				[{ text: "OK", onPress: () => router.replace("/(auth)/sign-in") }]
-			);
+			Alert.alert("Success", "Account created! You can now sign in.", [
+				{ text: "OK", onPress: () => router.replace("/(auth)/sign-in") },
+			]);
 		} catch (error) {
 			Alert.alert("Error", "An unexpected error occurred");
 			console.error(error);

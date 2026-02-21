@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
 	},
 	// Logo
 	logoSection: {
-		flex: 1,
+		flex: 1.2,
 		alignItems: "center",
 		justifyContent: "center",
 	},
@@ -130,6 +130,7 @@ const styles = StyleSheet.create({
 	},
 	// Branding
 	brandSection: {
+		flex: 1,
 		alignItems: "center",
 		paddingBottom: 24,
 	},

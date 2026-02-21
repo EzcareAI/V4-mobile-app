@@ -16,6 +16,7 @@ const API_BASE =
 	process.env.HEROUI_NATIVE_API_BASE || "https://native-mcp-api.heroui.com";
 const FALLBACK_BASE = "https://v3.heroui.com";
 const APP_PARAM = "app=native-skills";
+const SLASH_REGEX = /^\//;
 
 /**
  * Fetch documentation from HeroUI Native API.
@@ -25,11 +26,12 @@ async function fetchApi(path) {
 	// The v1 API expects path without /docs/ prefix
 	// Input: /docs/native/getting-started/theming
 	// API expects: native/getting-started/theming (route is /v1/docs/:path(*))
-	const apiPath = path.startsWith("/docs/")
-		? path.slice(6) // Remove /docs/ prefix
-		: path.startsWith("/")
-			? path.slice(1) // Remove leading /
-			: path;
+	let apiPath = path;
+	if (path.startsWith("/docs/")) {
+		apiPath = path.slice(6); // Remove /docs/ prefix
+	} else if (path.startsWith("/")) {
+		apiPath = path.slice(1); // Remove leading /
+	}
 
 	const separator = "?";
 	const url = `${API_BASE}/v1/docs/${apiPath}${separator}${APP_PARAM}`;
@@ -59,7 +61,7 @@ async function fetchApi(path) {
  */
 async function fetchFallback(path) {
 	// Ensure path starts with /docs and ends with .mdx
-	let cleanPath = path.replace(/^\//, "");
+	let cleanPath = path.replace(SLASH_REGEX, "");
 
 	if (!cleanPath.endsWith(".mdx")) {
 		cleanPath = `${cleanPath}.mdx`;
@@ -142,7 +144,7 @@ async function main() {
 	// Try API first
 	const data = await fetchApi(path);
 
-	if (data && data.content) {
+	if (data?.content) {
 		data.source = "api";
 		console.log(data.content);
 

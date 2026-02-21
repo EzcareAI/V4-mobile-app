@@ -13,30 +13,35 @@ const ZONE_NAMES = {
 };
 
 const getScoreColor = (score: number) => {
-	if (score >= 70)
+	if (score >= 70) {
 		return {
 			bg: "bg-green-50",
 			border: "border-green-300",
 			text: "text-green-700",
 		};
-	if (score >= 50)
+	}
+	if (score >= 50) {
 		return {
 			bg: "bg-amber-50",
 			border: "border-amber-300",
 			text: "text-amber-700",
 		};
+	}
 	return { bg: "bg-red-50", border: "border-red-300", text: "text-red-700" };
 };
 
 const getZoneColor = (score: number) => {
-	if (score >= 70) return "#10B981"; // Green
-	if (score >= 50) return "#F59E0B"; // Amber
+	if (score >= 70) {
+		return "#10B981"; // Green
+	}
+	if (score >= 50) {
+		return "#F59E0B"; // Amber
+	}
 	return "#EF4444"; // Red
 };
 
 export default function ResultsPreviewScreen() {
 	const {
-		currentStep,
 		setAnswer,
 		nextStep,
 		computeHealthScore,
@@ -45,35 +50,49 @@ export default function ResultsPreviewScreen() {
 	} = useOnboardingStore();
 
 	const [score, setScore] = useState(0);
-	const [showDetails, setShowDetails] = useState(false);
 
 	useEffect(() => {
 		const computed = computeHealthScore();
 		setScore(computed);
 		setAnswer("healthScore", computed);
 		setAnswer("resultsShown", new Date().toISOString());
-	}, []);
+	}, [computeHealthScore, setAnswer]);
 
 	const scoreInfo = getScoreColor(score);
 
-	const probableCauses =
-		score < 50
-			? [
-					"🔴 High stress levels",
-					"⚠️ Poor sleep quality",
-					"❌ Limited physical activity",
-				]
-			: score < 70
-				? [
-						"🟡 Moderate stress",
-						"🟡 Variable sleep patterns",
-						"🟡 Inconsistent habits",
-					]
-				: [
-						"✅ Good lifestyle balance",
-						"✅ Consistent routines",
-						"✅ Active mindset",
-					];
+	const getProbableCauses = () => {
+		if (score < 50) {
+			return [
+				"🔴 High stress levels",
+				"⚠️ Poor sleep quality",
+				"❌ Limited physical activity",
+			];
+		}
+		if (score < 70) {
+			return [
+				"🟡 Moderate stress",
+				"🟡 Variable sleep patterns",
+				"🟡 Inconsistent habits",
+			];
+		}
+		return [
+			"✅ Good lifestyle balance",
+			"✅ Consistent routines",
+			"✅ Active mindset",
+		];
+	};
+
+	const probableCauses = getProbableCauses();
+
+	const getStatusText = () => {
+		if (score >= 70) {
+			return "Excellent";
+		}
+		if (score >= 50) {
+			return "Good";
+		}
+		return "Needs Attention";
+	};
 
 	return (
 		<ScrollView className="flex-1 bg-white">
@@ -130,11 +149,7 @@ export default function ResultsPreviewScreen() {
 					</Svg>
 
 					<Text className={`mt-4 font-semibold text-lg ${scoreInfo.text}`}>
-						{score >= 70
-							? "Excellent"
-							: score >= 50
-								? "Good"
-								: "Needs Attention"}
+						{getStatusText()}
 					</Text>
 				</View>
 			</View>
@@ -162,8 +177,8 @@ export default function ResultsPreviewScreen() {
 					<Text className="mb-3 font-bold text-gray-900 text-lg">
 						Probable Causes
 					</Text>
-					{probableCauses.map((cause, idx) => (
-						<View className="mb-2 flex-row items-center" key={idx}>
+					{probableCauses.map((cause) => (
+						<View className="mb-2 flex-row items-center" key={cause}>
 							<Text className="mr-3 text-base">{cause.split(" ")[0]}</Text>
 							<Text className="text-gray-700 text-sm">
 								{cause.split(" ").slice(1).join(" ")}

@@ -280,7 +280,7 @@ export default function SignInScreen() {
 							Don't have an account?{" "}
 						</Text>
 						<TouchableOpacity onPress={() => router.push("/(auth)/sign-up")}>
-							<Text className="font-bold text-accent">Sign Up</Text>
+							<Text className="font-bold text-[#3EC9B5]">Sign Up</Text>
 						</TouchableOpacity>
 					</View>
 				</View>

@@ -2,6 +2,7 @@ import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { Mail, ShieldCheck } from "lucide-react-native";
 import {
+	Platform,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -14,10 +15,12 @@ export function AccountCreationScreen() {
 	const { setAnswer, nextStep } = useOnboardingStore();
 
 	const handleContinue = async () => {
-		try {
-			await impactAsync(ImpactFeedbackStyle.Medium);
-		} catch {
-			/* ignore */
+		if (Platform.OS === "ios") {
+			try {
+				await impactAsync(ImpactFeedbackStyle.Medium);
+			} catch {
+				/* ignore */
+			}
 		}
 		setAnswer("authMethod", "email");
 		nextStep();

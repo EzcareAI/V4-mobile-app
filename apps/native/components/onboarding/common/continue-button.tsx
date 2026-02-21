@@ -1,7 +1,7 @@
 import { selectionAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { Button } from "heroui-native";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 
 interface ContinueButtonProps {
 	onPress: () => void;
@@ -20,10 +20,10 @@ export const ContinueButton = ({
 			isDisabled={isDisabled}
 			onPress={() => {
 				if (!isDisabled) {
-					try {
-						selectionAsync();
-					} catch {
-						// Ignore haptics errors to prevent app crash
+					if (Platform.OS === "ios") {
+						selectionAsync().catch(() => {
+							/* ignore */
+						});
 					}
 					onPress();
 				}

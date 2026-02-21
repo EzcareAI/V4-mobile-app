@@ -2,7 +2,14 @@ import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import { Check, Leaf } from "lucide-react-native";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+	Image,
+	Platform,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -14,13 +21,11 @@ export default function OnboardingIndex() {
 	const reset = useOnboardingStore((state) => state.reset);
 
 	const handleStart = () => {
-		try {
+		if (Platform.OS === "ios") {
 			// Fire and forget haptics
 			impactAsync(ImpactFeedbackStyle.Medium).catch(() => {
-				/* ignore haptic fail */
+				/* ignore */
 			});
-		} catch {
-			// Silent fail for haptics to ensure navigation proceeds
 		}
 
 		// Reset state before navigating

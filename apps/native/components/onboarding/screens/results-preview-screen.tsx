@@ -2,6 +2,7 @@ import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useEffect, useState } from "react";
 import {
+	Platform,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -71,10 +72,12 @@ export default function ResultsPreviewScreen() {
 	const scoreInfo = getScoreColor(score);
 
 	const handleUnlock = async () => {
-		try {
-			await impactAsync(ImpactFeedbackStyle.Medium);
-		} catch {
-			/* ignore */
+		if (Platform.OS === "ios") {
+			try {
+				await impactAsync(ImpactFeedbackStyle.Medium);
+			} catch {
+				/* ignore */
+			}
 		}
 		nextStep();
 	};

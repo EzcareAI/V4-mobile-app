@@ -19,7 +19,8 @@
       "reactCompiler": false
     },
     "android": {
-      "package": "com.blastshoum.ezcare"
+      "package": "com.blastshoum.ezcare",
+      "usesCleartextTraffic": true
     },
     "extra": {
       "eas": {

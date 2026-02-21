@@ -1,7 +1,7 @@
 import { selectionAsync } from "expo-haptics";
 import { RadioGroup } from "heroui-native";
 import type { LucideIcon } from "lucide-react-native";
-import { Text, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 
 export interface SingleSelectOption {
 	id: string;
@@ -87,7 +87,11 @@ export const SingleSelectList = <T extends string = string>({
 		<RadioGroup
 			className="gap-y-4"
 			onValueChange={(value) => {
-				selectionAsync();
+				if (Platform.OS === "ios") {
+					selectionAsync().catch(() => {
+						/* ignore */
+					});
+				}
 				onSelect(value as T);
 			}}
 			value={selectedId ?? undefined}

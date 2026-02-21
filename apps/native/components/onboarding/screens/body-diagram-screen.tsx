@@ -5,6 +5,7 @@ import type React from "react";
 import { useState } from "react";
 import {
 	Dimensions,
+	Platform,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -126,10 +127,12 @@ const ZoneCard = ({
 	onPress,
 }: ZoneCardProps) => {
 	const handlePress = async () => {
-		try {
-			await impactAsync(ImpactFeedbackStyle.Light);
-		} catch {
-			/* ignore */
+		if (Platform.OS === "ios") {
+			try {
+				await impactAsync(ImpactFeedbackStyle.Light);
+			} catch {
+				/* ignore */
+			}
 		}
 		onPress(id);
 	};
@@ -183,10 +186,12 @@ export default function BodyDiagramScreen() {
 	};
 
 	const handleOverallHealth = async () => {
-		try {
-			await impactAsync(ImpactFeedbackStyle.Medium);
-		} catch {
-			/* ignore */
+		if (Platform.OS === "ios") {
+			try {
+				await impactAsync(ImpactFeedbackStyle.Medium);
+			} catch {
+				/* ignore */
+			}
 		}
 		setSelectedZone(null);
 		setAnswer("bodyZoneSelected", null);

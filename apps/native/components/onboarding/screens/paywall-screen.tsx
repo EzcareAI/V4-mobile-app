@@ -3,6 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import {
 	Modal,
+	Platform,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -34,10 +35,12 @@ export default function PaywallScreen() {
 	const [showDiscountWheel, setShowDiscountWheel] = useState(false);
 
 	const handlePayment = async () => {
-		try {
-			await impactAsync(ImpactFeedbackStyle.Medium);
-		} catch {
-			/* ignore */
+		if (Platform.OS === "ios") {
+			try {
+				await impactAsync(ImpactFeedbackStyle.Medium);
+			} catch {
+				/* ignore */
+			}
 		}
 		setIsProcessing(true);
 		// TODO: Integrate with Stripe/RevenueCat
@@ -50,10 +53,12 @@ export default function PaywallScreen() {
 	};
 
 	const handleExit = async () => {
-		try {
-			await impactAsync(ImpactFeedbackStyle.Light);
-		} catch {
-			/* ignore */
+		if (Platform.OS === "ios") {
+			try {
+				await impactAsync(ImpactFeedbackStyle.Light);
+			} catch {
+				/* ignore */
+			}
 		}
 		if (discountWheelShown) {
 			prevStep();

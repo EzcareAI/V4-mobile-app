@@ -2,7 +2,7 @@ import { selectionAsync } from "expo-haptics";
 import { usePathname, useRouter } from "expo-router";
 import { useThemeColor } from "heroui-native";
 import { ChevronLeft } from "lucide-react-native";
-import { Pressable, Text, View } from "react-native";
+import { Platform, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
@@ -24,10 +24,12 @@ export const ProgressHeader = () => {
 	}
 
 	const handleBack = () => {
-		try {
-			selectionAsync();
-		} catch {
-			// Ignore haptics errors
+		if (Platform.OS === "ios") {
+			try {
+				selectionAsync();
+			} catch {
+				// Ignore haptics errors
+			}
 		}
 		if (currentStep > 1) {
 			prevStep();

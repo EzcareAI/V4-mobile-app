@@ -1,6 +1,6 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Platform, Pressable, Text, View } from "react-native";
 import Svg, { Circle, Ellipse, G, Rect } from "react-native-svg";
 
 interface BodyDiagramProps {
@@ -14,7 +14,11 @@ export function BodyDiagram({ onZoneSelect }: BodyDiagramProps) {
 	const [selectedZone, setSelectedZone] = useState<BodyZone | null>(null);
 
 	const handleZonePress = (zone: BodyZone) => {
-		impactAsync(ImpactFeedbackStyle.Medium);
+		if (Platform.OS === "ios") {
+			impactAsync(ImpactFeedbackStyle.Medium).catch(() => {
+				/* ignore */
+			});
+		}
 		setSelectedZone(zone);
 		onZoneSelect(zone);
 	};

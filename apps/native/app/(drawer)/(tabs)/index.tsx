@@ -11,6 +11,7 @@ import {
 	Trophy,
 } from "lucide-react-native";
 import {
+	Platform,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -21,10 +22,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Home() {
 	const handleStartScan = async () => {
-		try {
-			await impactAsync(ImpactFeedbackStyle.Medium);
-		} catch {
-			/* ignore */
+		if (Platform.OS === "ios") {
+			try {
+				await impactAsync(ImpactFeedbackStyle.Medium);
+			} catch {
+				/* ignore */
+			}
 		}
 		router.push("/scan/scan-start");
 	};

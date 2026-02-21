@@ -8,7 +8,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Heart, TrendingUp, Zap } from "lucide-react-native";
 import React from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Platform, ScrollView, Text, View } from "react-native";
 import { CartesianChart, Line } from "victory-native";
 import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
@@ -35,10 +35,12 @@ export const PerfectPlanScreen = () => {
 	}, []);
 
 	const handleContinue = async () => {
-		try {
-			await impactAsync(ImpactFeedbackStyle.Medium);
-		} catch {
-			/* ignore */
+		if (Platform.OS === "ios") {
+			try {
+				await impactAsync(ImpactFeedbackStyle.Medium);
+			} catch {
+				/* ignore */
+			}
 		}
 		router.push("/(onboarding)/15");
 	};

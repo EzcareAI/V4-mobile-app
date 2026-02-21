@@ -31,8 +31,11 @@ export default function OnboardingIndex() {
 		// Reset state before navigating
 		reset();
 
-		// Navigate to the first step using the absolute path
-		router.replace("/(onboarding)/1");
+		// Use a delay to ensure AsyncStorage writes complete before navigation
+		// This prevents known React Context / AsyncStorage race condition crashes on Android
+		setTimeout(() => {
+			router.push("/(onboarding)/1");
+		}, 150);
 	};
 
 	return (

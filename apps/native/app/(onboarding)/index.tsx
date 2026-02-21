@@ -42,7 +42,7 @@ export default function OnboardingIndex() {
 				<View style={styles.logoSection}>
 					<View style={styles.logoCard}>
 						<Image
-							resizeMode="contain"
+							resizeMode="cover"
 							source={logoSource}
 							style={styles.logoImage}
 						/>
@@ -140,10 +140,11 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.25,
 		shadowRadius: 40,
 		elevation: 15,
+		overflow: "hidden",
 	},
 	logoImage: {
-		width: 160,
-		height: 160,
+		width: "100%",
+		height: "100%",
 	},
 	// Branding
 	brandSection: {

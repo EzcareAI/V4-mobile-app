@@ -95,7 +95,7 @@ export default function SignInScreen() {
 		<SafeAreaView className="flex-1 bg-background">
 			<Stack.Screen options={{ headerShown: false }} />
 			<ScrollView
-				contentContainerClassName="p-6 pb-10"
+				contentContainerClassName="px-8 pt-6 pb-10"
 				showsVerticalScrollIndicator={false}
 			>
 				{/* Header */}

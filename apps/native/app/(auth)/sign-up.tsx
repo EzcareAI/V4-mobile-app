@@ -110,7 +110,7 @@ export default function SignUpScreen() {
 		<SafeAreaView className="flex-1 bg-background">
 			<Stack.Screen options={{ headerShown: false }} />
 			<ScrollView
-				contentContainerClassName="p-6 pb-10"
+				contentContainerClassName="px-8 pt-6 pb-10"
 				showsVerticalScrollIndicator={false}
 			>
 				{/* Header */}
@@ -340,7 +340,7 @@ export default function SignUpScreen() {
 											className={value ? "border-blue-600 bg-blue-600" : ""}
 										/>
 									</FormField.Indicator>
-									<View className="-mt-1 flex-1 flex-row items-center">
+									<View className="-mt-1 flex-1 flex-row flex-wrap items-center">
 										<Text className="text-muted-foreground leading-5">
 											I agree to the{" "}
 										</Text>

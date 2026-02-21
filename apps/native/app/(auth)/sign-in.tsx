@@ -228,7 +228,7 @@ export default function SignInScreen() {
 						variant="ghost"
 					>
 						<StyledIonicons
-							className="mr-1"
+							className="mr-1 text-[#4285F4]"
 							name="logo-google"
 							pointerEvents="none"
 							size={20}

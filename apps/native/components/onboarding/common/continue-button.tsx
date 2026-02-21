@@ -37,7 +37,7 @@ export const ContinueButton = ({
 				start={{ x: 0, y: 0 }}
 				style={StyleSheet.absoluteFill}
 			/>
-			<Button.Label className="font-bold text-accent-foreground text-lg">
+			<Button.Label className="font-bold text-lg text-white">
 				{label}
 			</Button.Label>
 		</Button>

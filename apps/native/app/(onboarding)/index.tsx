@@ -1,15 +1,25 @@
+import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
 import { Check, Leaf } from "lucide-react-native";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { useOnboardingStore } from "@/stores/onboarding-store";
+
 const logoSource = require("@/assets/images/EZCare_Logo.jpg");
 
 export default function OnboardingIndex() {
 	const router = useRouter();
+	const reset = useOnboardingStore((state) => state.reset);
 
-	const handleStart = () => {
+	const handleStart = async () => {
+		try {
+			await impactAsync(ImpactFeedbackStyle.Medium);
+		} catch (error) {
+			console.error("Haptics failed", error);
+		}
+		reset();
 		router.push("/(onboarding)/1");
 	};
 
@@ -68,7 +78,7 @@ export default function OnboardingIndex() {
 					{/* Sign In Link */}
 					<View style={styles.signInRow}>
 						<Text style={styles.signInNote}>Already have an account? </Text>
-						<Link asChild href="/sign-in">
+						<Link asChild href="/(auth)/sign-in">
 							<Text style={styles.signInLink}>Sign in</Text>
 						</Link>
 					</View>

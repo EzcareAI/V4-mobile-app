@@ -311,7 +311,9 @@ export default function SignUpScreen() {
 									onSelectedChange={onChange}
 								>
 									<FormField.Indicator>
-										<Checkbox />
+										<Checkbox
+											className={value ? "border-accent bg-accent" : ""}
+										/>
 									</FormField.Indicator>
 									<View className="-mt-1 flex-1 flex-row items-center">
 										<Text className="text-muted-foreground leading-5">
@@ -361,7 +363,7 @@ export default function SignUpScreen() {
 						variant="ghost"
 					>
 						<StyledIonicons
-							className="mr-1"
+							className="mr-1 text-[#4285F4]"
 							name="logo-google"
 							pointerEvents="none"
 							size={20}

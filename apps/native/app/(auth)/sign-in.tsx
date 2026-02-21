@@ -149,6 +149,7 @@ export default function SignInScreen() {
 												onBlur={onBlur}
 												onChangeText={onChange}
 												placeholder="Enter your email"
+												placeholderTextColor="#CBD5E1"
 												value={value}
 											/>
 											<StyledIonicons
@@ -187,6 +188,7 @@ export default function SignInScreen() {
 												onBlur={onBlur}
 												onChangeText={onChange}
 												placeholder="Enter your password"
+												placeholderTextColor="#CBD5E1"
 												secureTextEntry={!isPasswordVisible}
 												value={value}
 											/>

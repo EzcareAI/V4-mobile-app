@@ -162,6 +162,7 @@ export default function SignUpScreen() {
 												onBlur={onBlur}
 												onChangeText={onChange}
 												placeholder="Enter your full name"
+												placeholderTextColor="#CBD5E1"
 												value={value}
 											/>
 											<StyledIonicons
@@ -201,6 +202,7 @@ export default function SignUpScreen() {
 												onBlur={onBlur}
 												onChangeText={onChange}
 												placeholder="Enter your email"
+												placeholderTextColor="#CBD5E1"
 												value={value}
 											/>
 											<StyledIonicons
@@ -238,6 +240,7 @@ export default function SignUpScreen() {
 												onBlur={onBlur}
 												onChangeText={onChange}
 												placeholder="Create a password"
+												placeholderTextColor="#CBD5E1"
 												secureTextEntry={!isPasswordVisible}
 												value={value}
 											/>
@@ -290,6 +293,7 @@ export default function SignUpScreen() {
 												onBlur={onBlur}
 												onChangeText={onChange}
 												placeholder="Confirm your password"
+												placeholderTextColor="#CBD5E1"
 												secureTextEntry={!isConfirmPasswordVisible}
 												value={value}
 											/>

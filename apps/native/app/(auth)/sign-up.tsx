@@ -347,7 +347,7 @@ export default function SignUpScreen() {
 										<TouchableOpacity
 											onPress={() => router.push("/privacy-policy")}
 										>
-											<Text className="font-medium text-blue-600">
+											<Text className="font-medium text-blue-700">
 												Privacy Policy{" "}
 											</Text>
 										</TouchableOpacity>
@@ -355,7 +355,7 @@ export default function SignUpScreen() {
 										<TouchableOpacity
 											onPress={() => router.push("/terms-of-service")}
 										>
-											<Text className="font-medium text-blue-600">
+											<Text className="font-medium text-blue-700">
 												Terms of Service
 											</Text>
 										</TouchableOpacity>

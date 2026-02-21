@@ -22,6 +22,9 @@ import { z } from "zod";
 import { KeyboardAvoidingContainer } from "@/components/keyboard-avoiding-container";
 import { ContinueButton } from "@/components/onboarding/common/continue-button";
 import { authClient } from "@/lib/auth-client";
+import { useOnboardingStore } from "@/stores/onboarding-store";
+import { mapOnboardingToProfile } from "@/utils/onboarding-sync";
+import { api } from "@/utils/trpc";
 
 const StyledIonicons = withUniwind(Ionicons);
 
@@ -56,6 +59,18 @@ export default function SignInScreen() {
 			if (error) {
 				Alert.alert("Error", error.message || "Invalid email or password");
 				return;
+			}
+
+			// 2. Sync local onboarding data if it exists and profile is incomplete
+			try {
+				const onboardingState = useOnboardingStore.getState();
+				// If we have some basic data like gender, assume there's something to sync
+				if (onboardingState.gender) {
+					const profileInput = mapOnboardingToProfile(onboardingState);
+					await api.profile.completeOnboarding.mutate(profileInput);
+				}
+			} catch (syncError) {
+				console.warn("Post-login sync failed:", syncError);
 			}
 
 			// Redirection is handled by root layout's session check

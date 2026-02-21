@@ -22,6 +22,9 @@ import { z } from "zod";
 import { KeyboardAvoidingContainer } from "@/components/keyboard-avoiding-container";
 import { ContinueButton } from "@/components/onboarding/common/continue-button";
 import { authClient } from "@/lib/auth-client";
+import { useOnboardingStore } from "@/stores/onboarding-store";
+import { mapOnboardingToProfile } from "@/utils/onboarding-sync";
+import { api } from "@/utils/trpc";
 
 const StyledIonicons = withUniwind(Ionicons);
 
@@ -67,7 +70,8 @@ export default function SignUpScreen() {
 	const onSubmit = async (data: SignUpForm) => {
 		setIsLoading(true);
 		try {
-			const { error } = await authClient.signUp.email({
+			// 1. Create the auth user
+			const { error, data: authData } = await authClient.signUp.email({
 				email: data.email,
 				password: data.password,
 				name: data.fullName,
@@ -76,6 +80,19 @@ export default function SignUpScreen() {
 			if (error) {
 				Alert.alert("Error", error.message || "Failed to create account");
 				return;
+			}
+
+			// 2. Sync onboarding data to Supabase profile
+			if (authData?.user) {
+				try {
+					const onboardingState = useOnboardingStore.getState();
+					const profileInput = mapOnboardingToProfile(onboardingState);
+
+					await api.profile.completeOnboarding.mutate(profileInput);
+				} catch (syncError) {
+					console.warn("Onboarding sync failed:", syncError);
+					// We don't block the user if sync fails, they can retry later
+				}
 			}
 
 			Alert.alert("Success", "Account created! You can now sign in.", [

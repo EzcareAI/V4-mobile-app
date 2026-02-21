@@ -16,9 +16,12 @@ export default function OnboardingIndex() {
 	const handleStart = () => {
 		try {
 			// Fire and forget haptics
-			impactAsync(ImpactFeedbackStyle.Medium).catch(() => {});
-			// biome-ignore lint/suspicious/noEmptyBlock: ignore haptic fail
-		} catch {}
+			impactAsync(ImpactFeedbackStyle.Medium).catch(() => {
+				/* ignore haptic fail */
+			});
+		} catch {
+			// Silent fail for haptics to ensure navigation proceeds
+		}
 
 		// Reset state before navigating
 		reset();

@@ -1,3 +1,4 @@
+import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import {
@@ -32,7 +33,12 @@ export default function PaywallScreen() {
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [showDiscountWheel, setShowDiscountWheel] = useState(false);
 
-	const handlePayment = () => {
+	const handlePayment = async () => {
+		try {
+			await impactAsync(ImpactFeedbackStyle.Medium);
+		} catch {
+			/* ignore */
+		}
 		setIsProcessing(true);
 		// TODO: Integrate with Stripe/RevenueCat
 		setTimeout(() => {
@@ -43,7 +49,12 @@ export default function PaywallScreen() {
 		}, 2000);
 	};
 
-	const handleExit = () => {
+	const handleExit = async () => {
+		try {
+			await impactAsync(ImpactFeedbackStyle.Light);
+		} catch {
+			/* ignore */
+		}
 		if (discountWheelShown) {
 			prevStep();
 		} else {
@@ -53,32 +64,35 @@ export default function PaywallScreen() {
 	};
 
 	return (
-		<View style={styles.container}>
+		<View className="flex-1 bg-background">
 			<ScrollView
-				contentContainerStyle={styles.scrollContent}
+				contentContainerClassName="pb-16"
 				showsVerticalScrollIndicator={false}
 			>
-				{/* Header */}
-				<LinearGradient
-					colors={["#e8faf6", "#e8f4fa"]}
-					end={{ x: 0.5, y: 1 }}
-					start={{ x: 0.5, y: 0 }}
-					style={styles.header}
-				>
-					<Text style={styles.headerTitle}>Unlock Your Full Health Core</Text>
-					<Text style={styles.headerSubtitle}>
-						Get personalized plans, daily check-ins, and continuous guidance
+				{/* Premium Header Overlay */}
+				<View className="relative overflow-hidden px-6 pt-12 pb-10">
+					<LinearGradient
+						colors={["#F8FAFC", "#F1F5F9"]}
+						style={StyleSheet.absoluteFill}
+					/>
+					<View className="absolute top-0 right-0 -mt-20 -mr-20 h-64 w-64 rounded-full bg-blue-50/50 opacity-50 blur-3xl" />
+
+					<Text className="text-center font-bold text-[32px] text-foreground leading-10 tracking-tight">
+						Unlock Your Full{"\n"}Health Core
 					</Text>
-				</LinearGradient>
+					<Text className="mt-4 text-center text-[17px] text-muted-foreground leading-6">
+						Get personalized plans, daily check-ins, and continuous AI guidance
+					</Text>
+				</View>
 
 				{/* Pricing Cards */}
-				<View style={styles.section}>
+				<View className="-mt-4 gap-y-6 px-6">
 					{/* Annual — Primary Card */}
 					<TouchableOpacity
 						activeOpacity={0.9}
+						className="relative overflow-hidden rounded-[32px] p-8 shadow-2xl shadow-blue-200"
 						disabled={isProcessing}
 						onPress={handlePayment}
-						style={styles.annualCard}
 					>
 						<LinearGradient
 							colors={["#3BAFDA", "#3EC9B5"]}
@@ -88,36 +102,46 @@ export default function PaywallScreen() {
 						/>
 
 						{/* Best Value Badge */}
-						<View style={styles.badge}>
-							<Text style={styles.badgeText}>BEST VALUE</Text>
-						</View>
-
-						<View style={styles.planHeader}>
-							<Text style={styles.planTitle}>Annual Plan</Text>
-							<Text style={styles.planSubtitle}>
-								Commit for a year and save
+						<View className="absolute top-6 right-6 rounded-full bg-yellow-400 px-4 py-1.5 shadow-sm">
+							<Text className="font-bold text-[10px] text-slate-900 uppercase tracking-widest">
+								BEST VALUE
 							</Text>
 						</View>
 
-						<View style={styles.priceRow}>
-							<Text style={styles.priceMain}>€39.99</Text>
-							<Text style={styles.pricePeriod}>/year</Text>
+						<View className="mb-6 pr-20">
+							<Text className="font-bold text-2xl text-white">Annual Plan</Text>
+							<Text className="mt-1 text-sm text-white/80">
+								Commit for a year and save 60%
+							</Text>
 						</View>
-						<Text style={styles.priceNote}>€3.33/month billed annually</Text>
 
-						{/* Benefits */}
-						<View style={styles.benefitsList}>
+						<View className="mb-2 flex-row items-baseline">
+							<Text className="font-black text-5xl text-white">€39.99</Text>
+							<Text className="ml-2 font-bold text-lg text-white/80">
+								/year
+							</Text>
+						</View>
+						<Text className="mb-8 font-medium text-sm text-white/70">
+							€3.33/month billed annually
+						</Text>
+
+						{/* Benefits List */}
+						<View className="mb-8 gap-y-3">
 							{BENEFITS.map((b) => (
-								<View key={b} style={styles.benefitRow}>
-									<Text style={styles.checkmark}>✓</Text>
-									<Text style={styles.benefitText}>{b}</Text>
+								<View className="flex-row items-center gap-3" key={b}>
+									<View className="h-5 w-5 items-center justify-center rounded-full bg-white/20">
+										<Text className="text-[10px] text-white">✓</Text>
+									</View>
+									<Text className="font-semibold text-[15px] text-white">
+										{b}
+									</Text>
 								</View>
 							))}
 						</View>
 
-						<View style={styles.startButton}>
-							<Text style={styles.startButtonText}>
-								{isProcessing ? "Processing…" : "Start Now →"}
+						<View className="rounded-2xl bg-white/20 py-4">
+							<Text className="text-center font-bold text-lg text-white">
+								{isProcessing ? "Processing Analysis…" : "Start Now →"}
 							</Text>
 						</View>
 					</TouchableOpacity>
@@ -125,68 +149,92 @@ export default function PaywallScreen() {
 					{/* Monthly — Secondary Card */}
 					<TouchableOpacity
 						activeOpacity={0.9}
+						className="rounded-[32px] border-2 border-slate-100 bg-slate-50 p-8"
 						disabled={isProcessing}
 						onPress={handlePayment}
-						style={styles.monthlyCard}
 					>
-						<Text style={styles.monthlyTitle}>Monthly Plan</Text>
-
-						<View style={styles.priceRow}>
-							<Text style={styles.monthlyPrice}>€11.99</Text>
-							<Text style={styles.monthlyPricePeriod}>/month</Text>
+						<View className="mb-4">
+							<Text className="font-bold text-slate-900 text-xl">
+								Monthly Plan
+							</Text>
+							<Text className="mt-1 text-slate-500 text-sm">
+								Cancel anytime, zero commitment
+							</Text>
 						</View>
-						<Text style={styles.monthlySubtitle}>
-							Cancel anytime, no commitment
-						</Text>
 
-						<View style={styles.monthlyButton}>
-							<Text style={styles.monthlyButtonText}>
-								{isProcessing ? "Processing…" : "Start Now →"}
+						<View className="mb-6 flex-row items-baseline">
+							<Text className="font-black text-4xl text-slate-900">€11.99</Text>
+							<Text className="ml-2 font-bold text-lg text-slate-500">
+								/month
+							</Text>
+						</View>
+
+						<View className="rounded-2xl border border-slate-200 bg-white py-4 shadow-sm">
+							<Text className="text-center font-bold text-lg text-slate-700">
+								Get Monthly Access
 							</Text>
 						</View>
 					</TouchableOpacity>
 				</View>
 
-				{/* Features List */}
-				<View style={styles.featuresBox}>
-					<Text style={styles.featuresTitle}>What's Included:</Text>
+				{/* Features Checklist */}
+				<View className="mx-6 mt-10 rounded-[28px] border border-blue-50 bg-blue-50/30 p-8 shadow-sm">
+					<Text className="mb-6 font-bold text-lg text-slate-900">
+						What's Included:
+					</Text>
 					{FEATURES.map((f) => (
-						<Text key={f} style={styles.featureItem}>
-							{f}
-						</Text>
+						<View className="mb-4 flex-row items-start gap-3" key={f}>
+							<Text className="text-lg leading-5">{f.split(" ")[0]}</Text>
+							<Text className="flex-1 font-medium text-[15px] text-slate-600 leading-6">
+								{f.split(" ").slice(1).join(" ")}
+							</Text>
+						</View>
 					))}
 				</View>
 
 				{/* Trust Badges */}
-				<View style={styles.trustRow}>
-					<View style={styles.trustItem}>
-						<Text style={styles.trustIcon}>✓</Text>
-						<Text style={styles.trustLabel}>Clinically{"\n"}Trusted</Text>
+				<View className="mt-12 flex-row justify-between px-8">
+					<View className="items-center">
+						<View className="mb-3 h-12 w-12 items-center justify-center rounded-2xl bg-slate-50">
+							<Text className="text-2xl">🛡️</Text>
+						</View>
+						<Text className="text-center font-bold text-[10px] text-slate-400 uppercase leading-4 tracking-widest">
+							Safe &{"\n"}Secure
+						</Text>
 					</View>
-					<View style={styles.trustItem}>
-						<Text style={styles.trustIcon}>🌿</Text>
-						<Text style={styles.trustLabel}>100%{"\n"}Natural</Text>
+					<View className="items-center">
+						<View className="mb-3 h-12 w-12 items-center justify-center rounded-2xl bg-slate-50">
+							<Text className="text-2xl">🌱</Text>
+						</View>
+						<Text className="text-center font-bold text-[10px] text-slate-400 uppercase leading-4 tracking-widest">
+							Natural{"\n"}Approach
+						</Text>
 					</View>
-					<View style={styles.trustItem}>
-						<Text style={styles.trustIcon}>🔒</Text>
-						<Text style={styles.trustLabel}>Your Data{"\n"}Protected</Text>
+					<View className="items-center">
+						<View className="mb-3 h-12 w-12 items-center justify-center rounded-2xl bg-slate-50">
+							<Text className="text-2xl">💡</Text>
+						</View>
+						<Text className="text-center font-bold text-[10px] text-slate-400 uppercase leading-4 tracking-widest">
+							AI{"\n"}Intelligence
+						</Text>
 					</View>
 				</View>
 
-				{/* Decline / Discount Trigger */}
-				<TouchableOpacity onPress={handleExit} style={styles.declineButton}>
-					<Text style={styles.declineText}>I'll Decide Later</Text>
+				{/* Decline Link */}
+				<TouchableOpacity className="mt-12 items-center" onPress={handleExit}>
+					<Text className="font-bold text-base text-slate-400 tracking-tight">
+						I'll decide later
+					</Text>
 				</TouchableOpacity>
 
-				{/* Legal */}
-				<Text style={styles.legal}>
+				{/* Fine Print */}
+				<Text className="mx-10 mt-8 text-center text-[11px] text-slate-400 leading-5">
 					By starting your subscription, you agree to our Terms of Service and
-					Privacy Policy. Your subscription will renew automatically. Cancel
-					anytime.
+					Privacy Policy. Renewals are automatic. Manage in Apple/Google Play
+					settings.
 				</Text>
 			</ScrollView>
 
-			{/* Discount Wheel Modal — proper full-screen overlay */}
 			<DiscountWheelModal
 				onClaim={handlePayment}
 				onClose={() => setShowDiscountWheel(false)}
@@ -207,388 +255,70 @@ function DiscountWheelModal({
 }) {
 	return (
 		<Modal
-			animationType="fade"
+			animationType="slide"
 			onRequestClose={onClose}
 			transparent
 			visible={visible}
 		>
-			<View style={styles.modalOverlay}>
-				<SafeAreaView edges={["bottom"]} style={styles.modalCard}>
-					<Text style={styles.modalEmoji}>🎁</Text>
-					<Text style={styles.modalTitle}>Wait!</Text>
-					<Text style={styles.modalSubtitle}>
-						You've unlocked an exclusive offer
+			<View className="flex-1 items-center justify-end bg-slate-900/60 p-6">
+				<SafeAreaView
+					className="w-full items-center rounded-[40px] bg-white p-8 shadow-2xl"
+					edges={["bottom"]}
+				>
+					<View className="mb-4 h-1 w-12 rounded-full bg-slate-100" />
+
+					<View className="mb-6 h-20 w-20 items-center justify-center rounded-[28px] bg-yellow-50">
+						<Text className="text-5xl">🎁</Text>
+					</View>
+
+					<Text className="mb-2 font-black text-3xl text-slate-900">Wait!</Text>
+					<Text className="mb-8 text-center text-[17px] text-slate-500 leading-6">
+						We've unlocked an exclusive, one-time reward for your first year.
 					</Text>
 
-					{/* Wheel Placeholder */}
-					<LinearGradient
-						colors={["#3BAFDA", "#3EC9B5"]}
-						end={{ x: 1, y: 1 }}
-						start={{ x: 0, y: 0 }}
-						style={styles.wheelCircle}
-					>
-						<Text style={styles.wheelEmoji}>🎡</Text>
-					</LinearGradient>
-
-					{/* Reward */}
-					<View style={styles.rewardBox}>
-						<Text style={styles.rewardPercent}>80% OFF</Text>
-						<Text style={styles.rewardSave}>Save €10 Today!</Text>
-						<Text style={styles.rewardNote}>
-							€39.99 → €29.99/year (limited time)
+					{/* Reward Showcase */}
+					<View className="relative mb-10 w-full items-center overflow-hidden rounded-[32px] border-4 border-yellow-400 bg-yellow-50/50 p-8">
+						<Text className="font-black text-[56px] text-yellow-600 tracking-tighter">
+							80% OFF
+						</Text>
+						<Text className="mt-2 font-bold text-lg text-slate-900 tracking-tight">
+							Claim €10 instant credit
+						</Text>
+						<Text className="mt-1 font-medium text-slate-500">
+							€39.99 →{" "}
+							<Text className="font-bold text-slate-900">€29.99/year</Text>
 						</Text>
 					</View>
 
-					{/* Timer */}
-					<View style={styles.timerBox}>
-						<Text style={styles.timerText}>⏰ Offer valid for 24 hours</Text>
+					<View className="mb-8 w-full rounded-2xl bg-rose-50 py-3">
+						<Text className="text-center font-bold text-[13px] text-rose-600 uppercase tracking-widest">
+							⏰ Offer expires in 24 hours
+						</Text>
 					</View>
 
-					<TouchableOpacity onPress={onClaim} style={styles.claimButton}>
+					<TouchableOpacity
+						activeOpacity={0.9}
+						className="relative w-full overflow-hidden rounded-[24px] py-5 shadow-blue-200 shadow-xl"
+						onPress={onClaim}
+					>
 						<LinearGradient
 							colors={["#3BAFDA", "#3EC9B5"]}
 							end={{ x: 1, y: 0 }}
 							start={{ x: 0, y: 0 }}
 							style={StyleSheet.absoluteFill}
 						/>
-						<Text style={styles.claimButtonText}>Claim Offer</Text>
+						<Text className="text-center font-bold text-white text-xl">
+							Claim My Offer
+						</Text>
 					</TouchableOpacity>
 
-					<TouchableOpacity onPress={onClose} style={styles.returnButton}>
-						<Text style={styles.returnText}>Return to Pricing</Text>
+					<TouchableOpacity className="mt-6" onPress={onClose}>
+						<Text className="font-bold text-base text-slate-400">
+							Return to pricing
+						</Text>
 					</TouchableOpacity>
 				</SafeAreaView>
 			</View>
 		</Modal>
 	);
 }
-
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: "#ffffff",
-	},
-	scrollContent: {
-		paddingBottom: 40,
-	},
-	// Header
-	header: {
-		paddingHorizontal: 24,
-		paddingTop: 32,
-		paddingBottom: 24,
-	},
-	headerTitle: {
-		fontSize: 22,
-		fontWeight: "700",
-		color: "#0d2137",
-		textAlign: "center",
-		marginBottom: 8,
-	},
-	headerSubtitle: {
-		fontSize: 14,
-		color: "#64748b",
-		textAlign: "center",
-		lineHeight: 20,
-	},
-	// Pricing section
-	section: {
-		paddingHorizontal: 20,
-		paddingTop: 24,
-		gap: 12,
-	},
-	// Annual card
-	annualCard: {
-		borderRadius: 20,
-		padding: 24,
-		overflow: "hidden",
-		position: "relative",
-	},
-	badge: {
-		position: "absolute",
-		top: 16,
-		right: 16,
-		backgroundColor: "#facc15",
-		borderRadius: 999,
-		paddingHorizontal: 12,
-		paddingVertical: 4,
-	},
-	badgeText: {
-		fontSize: 11,
-		fontWeight: "700",
-		color: "#1a1a1a",
-	},
-	planHeader: {
-		marginBottom: 16,
-		paddingRight: 90,
-	},
-	planTitle: {
-		fontSize: 18,
-		fontWeight: "700",
-		color: "#ffffff",
-	},
-	planSubtitle: {
-		fontSize: 12,
-		color: "rgba(255,255,255,0.85)",
-		marginTop: 2,
-	},
-	priceRow: {
-		flexDirection: "row",
-		alignItems: "baseline",
-		marginBottom: 4,
-	},
-	priceMain: {
-		fontSize: 48,
-		fontWeight: "800",
-		color: "#ffffff",
-	},
-	pricePeriod: {
-		fontSize: 18,
-		color: "rgba(255,255,255,0.85)",
-		marginLeft: 6,
-	},
-	priceNote: {
-		fontSize: 12,
-		color: "rgba(255,255,255,0.7)",
-		marginBottom: 20,
-	},
-	benefitsList: {
-		marginBottom: 20,
-		gap: 6,
-	},
-	benefitRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 8,
-	},
-	checkmark: {
-		fontSize: 16,
-		color: "#ffffff",
-	},
-	benefitText: {
-		fontSize: 14,
-		fontWeight: "500",
-		color: "#ffffff",
-	},
-	startButton: {
-		backgroundColor: "rgba(255,255,255,0.2)",
-		borderRadius: 10,
-		paddingVertical: 12,
-		paddingHorizontal: 16,
-	},
-	startButtonText: {
-		textAlign: "center",
-		fontWeight: "700",
-		color: "#ffffff",
-		fontSize: 16,
-	},
-	// Monthly card
-	monthlyCard: {
-		borderRadius: 20,
-		borderWidth: 2,
-		borderColor: "#e2e8f0",
-		backgroundColor: "#f8fafc",
-		padding: 24,
-	},
-	monthlyTitle: {
-		fontSize: 18,
-		fontWeight: "700",
-		color: "#0d2137",
-		marginBottom: 8,
-	},
-	monthlyPrice: {
-		fontSize: 40,
-		fontWeight: "800",
-		color: "#0d2137",
-	},
-	monthlyPricePeriod: {
-		fontSize: 18,
-		color: "#64748b",
-		marginLeft: 6,
-	},
-	monthlySubtitle: {
-		fontSize: 12,
-		color: "#64748b",
-		marginBottom: 16,
-	},
-	monthlyButton: {
-		backgroundColor: "#f0fdfa",
-		borderRadius: 10,
-		paddingVertical: 12,
-		paddingHorizontal: 16,
-	},
-	monthlyButtonText: {
-		textAlign: "center",
-		fontWeight: "700",
-		color: "#0d2137",
-		fontSize: 16,
-	},
-	// Features
-	featuresBox: {
-		marginHorizontal: 20,
-		marginTop: 24,
-		borderRadius: 16,
-		borderWidth: 1,
-		borderColor: "#bfdbfe",
-		backgroundColor: "#eff6ff",
-		padding: 16,
-		gap: 6,
-	},
-	featuresTitle: {
-		fontSize: 13,
-		fontWeight: "700",
-		color: "#1e3a8a",
-		marginBottom: 4,
-	},
-	featureItem: {
-		fontSize: 13,
-		color: "#1e3a8a",
-		lineHeight: 20,
-	},
-	// Trust badges
-	trustRow: {
-		flexDirection: "row",
-		justifyContent: "center",
-		paddingHorizontal: 20,
-		marginTop: 24,
-		gap: 32,
-	},
-	trustItem: {
-		alignItems: "center",
-	},
-	trustIcon: {
-		fontSize: 24,
-		marginBottom: 4,
-	},
-	trustLabel: {
-		fontSize: 11,
-		color: "#64748b",
-		textAlign: "center",
-		lineHeight: 16,
-	},
-	// Decline
-	declineButton: {
-		marginHorizontal: 20,
-		marginTop: 24,
-		borderRadius: 12,
-		backgroundColor: "#f1f5f9",
-		paddingVertical: 14,
-		paddingHorizontal: 24,
-	},
-	declineText: {
-		textAlign: "center",
-		fontWeight: "600",
-		color: "#475569",
-		fontSize: 15,
-	},
-	// Legal
-	legal: {
-		marginHorizontal: 24,
-		marginTop: 16,
-		fontSize: 11,
-		color: "#94a3b8",
-		textAlign: "center",
-		lineHeight: 18,
-	},
-	// Modal
-	modalOverlay: {
-		flex: 1,
-		backgroundColor: "rgba(0,0,0,0.55)",
-		justifyContent: "center",
-		alignItems: "center",
-		paddingHorizontal: 24,
-	},
-	modalCard: {
-		width: "100%",
-		backgroundColor: "#ffffff",
-		borderRadius: 24,
-		padding: 28,
-		alignItems: "center",
-	},
-	modalEmoji: {
-		fontSize: 36,
-		marginBottom: 4,
-	},
-	modalTitle: {
-		fontSize: 24,
-		fontWeight: "800",
-		color: "#0d2137",
-		marginBottom: 4,
-	},
-	modalSubtitle: {
-		fontSize: 14,
-		color: "#64748b",
-		marginBottom: 20,
-		textAlign: "center",
-	},
-	wheelCircle: {
-		width: 140,
-		height: 140,
-		borderRadius: 70,
-		alignItems: "center",
-		justifyContent: "center",
-		marginBottom: 24,
-	},
-	wheelEmoji: {
-		fontSize: 56,
-	},
-	rewardBox: {
-		width: "100%",
-		backgroundColor: "#fefce8",
-		borderWidth: 2,
-		borderColor: "#fde047",
-		borderRadius: 16,
-		padding: 16,
-		alignItems: "center",
-		marginBottom: 12,
-	},
-	rewardPercent: {
-		fontSize: 36,
-		fontWeight: "800",
-		color: "#ca8a04",
-		marginBottom: 4,
-	},
-	rewardSave: {
-		fontSize: 17,
-		fontWeight: "700",
-		color: "#0d2137",
-		marginBottom: 4,
-	},
-	rewardNote: {
-		fontSize: 13,
-		color: "#64748b",
-	},
-	timerBox: {
-		width: "100%",
-		backgroundColor: "#fef2f2",
-		borderRadius: 10,
-		padding: 12,
-		marginBottom: 20,
-	},
-	timerText: {
-		textAlign: "center",
-		fontWeight: "700",
-		color: "#b91c1c",
-		fontSize: 14,
-	},
-	claimButton: {
-		width: "100%",
-		borderRadius: 14,
-		paddingVertical: 16,
-		alignItems: "center",
-		overflow: "hidden",
-		marginBottom: 12,
-	},
-	claimButtonText: {
-		fontWeight: "700",
-		color: "#ffffff",
-		fontSize: 16,
-	},
-	returnButton: {
-		paddingVertical: 8,
-	},
-	returnText: {
-		fontWeight: "600",
-		color: "#64748b",
-		fontSize: 15,
-	},
-});

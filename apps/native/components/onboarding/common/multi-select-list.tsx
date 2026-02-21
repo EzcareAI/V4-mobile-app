@@ -28,40 +28,43 @@ const MultiSelectItem = ({
 }) => {
 	return (
 		<PressableFeedback
-			className={`flex-row items-center rounded-[24px] border p-5 transition-all ${
+			className={`flex-row items-center rounded-[32px] border-2 p-6 transition-all duration-300 ${
 				isSelected
-					? "border-[#3EC9B5] bg-white shadow-emerald-100 shadow-md"
-					: "border-slate-100 bg-white/60"
+					? "border-[#3BAFDA] bg-white shadow-blue-100 shadow-xl"
+					: "border-slate-50 bg-slate-50/40"
 			}`}
 			onPress={onPress}
 		>
 			<View
-				className={`mr-4 h-14 w-14 items-center justify-center rounded-2xl ${
-					isSelected ? "bg-[#3EC9B5]" : "bg-slate-100"
+				className={`mr-5 h-14 w-14 items-center justify-center rounded-2xl ${
+					isSelected
+						? "bg-[#3BAFDA] shadow-blue-200 shadow-md"
+						: "bg-white shadow-sm"
 				}`}
 			>
 				{option.emoji ? (
 					<Text className="text-3xl">{option.emoji}</Text>
 				) : option.icon ? (
 					<option.icon
-						color={isSelected ? "white" : (option.iconColor ?? "#64748B")}
-						size={28}
+						color={isSelected ? "white" : (option.iconColor ?? "#94A3B8")}
+						size={26}
+						strokeWidth={2.5}
 					/>
 				) : null}
 			</View>
 			<Text
-				className={`flex-1 font-bold text-lg ${
-					isSelected ? "text-[#0d2137]" : "text-slate-700"
+				className={`flex-1 font-bold text-lg tracking-tight ${
+					isSelected ? "text-slate-900" : "text-slate-600"
 				}`}
 			>
 				{option.label}
 			</Text>
 			<View
 				className={`h-7 w-7 items-center justify-center rounded-full border-2 transition-all ${
-					isSelected ? "border-[#3EC9B5] bg-[#3EC9B5]" : "border-slate-200"
+					isSelected ? "border-[#3BAFDA] bg-[#3BAFDA]" : "border-slate-200"
 				}`}
 			>
-				{isSelected && <Check color="white" size={16} strokeWidth={3} />}
+				{isSelected && <Check color="white" size={16} strokeWidth={4} />}
 			</View>
 		</PressableFeedback>
 	);

@@ -44,30 +44,36 @@ export const GenderScreen = () => {
 
 	return (
 		<View className="flex-1 bg-background">
-			<View className="flex-1 justify-between px-5 pb-8">
+			<View className="flex-1 justify-between px-6 pb-10">
 				<ScrollView
 					className="flex-1"
-					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
 					contentInsetAdjustmentBehavior="automatic"
 					showsVerticalScrollIndicator={false}
 				>
 					<View className="flex-1">
-						{/* Icon Header */}
-						<View className="mt-4 items-center">
-							<View className="h-24 w-24 items-center justify-center rounded-full bg-white shadow-blue-100 shadow-lg">
-								<View className="h-16 w-16 items-center justify-center rounded-full bg-blue-50/50">
-									<CircleDot color="#3BAFDA" fill="#3BAFDA" size={40} />
+						{/* Multi-layered Premium Icon Header */}
+						<View className="mt-8 items-center">
+							<View className="relative h-28 w-28 items-center justify-center">
+								{/* Outer glow/shadow layer */}
+								<View className="absolute inset-0 rounded-[40px] bg-[#3BAFDA]/10 blur-xl" />
+								{/* Middle layer */}
+								<View className="h-full w-full items-center justify-center rounded-[36px] bg-white shadow-blue-200 shadow-xl">
+									{/* Inner container */}
+									<View className="h-20 w-20 items-center justify-center rounded-[28px] bg-blue-50/80">
+										<CircleDot color="#3BAFDA" fill="#3BAFDA" size={44} />
+									</View>
 								</View>
 							</View>
 						</View>
 
 						<StepHeader
 							align="center"
-							className="mt-6"
-							description="This helps us personalize recommendations for your biology."
+							className="mt-8"
+							description="This helps us personalize recommendations for your biology and health profile."
 							title="What is your gender?"
 						/>
-						<View className="mt-8 px-1">
+						<View className="mt-4">
 							<SingleSelectList
 								onSelect={(value) => setAnswer("gender", value)}
 								options={GENDER_OPTIONS}
@@ -77,7 +83,7 @@ export const GenderScreen = () => {
 					</View>
 				</ScrollView>
 
-				<View className="pt-4">
+				<View className="pt-6">
 					<ContinueButton isDisabled={!gender} onPress={handleContinue} />
 				</View>
 			</View>

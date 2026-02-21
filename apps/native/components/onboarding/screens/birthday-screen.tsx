@@ -36,29 +36,31 @@ export const BirthdayScreen = () => {
 					showsVerticalScrollIndicator={false}
 				>
 					<View className="flex-1 px-1">
-						{/* Icon Header */}
-						<View className="mt-4 items-center">
-							<View className="h-24 w-24 items-center justify-center rounded-full bg-white shadow-blue-100 shadow-lg">
-								<View className="h-16 w-16 items-center justify-center rounded-full bg-blue-50/50">
-									<Cake color="#3BAFDA" fill="#3BAFDA" size={40} />
+						{/* Premium Icon Header */}
+						<View className="mt-8 items-center">
+							<View className="relative h-32 w-32 items-center justify-center">
+								{/* Multi-layered shadow design */}
+								<View className="absolute h-28 w-28 rounded-[32px] bg-blue-50 shadow-2xl shadow-blue-100" />
+								<View className="h-24 w-24 items-center justify-center rounded-[28px] border border-slate-50 bg-white shadow-sm">
+									<Cake color="#3BAFDA" size={44} strokeWidth={2.5} />
 								</View>
 							</View>
 						</View>
 
 						<StepHeader
 							align="center"
-							className="mt-6"
-							description="We use your age to personalize recommendations."
-							title="When were you born?"
+							className="mt-10"
+							description="Your age helps us calibrate your biological baseline and metabolic profile."
+							title="When is your birthday?"
 						/>
 
-						<View className="mt-8 items-center justify-center rounded-[32px] bg-white/40 p-6 py-10 shadow">
+						<View className="mt-12 overflow-hidden rounded-[40px] border border-white/50 bg-white/60 p-8 shadow-2xl shadow-blue-100/30">
 							<DateTimePicker
 								display="spinner"
 								maximumDate={new Date()}
 								mode="date"
 								onChange={onChange}
-								style={{ width: "100%", height: 200 }}
+								style={{ width: "100%", height: 220 }}
 								value={date}
 							/>
 						</View>

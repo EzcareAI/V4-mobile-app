@@ -70,6 +70,8 @@ export interface OnboardingState {
 
 	// Completion
 	onboardingComplete?: boolean;
+	dietType?: "classic" | "keto" | "paleo" | "vegan" | "carnivore";
+	goals: string[];
 
 	// Methods
 	setAnswer: <K extends keyof OnboardingState>(
@@ -92,6 +94,7 @@ export const useOnboardingStore = create<OnboardingState>()(
 			discountWheelShown: false,
 			paymentAttempted: false,
 			onboardingComplete: false,
+			goals: [],
 
 			setAnswer: (key, value) => set((state) => ({ ...state, [key]: value })),
 
@@ -139,6 +142,8 @@ export const useOnboardingStore = create<OnboardingState>()(
 					notificationsEnabled: true,
 					referralCode: undefined,
 					onboardingComplete: false,
+					dietType: undefined,
+					goals: [],
 				}),
 
 			computeHealthScore: () => {

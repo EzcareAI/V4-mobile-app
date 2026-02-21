@@ -19,17 +19,26 @@ export const mapOnboardingToProfile = (state: OnboardingState) => {
 		: 3;
 
 	// 3. Map Health Goals (Store: energy|sleep|digestion|stress|weight -> API: energy|sleep|digestion|stress|longevity)
-	const goalMap: Record<string, string> = {
+	const goalMap: Record<
+		string,
+		"energy" | "sleep" | "digestion" | "stress" | "longevity"
+	> = {
 		energy: "energy",
 		sleep: "sleep",
 		digestion: "digestion",
 		stress: "stress",
-		weight: "longevity", // Mapping weight to longevity as a catch-all if not exactly matched
+		weight: "longevity",
 	};
 
 	// 4. Map Symptoms
 	// Combine any specific triggers or issues into the symptom enum
-	const mappedSymptoms: string[] = [];
+	const mappedSymptoms: (
+		| "fatigue"
+		| "digestive"
+		| "anxiety"
+		| "pain"
+		| "brain_fog"
+	)[] = [];
 	if (state.currentEnergyLevel && state.currentEnergyLevel <= 2) {
 		mappedSymptoms.push("fatigue");
 	}
@@ -42,7 +51,11 @@ export const mapOnboardingToProfile = (state: OnboardingState) => {
 
 	return {
 		ageRange,
-		gender: state.gender || "other",
+		gender: (state.gender || "other") as
+			| "male"
+			| "female"
+			| "other"
+			| "prefer_not_to_say",
 		heightCm: state.heightCm || 170, // Default fallback
 		weightKg: state.weightKg || 70, // Default fallback
 		activityLevel: state.activityLevel || 3,
@@ -52,7 +65,13 @@ export const mapOnboardingToProfile = (state: OnboardingState) => {
 		primaryGoal:
 			(state.overallPriority && goalMap[state.overallPriority]) || "energy",
 		secondaryGoal: "longevity" as const,
-		symptoms: mappedSymptoms.length > 0 ? mappedSymptoms : ["fatigue"], // Ensure non-empty if required
+		symptoms: (mappedSymptoms.length > 0 ? mappedSymptoms : ["fatigue"]) as (
+			| "fatigue"
+			| "digestive"
+			| "anxiety"
+			| "pain"
+			| "brain_fog"
+		)[],
 		motivationLevel: state.motivationLevel || 3,
 		willingDailyActions: true,
 		notificationsEnabled: state.notificationsEnabled,

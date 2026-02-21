@@ -1,3 +1,4 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
 	Bot,
@@ -9,7 +10,7 @@ import {
 	Zap,
 } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
-import { Animated, ScrollView, Text, View } from "react-native";
+import { Animated, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 
@@ -98,47 +99,64 @@ export const LoadingPlanScreen = () => {
 				>
 					<View className="flex-1 px-1">
 						{/* Bot Header */}
-						<View className="mt-4 items-center">
-							<View className="h-36 w-36 items-center justify-center">
-								<View className="h-32 w-32 items-center justify-center rounded-full bg-cyan-400/20">
-									<View className="h-28 w-28 items-center justify-center rounded-full bg-cyan-400/40">
-										<View className="h-24 w-24 items-center justify-center rounded-full bg-white shadow-blue-100 shadow-xl">
-											<Bot color="#3BAFDA" size={48} />
-											<View className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-amber-400">
-												<Wrench color="white" fill="white" size={20} />
-											</View>
-										</View>
+						<View className="mt-8 items-center">
+							<View className="relative h-40 w-40 items-center justify-center">
+								{/* Pulse Rings */}
+								<View className="absolute inset-0 items-center justify-center">
+									<View className="h-36 w-36 rounded-full border border-cyan-100 bg-cyan-50/20" />
+								</View>
+								<View className="absolute inset-0 scale-90 items-center justify-center">
+									<View className="h-32 w-32 rounded-full border border-cyan-200 bg-cyan-100/30 shadow-2xl shadow-indigo-200" />
+								</View>
+
+								<View className="h-28 w-28 items-center justify-center rounded-[32px] border-2 border-white bg-white shadow-2xl shadow-blue-100">
+									<Bot color="#3BAFDA" size={48} strokeWidth={2.5} />
+									<View className="absolute -top-2 -right-2 h-10 w-10 items-center justify-center rounded-2xl border-4 border-white bg-amber-400 shadow-lg">
+										<Wrench color="white" fill="white" size={20} />
 									</View>
 								</View>
 							</View>
 
-							<Text className="mt-8 text-center font-bold text-2xl text-[#0d2137] leading-9">
-								EZBuddy is preparing your natural healing plan...
+							<Text className="mt-10 text-center font-bold text-[28px] text-slate-900 leading-[38px] tracking-tight">
+								EZBuddy is preparing{"\n"}your natural plan...
 							</Text>
 						</View>
 
 						{/* Progress Section */}
-						<View className="mt-6 items-center">
-							<View className="h-2.5 w-full overflow-hidden rounded-full bg-slate-200/50">
+						<View className="mt-10 px-4">
+							<View className="h-3 w-full overflow-hidden rounded-full border border-slate-50 bg-slate-100">
 								<Animated.View
-									className="h-full bg-[#3EC9B5]"
+									className="h-full"
 									style={{
 										width: progressAnim.interpolate({
 											inputRange: [0, 100],
 											outputRange: ["0%", "100%"],
 										}),
+										backgroundColor: "#3BAFDA",
 									}}
-								/>
+								>
+									<LinearGradient
+										colors={["#3BAFDA", "#3EC9B5"]}
+										end={{ x: 1, y: 0.5 }}
+										start={{ x: 0, y: 0.5 }}
+										style={StyleSheet.absoluteFill}
+									/>
+								</Animated.View>
 							</View>
-							<Text className="mt-3 font-bold text-lg text-slate-400">
-								{Math.round(progress)}%
-							</Text>
+							<View className="mt-4 flex-row items-center justify-between">
+								<Text className="font-bold text-slate-400 text-sm uppercase tracking-widest">
+									Optimization Progress
+								</Text>
+								<Text className="font-black text-cyan-600 text-xl">
+									{Math.round(progress)}%
+								</Text>
+							</View>
 						</View>
 
 						{/* Stages List */}
-						<View className="mt-8 gap-y-4">
+						<View className="mt-10 gap-y-4">
 							{STAGES.map((stage) => {
-								const isVisible = progress >= stage.doneAt - 10;
+								const isVisible = progress >= stage.doneAt - 15;
 								const isDone = progress >= stage.doneAt;
 
 								if (!isVisible) {
@@ -147,43 +165,53 @@ export const LoadingPlanScreen = () => {
 
 								return (
 									<View
-										className="flex-row items-center rounded-3xl bg-white/80 p-5 shadow-blue-100 shadow-sm"
+										className={`flex-row items-center rounded-[32px] border p-6 ${isDone ? "border-slate-50 bg-white shadow-blue-50 shadow-sm" : "border-slate-100 bg-slate-50/50"}`}
 										key={stage.id}
 									>
 										<View
-											className={`mr-4 h-16 w-16 items-center justify-center rounded-full ${stage.bgColor}`}
+											className={`mr-4 h-14 w-14 items-center justify-center rounded-2xl ${stage.bgColor}`}
 										>
-											<stage.icon color={stage.iconColor} size={28} />
+											<stage.icon color={stage.iconColor} size={26} />
 										</View>
 										<View className="flex-1">
-											<Text className="font-bold text-[#0d2137] text-[17px]">
+											<Text
+												className={`font-bold text-[16px] text-slate-900 ${!isDone && "opacity-60"}`}
+											>
 												{stage.title}
 											</Text>
-											<Text className="mt-0.5 text-slate-500 text-sm">
-												{stage.id === "nutrition"
-													? getDietDescription()
-													: stage.description}
-											</Text>
+											{isDone && (
+												<Text className="mt-0.5 font-medium text-[13px] text-slate-500">
+													{stage.id === "nutrition"
+														? getDietDescription()
+														: stage.description}
+												</Text>
+											)}
 										</View>
-										{isDone && <Check color="#3EC9B5" size={24} />}
+										{isDone ? (
+											<View className="h-6 w-6 items-center justify-center rounded-full bg-emerald-500">
+												<Check color="white" size={14} strokeWidth={4} />
+											</View>
+										) : (
+											<View className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+										)}
 									</View>
 								);
 							})}
 
 							{/* Final Ready State */}
 							{progress >= 100 && (
-								<View className="mt-4 rounded-3xl bg-[#E6F9F6] p-8 shadow-emerald-100 shadow-sm">
+								<View className="mt-6 rounded-[32px] border border-emerald-100 bg-emerald-50 p-8 shadow-emerald-50 shadow-md">
 									<View className="flex-row items-center">
-										<View className="mr-5 h-16 w-16 items-center justify-center rounded-full bg-[#3EC9B5]">
+										<View className="mr-5 h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500 shadow-emerald-200 shadow-lg">
 											<CheckCircle2 color="white" size={32} />
 										</View>
 										<View className="flex-1">
-											<Text className="font-bold text-[#0d2137] text-xl">
+											<Text className="font-bold text-slate-900 text-xl tracking-tight">
 												Plan Ready!
 											</Text>
-											<Text className="mt-1 text-slate-500 text-sm leading-5">
-												Your personalized natural healing journey is about to
-												begin
+											<Text className="mt-1 font-medium text-slate-600 text-sm leading-5">
+												Your natural healing journey is precisely tailored and
+												ready.
 											</Text>
 										</View>
 									</View>

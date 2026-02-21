@@ -1,21 +1,25 @@
+import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import type React from "react";
 import { useState } from "react";
 import {
 	Dimensions,
 	ScrollView,
+	StyleSheet,
 	Text,
 	TouchableOpacity,
 	View,
 } from "react-native";
 import Svg, { Circle, G, Path, Rect } from "react-native-svg";
 import { type BodyZone, useOnboardingStore } from "@/stores/onboarding-store";
+import { StepHeader } from "../common/step-header";
 
 const BodyPart = ({
 	id,
 	selectedZone,
-	color = "#E0F2FE",
-	stroke = "#0EA5E9",
+	color = "rgba(14, 165, 233, 0.15)",
+	stroke = "rgba(14, 165, 233, 0.4)",
 	children,
 }: {
 	id: string;
@@ -25,15 +29,29 @@ const BodyPart = ({
 	children: React.ReactNode;
 }) => {
 	const isSelected = selectedZone === id;
-	const activeColor = isSelected ? "#10B981" : color;
-	const activeStroke = isSelected ? "#059669" : stroke;
-	const opacity = isSelected ? 1 : 0.6;
+	const activeColor = isSelected ? "rgba(45, 212, 191, 0.4)" : color;
+	const activeStroke = isSelected ? "#2DD4BF" : stroke;
+	const opacity = isSelected ? 1 : 0.8;
 
 	return (
 		<G opacity={opacity}>
-			<G fill={activeColor} stroke={activeStroke} strokeWidth="2">
+			<G
+				fill={activeColor}
+				stroke={activeStroke}
+				strokeWidth={isSelected ? "3" : "1.5"}
+			>
 				{children}
 			</G>
+			{isSelected && (
+				<G opacity={0.3}>
+					<Circle
+						cx={id === "head" ? "100" : "100"}
+						cy={id === "head" ? "60" : "200"}
+						fill="#2DD4BF"
+						r="40"
+					/>
+				</G>
+			)}
 		</G>
 	);
 };
@@ -46,8 +64,21 @@ const BodyDiagram = ({
 	width: number;
 }) => {
 	return (
-		<View className="mb-8 items-center rounded-2xl bg-gradient-to-b from-teal-50 to-green-50 py-8">
+		<View className="mb-10 items-center overflow-hidden rounded-[40px] border border-blue-100/30 bg-slate-900/5 py-10 shadow-2xl">
 			<Svg height={420} viewBox="0 0 200 420" width={width - 48}>
+				{/* Background Grid for Blueprint feel */}
+				<G opacity={0.1}>
+					{[0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200].map((x) => (
+						<Path d={`M ${x} 0 L ${x} 420`} key={`v-${x}`} stroke="#0EA5E9" />
+					))}
+					{[
+						0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280,
+						300, 320, 340, 360, 380, 400, 420,
+					].map((y) => (
+						<Path d={`M 0 ${y} L 200 ${y}`} key={`h-${y}`} stroke="#0EA5E9" />
+					))}
+				</G>
+
 				<G>
 					<BodyPart id="head" selectedZone={selectedZone}>
 						<Circle cx="100" cy="60" r="35" />
@@ -77,10 +108,68 @@ const BodyDiagram = ({
 	);
 };
 
+interface ZoneCardProps {
+	id: BodyZone;
+	label: string;
+	description: string;
+	icon: string;
+	isSelected: boolean;
+	onPress: (id: BodyZone) => void;
+}
+
+const ZoneCard = ({
+	id,
+	label,
+	description,
+	icon,
+	isSelected,
+	onPress,
+}: ZoneCardProps) => {
+	const handlePress = async () => {
+		try {
+			await impactAsync(ImpactFeedbackStyle.Light);
+		} catch {
+			/* ignore */
+		}
+		onPress(id);
+	};
+
+	return (
+		<TouchableOpacity
+			activeOpacity={0.8}
+			className={`relative mb-4 flex-row items-center rounded-3xl border-2 p-5 transition-all ${
+				isSelected
+					? "border-[#3BAFDA] bg-white shadow-blue-100 shadow-xl"
+					: "border-slate-100 bg-white"
+			}`}
+			onPress={handlePress}
+		>
+			<View
+				className={`mr-4 h-14 w-14 items-center justify-center rounded-2xl ${isSelected ? "bg-[#3BAFDA]" : "bg-slate-50"}`}
+			>
+				<Text className="text-2xl">{icon}</Text>
+			</View>
+			<View className="flex-1">
+				<Text
+					className={`font-bold text-lg ${isSelected ? "text-[#0d2137]" : "text-slate-700"}`}
+				>
+					{label}
+				</Text>
+				<Text className="text-slate-500 text-sm">{description}</Text>
+			</View>
+			{isSelected && (
+				<View className="h-6 w-6 items-center justify-center rounded-full bg-[#3BAFDA]">
+					<View className="h-2 w-2 rounded-full bg-white" />
+				</View>
+			)}
+		</TouchableOpacity>
+	);
+};
+
 export default function BodyDiagramScreen() {
 	const router = useRouter();
 	const { setAnswer, nextStep } = useOnboardingStore();
-	const [selectedZone, setSelectedZone] = useState<string | null>(null);
+	const [selectedZone, setSelectedZone] = useState<BodyZone | null>(null);
 	const { width } = Dimensions.get("window");
 
 	const handleZoneSelect = (zoneId: BodyZone) => {
@@ -90,10 +179,15 @@ export default function BodyDiagramScreen() {
 		setTimeout(() => {
 			nextStep();
 			router.push("/(onboarding)/14");
-		}, 300);
+		}, 600);
 	};
 
-	const handleOverallHealth = () => {
+	const handleOverallHealth = async () => {
+		try {
+			await impactAsync(ImpactFeedbackStyle.Medium);
+		} catch {
+			/* ignore */
+		}
 		setSelectedZone(null);
 		setAnswer("bodyZoneSelected", null);
 		setAnswer("intentType", "overall");
@@ -104,103 +198,82 @@ export default function BodyDiagramScreen() {
 	};
 
 	return (
-		<ScrollView className="flex-1 bg-white px-6 pt-8">
-			{/* Header */}
-			<View className="mb-8">
-				<Text className="mb-2 text-center font-bold text-2xl text-gray-900">
-					What do you want to work on today?
-				</Text>
-				<Text className="text-center text-gray-600 text-sm">
-					Tap a body area or choose overall wellness
-				</Text>
-			</View>
+		<ScrollView
+			className="flex-1 bg-background"
+			contentContainerClassName="px-6 pt-10 pb-20"
+			showsVerticalScrollIndicator={false}
+		>
+			<StepHeader
+				align="center"
+				description="Tap a body area to focus on specific issues, or choose overall wellness."
+				title="Focus Areas"
+			/>
 
 			<BodyDiagram selectedZone={selectedZone} width={width} />
 
-			{/* Zone Selection Buttons */}
-			<View className="mb-8 gap-3">
-				<TouchableOpacity
-					className={`rounded-xl border-2 p-4 ${
-						selectedZone === "head"
-							? "border-teal-500 bg-teal-50"
-							: "border-gray-200 bg-gray-50"
-					}`}
-					onPress={() => handleZoneSelect("head")}
-				>
-					<Text className="font-semibold text-gray-900">🧠 Head & Mental</Text>
-					<Text className="text-gray-600 text-xs">
-						Headaches, clarity, focus
-					</Text>
-				</TouchableOpacity>
-
-				<TouchableOpacity
-					className={`rounded-xl border-2 p-4 ${
-						selectedZone === "chest"
-							? "border-teal-500 bg-teal-50"
-							: "border-gray-200 bg-gray-50"
-					}`}
-					onPress={() => handleZoneSelect("chest")}
-				>
-					<Text className="font-semibold text-gray-900">❤️ Chest & Heart</Text>
-					<Text className="text-gray-600 text-xs">Breathing, heart health</Text>
-				</TouchableOpacity>
-
-				<TouchableOpacity
-					className={`rounded-xl border-2 p-4 ${
-						selectedZone === "stomach"
-							? "border-teal-500 bg-teal-50"
-							: "border-gray-200 bg-gray-50"
-					}`}
-					onPress={() => handleZoneSelect("stomach")}
-				>
-					<Text className="font-semibold text-gray-900">🔄 Digestion</Text>
-					<Text className="text-gray-600 text-xs">Stomach, gut, energy</Text>
-				</TouchableOpacity>
-
-				<TouchableOpacity
-					className={`rounded-xl border-2 p-4 ${
-						selectedZone === "joints"
-							? "border-teal-500 bg-teal-50"
-							: "border-gray-200 bg-gray-50"
-					}`}
-					onPress={() => handleZoneSelect("joints")}
-				>
-					<Text className="font-semibold text-gray-900">💪 Joints & Pain</Text>
-					<Text className="text-gray-600 text-xs">Mobility, comfort</Text>
-				</TouchableOpacity>
-
-				<TouchableOpacity
-					className={`rounded-xl border-2 p-4 ${
-						selectedZone === "inflammation"
-							? "border-teal-500 bg-teal-50"
-							: "border-gray-200 bg-gray-50"
-					}`}
-					onPress={() => handleZoneSelect("inflammation")}
-				>
-					<Text className="font-semibold text-gray-900">🛡️ Immune System</Text>
-					<Text className="text-gray-600 text-xs">Inflammation, immunity</Text>
-				</TouchableOpacity>
+			<View className="mt-2">
+				<ZoneCard
+					description="Focus on your brain health, stress, and mood."
+					icon="🧠"
+					id="head"
+					isSelected={selectedZone === "head"}
+					label="Head & Mental"
+					onPress={handleZoneSelect}
+				/>
+				<ZoneCard
+					description="Heart health, breathing, and circulation."
+					icon="❤️"
+					id="chest"
+					isSelected={selectedZone === "chest"}
+					label="Chest & Heart"
+					onPress={handleZoneSelect}
+				/>
+				<ZoneCard
+					description="Gut health, digestion, and metabolic wellness."
+					icon="🔄"
+					id="stomach"
+					isSelected={selectedZone === "stomach"}
+					label="Digestion & Gut"
+					onPress={handleZoneSelect}
+				/>
+				<ZoneCard
+					description="Mobility, recovery, and physical strength."
+					icon="💪"
+					id="joints"
+					isSelected={selectedZone === "joints"}
+					label="Joints & Mobility"
+					onPress={handleZoneSelect}
+				/>
+				<ZoneCard
+					description="Immunity, energy levels, and inflammation."
+					icon="🛡️"
+					id="inflammation"
+					isSelected={selectedZone === "inflammation"}
+					label="Immune & Vitality"
+					onPress={handleZoneSelect}
+				/>
 			</View>
 
-			{/* Overall Health Button */}
 			<TouchableOpacity
-				className="mb-12 rounded-xl bg-gradient-to-r from-teal-400 to-green-400 px-6 py-4 shadow-lg"
+				activeOpacity={0.9}
+				className="mt-6 overflow-hidden rounded-[28px] shadow-blue-200 shadow-lg"
 				onPress={handleOverallHealth}
 			>
-				<Text className="text-center font-bold text-lg text-white">
-					Overall Wellness
-				</Text>
-				<Text className="text-center text-white text-xs opacity-90">
-					I want to improve my general health
-				</Text>
+				<LinearGradient
+					colors={["#3BAFDA", "#3EC9B5"]}
+					end={{ x: 1, y: 0 }}
+					start={{ x: 0, y: 0 }}
+					style={StyleSheet.absoluteFill}
+				/>
+				<View className="px-8 py-5">
+					<Text className="text-center font-bold text-white text-xl">
+						Overall Wellness
+					</Text>
+					<Text className="mt-1 text-center text-sm text-white/80">
+						I want to improve my general longevity & health
+					</Text>
+				</View>
 			</TouchableOpacity>
-
-			{/* Info Footer */}
-			<View className="mb-8 rounded-lg border border-blue-200 bg-blue-50 p-4">
-				<Text className="text-center text-blue-900 text-xs">
-					💡 Your answers help EZBuddy personalize your health plan
-				</Text>
-			</View>
 		</ScrollView>
 	);
 }

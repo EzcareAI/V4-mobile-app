@@ -1,61 +1,87 @@
 import { useRouter } from "expo-router";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Cigarette } from "lucide-react-native";
+import { ScrollView, Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+import { SingleSelectList } from "../common/single-select-list";
+import { StepHeader } from "../common/step-header";
+
+const SMOKING_OPTIONS = [
+	{
+		id: "never",
+		label: "Non-Smoker",
+		description: "I prefer clean air and lungs",
+		emoji: "🍃",
+	},
+	{
+		id: "occasionally",
+		label: "Socially",
+		description: "A few times per week",
+		emoji: "💨",
+	},
+	{
+		id: "regularly",
+		label: "Regularly",
+		description: "Daily or most days",
+		emoji: "🚬",
+	},
+] as const;
 
 export function SmokingScreen() {
 	const router = useRouter();
-	const { setAnswer, nextStep } = useOnboardingStore();
+	const { smokingFrequency, setAnswer, nextStep } = useOnboardingStore();
 
-	const handleSelect = (frequency: "never" | "occasionally" | "regularly") => {
-		setAnswer("smokingFrequency", frequency);
+	const handleSelect = (id: string) => {
+		setAnswer("smokingFrequency", id as "never" | "occasionally" | "regularly");
 		nextStep();
 		router.push("/(onboarding)/8");
 	};
 
 	return (
-		<ScrollView className="flex-1 bg-white">
-			<View className="px-6 pt-8 pb-8">
-				<Text className="mb-2 font-bold text-2xl text-gray-900">
-					Do you smoke?
-				</Text>
-				<Text className="mb-8 text-gray-600">
-					This helps us personalize your wellness recommendations
-				</Text>
-
-				<View className="mb-8 gap-3">
-					{[
-						{ value: "never" as const, label: "Never", desc: "I don't smoke" },
-						{
-							value: "occasionally" as const,
-							label: "Occasionally",
-							desc: "Few times a week",
-						},
-						{
-							value: "regularly" as const,
-							label: "Regular",
-							desc: "Daily or most days",
-						},
-					].map(({ value, label, desc }) => (
-						<TouchableOpacity
-							className="flex-row items-center justify-between rounded-xl border-2 border-teal-200 bg-gradient-to-r from-teal-50 to-blue-50 p-4 active:bg-teal-100"
-							key={value}
-							onPress={() => handleSelect(value)}
-						>
-							<View className="flex-1">
-								<Text className="font-semibold text-gray-900">{label}</Text>
-								<Text className="text-gray-600 text-xs">{desc}</Text>
-							</View>
-						</TouchableOpacity>
-					))}
+		<View className="flex-1 bg-background">
+			<ScrollView
+				className="flex-1"
+				contentContainerClassName="pb-12 px-6"
+				showsVerticalScrollIndicator={false}
+			>
+				<View className="mt-8 items-center">
+					<View className="relative h-32 w-32 items-center justify-center">
+						<View className="absolute h-28 w-28 rounded-[32px] bg-rose-50 shadow-2xl shadow-rose-100" />
+						<View className="h-24 w-24 items-center justify-center rounded-[28px] border border-slate-50 bg-white shadow-sm">
+							<Cigarette color="#E11D48" size={44} strokeWidth={2.5} />
+						</View>
+					</View>
 				</View>
 
-				<View className="rounded-lg border border-blue-200 bg-blue-50 p-3">
-					<Text className="text-blue-900 text-xs leading-4">
-						✓ Your answers help create a truly personalized plan that works for
-						your lifestyle.
+				<StepHeader
+					align="center"
+					className="mt-10"
+					description="Smoking impacts cardiovascular efficiency and cellular oxygenation levels."
+					title="Do you smoke?"
+				/>
+
+				<View className="mt-12">
+					<SingleSelectList
+						onSelect={handleSelect}
+						options={SMOKING_OPTIONS}
+						selectedId={smokingFrequency || null}
+					/>
+				</View>
+
+				<View className="mt-10 rounded-[32px] border border-rose-100 bg-rose-50/50 p-8 shadow-sm">
+					<View className="mb-1 flex-row items-center gap-3">
+						<View className="h-6 w-6 items-center justify-center rounded-full bg-rose-500">
+							<View className="h-1 w-1 rounded-full bg-white" />
+						</View>
+						<Text className="font-bold text-rose-900 text-sm">
+							Vital Insight
+						</Text>
+					</View>
+					<Text className="font-medium text-[14px] text-rose-800/80 leading-5">
+						Stopping smoking can improve lung function and circulation by up to
+						30% within weeks.
 					</Text>
 				</View>
-			</View>
-		</ScrollView>
+			</ScrollView>
+		</View>
 	);
 }

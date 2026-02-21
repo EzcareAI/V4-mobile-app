@@ -44,20 +44,21 @@ export const HealthGoalsScreen = () => {
 					showsVerticalScrollIndicator={false}
 				>
 					<View className="flex-1 px-1">
-						{/* Icon Header */}
-						<View className="mt-4 items-center">
-							<View className="h-24 w-24 items-center justify-center rounded-full bg-white shadow-blue-100 shadow-lg">
-								<View className="h-16 w-16 items-center justify-center rounded-full bg-blue-50/50">
-									<Target color="#3BAFDA" fill="#3BAFDA" size={40} />
+						{/* Premium Icon Header */}
+						<View className="mt-8 items-center">
+							<View className="relative h-32 w-32 items-center justify-center">
+								<View className="absolute h-28 w-28 rounded-[32px] bg-blue-50 shadow-2xl shadow-blue-100" />
+								<View className="h-24 w-24 items-center justify-center rounded-[28px] border border-slate-50 bg-white shadow-sm">
+									<Target color="#3BAFDA" size={44} strokeWidth={2.5} />
 								</View>
 							</View>
 						</View>
 
 						<StepHeader
 							align="center"
-							className="mt-6"
-							description="Select all that apply."
-							title="What are your main health goals?"
+							className="mt-10"
+							description="Select all that apply. This helps us prioritize your daily natural protocols."
+							title="Main health goals"
 						/>
 
 						<View className="mt-8">

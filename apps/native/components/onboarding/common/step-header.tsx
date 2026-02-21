@@ -28,7 +28,7 @@ export const StepHeader = ({
 	return (
 		<View className={`${alignmentClasses[align]} ${className}`}>
 			<Text
-				className={`mt-4 mb-3 font-bold text-3xl text-foreground ${textAlignClasses[align]}`}
+				className={`mt-6 mb-3 font-bold text-[34px] text-foreground leading-[42px] tracking-tight ${textAlignClasses[align]}`}
 			>
 				{title}
 			</Text>
@@ -36,12 +36,12 @@ export const StepHeader = ({
 				<View>
 					{typeof description === "string" ? (
 						<Text
-							className={`mb-8 text-base text-muted leading-6 ${textAlignClasses[align]}`}
+							className={`mb-10 text-[17px] text-muted-foreground leading-[26px] ${textAlignClasses[align]}`}
 						>
 							{description}
 						</Text>
 					) : (
-						<View className="mb-8">{description}</View>
+						<View className="mb-10">{description}</View>
 					)}
 				</View>
 			)}

@@ -13,14 +13,19 @@ export default function OnboardingIndex() {
 	const router = useRouter();
 	const reset = useOnboardingStore((state) => state.reset);
 
-	const handleStart = async () => {
+	const handleStart = () => {
 		try {
-			await impactAsync(ImpactFeedbackStyle.Medium);
-		} catch (error) {
-			console.error("Haptics failed", error);
+			// Fire and forget haptics
+			impactAsync(ImpactFeedbackStyle.Medium).catch(() => {});
+		} catch {
+			// Ignore haptics errors
 		}
+
+		// Reset state before navigating
 		reset();
-		router.push("/(onboarding)/1");
+
+		// Navigate to the first step using the absolute path
+		router.replace("/1");
 	};
 
 	return (

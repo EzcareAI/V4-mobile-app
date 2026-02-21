@@ -12,13 +12,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useOnboardingStore } from "@/stores/onboarding-store";
-
 const logoSource = require("@/assets/images/EZCare_Logo.jpg");
 
 export default function OnboardingIndex() {
 	const router = useRouter();
-	const reset = useOnboardingStore((state) => state.reset);
 
 	const handleStart = () => {
 		if (Platform.OS === "ios") {
@@ -28,14 +25,7 @@ export default function OnboardingIndex() {
 			});
 		}
 
-		// Reset state before navigating
-		reset();
-
-		// Use a delay to ensure AsyncStorage writes complete before navigation
-		// This prevents known React Context / AsyncStorage race condition crashes on Android
-		setTimeout(() => {
-			router.push("/(onboarding)/1");
-		}, 150);
+		router.push("/(onboarding)/1");
 	};
 
 	return (

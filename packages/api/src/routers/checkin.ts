@@ -4,8 +4,8 @@ import { and, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { protectedProcedure, router } from "../index";
-import { calculateEZScore } from "../logic/ezScore";
-import { getTodayFocus } from "../logic/todayFocus";
+import { calculateEZScore } from "../logic/ez-score";
+import { getTodayFocus } from "../logic/today-focus";
 
 const submitCheckinSchema = z.object({
 	energy: z.number().min(1).max(5),

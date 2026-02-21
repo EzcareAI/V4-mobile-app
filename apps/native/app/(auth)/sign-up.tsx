@@ -337,7 +337,7 @@ export default function SignUpScreen() {
 								>
 									<FormField.Indicator>
 										<Checkbox
-											className={value ? "border-accent bg-accent" : ""}
+											className={value ? "border-blue-600 bg-blue-600" : ""}
 										/>
 									</FormField.Indicator>
 									<View className="-mt-1 flex-1 flex-row items-center">
@@ -347,7 +347,7 @@ export default function SignUpScreen() {
 										<TouchableOpacity
 											onPress={() => router.push("/privacy-policy")}
 										>
-											<Text className="font-medium text-accent">
+											<Text className="font-medium text-blue-600">
 												Privacy Policy{" "}
 											</Text>
 										</TouchableOpacity>
@@ -355,7 +355,7 @@ export default function SignUpScreen() {
 										<TouchableOpacity
 											onPress={() => router.push("/terms-of-service")}
 										>
-											<Text className="font-medium text-accent">
+											<Text className="font-medium text-blue-600">
 												Terms of Service
 											</Text>
 										</TouchableOpacity>

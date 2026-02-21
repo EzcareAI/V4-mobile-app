@@ -219,7 +219,7 @@ export default function SignInScreen() {
 							/>
 						</KeyboardAvoidingContainer>
 						<TouchableOpacity className="mt-1 self-end">
-							<Text className="font-semibold text-accent">
+							<Text className="font-semibold text-blue-900">
 								Forgot Password?
 							</Text>
 						</TouchableOpacity>

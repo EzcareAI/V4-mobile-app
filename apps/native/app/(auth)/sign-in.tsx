@@ -138,7 +138,9 @@ export default function SignInScreen() {
 									fieldState: { error },
 								}) => (
 									<TextField isInvalid={!!error} isRequired>
-										<TextField.Label>Email</TextField.Label>
+										<TextField.Label className="font-bold text-foreground">
+											Email
+										</TextField.Label>
 										<View className="w-full flex-row items-center">
 											<TextField.Input
 												autoCapitalize="none"
@@ -176,7 +178,9 @@ export default function SignInScreen() {
 									fieldState: { error },
 								}) => (
 									<TextField isInvalid={!!error} isRequired>
-										<TextField.Label>Password</TextField.Label>
+										<TextField.Label className="font-bold text-foreground">
+											Password
+										</TextField.Label>
 										<View className="w-full flex-row items-center">
 											<TextField.Input
 												className="flex-1 px-10"

@@ -153,7 +153,9 @@ export default function SignUpScreen() {
 									fieldState: { error },
 								}) => (
 									<TextField isInvalid={!!error} isRequired>
-										<TextField.Label>Full Name</TextField.Label>
+										<TextField.Label className="font-bold text-foreground">
+											Full Name
+										</TextField.Label>
 										<View className="w-full flex-row items-center">
 											<TextField.Input
 												className="flex-1 px-10"
@@ -188,7 +190,9 @@ export default function SignUpScreen() {
 									fieldState: { error },
 								}) => (
 									<TextField isInvalid={!!error} isRequired>
-										<TextField.Label>Email Address</TextField.Label>
+										<TextField.Label className="font-bold text-foreground">
+											Email Address
+										</TextField.Label>
 										<View className="w-full flex-row items-center">
 											<TextField.Input
 												autoCapitalize="none"
@@ -225,7 +229,9 @@ export default function SignUpScreen() {
 									fieldState: { error },
 								}) => (
 									<TextField isInvalid={!!error} isRequired>
-										<TextField.Label>Password</TextField.Label>
+										<TextField.Label className="font-bold text-foreground">
+											Password
+										</TextField.Label>
 										<View className="w-full flex-row items-center">
 											<TextField.Input
 												className="flex-1 px-10"
@@ -275,7 +281,9 @@ export default function SignUpScreen() {
 									fieldState: { error },
 								}) => (
 									<TextField isInvalid={!!error} isRequired>
-										<TextField.Label>Confirm Password</TextField.Label>
+										<TextField.Label className="font-bold text-foreground">
+											Confirm Password
+										</TextField.Label>
 										<View className="w-full flex-row items-center">
 											<TextField.Input
 												className="flex-1 px-10"

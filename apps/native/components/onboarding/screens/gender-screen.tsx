@@ -39,7 +39,7 @@ export const GenderScreen = () => {
 
 	const handleContinue = () => {
 		nextStep();
-		router.replace("/2");
+		router.replace("/(onboarding)/2");
 	};
 
 	return (

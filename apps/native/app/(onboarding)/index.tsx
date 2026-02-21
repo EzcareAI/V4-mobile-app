@@ -27,7 +27,7 @@ export default function OnboardingIndex() {
 		reset();
 
 		// Navigate to the first step using the absolute path
-		router.replace("/1");
+		router.replace("/(onboarding)/1");
 	};
 
 	return (

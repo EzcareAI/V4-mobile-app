@@ -30,8 +30,8 @@ export const auth = betterAuth({
 	trustedOrigins: [
 		env.CORS_ORIGIN,
 		"http://localhost:8081",
-		"http://192.168.137.1:8081",
-		"mybettertapp://",
+		"http://192.168.1.24:8081",
+		"ezcare://",
 		"exp://",
 	],
 	emailAndPassword: {

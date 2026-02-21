@@ -18,7 +18,7 @@ export default function OnboardingIndex() {
 			// Fire and forget haptics
 			impactAsync(ImpactFeedbackStyle.Medium).catch(() => {});
 		} catch {
-			// Ignore haptics errors
+			// Silent fail for haptics to ensure navigation proceeds
 		}
 
 		// Reset state before navigating

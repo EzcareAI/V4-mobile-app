@@ -9,17 +9,16 @@ import { Controller, useForm } from "react-hook-form";
 import {
 	Alert,
 	Pressable,
-	ScrollView,
 	StyleSheet,
 	Text,
 	TouchableOpacity,
 	View,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { withUniwind } from "uniwind";
 import { z } from "zod";
 
-import { KeyboardAvoidingContainer } from "@/components/keyboard-avoiding-container";
 import { ContinueButton } from "@/components/onboarding/common/continue-button";
 import { authClient } from "@/lib/auth-client";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -94,7 +93,8 @@ export default function SignInScreen() {
 	return (
 		<SafeAreaView className="flex-1 bg-background">
 			<Stack.Screen options={{ headerShown: false }} />
-			<ScrollView
+			<KeyboardAwareScrollView
+				bottomOffset={62}
 				contentContainerClassName="px-8 pt-6 pb-10"
 				showsVerticalScrollIndicator={false}
 			>
@@ -129,97 +129,91 @@ export default function SignInScreen() {
 				<View className="gap-6">
 					{/* Email */}
 					<View className="gap-2">
-						<KeyboardAvoidingContainer>
-							<Controller
-								control={control}
-								name="email"
-								render={({
-									field: { onChange, onBlur, value },
-									fieldState: { error },
-								}) => (
-									<TextField isInvalid={!!error} isRequired>
-										<TextField.Label className="font-bold text-slate-900">
-											Email
-										</TextField.Label>
-										<View className="w-full flex-row items-center">
-											<TextField.Input
-												autoCapitalize="none"
-												className="flex-1 px-10"
-												keyboardType="email-address"
-												onBlur={onBlur}
-												onChangeText={onChange}
-												placeholder="Enter your email"
-												placeholderTextColor="#CBD5E1"
-												value={value}
-											/>
-											<StyledIonicons
-												className="absolute left-3.5 text-muted"
-												name="mail-outline"
-												pointerEvents="none"
-												size={16}
-											/>
-										</View>
-										<TextField.ErrorMessage>
-											{error?.message}
-										</TextField.ErrorMessage>
-									</TextField>
-								)}
-							/>
-						</KeyboardAvoidingContainer>
+						<Controller
+							control={control}
+							name="email"
+							render={({
+								field: { onChange, onBlur, value },
+								fieldState: { error },
+							}) => (
+								<TextField isInvalid={!!error} isRequired>
+									<TextField.Label className="font-bold text-slate-900">
+										Email
+									</TextField.Label>
+									<View className="w-full flex-row items-center">
+										<TextField.Input
+											autoCapitalize="none"
+											className="flex-1 px-10"
+											keyboardType="email-address"
+											onBlur={onBlur}
+											onChangeText={onChange}
+											placeholder="Enter your email"
+											placeholderTextColor="#CBD5E1"
+											value={value}
+										/>
+										<StyledIonicons
+											className="absolute left-3.5 text-muted"
+											name="mail-outline"
+											pointerEvents="none"
+											size={16}
+										/>
+									</View>
+									<TextField.ErrorMessage>
+										{error?.message}
+									</TextField.ErrorMessage>
+								</TextField>
+							)}
+						/>
 					</View>
 
 					{/* Password */}
 					<View className="gap-2">
-						<KeyboardAvoidingContainer>
-							<Controller
-								control={control}
-								name="password"
-								render={({
-									field: { onChange, onBlur, value },
-									fieldState: { error },
-								}) => (
-									<TextField isInvalid={!!error} isRequired>
-										<TextField.Label className="font-bold text-slate-900">
-											Password
-										</TextField.Label>
-										<View className="w-full flex-row items-center">
-											<TextField.Input
-												className="flex-1 px-10"
-												onBlur={onBlur}
-												onChangeText={onChange}
-												placeholder="Enter your password"
-												placeholderTextColor="#CBD5E1"
-												secureTextEntry={!isPasswordVisible}
-												value={value}
-											/>
+						<Controller
+							control={control}
+							name="password"
+							render={({
+								field: { onChange, onBlur, value },
+								fieldState: { error },
+							}) => (
+								<TextField isInvalid={!!error} isRequired>
+									<TextField.Label className="font-bold text-slate-900">
+										Password
+									</TextField.Label>
+									<View className="w-full flex-row items-center">
+										<TextField.Input
+											className="flex-1 px-10"
+											onBlur={onBlur}
+											onChangeText={onChange}
+											placeholder="Enter your password"
+											placeholderTextColor="#CBD5E1"
+											secureTextEntry={!isPasswordVisible}
+											value={value}
+										/>
+										<StyledIonicons
+											className="absolute left-3.5 text-muted"
+											name="lock-closed-outline"
+											pointerEvents="none"
+											size={16}
+										/>
+										<Pressable
+											className="absolute right-4"
+											onPress={() => setIsPasswordVisible(!isPasswordVisible)}
+										>
 											<StyledIonicons
-												className="absolute left-3.5 text-muted"
-												name="lock-closed-outline"
-												pointerEvents="none"
+												className="text-muted"
+												name={
+													isPasswordVisible ? "eye-off-outline" : "eye-outline"
+												}
 												size={16}
 											/>
-											<Pressable
-												className="absolute right-4"
-												onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-											>
-												<StyledIonicons
-													className="text-muted"
-													name={
-														isPasswordVisible
-															? "eye-off-outline"
-															: "eye-outline"
-													}
-													size={16}
-												/>
-											</Pressable>
-										</View>
-										<TextField.ErrorMessage>
-											{error?.message}
-										</TextField.ErrorMessage>
-									</TextField>
-								)}
-							/>
-						</KeyboardAvoidingContainer>
+										</Pressable>
+									</View>
+									<TextField.ErrorMessage>
+										{error?.message}
+									</TextField.ErrorMessage>
+								</TextField>
+							)}
+						/>
 						<TouchableOpacity className="mt-1 self-end">
 							<Text className="font-semibold text-blue-900">
 								Forgot Password?
@@ -286,7 +280,7 @@ export default function SignInScreen() {
 						</TouchableOpacity>
 					</View>
 				</View>
-			</ScrollView>
+			</KeyboardAwareScrollView>
 		</SafeAreaView>
 	);
 }

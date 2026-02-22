@@ -239,7 +239,7 @@ export default function ResultsPreviewScreen() {
 					</Text>
 
 					<View className="relative overflow-hidden rounded-[32px] bg-slate-900 p-8 shadow-2xl">
-						<View className="opacity-20 blur-xl">
+						<View className="opacity-20">
 							<View className="mb-8">
 								<View className="mb-4 h-4 w-1/2 rounded bg-white/20" />
 								<View className="mb-2 h-3 w-3/4 rounded bg-white/10" />
@@ -254,7 +254,7 @@ export default function ResultsPreviewScreen() {
 
 						{/* Premium Unlock Overlay */}
 						<View className="absolute inset-0 items-center justify-center bg-slate-900/40">
-							<View className="items-center rounded-3xl border border-white/20 bg-white/10 px-6 py-4 backdrop-blur-md">
+							<View className="items-center rounded-3xl border border-white/20 bg-white/10 px-6 py-4">
 								<Text className="font-bold text-base text-white">
 									🔒 Personalized Logic Locked
 								</Text>

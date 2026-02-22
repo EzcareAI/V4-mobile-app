@@ -80,7 +80,7 @@ export default function PaywallScreen() {
 						colors={["#F8FAFC", "#F1F5F9"]}
 						style={StyleSheet.absoluteFill}
 					/>
-					<View className="absolute top-0 right-0 -mt-20 -mr-20 h-64 w-64 rounded-full bg-blue-50/50 opacity-50 blur-3xl" />
+					<View className="absolute top-0 right-0 -mt-20 -mr-20 h-64 w-64 rounded-full bg-blue-50/50 opacity-50" />
 
 					<Text className="text-center font-bold text-[32px] text-foreground leading-10 tracking-tight">
 						Unlock Your Full{"\n"}Health Core

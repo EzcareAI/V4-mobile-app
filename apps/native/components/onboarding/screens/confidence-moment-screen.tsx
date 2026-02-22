@@ -66,25 +66,19 @@ export function ConfidenceMomentScreen() {
 					<View className="items-center">
 						<Text className="mb-1 text-2xl">✓</Text>
 						<Text className="text-center font-semibold text-gray-600 text-xs">
-							Clinically
-							<br />
-							Trusted
+							Clinically{"\n"}Trusted
 						</Text>
 					</View>
 					<View className="items-center">
 						<Text className="mb-1 text-2xl">🌿</Text>
 						<Text className="text-center font-semibold text-gray-600 text-xs">
-							100%
-							<br />
-							Natural
+							100%{"\n"}Natural
 						</Text>
 					</View>
 					<View className="items-center">
 						<Text className="mb-1 text-2xl">🔒</Text>
 						<Text className="text-center font-semibold text-gray-600 text-xs">
-							Your Data
-							<br />
-							Protected
+							Your Data{"\n"}Protected
 						</Text>
 					</View>
 				</View>

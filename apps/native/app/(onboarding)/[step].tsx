@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
-import { useEffect } from "react";
-import { View } from "react-native";
+import { lazy, Suspense, useEffect } from "react";
+import { ActivityIndicator, View } from "react-native";
 import { AccountCreationScreen } from "@/components/onboarding/screens/account-creation-screen";
 import { ActivityLevelScreen } from "@/components/onboarding/screens/activity-level-screen";
 import { AlcoholScreen } from "@/components/onboarding/screens/alcohol-screen";
@@ -24,11 +24,9 @@ import { OverallMotivationScreen } from "@/components/onboarding/screens/overall
 // ===== PATH B SCREENS - OVERALL HEALTH (Steps 13-17) =====
 import { OverallPriorityScreen } from "@/components/onboarding/screens/overall-priority-screen";
 import PaywallScreen from "@/components/onboarding/screens/paywall-screen";
-import { PerfectPlanScreen } from "@/components/onboarding/screens/perfect-plan-screen";
 import { PrimaryGoalScreen } from "@/components/onboarding/screens/primary-goal-screen";
 import { ProgressBoostScreen } from "@/components/onboarding/screens/progress-boost-screen";
 import { ReferralScreen } from "@/components/onboarding/screens/referral-screen";
-import ResultsPreviewScreen from "@/components/onboarding/screens/results-preview-screen";
 import { SleepScreen } from "@/components/onboarding/screens/sleep-screen";
 import { SmokingScreen } from "@/components/onboarding/screens/smoking-screen";
 import { StressLevelScreen } from "@/components/onboarding/screens/stress-level-screen";
@@ -39,6 +37,23 @@ import { ZoneImpactScreen } from "@/components/onboarding/screens/zone-impact-sc
 import { ZoneSymptomIntensityScreen } from "@/components/onboarding/screens/zone-symptom-intensity-screen";
 import { ZoneTriggerScreen } from "@/components/onboarding/screens/zone-trigger-screen";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+
+// Lazy-load Skia-dependent screens so @shopify/react-native-skia is NOT
+// initialized at module load time (which crashes Android on first step).
+const PerfectPlanScreen = lazy(() =>
+	import("@/components/onboarding/screens/perfect-plan-screen").then((m) => ({
+		default: m.PerfectPlanScreen,
+	}))
+);
+const ResultsPreviewScreen = lazy(
+	() => import("@/components/onboarding/screens/results-preview-screen")
+);
+
+const LoadingFallback = () => (
+	<View className="flex-1 items-center justify-center bg-white">
+		<ActivityIndicator color="#3BAFDA" size="large" />
+	</View>
+);
 
 const OnboardingStep = () => {
 	const { step } = useLocalSearchParams<{ step: string }>();
@@ -127,7 +142,11 @@ const OnboardingStep = () => {
 			case 19:
 				return <ConfidenceMomentScreen />;
 			case 20:
-				return <ResultsPreviewScreen />;
+				return (
+					<Suspense fallback={<LoadingFallback />}>
+						<ResultsPreviewScreen />
+					</Suspense>
+				);
 			case 21:
 				return <PaywallScreen />;
 			case 22:
@@ -137,7 +156,11 @@ const OnboardingStep = () => {
 			case 24:
 				return <LoadingPlanScreen />;
 			case 25:
-				return <PerfectPlanScreen />;
+				return (
+					<Suspense fallback={<LoadingFallback />}>
+						<PerfectPlanScreen />
+					</Suspense>
+				);
 			case 26:
 				return <NotificationsScreen />;
 			case 27:

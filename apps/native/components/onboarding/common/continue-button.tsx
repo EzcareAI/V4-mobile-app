@@ -1,7 +1,6 @@
 import { selectionAsync } from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import { Button } from "heroui-native";
-import { Platform, StyleSheet } from "react-native";
+import { Platform } from "react-native";
 
 interface ContinueButtonProps {
 	onPress: () => void;
@@ -16,7 +15,7 @@ export const ContinueButton = ({
 }: ContinueButtonProps) => {
 	return (
 		<Button
-			className="h-[56px] w-[326px] self-center overflow-hidden rounded-full shadow-[#00A8A8]/20 shadow-md"
+			className="h-14 w-full self-center rounded-2xl bg-[#28B898] shadow-[#28B898]/20 shadow-lg transition-all"
 			isDisabled={isDisabled}
 			onPress={() => {
 				if (!isDisabled) {
@@ -31,13 +30,7 @@ export const ContinueButton = ({
 			pressableFeedbackVariant="none"
 			size="lg"
 		>
-			<LinearGradient
-				colors={["#00A8A8", "#2DE2E2"]}
-				end={{ x: 1, y: 0 }}
-				start={{ x: 0, y: 0 }}
-				style={StyleSheet.absoluteFillObject}
-			/>
-			<Button.Label className="color-white font-bold text-lg text-white">
+			<Button.Label className="font-semibold text-base text-white">
 				{label}
 			</Button.Label>
 		</Button>

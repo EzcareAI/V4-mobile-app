@@ -49,6 +49,7 @@ node/
 
 # Misc
 *.tgz
+EZCare-Saas-Reference/
 .cache
 tmp
 temp

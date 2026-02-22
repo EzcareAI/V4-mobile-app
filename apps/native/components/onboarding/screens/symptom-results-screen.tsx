@@ -34,7 +34,7 @@ export const SymptomResultsScreen = () => {
 									}}
 								>
 									<View className="h-20 w-20 items-center justify-center rounded-full border-4 border-blue-50/50 bg-blue-50/30">
-										<Bot color="#00A8A8" size={48} />
+										<Bot color="#28B898" size={48} />
 									</View>
 								</View>
 								{/* Heart Badge */}
@@ -77,12 +77,12 @@ export const SymptomResultsScreen = () => {
 								</View>
 
 								<Text className="mt-8 text-center font-bold text-2xl text-[#0d2137] leading-9">
-									Great news! <Text className="text-[#00A8A8]">69%</Text> of
+									Great news! <Text className="text-[#28B898]">69%</Text> of
 									your symptoms can improve naturally
 								</Text>
 
-								<Text className="mt-4 text-center text-lg text-[#60708F] leading-7">
-									In the first <Text className="text-[#00A8A8]">30 days</Text>{" "}
+								<Text className="mt-4 text-center text-lg text-[#73808C] leading-7">
+									In the first <Text className="text-[#28B898]">30 days</Text>{" "}
 									when you follow the right routine
 								</Text>
 							</View>
@@ -125,7 +125,7 @@ export const SymptomResultsScreen = () => {
 						>
 							<View className="flex-row items-start gap-4">
 								<View className="h-14 w-14 items-center justify-center rounded-full bg-blue-50/50">
-									<Bot color="#00A8A8" size={32} />
+									<Bot color="#28B898" size={32} />
 								</View>
 								<View className="flex-1">
 									<View className="flex-row items-center justify-between">
@@ -141,7 +141,7 @@ export const SymptomResultsScreen = () => {
 										</View>
 										<Text className="font-bold text-[#0d2137]">Sarah M.</Text>
 									</View>
-									<Text className="mt-2 text-[#60708F] italic leading-6">
+									<Text className="mt-2 text-[#73808C] italic leading-6">
 										"My energy levels completely transformed in just 3 weeks.
 										The natural approach really works!"
 									</Text>

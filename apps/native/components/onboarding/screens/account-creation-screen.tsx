@@ -33,10 +33,10 @@ export function AccountCreationScreen() {
 		>
 			<View className="px-8 pt-12 pb-12">
 				<View className="mb-10">
-					<Text className="font-black text-[34px] text-[#1A2138] leading-10 tracking-tight">
+					<Text className="font-black text-[34px] text-[#29303D] leading-10 tracking-tight">
 						Almost There!
 					</Text>
-					<Text className="mt-4 font-medium text-[17px] text-[#60708F] leading-7">
+					<Text className="mt-4 font-medium text-[17px] text-[#73808C] leading-7">
 						Let's create your private account to save your personalized healing
 						plan.
 					</Text>
@@ -44,11 +44,11 @@ export function AccountCreationScreen() {
 
 				{/* Email Input (Mockup for design) */}
 				<View className="mb-10">
-					<Text className="mb-3 px-2 font-bold text-[15px] text-[#1A2138] uppercase tracking-widest">
+					<Text className="mb-3 px-2 font-bold text-[15px] text-[#29303D] uppercase tracking-widest">
 						Email Address
 					</Text>
 					<View className="rounded-[24px] border-2 border-slate-100 bg-slate-50 px-6 py-5 shadow-sm">
-						<Text className="font-medium text-lg text-[#60708F]">
+						<Text className="font-medium text-lg text-[#73808C]">
 							your@email.com
 						</Text>
 					</View>
@@ -56,7 +56,7 @@ export function AccountCreationScreen() {
 
 				{/* Auth Options */}
 				<View className="mb-10">
-					<Text className="mb-5 px-2 font-bold text-[15px] text-[#1A2138] uppercase tracking-widest">
+					<Text className="mb-5 px-2 font-bold text-[15px] text-[#29303D] uppercase tracking-widest">
 						Secure Sign Up
 					</Text>
 
@@ -64,7 +64,7 @@ export function AccountCreationScreen() {
 						<View className="mr-5 h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
 							<Text className="text-2xl">🍎</Text>
 						</View>
-						<Text className="flex-1 font-bold text-lg text-[#1A2138]">
+						<Text className="flex-1 font-bold text-lg text-[#29303D]">
 							Continue with Apple
 						</Text>
 					</TouchableOpacity>
@@ -73,7 +73,7 @@ export function AccountCreationScreen() {
 						<View className="mr-5 h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
 							<Text className="text-2xl">🔵</Text>
 						</View>
-						<Text className="flex-1 font-bold text-lg text-[#1A2138]">
+						<Text className="flex-1 font-bold text-lg text-[#29303D]">
 							Continue with Google
 						</Text>
 					</TouchableOpacity>
@@ -83,9 +83,9 @@ export function AccountCreationScreen() {
 						onPress={handleContinue}
 					>
 						<View className="mr-5 h-12 w-12 items-center justify-center rounded-2xl bg-slate-50">
-							<Mail className="text-[#60708F]" size={24} strokeWidth={2.5} />
+							<Mail className="text-[#73808C]" size={24} strokeWidth={2.5} />
 						</View>
-						<Text className="flex-1 font-bold text-lg text-[#1A2138]">
+						<Text className="flex-1 font-bold text-lg text-[#29303D]">
 							Continue with Email
 						</Text>
 					</TouchableOpacity>
@@ -106,10 +106,10 @@ export function AccountCreationScreen() {
 				</View>
 
 				{/* Privacy Notice */}
-				<Text className="mb-10 px-4 text-center font-medium text-[13px] text-[#60708F] leading-5">
+				<Text className="mb-10 px-4 text-center font-medium text-[13px] text-[#73808C] leading-5">
 					By creating an account, you agree to our{"\n"}
-					<Text className="font-bold text-[#60708F]">Terms of Service</Text> and{" "}
-					<Text className="font-bold text-[#60708F]">Privacy Policy</Text>.
+					<Text className="font-bold text-[#73808C]">Terms of Service</Text> and{" "}
+					<Text className="font-bold text-[#73808C]">Privacy Policy</Text>.
 				</Text>
 
 				{/* CTA */}
@@ -119,7 +119,7 @@ export function AccountCreationScreen() {
 					onPress={handleContinue}
 				>
 					<LinearGradient
-						colors={["#00A8A8", "#2DE2E2"]}
+						colors={["#28B898", "#2DE2E2"]}
 						end={{ x: 1, y: 0 }}
 						start={{ x: 0, y: 0 }}
 						style={StyleSheet.absoluteFill}

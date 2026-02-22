@@ -46,13 +46,13 @@ export const ProgressHeader = () => {
 		<SafeAreaView className="bg-background" edges={["top"]}>
 			<View className="flex-row items-center px-4 py-2">
 				<Pressable className="-ml-2 p-2 active:opacity-60" onPress={handleBack}>
-					<ChevronLeft color="#00A8A8" size={24} />
+					<ChevronLeft color="#28B898" size={24} />
 				</Pressable>
 
 				<View className="flex-1 px-4">
 					<View className="h-1.5 w-full overflow-hidden rounded-full bg-[#E8F0F2]">
 						<LinearGradient
-							colors={["#00A8A8", "#2DE2E2"]}
+							colors={["#28B898", "#2DE2E2"]}
 							end={{ x: 1, y: 0 }}
 							start={{ x: 0, y: 0 }}
 							style={{
@@ -64,7 +64,7 @@ export const ProgressHeader = () => {
 					</View>
 				</View>
 
-				<Text className="w-16 text-right font-medium text-[#60708F] text-sm">
+				<Text className="w-16 text-right font-medium text-[#73808C] text-sm">
 					{currentStep} of {totalSteps}
 				</Text>
 			</View>

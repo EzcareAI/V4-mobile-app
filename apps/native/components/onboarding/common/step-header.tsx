@@ -27,21 +27,30 @@ export const StepHeader = ({
 
 	return (
 		<View className={`${alignmentClasses[align]} ${className}`}>
+			{/* SaaS Center Icon Wrap */}
+			{align === "center" && (
+				<View className="mt-8 mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#EAF3F1]">
+					{/* Placeholder for when actual SVG icons are passed up from the screens */}
+					<Text className="text-3xl">✦</Text>
+				</View>
+			)}
+
 			<Text
-				className={`mt-6 mb-3 font-bold text-[34px] text-[#1A2138] leading-[42px] tracking-tight ${textAlignClasses[align]}`}
+				className={`mb-2 font-bold text-[#29303D] text-xl ${textAlignClasses[align]}`}
 			>
 				{title}
 			</Text>
+
 			{description && (
 				<View>
 					{typeof description === "string" ? (
 						<Text
-							className={`mb-10 text-[17px] text-[#60708F] leading-[26px] ${textAlignClasses[align]}`}
+							className={`mb-6 text-[#73808C] text-sm ${textAlignClasses[align]}`}
 						>
 							{description}
 						</Text>
 					) : (
-						<View className="mb-10">{description}</View>
+						<View className="mb-6">{description}</View>
 					)}
 				</View>
 			)}

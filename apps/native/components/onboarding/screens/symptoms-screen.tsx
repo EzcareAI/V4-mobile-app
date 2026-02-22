@@ -59,7 +59,7 @@ export const SymptomsScreen = () => {
 									}}
 								>
 									<View className="h-20 w-20 items-center justify-center rounded-full border-4 border-[#2DE2E2]/10 bg-blue-50/30">
-										<Stethoscope color="#00A8A8" size={48} />
+										<Stethoscope color="#28B898" size={48} />
 									</View>
 								</View>
 								{/* Search Badge */}
@@ -123,7 +123,7 @@ export const SymptomsScreen = () => {
 										<Text className="font-bold text-[#0d2137] text-lg">
 											Natural approach:
 										</Text>
-										<Text className="mt-1 text-[#60708F] text-sm leading-5">
+										<Text className="mt-1 text-[#73808C] text-sm leading-5">
 											We'll create a personalized plan using nutrition, herbs,
 											and lifestyle changes to address your specific symptoms.
 										</Text>

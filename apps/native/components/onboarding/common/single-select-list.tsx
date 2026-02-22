@@ -1,7 +1,7 @@
 import { selectionAsync } from "expo-haptics";
 import { RadioGroup } from "heroui-native";
 import type { LucideIcon } from "lucide-react-native";
-import { Platform, Text, View } from "react-native";
+import { Platform } from "react-native";
 
 export interface SingleSelectOption {
 	id: string;
@@ -18,6 +18,9 @@ interface SingleSelectListProps<T extends string = string> {
 	onSelect: (id: T) => void;
 }
 
+import { Text, View } from "react-native";
+import Svg, { Path } from "react-native-svg";
+
 const SelectItem = ({
 	option,
 	isSelected,
@@ -27,54 +30,67 @@ const SelectItem = ({
 }) => {
 	return (
 		<View
-			className={`flex-row items-center rounded-[32px] border-2 p-6 transition-all duration-300 ${
+			className={`flex-row items-center rounded-2xl border-2 p-4 transition-all duration-300 ${
 				isSelected
-					? "border-[#00A8A8] bg-[#00A8A8]/10 shadow-[#00A8A8]/30/20 shadow-lg"
+					? "border-[#28B898] bg-[#EAF3F1] shadow-[#28B898]/30 shadow-lg"
 					: "border-transparent bg-white shadow-sm"
 			}`}
 		>
 			<View
-				className={`mr-5 h-14 w-14 items-center justify-center rounded-2xl ${
+				className={`mr-4 h-12 w-12 items-center justify-center rounded-xl ${
 					isSelected
-						? "bg-[#00A8A8] shadow-[#00A8A8]/30/30 shadow-md"
+						? "bg-[#28B898] shadow-[#28B898]/30 shadow-md"
 						: "border border-slate-100 bg-white shadow-sm"
 				}`}
 			>
 				{option.emoji ? (
-					<Text className="text-3xl">{option.emoji}</Text>
+					<Text className="text-2xl">{option.emoji}</Text>
 					// biome-ignore lint/style/noNestedTernary: biome false positive
 				) : option.icon ? (
 					<option.icon
-						color={isSelected ? "white" : (option.iconColor ?? "#94A3B8")}
-						size={26}
+						color={isSelected ? "white" : (option.iconColor ?? "#73808C")}
+						size={24}
 						strokeWidth={2.5}
 					/>
 				) : null}
 			</View>
 			<View className="flex-1">
 				<RadioGroup.Label
-					className={`font-bold text-lg tracking-tight ${
-						isSelected ? "text-[#1A2138]" : "text-[#60708F]"
+					className={`font-semibold text-base tracking-tight ${
+						isSelected ? "text-[#29303D]" : "text-[#73808C]"
 					}`}
 				>
 					{option.label}
 				</RadioGroup.Label>
 				{option.description && (
 					<Text
-						className={`mt-0.5 font-medium text-sm leading-5 ${isSelected ? "text-[#1A2138]/70" : "text-[#60708F]"}`}
+						className={`mt-0.5 font-medium text-sm leading-5 ${isSelected ? "text-[#29303D]/70" : "text-[#73808C]"}`}
 					>
 						{option.description}
 					</Text>
 				)}
 			</View>
+
 			<View
-				className={`ml-3 h-7 w-7 items-center justify-center rounded-full border-2 transition-all ${
+				className={`ml-4 h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
 					isSelected
-						? "border-[#00A8A8] bg-[#00A8A8]"
+						? "border-[#28B898] bg-[#28B898]"
 						: "border-slate-200 bg-white"
 				}`}
 			>
-				{isSelected && <View className="h-2 w-2 rounded-full bg-white" />}
+				{isSelected && (
+					<Svg
+						className="color-white h-full w-full text-white"
+						fill="currentColor"
+						viewBox="0 0 20 20"
+					>
+						<Path
+							clipRule="evenodd"
+							d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+							fillRule="evenodd"
+						/>
+					</Svg>
+				)}
 			</View>
 		</View>
 	);

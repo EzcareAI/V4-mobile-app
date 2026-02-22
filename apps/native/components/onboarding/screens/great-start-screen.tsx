@@ -41,7 +41,7 @@ export const GreatStartScreen = () => {
 								<Text className="font-bold text-[#0d2137] text-lg">
 									Your Journey Progress
 								</Text>
-								<Text className="mt-1 font-medium text-[#60708F] text-sm">
+								<Text className="mt-1 font-medium text-[#73808C] text-sm">
 									Energy ↑ Inflammation ↓
 								</Text>
 							</View>
@@ -55,13 +55,13 @@ export const GreatStartScreen = () => {
 						<View className="mt-6 flex-row gap-4">
 							<View className="flex-1 items-center rounded-[24px] bg-white p-5 shadow-md">
 								<Text className="font-bold text-2xl text-blue-400">+31%</Text>
-								<Text className="mt-1 text-center font-medium text-[13px] text-[#60708F]">
+								<Text className="mt-1 text-center font-medium text-[13px] text-[#73808C]">
 									Expected Energy Boost
 								</Text>
 							</View>
 							<View className="flex-1 items-center rounded-[24px] bg-white p-5 shadow-md">
 								<Text className="font-bold text-2xl text-[#2DE2E2]">-25%</Text>
-								<Text className="mt-1 text-center font-medium text-[13px] text-[#60708F]">
+								<Text className="mt-1 text-center font-medium text-[13px] text-[#73808C]">
 									Inflammation Reduction
 								</Text>
 							</View>

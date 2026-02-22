@@ -300,13 +300,13 @@ export const JourneyProgressChart = () => {
 			<View className="mt-2 flex-row justify-center gap-6">
 				<View className="flex-row items-center gap-2">
 					<View className="h-2 w-2 rounded-full bg-blue-400" />
-					<Text className="font-medium text-[#60708F] text-xs">
+					<Text className="font-medium text-[#73808C] text-xs">
 						Energy Level
 					</Text>
 				</View>
 				<View className="flex-row items-center gap-2">
 					<View className="h-2 w-2 rounded-full bg-[#2DE2E2]" />
-					<Text className="font-medium text-[#60708F] text-xs">
+					<Text className="font-medium text-[#73808C] text-xs">
 						Inflammation
 					</Text>
 				</View>

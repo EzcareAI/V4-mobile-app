@@ -1,19 +1,12 @@
 const fs = require("fs");
 const path = require("path");
 const dirs = ["apps/native/components", "apps/native/app"];
+// This maps the old native app hexes to the new EZCare-Saas Hex Colors
 const map = {
-	"bg-ezcare-teal": "bg-[#00A8A8]",
-	"text-ezcare-teal": "text-[#00A8A8]",
-	"border-ezcare-teal": "border-[#00A8A8]",
-	"shadow-ezcare-teal": "shadow-[#00A8A8]/30",
-	"bg-ezcare-navy": "bg-[#1A2138]",
-	"text-ezcare-navy": "text-[#1A2138]",
-	"border-ezcare-navy": "border-[#1A2138]",
-	"bg-ezcare-slate": "bg-[#60708F]",
-	"text-ezcare-slate": "text-[#60708F]",
-	"border-ezcare-slate": "border-[#60708F]",
-	"bg-ezcare-aqua": "bg-[#2DE2E2]",
-	"text-ezcare-aqua": "text-[#2DE2E2]",
+	"#00A8A8/10": "#EAF3F1", // Teal/10 variant maps to pure mint background
+	"#00A8A8": "#28B898", // True Teal override
+	"#1A2138": "#29303D", // Navy Text
+	"#60708F": "#73808C", // Slate/Muted Text
 };
 function walk(dir) {
 	if (!fs.existsSync(dir)) return;

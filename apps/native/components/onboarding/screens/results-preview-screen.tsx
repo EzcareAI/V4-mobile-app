@@ -227,7 +227,7 @@ export default function ResultsPreviewScreen() {
 							<View className="mr-4 h-10 w-10 items-center justify-center rounded-xl bg-slate-50">
 								<Text className="text-lg">{cause.icon}</Text>
 							</View>
-							<Text className="font-medium text-[#1A2138]">{cause.text}</Text>
+							<Text className="font-medium text-[#29303D]">{cause.text}</Text>
 						</View>
 					))}
 				</View>
@@ -265,7 +265,7 @@ export default function ResultsPreviewScreen() {
 
 				{/* Methodology Card */}
 				<View className="mb-12 rounded-[24px] border border-blue-100 bg-blue-50/50 p-6">
-					<Text className="mb-2 font-bold text-[#00A8A8] text-xs uppercase tracking-widest">
+					<Text className="mb-2 font-bold text-[#28B898] text-xs uppercase tracking-widest">
 						Our Methodology
 					</Text>
 					<Text className="text-blue-900/70 text-sm leading-6">
@@ -278,11 +278,11 @@ export default function ResultsPreviewScreen() {
 				{/* Fixed Floating CTA */}
 				<TouchableOpacity
 					activeOpacity={0.9}
-					className="mb-12 overflow-hidden rounded-[28px] shadow-2xl shadow-[#00A8A8]/30"
+					className="mb-12 overflow-hidden rounded-[28px] shadow-2xl shadow-[#28B898]/30"
 					onPress={handleUnlock}
 				>
 					<LinearGradient
-						colors={["#00A8A8", "#2DE2E2"]}
+						colors={["#28B898", "#2DE2E2"]}
 						end={{ x: 1, y: 0 }}
 						start={{ x: 0, y: 0 }}
 						style={StyleSheet.absoluteFill}

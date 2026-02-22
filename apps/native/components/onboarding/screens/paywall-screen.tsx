@@ -100,7 +100,7 @@ export default function PaywallScreen() {
 						onPress={handlePayment}
 					>
 						<LinearGradient
-							colors={["#00A8A8", "#2DE2E2"]}
+							colors={["#28B898", "#2DE2E2"]}
 							end={{ x: 1, y: 1 }}
 							start={{ x: 0, y: 0 }}
 							style={StyleSheet.absoluteFill}
@@ -108,7 +108,7 @@ export default function PaywallScreen() {
 
 						{/* Best Value Badge */}
 						<View className="absolute top-6 right-6 rounded-full bg-yellow-400 px-4 py-1.5 shadow-sm">
-							<Text className="font-bold text-[10px] text-[#1A2138] uppercase tracking-widest">
+							<Text className="font-bold text-[10px] text-[#29303D] uppercase tracking-widest">
 								BEST VALUE
 							</Text>
 						</View>
@@ -159,23 +159,23 @@ export default function PaywallScreen() {
 						onPress={handlePayment}
 					>
 						<View className="mb-4">
-							<Text className="font-bold text-[#1A2138] text-xl">
+							<Text className="font-bold text-[#29303D] text-xl">
 								Monthly Plan
 							</Text>
-							<Text className="mt-1 text-[#60708F] text-sm">
+							<Text className="mt-1 text-[#73808C] text-sm">
 								Cancel anytime, zero commitment
 							</Text>
 						</View>
 
 						<View className="mb-6 flex-row items-baseline">
-							<Text className="font-black text-4xl text-[#1A2138]">€11.99</Text>
-							<Text className="ml-2 font-bold text-lg text-[#60708F]">
+							<Text className="font-black text-4xl text-[#29303D]">€11.99</Text>
+							<Text className="ml-2 font-bold text-lg text-[#73808C]">
 								/month
 							</Text>
 						</View>
 
 						<View className="rounded-2xl border border-slate-200 bg-white py-4 shadow-sm">
-							<Text className="text-center font-bold text-lg text-[#1A2138]">
+							<Text className="text-center font-bold text-lg text-[#29303D]">
 								Get Monthly Access
 							</Text>
 						</View>
@@ -184,13 +184,13 @@ export default function PaywallScreen() {
 
 				{/* Features Checklist */}
 				<View className="mx-6 mt-10 rounded-[28px] border border-blue-50 bg-blue-50/30 p-8 shadow-sm">
-					<Text className="mb-6 font-bold text-lg text-[#1A2138]">
+					<Text className="mb-6 font-bold text-lg text-[#29303D]">
 						What's Included:
 					</Text>
 					{FEATURES.map((f) => (
 						<View className="mb-4 flex-row items-start gap-3" key={f}>
 							<Text className="text-lg leading-5">{f.split(" ")[0]}</Text>
-							<Text className="flex-1 font-medium text-[15px] text-[#60708F] leading-6">
+							<Text className="flex-1 font-medium text-[15px] text-[#73808C] leading-6">
 								{f.split(" ").slice(1).join(" ")}
 							</Text>
 						</View>
@@ -203,7 +203,7 @@ export default function PaywallScreen() {
 						<View className="mb-3 h-12 w-12 items-center justify-center rounded-2xl bg-slate-50">
 							<Text className="text-2xl">🛡️</Text>
 						</View>
-						<Text className="text-center font-bold text-[10px] text-[#60708F] uppercase leading-4 tracking-widest">
+						<Text className="text-center font-bold text-[10px] text-[#73808C] uppercase leading-4 tracking-widest">
 							Safe &{"\n"}Secure
 						</Text>
 					</View>
@@ -211,7 +211,7 @@ export default function PaywallScreen() {
 						<View className="mb-3 h-12 w-12 items-center justify-center rounded-2xl bg-slate-50">
 							<Text className="text-2xl">🌱</Text>
 						</View>
-						<Text className="text-center font-bold text-[10px] text-[#60708F] uppercase leading-4 tracking-widest">
+						<Text className="text-center font-bold text-[10px] text-[#73808C] uppercase leading-4 tracking-widest">
 							Natural{"\n"}Approach
 						</Text>
 					</View>
@@ -219,7 +219,7 @@ export default function PaywallScreen() {
 						<View className="mb-3 h-12 w-12 items-center justify-center rounded-2xl bg-slate-50">
 							<Text className="text-2xl">💡</Text>
 						</View>
-						<Text className="text-center font-bold text-[10px] text-[#60708F] uppercase leading-4 tracking-widest">
+						<Text className="text-center font-bold text-[10px] text-[#73808C] uppercase leading-4 tracking-widest">
 							AI{"\n"}Intelligence
 						</Text>
 					</View>
@@ -227,13 +227,13 @@ export default function PaywallScreen() {
 
 				{/* Decline Link */}
 				<TouchableOpacity className="mt-12 items-center" onPress={handleExit}>
-					<Text className="font-bold text-base text-[#60708F] tracking-tight">
+					<Text className="font-bold text-base text-[#73808C] tracking-tight">
 						I'll decide later
 					</Text>
 				</TouchableOpacity>
 
 				{/* Fine Print */}
-				<Text className="mx-10 mt-8 text-center text-[11px] text-[#60708F] leading-5">
+				<Text className="mx-10 mt-8 text-center text-[11px] text-[#73808C] leading-5">
 					By starting your subscription, you agree to our Terms of Service and
 					Privacy Policy. Renewals are automatic. Manage in Apple/Google Play
 					settings.
@@ -276,8 +276,8 @@ function DiscountWheelModal({
 						<Text className="text-5xl">🎁</Text>
 					</View>
 
-					<Text className="mb-2 font-black text-3xl text-[#1A2138]">Wait!</Text>
-					<Text className="mb-8 text-center text-[17px] text-[#60708F] leading-6">
+					<Text className="mb-2 font-black text-3xl text-[#29303D]">Wait!</Text>
+					<Text className="mb-8 text-center text-[17px] text-[#73808C] leading-6">
 						We've unlocked an exclusive, one-time reward for your first year.
 					</Text>
 
@@ -286,12 +286,12 @@ function DiscountWheelModal({
 						<Text className="font-black text-[56px] text-yellow-600 tracking-tighter">
 							80% OFF
 						</Text>
-						<Text className="mt-2 font-bold text-lg text-[#1A2138] tracking-tight">
+						<Text className="mt-2 font-bold text-lg text-[#29303D] tracking-tight">
 							Claim €10 instant credit
 						</Text>
-						<Text className="mt-1 font-medium text-[#60708F]">
+						<Text className="mt-1 font-medium text-[#73808C]">
 							€39.99 →{" "}
-							<Text className="font-bold text-[#1A2138]">€29.99/year</Text>
+							<Text className="font-bold text-[#29303D]">€29.99/year</Text>
 						</Text>
 					</View>
 
@@ -307,7 +307,7 @@ function DiscountWheelModal({
 						onPress={onClaim}
 					>
 						<LinearGradient
-							colors={["#00A8A8", "#2DE2E2"]}
+							colors={["#28B898", "#2DE2E2"]}
 							end={{ x: 1, y: 0 }}
 							start={{ x: 0, y: 0 }}
 							style={StyleSheet.absoluteFill}
@@ -318,7 +318,7 @@ function DiscountWheelModal({
 					</TouchableOpacity>
 
 					<TouchableOpacity className="mt-6" onPress={onClose}>
-						<Text className="font-bold text-base text-[#60708F]">
+						<Text className="font-bold text-base text-[#73808C]">
 							Return to pricing
 						</Text>
 					</TouchableOpacity>

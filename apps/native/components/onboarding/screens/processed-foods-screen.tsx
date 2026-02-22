@@ -66,7 +66,7 @@ export const ProcessedFoodsScreen = () => {
 						<View className="mt-4 items-center">
 							<View className="h-24 w-24 items-center justify-center rounded-full bg-white shadow-blue-100 shadow-lg">
 								<View className="h-16 w-16 items-center justify-center rounded-full bg-blue-50/50">
-									<Utensils color="#00A8A8" fill="#00A8A8" size={40} />
+									<Utensils color="#28B898" fill="#28B898" size={40} />
 								</View>
 							</View>
 						</View>
@@ -95,7 +95,7 @@ export const ProcessedFoodsScreen = () => {
 								<Text className="font-bold text-[#0d2137] text-[17px] leading-6">
 									Healing Score Impact
 								</Text>
-								<Text className="mt-1 text-[14px] text-[#60708F] leading-[22px]">
+								<Text className="mt-1 text-[14px] text-[#73808C] leading-[22px]">
 									Understanding your current eating patterns helps us create
 									realistic goals and track meaningful improvements in your
 									health journey.

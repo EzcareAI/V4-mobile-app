@@ -28,45 +28,45 @@ const MultiSelectItem = ({
 }) => {
 	return (
 		<PressableFeedback
-			className={`flex-row items-center rounded-[32px] border-2 p-6 transition-all duration-300 ${
+			className={`flex-row items-center rounded-2xl border-2 p-4 transition-all duration-300 ${
 				isSelected
-					? "border-[#00A8A8] bg-[#00A8A8]/10 shadow-[#00A8A8]/30/20 shadow-lg"
+					? "border-[#28B898] bg-[#EAF3F1] shadow-[#28B898]/30 shadow-lg"
 					: "border-transparent bg-white shadow-sm"
 			}`}
 			onPress={onPress}
 		>
 			<View
-				className={`mr-5 h-14 w-14 items-center justify-center rounded-2xl ${
+				className={`mr-4 h-12 w-12 items-center justify-center rounded-xl ${
 					isSelected
-						? "bg-[#00A8A8] shadow-[#00A8A8]/30/30 shadow-md"
+						? "bg-[#28B898] shadow-[#28B898]/30 shadow-md"
 						: "border border-slate-100 bg-white shadow-sm"
 				}`}
 			>
 				{option.emoji ? (
-					<Text className="text-3xl">{option.emoji}</Text>
+					<Text className="text-2xl">{option.emoji}</Text>
 				) : option.icon ? (
 					<option.icon
-						color={isSelected ? "white" : (option.iconColor ?? "#94A3B8")}
-						size={26}
+						color={isSelected ? "white" : (option.iconColor ?? "#73808C")}
+						size={24}
 						strokeWidth={2.5}
 					/>
 				) : null}
 			</View>
 			<Text
-				className={`flex-1 font-bold text-lg tracking-tight ${
-					isSelected ? "text-[#1A2138]" : "text-[#60708F]"
+				className={`flex-1 font-semibold text-base tracking-tight ${
+					isSelected ? "text-[#29303D]" : "text-[#73808C]"
 				}`}
 			>
 				{option.label}
 			</Text>
 			<View
-				className={`h-7 w-7 items-center justify-center rounded-full border-2 transition-all ${
+				className={`ml-4 h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
 					isSelected
-						? "border-[#00A8A8] bg-[#00A8A8]"
+						? "border-[#28B898] bg-[#28B898]"
 						: "border-slate-200 bg-white"
 				}`}
 			>
-				{isSelected && <Check color="white" size={16} strokeWidth={4} />}
+				{isSelected && <Check color="white" size={14} strokeWidth={4} />}
 			</View>
 		</PressableFeedback>
 	);

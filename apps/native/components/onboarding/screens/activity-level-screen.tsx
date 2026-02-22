@@ -75,7 +75,7 @@ export const ActivityLevelScreen = () => {
 						<View className="mt-4 items-center">
 							<View className="h-24 w-24 items-center justify-center rounded-full bg-white shadow-blue-100 shadow-lg">
 								<View className="h-16 w-16 items-center justify-center rounded-full bg-blue-50/50">
-									<Trophy color="#00A8A8" fill="#00A8A8" size={40} />
+									<Trophy color="#28B898" fill="#28B898" size={40} />
 								</View>
 							</View>
 						</View>

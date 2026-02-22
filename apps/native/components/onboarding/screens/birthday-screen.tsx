@@ -1,37 +1,69 @@
-import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
 import { Cake } from "lucide-react-native";
-import { useState } from "react";
-import {
-	Platform,
-	ScrollView,
-	Text,
-	TouchableOpacity,
-	View,
-} from "react-native";
+import { useMemo, useState } from "react";
+import { ScrollView, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
+import { WheelPicker } from "../common/wheel-picker";
+
+const months = [
+	"Jan",
+	"Feb",
+	"Mar",
+	"Apr",
+	"May",
+	"Jun",
+	"Jul",
+	"Aug",
+	"Sep",
+	"Oct",
+	"Nov",
+	"Dec",
+];
 
 export const BirthdayScreen = () => {
 	const router = useRouter();
 	const { birthDate, setAnswer, nextStep } = useOnboardingStore();
-	const [date, setDate] = useState(
-		birthDate ? new Date(birthDate) : new Date(2000, 0, 1)
-	);
-	const [showPicker, setShowPicker] = useState(false);
 
-	const onChange = (_event: unknown, selectedDate?: Date) => {
-		const currentDate = selectedDate || date;
-		setDate(currentDate);
-		setAnswer("birthDate", currentDate.toISOString());
-	};
+	const initialDate = useMemo(() => {
+		if (birthDate) {
+			const d = new Date(birthDate);
+			return {
+				month: d.getMonth(),
+				day: d.getDate() - 1,
+				year: d.getFullYear(),
+			};
+		}
+		return { month: 3, day: 14, year: 1990 };
+	}, [birthDate]);
+
+	const [monthIndex, setMonthIndex] = useState(initialDate.month);
+	const [dayIndex, setDayIndex] = useState(initialDate.day);
+	const [yearIndex, setYearIndex] = useState(initialDate.year - 1940);
+
+	const days = useMemo(
+		() => Array.from({ length: 31 }, (_, i) => String(i + 1)),
+		[]
+	);
+	const yearsOffsets = useMemo(
+		() => Array.from({ length: 80 }, (_, i) => String(1940 + i)),
+		[]
+	);
 
 	const handleContinue = () => {
-		setAnswer("birthDate", date.toISOString());
+		const year = 1940 + yearIndex;
+		const month = monthIndex;
+		const day = dayIndex + 1;
+		const dateObj = new Date(year, month, day);
+
+		setAnswer("birthDate", dateObj.toISOString());
 		nextStep();
 		router.push("/(onboarding)/3");
 	};
+
+	const selectedYear = 1940 + yearIndex;
+	const isValid = selectedYear >= 1940 && selectedYear <= 2010;
 
 	return (
 		<View className="flex-1 bg-background">
@@ -49,7 +81,7 @@ export const BirthdayScreen = () => {
 								{/* Multi-layered shadow design */}
 								<View className="absolute h-28 w-28 rounded-[32px] bg-blue-50 shadow-2xl shadow-blue-100" />
 								<View className="h-24 w-24 items-center justify-center rounded-[28px] border border-slate-50 bg-white shadow-sm">
-									<Cake color="#00A8A8" size={44} strokeWidth={2.5} />
+									<Cake color="#28B898" size={44} strokeWidth={2.5} />
 								</View>
 							</View>
 						</View>
@@ -57,57 +89,36 @@ export const BirthdayScreen = () => {
 						<StepHeader
 							align="center"
 							className="mt-10"
-							description="Your age helps us calibrate your biological baseline and metabolic profile."
-							title="When is your birthday?"
+							description="We use your age to personalize recommendations."
+							title="When were you born?"
 						/>
 
-						<View className="mt-12 overflow-hidden rounded-[40px] border border-white/50 bg-white/60 p-8 shadow-2xl shadow-blue-100/30">
-							{Platform.OS === "android" ? (
-								<>
-									<TouchableOpacity
-										activeOpacity={0.7}
-										className="w-full items-center justify-center rounded-2xl bg-[#00A8A8]/10 py-6"
-										onPress={() => setShowPicker(true)}
-									>
-										<Text className="font-bold text-[#00A8A8] text-xl">
-											{date.toLocaleDateString(undefined, {
-												year: "numeric",
-												month: "long",
-												day: "numeric",
-											})}
-										</Text>
-									</TouchableOpacity>
-									{showPicker && (
-										<DateTimePicker
-											display="default"
-											maximumDate={new Date()}
-											mode="date"
-											onChange={(e, d) => {
-												setShowPicker(false);
-												if (d) {
-													onChange(e, d);
-												}
-											}}
-											value={date}
-										/>
-									)}
-								</>
-							) : (
-								<DateTimePicker
-									display="spinner"
-									maximumDate={new Date()}
-									mode="date"
-									onChange={onChange}
-									style={{ width: "100%", height: 220 }}
-									value={date}
-								/>
-							)}
+						{/* SaaS Matching 3-Column Wheel Picker UI */}
+						<View className="mt-8 flex-row justify-center gap-2 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+							<WheelPicker
+								items={months}
+								onSelect={setMonthIndex}
+								selectedIndex={monthIndex}
+								width={80}
+							/>
+							<WheelPicker
+								items={days}
+								onSelect={setDayIndex}
+								selectedIndex={dayIndex}
+								width={64}
+							/>
+							<WheelPicker
+								items={yearsOffsets}
+								onSelect={setYearIndex}
+								selectedIndex={yearIndex}
+								width={80}
+							/>
 						</View>
 					</View>
 				</ScrollView>
 
 				<View className="pt-4">
-					<ContinueButton onPress={handleContinue} />
+					<ContinueButton isDisabled={!isValid} onPress={handleContinue} />
 				</View>
 			</View>
 		</View>

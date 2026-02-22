@@ -58,7 +58,7 @@ export const PerfectPlanScreen = () => {
 						<View className="relative h-32 w-32 items-center justify-center">
 							<LinearGradient
 								className="h-28 w-28 items-center justify-center rounded-[32px] shadow-blue-200 shadow-lg"
-								colors={["#3BAFDA", "#3EC9B5"]}
+								colors={["#00A8A8", "#2DE2E2"]}
 								start={{ x: 0, y: 0 }}
 							>
 								<TrendingUp color="white" size={48} strokeWidth={2.5} />
@@ -80,10 +80,10 @@ export const PerfectPlanScreen = () => {
 					<View className="mt-8 rounded-[40px] border border-slate-50 bg-white p-8 shadow-2xl shadow-blue-100/50">
 						<View className="mb-8 flex-row items-center justify-between">
 							<View>
-								<Text className="font-bold text-lg text-slate-900">
+								<Text className="font-bold text-lg text-ezcare-navy">
 									Health Recovery
 								</Text>
-								<Text className="mt-0.5 font-bold text-slate-400 text-xs uppercase tracking-widest">
+								<Text className="mt-0.5 font-bold text-ezcare-slate text-xs uppercase tracking-widest">
 									4-Week Projection
 								</Text>
 							</View>
@@ -135,7 +135,7 @@ export const PerfectPlanScreen = () => {
 
 											<Line
 												animate={{ type: "timing", duration: 1000 }}
-												color="#3BAFDA"
+												color="#00A8A8"
 												curveType="monotoneX"
 												points={points.score}
 												strokeWidth={4}
@@ -160,7 +160,7 @@ export const PerfectPlanScreen = () => {
 															r={isSolid ? 8 : 6}
 														/>
 														<SkiaCircle
-															color="#3BAFDA"
+															color="#00A8A8"
 															cx={pointX}
 															cy={pointY}
 															r={isSolid ? 8 : 6}
@@ -189,7 +189,7 @@ export const PerfectPlanScreen = () => {
 						<View className="mt-4 flex-row justify-between px-2">
 							{["Wk 1", "Wk 2", "Wk 3", "Wk 4"].map((w) => (
 								<Text
-									className="font-bold text-[11px] text-slate-400 uppercase tracking-tighter"
+									className="font-bold text-[11px] text-ezcare-slate uppercase tracking-tighter"
 									key={w}
 								>
 									{w}
@@ -202,7 +202,7 @@ export const PerfectPlanScreen = () => {
 					<View className="mt-10 overflow-hidden rounded-[40px] shadow-2xl shadow-blue-200">
 						<LinearGradient
 							className="p-8"
-							colors={["#3BAFDA", "#3EC9B5"]}
+							colors={["#00A8A8", "#2DE2E2"]}
 							end={{ x: 1, y: 1 }}
 							start={{ x: 0, y: 0 }}
 						>

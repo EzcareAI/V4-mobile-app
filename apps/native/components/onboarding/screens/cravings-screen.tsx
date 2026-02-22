@@ -85,7 +85,7 @@ export const CravingsScreen = () => {
 								<Text className="font-bold text-[#0d2137] text-[17px] leading-6">
 									Dopamine Regulation
 								</Text>
-								<Text className="mt-1 text-[14px] text-slate-500 leading-[22px]">
+								<Text className="mt-1 text-[14px] text-ezcare-slate leading-[22px]">
 									Cravings are often linked to dopamine responses. We'll help
 									you build healthier reward pathways naturally.
 								</Text>

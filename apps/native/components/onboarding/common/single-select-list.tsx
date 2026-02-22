@@ -29,15 +29,15 @@ const SelectItem = ({
 		<View
 			className={`flex-row items-center rounded-[32px] border-2 p-6 transition-all duration-300 ${
 				isSelected
-					? "border-[#3BAFDA] bg-white shadow-blue-100 shadow-xl"
-					: "border-slate-50 bg-slate-50/40"
+					? "border-ezcare-teal bg-ezcare-teal/10 shadow-ezcare-teal/20 shadow-lg"
+					: "border-transparent bg-white shadow-sm"
 			}`}
 		>
 			<View
 				className={`mr-5 h-14 w-14 items-center justify-center rounded-2xl ${
 					isSelected
-						? "bg-[#3BAFDA] shadow-blue-200 shadow-md"
-						: "bg-white shadow-sm"
+						? "bg-ezcare-teal shadow-ezcare-teal/30 shadow-md"
+						: "border border-slate-100 bg-white shadow-sm"
 				}`}
 			>
 				{option.emoji ? (
@@ -54,14 +54,14 @@ const SelectItem = ({
 			<View className="flex-1">
 				<RadioGroup.Label
 					className={`font-bold text-lg tracking-tight ${
-						isSelected ? "text-slate-900" : "text-slate-600"
+						isSelected ? "text-ezcare-navy" : "text-ezcare-slate"
 					}`}
 				>
 					{option.label}
 				</RadioGroup.Label>
 				{option.description && (
 					<Text
-						className={`mt-0.5 font-medium text-sm leading-5 ${isSelected ? "text-slate-500" : "text-slate-400"}`}
+						className={`mt-0.5 font-medium text-sm leading-5 ${isSelected ? "text-ezcare-navy/70" : "text-ezcare-slate"}`}
 					>
 						{option.description}
 					</Text>
@@ -69,7 +69,9 @@ const SelectItem = ({
 			</View>
 			<View
 				className={`ml-3 h-7 w-7 items-center justify-center rounded-full border-2 transition-all ${
-					isSelected ? "border-[#3BAFDA] bg-[#3BAFDA]" : "border-slate-200"
+					isSelected
+						? "border-ezcare-teal bg-ezcare-teal"
+						: "border-slate-200 bg-white"
 				}`}
 			>
 				{isSelected && <View className="h-2 w-2 rounded-full bg-white" />}

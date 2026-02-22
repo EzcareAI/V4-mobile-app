@@ -28,7 +28,7 @@ export const ReferralScreen = () => {
 						<View className="mt-4 mb-6 items-center">
 							<View className="relative">
 								<View className="h-32 w-32 items-center justify-center rounded-full bg-linear-to-br from-cyan-400/30 to-cyan-500/20">
-									<Bot color="#3BAFDA" size={56} strokeWidth={2} />
+									<Bot color="#00A8A8" size={56} strokeWidth={2} />
 								</View>
 								{/* Gift Badge */}
 								<View className="absolute -top-1 -right-1 h-12 w-12 items-center justify-center rounded-full bg-amber-400 shadow-amber-400/30 shadow-lg">
@@ -59,7 +59,7 @@ export const ReferralScreen = () => {
 										<Text className="mb-1 font-bold text-[#0d2137] text-base">
 											7-day Premium Trial
 										</Text>
-										<Text className="text-slate-500 text-sm leading-5">
+										<Text className="text-ezcare-slate text-sm leading-5">
 											Access all advanced features
 										</Text>
 									</View>
@@ -74,7 +74,7 @@ export const ReferralScreen = () => {
 										<Text className="mb-1 font-bold text-[#0d2137] text-base">
 											AI Personalization+
 										</Text>
-										<Text className="text-slate-500 text-sm leading-5">
+										<Text className="text-ezcare-slate text-sm leading-5">
 											Enhanced health insights
 										</Text>
 									</View>
@@ -89,7 +89,7 @@ export const ReferralScreen = () => {
 										<Text className="mb-1 font-bold text-[#0d2137] text-base">
 											Community Access
 										</Text>
-										<Text className="text-slate-500 text-sm leading-5">
+										<Text className="text-ezcare-slate text-sm leading-5">
 											Connect with health enthusiasts
 										</Text>
 									</View>
@@ -131,14 +131,14 @@ export const ReferralScreen = () => {
 							onPress={handleFinish}
 							variant="ghost"
 						>
-							<Button.Label className="text-base text-slate-400 underline">
+							<Button.Label className="text-base text-ezcare-slate underline">
 								Skip for now
 							</Button.Label>
 						</Button>
 
 						{/* Footer Info */}
 						<View className="mt-4 px-4 pb-10">
-							<Text className="text-center text-slate-400 text-sm leading-5">
+							<Text className="text-center text-ezcare-slate text-sm leading-5">
 								Don't have a referral code? No worries! You can add one later in
 								your profile settings.
 							</Text>

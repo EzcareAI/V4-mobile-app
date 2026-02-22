@@ -31,7 +31,7 @@ export const NotificationsScreen = () => {
 						{/* Bot Header Wrap */}
 						<View className="mt-4 items-center">
 							<View className="h-32 w-32 items-center justify-center rounded-full bg-cyan-400/20">
-								<Bot color="#3BAFDA" size={48} />
+								<Bot color="#00A8A8" size={48} />
 							</View>
 						</View>
 
@@ -41,7 +41,7 @@ export const NotificationsScreen = () => {
 							description={
 								<Text>
 									Daily healing check-ins boost results by{" "}
-									<Text className="font-bold text-[#3EC9B5]">100%</Text>.
+									<Text className="font-bold text-[#2DE2E2]">100%</Text>.
 								</Text>
 							}
 							title="Want EZBuddy to guide you every day?"
@@ -51,7 +51,7 @@ export const NotificationsScreen = () => {
 						<View className="mt-8 overflow-hidden rounded-[32px] bg-white p-4 shadow-blue-100 shadow-sm">
 							<View className="flex-row items-center justify-between px-2 py-2">
 								<Text className="font-bold text-slate-300">•••</Text>
-								<Text className="font-bold text-slate-400 text-sm">9:41</Text>
+								<Text className="font-bold text-ezcare-slate text-sm">9:41</Text>
 								<View className="flex-row items-center gap-1">
 									<View className="h-4 w-4 rounded-sm bg-slate-200" />
 									<View className="h-4 w-4 rounded-sm bg-slate-200" />
@@ -72,9 +72,9 @@ export const NotificationsScreen = () => {
 												</Text>
 											</View>
 										</View>
-										<Text className="text-slate-400 text-xs">now</Text>
+										<Text className="text-ezcare-slate text-xs">now</Text>
 									</View>
-									<Text className="mt-2 text-slate-600 text-sm leading-5">
+									<Text className="mt-2 text-ezcare-slate text-sm leading-5">
 										Good morning! 🌅 Ready for your daily healing check-in? Your
 										inflammation levels are improving!
 									</Text>
@@ -93,9 +93,9 @@ export const NotificationsScreen = () => {
 												</Text>
 											</View>
 										</View>
-										<Text className="text-slate-400 text-xs">1h ago</Text>
+										<Text className="text-ezcare-slate text-xs">1h ago</Text>
 									</View>
-									<Text className="mt-2 text-slate-600 text-sm leading-5">
+									<Text className="mt-2 text-ezcare-slate text-sm leading-5">
 										Time for your afternoon energy boost! 💚 Your personalized
 										nutrition tip is ready.
 									</Text>
@@ -110,22 +110,22 @@ export const NotificationsScreen = () => {
 							</Text>
 							<View className="flex-row justify-between">
 								<View className="flex-1 items-center">
-									<Text className="font-bold text-2xl text-[#3EC9B5]">
+									<Text className="font-bold text-2xl text-[#2DE2E2]">
 										100%
 									</Text>
-									<Text className="mt-1 text-center text-[11px] text-slate-400 leading-4">
+									<Text className="mt-1 text-center text-[11px] text-ezcare-slate leading-4">
 										Better{"\n"}Results
 									</Text>
 								</View>
 								<View className="flex-1 items-center">
-									<Text className="font-bold text-2xl text-[#3BAFDA]">85%</Text>
-									<Text className="mt-1 text-center text-[11px] text-slate-400 leading-4">
+									<Text className="font-bold text-2xl text-[#00A8A8]">85%</Text>
+									<Text className="mt-1 text-center text-[11px] text-ezcare-slate leading-4">
 										Higher{"\n"}Consistency
 									</Text>
 								</View>
 								<View className="flex-1 items-center">
 									<Text className="font-bold text-2xl text-[#818CF8]">90%</Text>
-									<Text className="mt-1 text-center text-[11px] text-slate-400 leading-4">
+									<Text className="mt-1 text-center text-[11px] text-ezcare-slate leading-4">
 										Goal{"\n"}Achievement
 									</Text>
 								</View>
@@ -141,7 +141,7 @@ export const NotificationsScreen = () => {
 								}}
 							>
 								<LinearGradient
-									colors={["#3EC9B5", "#3BAFDA"]}
+									colors={["#2DE2E2", "#00A8A8"]}
 									end={{ x: 1, y: 1 }}
 									start={{ x: 0, y: 0 }}
 									style={{ borderRadius: 36 }}
@@ -170,7 +170,7 @@ export const NotificationsScreen = () => {
 								>
 									<View className="h-16 flex-row items-center justify-center">
 										<BellOff color="#71717a" size={22} />
-										<Text className="ml-3 font-bold text-lg text-slate-500">
+										<Text className="ml-3 font-bold text-lg text-ezcare-slate">
 											Don't Allow
 										</Text>
 									</View>
@@ -178,7 +178,7 @@ export const NotificationsScreen = () => {
 							</Pressable>
 						</View>
 
-						<Text className="mt-2 mb-10 text-center text-slate-400 text-sm">
+						<Text className="mt-2 mb-10 text-center text-ezcare-slate text-sm">
 							You can change notification preferences anytime in Settings
 						</Text>
 					</View>

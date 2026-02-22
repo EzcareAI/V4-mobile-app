@@ -2,25 +2,25 @@
 @layer theme {
 	:root {
 		@variant light {
-			/* Base Colors - Fresh, energizing mint */
-			--background: #ffffff;
-			--foreground: hsl(170, 5%, 22%);
+			/* Base Colors - Clean Off-White and Deep Navy */
+			--background: #f8fbfc;
+			--foreground: #1a2138;
 
 			/* Surface: Used for non-overlay components (cards, accordions, disclosure groups) */
-			--surface: hsl(170, 5%, 98%);
-			--surface-foreground: hsl(170, 5%, 28%);
+			--surface: #ffffff;
+			--surface-foreground: #1a2138;
 
 			/* Overlay: Used for floating/overlay components (dialogs, popovers, modals, menus) */
-			--overlay: hsl(170, 3%, 99%);
-			--overlay-foreground: hsl(170, 5%, 28%);
+			--overlay: #ffffff;
+			--overlay-foreground: #1a2138;
 
-			--muted: hsl(170, 4%, 52%);
+			--muted: #60708f;
 
 			--default: hsl(170, 2%, 94%);
-			--default-foreground: hsl(170, 6%, 38%);
+			--default-foreground: #60708f;
 
-			/* Accent: Vibrant teal-mint with modern energy */
-			--accent: #3bafda;
+			/* Accent: Vibrant teal */
+			--accent: #00a8a8;
 			--accent-foreground: #ffffff;
 
 			/* Form Field Defaults - Colors */

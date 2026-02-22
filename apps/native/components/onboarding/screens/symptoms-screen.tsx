@@ -58,8 +58,8 @@ export const SymptomsScreen = () => {
 										elevation: 10,
 									}}
 								>
-									<View className="h-20 w-20 items-center justify-center rounded-full border-4 border-[#3EC9B5]/10 bg-blue-50/30">
-										<Stethoscope color="#3BAFDA" size={48} />
+									<View className="h-20 w-20 items-center justify-center rounded-full border-4 border-[#2DE2E2]/10 bg-blue-50/30">
+										<Stethoscope color="#00A8A8" size={48} />
 									</View>
 								</View>
 								{/* Search Badge */}
@@ -97,7 +97,7 @@ export const SymptomsScreen = () => {
 						{symptoms.length > 0 && (
 							<View className="mt-8 items-center">
 								<Text className="font-bold text-base text-muted">
-									<Text className="text-[#3EC9B5]">{symptoms.length}</Text>{" "}
+									<Text className="text-[#2DE2E2]">{symptoms.length}</Text>{" "}
 									symptoms selected
 								</Text>
 							</View>
@@ -117,13 +117,13 @@ export const SymptomsScreen = () => {
 											elevation: 4,
 										}}
 									>
-										<Leaf color="#3EC9B5" fill="#3EC9B5" size={24} />
+										<Leaf color="#2DE2E2" fill="#2DE2E2" size={24} />
 									</View>
 									<View className="flex-1">
 										<Text className="font-bold text-[#0d2137] text-lg">
 											Natural approach:
 										</Text>
-										<Text className="mt-1 text-slate-600 text-sm leading-5">
+										<Text className="mt-1 text-ezcare-slate text-sm leading-5">
 											We'll create a personalized plan using nutrition, herbs,
 											and lifestyle changes to address your specific symptoms.
 										</Text>

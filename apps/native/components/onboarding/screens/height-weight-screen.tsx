@@ -44,7 +44,7 @@ export const HeightWeightScreen = () => {
 						<View className="relative h-32 w-32 items-center justify-center">
 							<View className="absolute h-28 w-28 rounded-[32px] bg-blue-50 shadow-2xl shadow-blue-100" />
 							<View className="h-24 w-24 items-center justify-center rounded-[28px] border border-slate-50 bg-white shadow-sm">
-								<Ruler color="#3BAFDA" size={44} strokeWidth={2.5} />
+								<Ruler color="#00A8A8" size={44} strokeWidth={2.5} />
 							</View>
 						</View>
 					</View>
@@ -67,12 +67,12 @@ export const HeightWeightScreen = () => {
 							<Tabs.List className="rounded-[20px] border border-slate-100 bg-slate-50 p-1.5">
 								<Tabs.Indicator className="rounded-[14px] bg-white shadow-sm" />
 								<Tabs.Trigger className="py-2.5" value="imperial">
-									<Tabs.Label className="font-bold text-slate-500 active:text-slate-900">
+									<Tabs.Label className="font-bold text-ezcare-slate active:text-ezcare-navy">
 										Imperial
 									</Tabs.Label>
 								</Tabs.Trigger>
 								<Tabs.Trigger className="py-2.5" value="metric">
-									<Tabs.Label className="font-bold text-slate-500 active:text-slate-900">
+									<Tabs.Label className="font-bold text-ezcare-slate active:text-ezcare-navy">
 										Metric
 									</Tabs.Label>
 								</Tabs.Trigger>
@@ -83,7 +83,7 @@ export const HeightWeightScreen = () => {
 					<View className="gap-y-10">
 						{/* Height Section */}
 						<View className="rounded-[40px] border border-white/50 bg-white/60 p-8 shadow-2xl shadow-blue-100/30">
-							<Text className="mb-6 text-center font-black text-[15px] text-slate-900 uppercase tracking-widest">
+							<Text className="mb-6 text-center font-black text-[15px] text-ezcare-navy uppercase tracking-widest">
 								Height
 							</Text>
 							<View className="h-32 justify-center overflow-hidden">
@@ -129,7 +129,7 @@ export const HeightWeightScreen = () => {
 
 						{/* Weight Section */}
 						<View className="rounded-[40px] border border-white/50 bg-white/60 p-8 shadow-2xl shadow-blue-100/30">
-							<Text className="mb-6 text-center font-black text-[15px] text-slate-900 uppercase tracking-widest">
+							<Text className="mb-6 text-center font-black text-[15px] text-ezcare-navy uppercase tracking-widest">
 								Weight
 							</Text>
 							<View className="h-32 justify-center overflow-hidden">

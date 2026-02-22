@@ -58,7 +58,7 @@ export const ObstaclesScreen = () => {
 									}}
 								>
 									<View className="h-20 w-20 items-center justify-center rounded-full border-4 border-blue-50/50 bg-blue-50/30">
-										<Bot color="#3BAFDA" size={48} />
+										<Bot color="#00A8A8" size={48} />
 									</View>
 								</View>
 								{/* Question Mark Badge */}
@@ -72,7 +72,7 @@ export const ObstaclesScreen = () => {
 										elevation: 5,
 									}}
 								>
-									<HelpCircle color="#3BAFDA" size={20} />
+									<HelpCircle color="#00A8A8" size={20} />
 								</View>
 							</View>
 						</View>

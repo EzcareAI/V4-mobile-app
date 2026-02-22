@@ -142,26 +142,26 @@ const ZoneCard = ({
 			activeOpacity={0.8}
 			className={`relative mb-4 flex-row items-center rounded-3xl border-2 p-5 transition-all ${
 				isSelected
-					? "border-[#3BAFDA] bg-white shadow-blue-100 shadow-xl"
+					? "border-[#00A8A8] bg-white shadow-blue-100 shadow-xl"
 					: "border-slate-100 bg-white"
 			}`}
 			onPress={handlePress}
 		>
 			<View
-				className={`mr-4 h-14 w-14 items-center justify-center rounded-2xl ${isSelected ? "bg-[#3BAFDA]" : "bg-slate-50"}`}
+				className={`mr-4 h-14 w-14 items-center justify-center rounded-2xl ${isSelected ? "bg-[#00A8A8]" : "bg-slate-50"}`}
 			>
 				<Text className="text-2xl">{icon}</Text>
 			</View>
 			<View className="flex-1">
 				<Text
-					className={`font-bold text-lg ${isSelected ? "text-[#0d2137]" : "text-slate-700"}`}
+					className={`font-bold text-lg ${isSelected ? "text-[#0d2137]" : "text-ezcare-navy"}`}
 				>
 					{label}
 				</Text>
-				<Text className="text-slate-500 text-sm">{description}</Text>
+				<Text className="text-ezcare-slate text-sm">{description}</Text>
 			</View>
 			{isSelected && (
-				<View className="h-6 w-6 items-center justify-center rounded-full bg-[#3BAFDA]">
+				<View className="h-6 w-6 items-center justify-center rounded-full bg-[#00A8A8]">
 					<View className="h-2 w-2 rounded-full bg-white" />
 				</View>
 			)}
@@ -265,7 +265,7 @@ export default function BodyDiagramScreen() {
 				onPress={handleOverallHealth}
 			>
 				<LinearGradient
-					colors={["#3BAFDA", "#3EC9B5"]}
+					colors={["#00A8A8", "#2DE2E2"]}
 					end={{ x: 1, y: 0 }}
 					start={{ x: 0, y: 0 }}
 					style={StyleSheet.absoluteFill}

@@ -56,12 +56,12 @@ export const GenderScreen = () => {
 						<View className="mt-8 items-center">
 							<View className="relative h-28 w-28 items-center justify-center">
 								{/* Outer glow/shadow layer */}
-								<View className="absolute inset-0 rounded-[40px] bg-[#3BAFDA]/10" />
+								<View className="absolute inset-0 rounded-[40px] bg-[#00A8A8]/10" />
 								{/* Middle layer */}
 								<View className="h-full w-full items-center justify-center rounded-[36px] bg-white shadow-blue-200 shadow-xl">
 									{/* Inner container */}
 									<View className="h-20 w-20 items-center justify-center rounded-[28px] bg-blue-50/80">
-										<CircleDot color="#3BAFDA" fill="#3BAFDA" size={44} />
+										<CircleDot color="#00A8A8" fill="#00A8A8" size={44} />
 									</View>
 								</View>
 							</View>

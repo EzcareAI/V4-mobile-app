@@ -154,7 +154,7 @@ const ToolTip = ({
 						width: 6,
 						height: 6,
 						borderRadius: 3,
-						backgroundColor: "#3EC9B5",
+						backgroundColor: "#2DE2E2",
 					}}
 				/>
 				<InflammationValue value={yInflammation} />
@@ -224,7 +224,7 @@ export const JourneyProgressChart = () => {
 
 						<Line
 							animate={{ type: "timing", duration: 500 }}
-							color="#3EC9B5"
+							color="#2DE2E2"
 							curveType="catmullRom"
 							points={points.inflammation}
 							strokeWidth={3}
@@ -237,7 +237,7 @@ export const JourneyProgressChart = () => {
 						</Line>
 						{points.inflammation.map((p) => (
 							<Circle
-								color="#3EC9B5"
+								color="#2DE2E2"
 								cx={p.x ?? 0}
 								cy={p.y ?? 0}
 								key={`inflam-${p.x}-${p.y}`}
@@ -271,7 +271,7 @@ export const JourneyProgressChart = () => {
 									style="fill"
 								/>
 								<Circle
-									color="#3EC9B5"
+									color="#2DE2E2"
 									cx={safeX}
 									cy={safeYInflammation}
 									r={6}
@@ -300,13 +300,13 @@ export const JourneyProgressChart = () => {
 			<View className="mt-2 flex-row justify-center gap-6">
 				<View className="flex-row items-center gap-2">
 					<View className="h-2 w-2 rounded-full bg-blue-400" />
-					<Text className="font-medium text-slate-500 text-xs">
+					<Text className="font-medium text-ezcare-slate text-xs">
 						Energy Level
 					</Text>
 				</View>
 				<View className="flex-row items-center gap-2">
-					<View className="h-2 w-2 rounded-full bg-[#3EC9B5]" />
-					<Text className="font-medium text-slate-500 text-xs">
+					<View className="h-2 w-2 rounded-full bg-[#2DE2E2]" />
+					<Text className="font-medium text-ezcare-slate text-xs">
 						Inflammation
 					</Text>
 				</View>

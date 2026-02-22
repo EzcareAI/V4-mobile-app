@@ -110,14 +110,14 @@ export const LoadingPlanScreen = () => {
 								</View>
 
 								<View className="h-28 w-28 items-center justify-center rounded-[32px] border-2 border-white bg-white shadow-2xl shadow-blue-100">
-									<Bot color="#3BAFDA" size={48} strokeWidth={2.5} />
+									<Bot color="#00A8A8" size={48} strokeWidth={2.5} />
 									<View className="absolute -top-2 -right-2 h-10 w-10 items-center justify-center rounded-2xl border-4 border-white bg-amber-400 shadow-lg">
 										<Wrench color="white" fill="white" size={20} />
 									</View>
 								</View>
 							</View>
 
-							<Text className="mt-10 text-center font-bold text-[28px] text-slate-900 leading-[38px] tracking-tight">
+							<Text className="mt-10 text-center font-bold text-[28px] text-ezcare-navy leading-[38px] tracking-tight">
 								EZBuddy is preparing{"\n"}your natural plan...
 							</Text>
 						</View>
@@ -132,11 +132,11 @@ export const LoadingPlanScreen = () => {
 											inputRange: [0, 100],
 											outputRange: ["0%", "100%"],
 										}),
-										backgroundColor: "#3BAFDA",
+										backgroundColor: "#00A8A8",
 									}}
 								>
 									<LinearGradient
-										colors={["#3BAFDA", "#3EC9B5"]}
+										colors={["#00A8A8", "#2DE2E2"]}
 										end={{ x: 1, y: 0.5 }}
 										start={{ x: 0, y: 0.5 }}
 										style={StyleSheet.absoluteFill}
@@ -144,7 +144,7 @@ export const LoadingPlanScreen = () => {
 								</Animated.View>
 							</View>
 							<View className="mt-4 flex-row items-center justify-between">
-								<Text className="font-bold text-slate-400 text-sm uppercase tracking-widest">
+								<Text className="font-bold text-ezcare-slate text-sm uppercase tracking-widest">
 									Optimization Progress
 								</Text>
 								<Text className="font-black text-cyan-600 text-xl">
@@ -175,12 +175,12 @@ export const LoadingPlanScreen = () => {
 										</View>
 										<View className="flex-1">
 											<Text
-												className={`font-bold text-[16px] text-slate-900 ${!isDone && "opacity-60"}`}
+												className={`font-bold text-[16px] text-ezcare-navy ${!isDone && "opacity-60"}`}
 											>
 												{stage.title}
 											</Text>
 											{isDone && (
-												<Text className="mt-0.5 font-medium text-[13px] text-slate-500">
+												<Text className="mt-0.5 font-medium text-[13px] text-ezcare-slate">
 													{stage.id === "nutrition"
 														? getDietDescription()
 														: stage.description}
@@ -206,10 +206,10 @@ export const LoadingPlanScreen = () => {
 											<CheckCircle2 color="white" size={32} />
 										</View>
 										<View className="flex-1">
-											<Text className="font-bold text-slate-900 text-xl tracking-tight">
+											<Text className="font-bold text-ezcare-navy text-xl tracking-tight">
 												Plan Ready!
 											</Text>
-											<Text className="mt-1 font-medium text-slate-600 text-sm leading-5">
+											<Text className="mt-1 font-medium text-ezcare-slate text-sm leading-5">
 												Your natural healing journey is precisely tailored and
 												ready.
 											</Text>

@@ -50,7 +50,7 @@ export const SleepScreen = () => {
 						<View className="mt-4 items-center">
 							<View className="h-24 w-24 items-center justify-center rounded-full bg-white shadow-blue-100 shadow-lg">
 								<View className="h-16 w-16 items-center justify-center rounded-full bg-blue-50/50">
-									<Moon color="#3BAFDA" fill="#3BAFDA" size={40} />
+									<Moon color="#00A8A8" fill="#00A8A8" size={40} />
 								</View>
 							</View>
 						</View>
@@ -88,7 +88,7 @@ export const SleepScreen = () => {
 											</View>
 											<Text
 												className={`font-semibold text-xs ${
-													isSelected ? "text-[#3BAFDA]" : "text-slate-400"
+													isSelected ? "text-[#00A8A8]" : "text-ezcare-slate"
 												}`}
 											>
 												{level.label}
@@ -103,12 +103,12 @@ export const SleepScreen = () => {
 								<Slider
 									maximumTrackTintColor="#E2E8F0"
 									maximumValue={5}
-									minimumTrackTintColor="#3BAFDA"
+									minimumTrackTintColor="#00A8A8"
 									minimumValue={1}
 									onValueChange={(v) => setValue(v)}
 									step={1}
 									style={{ width: "100%", height: 40 }}
-									thumbTintColor="#3BAFDA"
+									thumbTintColor="#00A8A8"
 									value={value}
 								/>
 
@@ -117,7 +117,7 @@ export const SleepScreen = () => {
 									{LEVELS.map((l) => (
 										<Text
 											className={`font-bold text-[10px] ${
-												value === l.id ? "text-slate-800" : "text-slate-400"
+												value === l.id ? "text-ezcare-navy" : "text-ezcare-slate"
 											}`}
 											key={l.id}
 										>
@@ -129,16 +129,16 @@ export const SleepScreen = () => {
 						</View>
 
 						{/* Tip Card */}
-						<View className="mt-12 mb-10 overflow-hidden rounded-[32px] bg-[#E1F5FE]/50 p-6 shadow-[#3BAFDA]/20 shadow-sm">
+						<View className="mt-12 mb-10 overflow-hidden rounded-[32px] bg-[#E1F5FE]/50 p-6 shadow-[#00A8A8]/20 shadow-sm">
 							<View className="flex-row items-center gap-4">
 								<View className="h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm">
-									<Lightbulb color="#3BAFDA" fill="#3BAFDA" size={24} />
+									<Lightbulb color="#00A8A8" fill="#00A8A8" size={24} />
 								</View>
 								<View className="flex-1">
 									<Text className="font-bold text-[#0d2137] text-lg">
 										Did you know?
 									</Text>
-									<Text className="mt-1 text-slate-500 text-sm leading-5">
+									<Text className="mt-1 text-ezcare-slate text-sm leading-5">
 										{getTipText()}
 									</Text>
 								</View>

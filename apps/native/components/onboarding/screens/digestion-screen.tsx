@@ -60,7 +60,7 @@ export const DigestionScreen = () => {
 						<View className="mt-4 items-center">
 							<View className="relative">
 								<LinearGradient
-									colors={["#4FD1C5", "#3BAFDA"]}
+									colors={["#4FD1C5", "#00A8A8"]}
 									start={{ x: 0, y: 0 }}
 									style={{
 										height: 112,
@@ -68,7 +68,7 @@ export const DigestionScreen = () => {
 										borderRadius: 56,
 										alignItems: "center",
 										justifyContent: "center",
-										shadowColor: "#3BAFDA",
+										shadowColor: "#00A8A8",
 										shadowOffset: { width: 0, height: 10 },
 										shadowOpacity: 0.2,
 										shadowRadius: 15,

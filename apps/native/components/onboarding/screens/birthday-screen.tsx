@@ -42,7 +42,7 @@ export const BirthdayScreen = () => {
 								{/* Multi-layered shadow design */}
 								<View className="absolute h-28 w-28 rounded-[32px] bg-blue-50 shadow-2xl shadow-blue-100" />
 								<View className="h-24 w-24 items-center justify-center rounded-[28px] border border-slate-50 bg-white shadow-sm">
-									<Cake color="#3BAFDA" size={44} strokeWidth={2.5} />
+									<Cake color="#00A8A8" size={44} strokeWidth={2.5} />
 								</View>
 							</View>
 						</View>

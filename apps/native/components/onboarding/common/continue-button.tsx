@@ -16,7 +16,7 @@ export const ContinueButton = ({
 }: ContinueButtonProps) => {
 	return (
 		<Button
-			// className="h-14 rounded-full bg-accent shadow-surface"
+			className="h-[56px] w-[326px] self-center overflow-hidden rounded-full shadow-[#00A8A8]/20 shadow-md"
 			isDisabled={isDisabled}
 			onPress={() => {
 				if (!isDisabled) {
@@ -32,10 +32,10 @@ export const ContinueButton = ({
 			size="lg"
 		>
 			<LinearGradient
-				colors={["#3BAFDA", "#3EC9B5"]}
+				colors={["#00A8A8", "#2DE2E2"]}
 				end={{ x: 1, y: 0 }}
 				start={{ x: 0, y: 0 }}
-				style={StyleSheet.absoluteFill}
+				style={StyleSheet.absoluteFillObject}
 			/>
 			<Button.Label className="color-white font-bold text-lg text-white">
 				{label}

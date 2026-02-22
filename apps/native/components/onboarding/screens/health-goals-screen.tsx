@@ -49,7 +49,7 @@ export const HealthGoalsScreen = () => {
 							<View className="relative h-32 w-32 items-center justify-center">
 								<View className="absolute h-28 w-28 rounded-[32px] bg-blue-50 shadow-2xl shadow-blue-100" />
 								<View className="h-24 w-24 items-center justify-center rounded-[28px] border border-slate-50 bg-white shadow-sm">
-									<Target color="#3BAFDA" size={44} strokeWidth={2.5} />
+									<Target color="#00A8A8" size={44} strokeWidth={2.5} />
 								</View>
 							</View>
 						</View>

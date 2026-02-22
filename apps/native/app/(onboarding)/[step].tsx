@@ -58,10 +58,8 @@ const LoadingFallback = () => (
 const OnboardingStep = () => {
 	const { step } = useLocalSearchParams<{ step: string }>();
 	const stepNumber = Number.parseInt(step ?? "1", 10);
-	const { setAnswer, intentType } = useOnboardingStore((state) => ({
-		setAnswer: state.setAnswer,
-		intentType: state.intentType,
-	}));
+	const setAnswer = useOnboardingStore((state) => state.setAnswer);
+	const intentType = useOnboardingStore((state) => state.intentType);
 
 	useEffect(() => {
 		setAnswer("currentStep", stepNumber);

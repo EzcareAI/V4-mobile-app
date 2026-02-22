@@ -21,7 +21,7 @@ function StackLayout() {
 
 	// For Phase 1, we use local state to determine if onboarding is finished
 	// In a real app, this would come from session.user.profile.onboardingCompleted
-	const { currentStep } = useOnboardingStore();
+	const currentStep = useOnboardingStore((state) => state.currentStep);
 
 	useEffect(() => {
 		if (isPending) {

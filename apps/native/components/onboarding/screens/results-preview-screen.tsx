@@ -118,7 +118,7 @@ export default function ResultsPreviewScreen() {
 
 	return (
 		<ScrollView
-			className="flex-1 bg-background"
+			className="flex-1 bg-[#EBF5F4]"
 			showsVerticalScrollIndicator={false}
 		>
 			{/* Premium Header */}

@@ -1,16 +1,27 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+import { ContinueButton } from "../common/continue-button";
+import {
+	SingleSelectList,
+	type SingleSelectOption,
+} from "../common/single-select-list";
+import { StepHeader } from "../common/step-header";
+
+const CONDITION_OPTIONS: SingleSelectOption[] = [
+	{ id: "none", label: "No conditions", emoji: "✅" },
+	{ id: "diabetes", label: "Diabetes", emoji: "🩺" },
+	{ id: "hypertension", label: "High blood pressure", emoji: "❤️" },
+	{ id: "arthritis", label: "Arthritis", emoji: "🦴" },
+	{ id: "thyroid", label: "Thyroid issues", emoji: "🧬" },
+	{ id: "ibs", label: "IBS / IBD", emoji: "🫘" },
+	{ id: "depression", label: "Depression / Anxiety", emoji: "🧠" },
+];
 
 export function HealthConditionsScreen() {
 	const router = useRouter();
-	const { setAnswer, nextStep } = useOnboardingStore();
-
-	const handleSelect = (id: string) => {
-		setAnswer("healthConditions", id);
-		nextStep();
-		router.push("/(onboarding)/13");
-	};
+	const { healthConditions, setAnswer, nextStep } = useOnboardingStore();
 
 	const handleContinue = () => {
 		nextStep();
@@ -18,47 +29,73 @@ export function HealthConditionsScreen() {
 	};
 
 	return (
-		<ScrollView className="flex-1 bg-white">
-			<View className="px-6 pt-8 pb-8">
-				<Text className="mb-2 font-bold text-2xl text-gray-900">
-					Any existing conditions?
-				</Text>
-				<Text className="mb-1 text-gray-600">Select any that apply to you</Text>
-				<Text className="mb-8 text-gray-500 text-xs">
-					(You can pick multiple or skip)
-				</Text>
-
-				<View className="mb-8 gap-3">
-					{[
-						{ id: "none", label: "No conditions", icon: "✓" },
-						{ id: "diabetes", label: "Diabetes", icon: "🩺" },
-						{ id: "hypertension", label: "High blood pressure", icon: "❤️" },
-						{ id: "arthritis", label: "Arthritis", icon: "🦴" },
-						{ id: "thyroid", label: "Thyroid issues", icon: "🧬" },
-						{ id: "ibd", label: "IBS/IBD", icon: "🫘" },
-						{ id: "depression", label: "Depression/Anxiety", icon: "🧠" },
-					].map(({ id, label, icon }) => (
-						<TouchableOpacity
-							className="flex-row items-center justify-between rounded-xl border-2 border-teal-200 bg-gradient-to-r from-teal-50 to-blue-50 p-4 active:bg-teal-100"
-							key={id}
-							onPress={() => handleSelect(id)}
-						>
-							<Text className="font-semibold text-gray-900">{label}</Text>
-							<Text className="text-2xl">{icon}</Text>
-						</TouchableOpacity>
-					))}
-				</View>
-
-				{/* Skip Option */}
-				<TouchableOpacity
-					className="rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
-					onPress={() => handleContinue()}
+		<View className="flex-1 bg-[#EBF5F4]">
+			<View className="flex-1 justify-between px-5 pb-8">
+				<ScrollView
+					className="flex-1"
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					contentInsetAdjustmentBehavior="automatic"
+					showsVerticalScrollIndicator={false}
 				>
-					<Text className="text-center font-semibold text-gray-900">
-						Prefer not to share
-					</Text>
-				</TouchableOpacity>
+					<View className="flex-1 px-1">
+						{/* Mascot Header */}
+						<View className="mt-4 items-center">
+							<View className="relative">
+								<LinearGradient
+									colors={["#4FD1C5", "#28B898"]}
+									start={{ x: 0, y: 0 }}
+									style={{
+										height: 112,
+										width: 112,
+										borderRadius: 56,
+										alignItems: "center",
+										justifyContent: "center",
+										shadowColor: "#28B898",
+										shadowOffset: { width: 0, height: 10 },
+										shadowOpacity: 0.2,
+										shadowRadius: 15,
+										elevation: 10,
+									}}
+								>
+									<Text style={{ fontSize: 48 }}>🩺</Text>
+								</LinearGradient>
+								{/* Badge */}
+								<View
+									className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-red-400"
+									style={{
+										shadowColor: "#000",
+										shadowOffset: { width: 0, height: 4 },
+										shadowOpacity: 0.1,
+										shadowRadius: 5,
+										elevation: 5,
+									}}
+								>
+									<Text style={{ fontSize: 14 }}>❤️</Text>
+								</View>
+							</View>
+						</View>
+
+						<StepHeader
+							align="center"
+							className="mt-6"
+							description="Select the one that applies most. This helps us tailor your healing plan safely."
+							title="Any existing health conditions?"
+						/>
+
+						<View className="mt-8">
+							<SingleSelectList
+								onSelect={(id) => setAnswer("healthConditions", id)}
+								options={CONDITION_OPTIONS}
+								selectedId={healthConditions ?? null}
+							/>
+						</View>
+					</View>
+				</ScrollView>
+
+				<View className="pt-4">
+					<ContinueButton onPress={handleContinue} />
+				</View>
 			</View>
-		</ScrollView>
+		</View>
 	);
 }

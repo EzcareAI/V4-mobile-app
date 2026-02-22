@@ -72,6 +72,13 @@ export interface OnboardingState {
 	onboardingComplete?: boolean;
 	dietType?: "classic" | "keto" | "paleo" | "vegan" | "carnivore";
 	goals: string[];
+	obstacles: string[];
+	symptoms: string[];
+	// Digestion and food answers
+	digestionSensitivity?: "sensitive" | "normal" | "strong";
+	processedFoodsFrequency?: "rarely" | "sometimes" | "often";
+	cravings: string[];
+	primaryGoal?: string;
 
 	// Methods
 	setAnswer: <K extends keyof OnboardingState>(
@@ -95,6 +102,9 @@ export const useOnboardingStore = create<OnboardingState>()(
 			paymentAttempted: false,
 			onboardingComplete: false,
 			goals: [],
+			obstacles: [],
+			symptoms: [],
+			cravings: [],
 
 			setAnswer: (key, value) => set((state) => ({ ...state, [key]: value })),
 
@@ -144,6 +154,12 @@ export const useOnboardingStore = create<OnboardingState>()(
 					onboardingComplete: false,
 					dietType: undefined,
 					goals: [],
+					obstacles: [],
+					symptoms: [],
+					cravings: [],
+					digestionSensitivity: undefined,
+					processedFoodsFrequency: undefined,
+					primaryGoal: undefined,
 				}),
 
 			computeHealthScore: () => {

@@ -46,7 +46,7 @@ export const PerfectPlanScreen = () => {
 	};
 
 	return (
-		<View className="flex-1 bg-background">
+		<View className="flex-1 bg-[#EBF5F4]">
 			<ScrollView
 				className="flex-1"
 				contentContainerClassName="pb-12"
@@ -224,7 +224,7 @@ export const PerfectPlanScreen = () => {
 				</View>
 			</ScrollView>
 
-			<View className="bg-background px-6 py-8">
+			<View className="bg-[#EBF5F4] px-6 py-8">
 				<ContinueButton label="Begin My Journey →" onPress={handleContinue} />
 			</View>
 		</View>

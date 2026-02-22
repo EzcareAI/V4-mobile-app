@@ -83,6 +83,7 @@
         "zustand-persist": "^0.4.0",
       },
       "devDependencies": {
+        "@babel/traverse": "*",
         "@ezcare/config": "workspace:*",
         "@types/node": "^24.10.9",
         "@types/react": "~19.1.17",
@@ -224,6 +225,11 @@
         "typescript": "catalog:",
       },
     },
+  },
+  "overrides": {
+    "@babel/generator": "^7.29.0",
+    "@babel/traverse": "^7.29.0",
+    "@babel/types": "^7.29.0",
   },
   "catalog": {
     "@better-auth/expo": "^1.4.17",

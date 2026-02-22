@@ -28,7 +28,7 @@ export function AccountCreationScreen() {
 
 	return (
 		<ScrollView
-			className="flex-1 bg-background"
+			className="flex-1 bg-[#EBF5F4]"
 			showsVerticalScrollIndicator={false}
 		>
 			<View className="px-8 pt-12 pb-12">

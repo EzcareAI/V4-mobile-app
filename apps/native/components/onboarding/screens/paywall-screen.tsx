@@ -69,7 +69,7 @@ export default function PaywallScreen() {
 	};
 
 	return (
-		<View className="flex-1 bg-background">
+		<View className="flex-1 bg-[#EBF5F4]">
 			<ScrollView
 				contentContainerClassName="pb-16"
 				showsVerticalScrollIndicator={false}

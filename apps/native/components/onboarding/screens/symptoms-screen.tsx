@@ -1,5 +1,6 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Leaf, Search, Stethoscope } from "lucide-react-native";
+import { Leaf } from "lucide-react-native";
 import { ScrollView, Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
@@ -36,7 +37,7 @@ export const SymptomsScreen = () => {
 	};
 
 	return (
-		<View className="flex-1 bg-background">
+		<View className="flex-1 bg-[#EBF5F4]">
 			<View className="flex-1 justify-between px-5 pb-8">
 				<ScrollView
 					className="flex-1"
@@ -45,35 +46,39 @@ export const SymptomsScreen = () => {
 					showsVerticalScrollIndicator={false}
 				>
 					<View className="flex-1 px-1">
-						{/* Stethoscope Header with Search Badge */}
+						{/* Mascot Header */}
 						<View className="mt-4 items-center">
 							<View className="relative">
-								<View
-									className="h-28 w-28 items-center justify-center rounded-full bg-white"
+								<LinearGradient
+									colors={["#4FD1C5", "#28B898"]}
+									start={{ x: 0, y: 0 }}
 									style={{
-										shadowColor: "#000",
+										height: 112,
+										width: 112,
+										borderRadius: 56,
+										alignItems: "center",
+										justifyContent: "center",
+										shadowColor: "#28B898",
 										shadowOffset: { width: 0, height: 10 },
-										shadowOpacity: 0.1,
+										shadowOpacity: 0.2,
 										shadowRadius: 15,
 										elevation: 10,
 									}}
 								>
-									<View className="h-20 w-20 items-center justify-center rounded-full border-4 border-[#2DE2E2]/10 bg-blue-50/30">
-										<Stethoscope color="#28B898" size={48} />
-									</View>
-								</View>
-								{/* Search Badge */}
+									<Text style={{ fontSize: 48 }}>🩺</Text>
+								</LinearGradient>
+								{/* Badge */}
 								<View
-									className="absolute -right-1 bottom-1 h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-[#00BFA5]"
+									className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-[#00BFA5]"
 									style={{
 										shadowColor: "#000",
 										shadowOffset: { width: 0, height: 4 },
-										shadowOpacity: 0.2,
+										shadowOpacity: 0.1,
 										shadowRadius: 5,
 										elevation: 5,
 									}}
 								>
-									<Search color="white" size={24} strokeWidth={3} />
+									<Leaf color="white" size={18} strokeWidth={2.5} />
 								</View>
 							</View>
 						</View>

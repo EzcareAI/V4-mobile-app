@@ -40,7 +40,7 @@ export const CravingsScreen = () => {
 	};
 
 	return (
-		<View className="flex-1 bg-background">
+		<View className="flex-1 bg-[#EBF5F4]">
 			<View className="flex-1 justify-between px-5 pb-8">
 				<ScrollView
 					className="flex-1"

@@ -71,6 +71,7 @@
     "zustand-persist": "^0.4.0"
   },
   "devDependencies": {
+    "@babel/traverse": "*",
     "@ezcare/config": "workspace:*",
     "@types/node": "^24.10.9",
     "@types/react": "~19.1.17",

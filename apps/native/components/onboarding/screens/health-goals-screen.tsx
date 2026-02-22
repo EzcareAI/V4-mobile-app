@@ -1,6 +1,6 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Target } from "lucide-react-native";
-import { ScrollView, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import {
@@ -35,7 +35,7 @@ export const HealthGoalsScreen = () => {
 	};
 
 	return (
-		<View className="flex-1 bg-background">
+		<View className="flex-1 bg-[#EBF5F4]">
 			<View className="flex-1 justify-between px-5 pb-8">
 				<ScrollView
 					className="flex-1"
@@ -44,21 +44,48 @@ export const HealthGoalsScreen = () => {
 					showsVerticalScrollIndicator={false}
 				>
 					<View className="flex-1 px-1">
-						{/* Premium Icon Header */}
-						<View className="mt-8 items-center">
-							<View className="relative h-32 w-32 items-center justify-center">
-								<View className="absolute h-28 w-28 rounded-[32px] bg-blue-50 shadow-2xl shadow-blue-100" />
-								<View className="h-24 w-24 items-center justify-center rounded-[28px] border border-slate-50 bg-white shadow-sm">
-									<Target color="#28B898" size={44} strokeWidth={2.5} />
+						{/* Mascot Header */}
+						<View className="mt-4 items-center">
+							<View className="relative">
+								<LinearGradient
+									colors={["#4FD1C5", "#28B898"]}
+									start={{ x: 0, y: 0 }}
+									style={{
+										height: 112,
+										width: 112,
+										borderRadius: 56,
+										alignItems: "center",
+										justifyContent: "center",
+										shadowColor: "#28B898",
+										shadowOffset: { width: 0, height: 10 },
+										shadowOpacity: 0.2,
+										shadowRadius: 15,
+										elevation: 10,
+									}}
+								>
+									<Text style={{ fontSize: 48 }}>🎯</Text>
+								</LinearGradient>
+								{/* Badge */}
+								<View
+									className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-orange-400"
+									style={{
+										shadowColor: "#000",
+										shadowOffset: { width: 0, height: 4 },
+										shadowOpacity: 0.1,
+										shadowRadius: 5,
+										elevation: 5,
+									}}
+								>
+									<Text style={{ fontSize: 14 }}>✨</Text>
 								</View>
 							</View>
 						</View>
 
 						<StepHeader
 							align="center"
-							className="mt-10"
+							className="mt-6"
 							description="Select all that apply. This helps us prioritize your daily natural protocols."
-							title="Main health goals"
+							title="What are your main health goals?"
 						/>
 
 						<View className="mt-8">

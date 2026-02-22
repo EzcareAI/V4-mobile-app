@@ -228,7 +228,7 @@ export default function BodyDiagramScreen() {
 
 	return (
 		<ScrollView
-			className="flex-1 bg-background"
+			className="flex-1 bg-[#EBF5F4]"
 			contentContainerClassName="px-6 pt-10 pb-20"
 			showsVerticalScrollIndicator={false}
 		>

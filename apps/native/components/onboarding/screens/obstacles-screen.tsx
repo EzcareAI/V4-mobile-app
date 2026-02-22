@@ -1,6 +1,6 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Bot, HelpCircle } from "lucide-react-native";
-import { ScrollView, View } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
@@ -35,7 +35,7 @@ export const ObstaclesScreen = () => {
 	};
 
 	return (
-		<View className="flex-1 bg-background">
+		<View className="flex-1 bg-[#EBF5F4]">
 			<View className="flex-1 justify-between px-5 pb-8">
 				<ScrollView
 					className="flex-1"
@@ -44,26 +44,30 @@ export const ObstaclesScreen = () => {
 					showsVerticalScrollIndicator={false}
 				>
 					<View className="flex-1 px-1">
-						{/* Robot Header */}
+						{/* Mascot Header */}
 						<View className="mt-4 items-center">
 							<View className="relative">
-								<View
-									className="h-28 w-28 items-center justify-center rounded-full bg-white"
+								<LinearGradient
+									colors={["#4FD1C5", "#28B898"]}
+									start={{ x: 0, y: 0 }}
 									style={{
-										shadowColor: "#000",
+										height: 112,
+										width: 112,
+										borderRadius: 56,
+										alignItems: "center",
+										justifyContent: "center",
+										shadowColor: "#28B898",
 										shadowOffset: { width: 0, height: 10 },
-										shadowOpacity: 0.1,
+										shadowOpacity: 0.2,
 										shadowRadius: 15,
 										elevation: 10,
 									}}
 								>
-									<View className="h-20 w-20 items-center justify-center rounded-full border-4 border-blue-50/50 bg-blue-50/30">
-										<Bot color="#28B898" size={48} />
-									</View>
-								</View>
-								{/* Question Mark Badge */}
+									<Text style={{ fontSize: 48 }}>🤔</Text>
+								</LinearGradient>
+								{/* Badge */}
 								<View
-									className="absolute top-0 -left-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-white"
+									className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-orange-400"
 									style={{
 										shadowColor: "#000",
 										shadowOffset: { width: 0, height: 4 },
@@ -72,7 +76,7 @@ export const ObstaclesScreen = () => {
 										elevation: 5,
 									}}
 								>
-									<HelpCircle color="#28B898" size={20} />
+									<Text style={{ fontSize: 14 }}>❓</Text>
 								</View>
 							</View>
 						</View>

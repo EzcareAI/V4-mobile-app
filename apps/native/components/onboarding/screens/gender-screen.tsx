@@ -43,7 +43,7 @@ export const GenderScreen = () => {
 	};
 
 	return (
-		<View className="flex-1 bg-background">
+		<View className="flex-1 bg-[#EBF5F4]">
 			<View className="flex-1 justify-between px-6 pb-10">
 				<ScrollView
 					className="flex-1"

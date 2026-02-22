@@ -123,7 +123,7 @@ export const SymptomsScreen = () => {
 										<Text className="font-bold text-[#0d2137] text-lg">
 											Natural approach:
 										</Text>
-										<Text className="mt-1 text-ezcare-slate text-sm leading-5">
+										<Text className="mt-1 text-[#60708F] text-sm leading-5">
 											We'll create a personalized plan using nutrition, herbs,
 											and lifestyle changes to address your specific symptoms.
 										</Text>

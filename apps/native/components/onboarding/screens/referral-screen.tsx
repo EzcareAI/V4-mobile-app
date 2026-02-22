@@ -59,7 +59,7 @@ export const ReferralScreen = () => {
 										<Text className="mb-1 font-bold text-[#0d2137] text-base">
 											7-day Premium Trial
 										</Text>
-										<Text className="text-ezcare-slate text-sm leading-5">
+										<Text className="text-[#60708F] text-sm leading-5">
 											Access all advanced features
 										</Text>
 									</View>
@@ -74,7 +74,7 @@ export const ReferralScreen = () => {
 										<Text className="mb-1 font-bold text-[#0d2137] text-base">
 											AI Personalization+
 										</Text>
-										<Text className="text-ezcare-slate text-sm leading-5">
+										<Text className="text-[#60708F] text-sm leading-5">
 											Enhanced health insights
 										</Text>
 									</View>
@@ -89,7 +89,7 @@ export const ReferralScreen = () => {
 										<Text className="mb-1 font-bold text-[#0d2137] text-base">
 											Community Access
 										</Text>
-										<Text className="text-ezcare-slate text-sm leading-5">
+										<Text className="text-[#60708F] text-sm leading-5">
 											Connect with health enthusiasts
 										</Text>
 									</View>
@@ -131,14 +131,14 @@ export const ReferralScreen = () => {
 							onPress={handleFinish}
 							variant="ghost"
 						>
-							<Button.Label className="text-base text-ezcare-slate underline">
+							<Button.Label className="text-base text-[#60708F] underline">
 								Skip for now
 							</Button.Label>
 						</Button>
 
 						{/* Footer Info */}
 						<View className="mt-4 px-4 pb-10">
-							<Text className="text-center text-ezcare-slate text-sm leading-5">
+							<Text className="text-center text-[#60708F] text-sm leading-5">
 								Don't have a referral code? No worries! You can add one later in
 								your profile settings.
 							</Text>

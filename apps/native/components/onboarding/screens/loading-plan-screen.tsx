@@ -117,7 +117,7 @@ export const LoadingPlanScreen = () => {
 								</View>
 							</View>
 
-							<Text className="mt-10 text-center font-bold text-[28px] text-ezcare-navy leading-[38px] tracking-tight">
+							<Text className="mt-10 text-center font-bold text-[28px] text-[#1A2138] leading-[38px] tracking-tight">
 								EZBuddy is preparing{"\n"}your natural plan...
 							</Text>
 						</View>
@@ -144,7 +144,7 @@ export const LoadingPlanScreen = () => {
 								</Animated.View>
 							</View>
 							<View className="mt-4 flex-row items-center justify-between">
-								<Text className="font-bold text-ezcare-slate text-sm uppercase tracking-widest">
+								<Text className="font-bold text-[#60708F] text-sm uppercase tracking-widest">
 									Optimization Progress
 								</Text>
 								<Text className="font-black text-cyan-600 text-xl">
@@ -175,12 +175,12 @@ export const LoadingPlanScreen = () => {
 										</View>
 										<View className="flex-1">
 											<Text
-												className={`font-bold text-[16px] text-ezcare-navy ${!isDone && "opacity-60"}`}
+												className={`font-bold text-[16px] text-[#1A2138] ${!isDone && "opacity-60"}`}
 											>
 												{stage.title}
 											</Text>
 											{isDone && (
-												<Text className="mt-0.5 font-medium text-[13px] text-ezcare-slate">
+												<Text className="mt-0.5 font-medium text-[13px] text-[#60708F]">
 													{stage.id === "nutrition"
 														? getDietDescription()
 														: stage.description}
@@ -206,10 +206,10 @@ export const LoadingPlanScreen = () => {
 											<CheckCircle2 color="white" size={32} />
 										</View>
 										<View className="flex-1">
-											<Text className="font-bold text-ezcare-navy text-xl tracking-tight">
+											<Text className="font-bold text-[#1A2138] text-xl tracking-tight">
 												Plan Ready!
 											</Text>
-											<Text className="mt-1 font-medium text-ezcare-slate text-sm leading-5">
+											<Text className="mt-1 font-medium text-[#60708F] text-sm leading-5">
 												Your natural healing journey is precisely tailored and
 												ready.
 											</Text>

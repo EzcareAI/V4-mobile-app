@@ -2,7 +2,13 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRouter } from "expo-router";
 import { Cake } from "lucide-react-native";
 import { useState } from "react";
-import { ScrollView, View } from "react-native";
+import {
+	Platform,
+	ScrollView,
+	Text,
+	TouchableOpacity,
+	View,
+} from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
@@ -13,6 +19,7 @@ export const BirthdayScreen = () => {
 	const [date, setDate] = useState(
 		birthDate ? new Date(birthDate) : new Date(2000, 0, 1)
 	);
+	const [showPicker, setShowPicker] = useState(false);
 
 	const onChange = (_event: unknown, selectedDate?: Date) => {
 		const currentDate = selectedDate || date;
@@ -55,14 +62,46 @@ export const BirthdayScreen = () => {
 						/>
 
 						<View className="mt-12 overflow-hidden rounded-[40px] border border-white/50 bg-white/60 p-8 shadow-2xl shadow-blue-100/30">
-							<DateTimePicker
-								display="spinner"
-								maximumDate={new Date()}
-								mode="date"
-								onChange={onChange}
-								style={{ width: "100%", height: 220 }}
-								value={date}
-							/>
+							{Platform.OS === "android" ? (
+								<>
+									<TouchableOpacity
+										activeOpacity={0.7}
+										className="w-full items-center justify-center rounded-2xl bg-[#00A8A8]/10 py-6"
+										onPress={() => setShowPicker(true)}
+									>
+										<Text className="font-bold text-[#00A8A8] text-xl">
+											{date.toLocaleDateString(undefined, {
+												year: "numeric",
+												month: "long",
+												day: "numeric",
+											})}
+										</Text>
+									</TouchableOpacity>
+									{showPicker && (
+										<DateTimePicker
+											display="default"
+											maximumDate={new Date()}
+											mode="date"
+											onChange={(e, d) => {
+												setShowPicker(false);
+												if (d) {
+													onChange(e, d);
+												}
+											}}
+											value={date}
+										/>
+									)}
+								</>
+							) : (
+								<DateTimePicker
+									display="spinner"
+									maximumDate={new Date()}
+									mode="date"
+									onChange={onChange}
+									style={{ width: "100%", height: 220 }}
+									value={date}
+								/>
+							)}
 						</View>
 					</View>
 				</ScrollView>

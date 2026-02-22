@@ -81,7 +81,7 @@ export const SymptomResultsScreen = () => {
 									your symptoms can improve naturally
 								</Text>
 
-								<Text className="mt-4 text-center text-lg text-ezcare-slate leading-7">
+								<Text className="mt-4 text-center text-lg text-[#60708F] leading-7">
 									In the first <Text className="text-[#00A8A8]">30 days</Text>{" "}
 									when you follow the right routine
 								</Text>
@@ -141,7 +141,7 @@ export const SymptomResultsScreen = () => {
 										</View>
 										<Text className="font-bold text-[#0d2137]">Sarah M.</Text>
 									</View>
-									<Text className="mt-2 text-ezcare-slate italic leading-6">
+									<Text className="mt-2 text-[#60708F] italic leading-6">
 										"My energy levels completely transformed in just 3 weeks.
 										The natural approach really works!"
 									</Text>

@@ -80,10 +80,10 @@ export const PerfectPlanScreen = () => {
 					<View className="mt-8 rounded-[40px] border border-slate-50 bg-white p-8 shadow-2xl shadow-blue-100/50">
 						<View className="mb-8 flex-row items-center justify-between">
 							<View>
-								<Text className="font-bold text-lg text-ezcare-navy">
+								<Text className="font-bold text-lg text-[#1A2138]">
 									Health Recovery
 								</Text>
-								<Text className="mt-0.5 font-bold text-ezcare-slate text-xs uppercase tracking-widest">
+								<Text className="mt-0.5 font-bold text-[#60708F] text-xs uppercase tracking-widest">
 									4-Week Projection
 								</Text>
 							</View>
@@ -189,7 +189,7 @@ export const PerfectPlanScreen = () => {
 						<View className="mt-4 flex-row justify-between px-2">
 							{["Wk 1", "Wk 2", "Wk 3", "Wk 4"].map((w) => (
 								<Text
-									className="font-bold text-[11px] text-ezcare-slate uppercase tracking-tighter"
+									className="font-bold text-[11px] text-[#60708F] uppercase tracking-tighter"
 									key={w}
 								>
 									{w}

@@ -88,7 +88,7 @@ export const SleepScreen = () => {
 											</View>
 											<Text
 												className={`font-semibold text-xs ${
-													isSelected ? "text-[#00A8A8]" : "text-ezcare-slate"
+													isSelected ? "text-[#00A8A8]" : "text-[#60708F]"
 												}`}
 											>
 												{level.label}
@@ -117,7 +117,7 @@ export const SleepScreen = () => {
 									{LEVELS.map((l) => (
 										<Text
 											className={`font-bold text-[10px] ${
-												value === l.id ? "text-ezcare-navy" : "text-ezcare-slate"
+												value === l.id ? "text-[#1A2138]" : "text-[#60708F]"
 											}`}
 											key={l.id}
 										>
@@ -138,7 +138,7 @@ export const SleepScreen = () => {
 									<Text className="font-bold text-[#0d2137] text-lg">
 										Did you know?
 									</Text>
-									<Text className="mt-1 text-ezcare-slate text-sm leading-5">
+									<Text className="mt-1 text-[#60708F] text-sm leading-5">
 										{getTipText()}
 									</Text>
 								</View>

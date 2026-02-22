@@ -67,12 +67,12 @@ export const HeightWeightScreen = () => {
 							<Tabs.List className="rounded-[20px] border border-slate-100 bg-slate-50 p-1.5">
 								<Tabs.Indicator className="rounded-[14px] bg-white shadow-sm" />
 								<Tabs.Trigger className="py-2.5" value="imperial">
-									<Tabs.Label className="font-bold text-ezcare-slate active:text-ezcare-navy">
+									<Tabs.Label className="font-bold text-[#60708F] active:text-[#1A2138]">
 										Imperial
 									</Tabs.Label>
 								</Tabs.Trigger>
 								<Tabs.Trigger className="py-2.5" value="metric">
-									<Tabs.Label className="font-bold text-ezcare-slate active:text-ezcare-navy">
+									<Tabs.Label className="font-bold text-[#60708F] active:text-[#1A2138]">
 										Metric
 									</Tabs.Label>
 								</Tabs.Trigger>
@@ -83,7 +83,7 @@ export const HeightWeightScreen = () => {
 					<View className="gap-y-10">
 						{/* Height Section */}
 						<View className="rounded-[40px] border border-white/50 bg-white/60 p-8 shadow-2xl shadow-blue-100/30">
-							<Text className="mb-6 text-center font-black text-[15px] text-ezcare-navy uppercase tracking-widest">
+							<Text className="mb-6 text-center font-black text-[15px] text-[#1A2138] uppercase tracking-widest">
 								Height
 							</Text>
 							<View className="h-32 justify-center overflow-hidden">
@@ -129,7 +129,7 @@ export const HeightWeightScreen = () => {
 
 						{/* Weight Section */}
 						<View className="rounded-[40px] border border-white/50 bg-white/60 p-8 shadow-2xl shadow-blue-100/30">
-							<Text className="mb-6 text-center font-black text-[15px] text-ezcare-navy uppercase tracking-widest">
+							<Text className="mb-6 text-center font-black text-[15px] text-[#1A2138] uppercase tracking-widest">
 								Weight
 							</Text>
 							<View className="h-32 justify-center overflow-hidden">

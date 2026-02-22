@@ -81,27 +81,51 @@ const BodyDiagram = ({
 				</G>
 
 				<G>
+					{/* Head & Neck */}
 					<BodyPart id="head" selectedZone={selectedZone}>
-						<Circle cx="100" cy="60" r="35" />
+						<Circle cx="100" cy="50" r="28" />
+						<Rect height="20" width="16" x="92" y="70" />
 					</BodyPart>
 
+					{/* Chest / Upper Torso */}
 					<BodyPart id="chest" selectedZone={selectedZone}>
-						<Path d="M 90 90 L 90 110 L 110 110 L 110 90" />
-						<Rect height="50" rx="10" width="50" x="75" y="110" />
+						<Rect height="65" rx="15" width="76" x="62" y="90" />
 					</BodyPart>
 
+					{/* Stomach / Lower Torso */}
 					<BodyPart id="stomach" selectedZone={selectedZone}>
-						<Rect height="50" rx="10" width="50" x="75" y="165" />
+						<Rect height="65" rx="15" width="64" x="68" y="150" />
 					</BodyPart>
 
-					<BodyPart id="energy" selectedZone={selectedZone}>
-						<Rect height="60" rx="5" width="15" x="80" y="220" />
-						<Rect height="60" rx="5" width="15" x="105" y="220" />
+					{/* Immune / Aura (Center of body) */}
+					<BodyPart id="inflammation" selectedZone={selectedZone}>
+						<Circle cx="100" cy="150" r="12" />
 					</BodyPart>
 
+					{/* Joints (Arms and Legs) */}
 					<BodyPart id="joints" selectedZone={selectedZone}>
-						<Rect height="50" rx="5" width="15" x="45" y="125" />
-						<Rect height="50" rx="5" width="15" x="140" y="125" />
+						{/* Left Arm */}
+						<Rect
+							height="110"
+							rx="10"
+							transform="rotate(12 40 100)"
+							width="20"
+							x="38"
+							y="100"
+						/>
+						{/* Right Arm */}
+						<Rect
+							height="110"
+							rx="10"
+							transform="rotate(-12 160 100)"
+							width="20"
+							x="142"
+							y="100"
+						/>
+						{/* Left Leg */}
+						<Rect height="140" rx="11" width="24" x="72" y="210" />
+						{/* Right Leg */}
+						<Rect height="140" rx="11" width="24" x="104" y="210" />
 					</BodyPart>
 				</G>
 			</Svg>
@@ -154,11 +178,11 @@ const ZoneCard = ({
 			</View>
 			<View className="flex-1">
 				<Text
-					className={`font-bold text-lg ${isSelected ? "text-[#0d2137]" : "text-ezcare-navy"}`}
+					className={`font-bold text-lg ${isSelected ? "text-[#0d2137]" : "text-[#1A2138]"}`}
 				>
 					{label}
 				</Text>
-				<Text className="text-ezcare-slate text-sm">{description}</Text>
+				<Text className="text-[#60708F] text-sm">{description}</Text>
 			</View>
 			{isSelected && (
 				<View className="h-6 w-6 items-center justify-center rounded-full bg-[#00A8A8]">

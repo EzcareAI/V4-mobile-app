@@ -64,7 +64,7 @@ export const ProgressHeader = () => {
 					</View>
 				</View>
 
-				<Text className="w-16 text-right font-medium text-ezcare-slate text-sm">
+				<Text className="w-16 text-right font-medium text-[#60708F] text-sm">
 					{currentStep} of {totalSteps}
 				</Text>
 			</View>

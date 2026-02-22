@@ -227,7 +227,7 @@ export default function ResultsPreviewScreen() {
 							<View className="mr-4 h-10 w-10 items-center justify-center rounded-xl bg-slate-50">
 								<Text className="text-lg">{cause.icon}</Text>
 							</View>
-							<Text className="font-medium text-ezcare-navy">{cause.text}</Text>
+							<Text className="font-medium text-[#1A2138]">{cause.text}</Text>
 						</View>
 					))}
 				</View>

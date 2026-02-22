@@ -100,7 +100,7 @@ export const WheelPicker: React.FC<WheelPickerProps> = ({
 					return (
 						<View
 							className="items-center justify-center"
-							key={`${item}-${index}`}
+							key={item}
 							style={{ height: itemHeight }}
 						>
 							<Text className={textStyle}>{item}</Text>

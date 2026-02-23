@@ -1,184 +1,126 @@
-import Slider from "@react-native-community/slider";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Lightbulb } from "lucide-react-native";
-import { useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Moon } from "lucide-react-native";
+import { View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { THEME } from "@/lib/theme";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
+import {
+	SingleSelectList,
+	type SingleSelectOption,
+} from "../common/single-select-list";
 import { StepHeader } from "../common/step-header";
 
-const LEVELS = [
-	{ id: 1, label: "Very poor", emoji: "😢" },
-	{ id: 2, label: "Poor", emoji: "🙁" },
-	{ id: 3, label: "Fair", emoji: "😐" },
-	{ id: 4, label: "Good", emoji: "😊" },
-	{ id: 5, label: "Excellent", emoji: "😁" },
+const SLEEP_OPTIONS: SingleSelectOption[] = [
+	{
+		id: "1",
+		label: "Very Poor",
+		description: "Constant trouble falling or staying asleep",
+		emoji: "😢",
+	},
+	{
+		id: "2",
+		label: "Poor",
+		description: "Often restless or waking through the night",
+		emoji: "🙁",
+	},
+	{
+		id: "3",
+		label: "Fair",
+		description: "Inconsistent — some good nights, some bad",
+		emoji: "😐",
+	},
+	{
+		id: "4",
+		label: "Good",
+		description: "Usually rested, occasional off nights",
+		emoji: "😊",
+	},
+	{
+		id: "5",
+		label: "Excellent",
+		description: "Consistently deep, uninterrupted sleep",
+		emoji: "😁",
+	},
 ];
 
 export const SleepScreen = () => {
 	const router = useRouter();
 	const { sleepQuality, setAnswer, nextStep } = useOnboardingStore();
-	const [value, setValue] = useState(sleepQuality || 3);
 
 	const handleContinue = () => {
-		setAnswer("sleepQuality", value);
 		nextStep();
 		router.push("/(onboarding)/7");
 	};
 
-	const getTipText = () => {
-		if (value <= 2) {
-			return "Improving sleep quality can reduce inflammation by up to 30%. We'll show you how.";
-		}
-		if (value === 3) {
-			return "Fair sleep quality is a good start. We'll help you improve it naturally.";
-		}
-		return "Great sleep helps maintain a healthy immune system and balanced glucose levels.";
-	};
+	const selectedId = sleepQuality ? String(sleepQuality) : null;
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
 			<View className="flex-1 justify-between px-5 pb-8">
-				<ScrollView
-					className="flex-1"
-					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
-					contentInsetAdjustmentBehavior="automatic"
-					showsVerticalScrollIndicator={false}
-				>
-					<View className="flex-1 px-1">
-						{/* Mascot Header */}
-						<View className="mt-4 items-center">
-							<View className="relative">
-								<LinearGradient
-									colors={["#4FD1C5", "#28B898"]}
-									start={{ x: 0, y: 0 }}
-									style={{
-										height: 112,
-										width: 112,
-										borderRadius: 56,
-										alignItems: "center",
-										justifyContent: "center",
-										shadowColor: "#28B898",
-										shadowOffset: { width: 0, height: 10 },
-										shadowOpacity: 0.2,
-										shadowRadius: 15,
-										elevation: 10,
-									}}
-								>
-									<Text style={{ fontSize: 48 }}>🌙</Text>
-								</LinearGradient>
-								{/* Badge */}
-								<View
-									className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-indigo-400"
-									style={{
-										shadowColor: "#000",
-										shadowOffset: { width: 0, height: 4 },
-										shadowOpacity: 0.1,
-										shadowRadius: 5,
-										elevation: 5,
-									}}
-								>
-									<Text style={{ fontSize: 14 }}>⭐</Text>
-								</View>
-							</View>
-						</View>
-
-						<StepHeader
-							align="center"
-							className="mt-6"
-							description="Quality sleep reduces inflammation and stress"
-							title="How would you rate your sleep?"
-						/>
-
-						{/* Rating Selector */}
-						<View className="mt-8">
-							<View className="flex-row items-end justify-between px-2">
-								{LEVELS.map((level) => {
-									const isSelected = value === level.id;
-									return (
-										<Pressable
-											className="items-center"
-											key={level.id}
-											onPress={() => setValue(level.id)}
-										>
-											<View
-												className={`mb-2 h-16 w-16 items-center justify-center rounded-full ${
-													isSelected
-														? "bg-white shadow-blue-200 shadow-lg"
-														: "bg-transparent opacity-60"
-												}`}
-											>
-												<Text
-													className={`${isSelected ? "text-4xl" : "text-3xl"}`}
-												>
-													{level.emoji}
-												</Text>
-											</View>
-											<Text
-												className={`font-semibold text-xs ${
-													isSelected ? "text-[#28B898]" : "text-[#73808C]"
-												}`}
-											>
-												{level.label}
-											</Text>
-										</Pressable>
-									);
-								})}
-							</View>
-
-							{/* Slider Control */}
-							<View className="mt-10 px-4">
-								<Slider
-									maximumTrackTintColor="#E2E8F0"
-									maximumValue={5}
-									minimumTrackTintColor="#28B898"
-									minimumValue={1}
-									onValueChange={(v) => setValue(v)}
-									step={1}
-									style={{ width: "100%", height: 40 }}
-									thumbTintColor="#28B898"
-									value={value}
-								/>
-
-								{/* Scale Labels */}
-								<View className="flex-row justify-between px-1">
-									{LEVELS.map((l) => (
-										<Text
-											className={`font-bold text-[10px] ${
-												value === l.id ? "text-[#29303D]" : "text-[#73808C]"
-											}`}
-											key={l.id}
-										>
-											{l.id}
-										</Text>
-									))}
-								</View>
-							</View>
-						</View>
-
-						{/* Tip Card */}
-						<View className="mt-12 mb-10 overflow-hidden rounded-[32px] bg-[#E1F5FE]/50 p-6 shadow-[#28B898]/20 shadow-sm">
-							<View className="flex-row items-center gap-4">
-								<View className="h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm">
-									<Lightbulb color="#28B898" fill="#28B898" size={24} />
-								</View>
-								<View className="flex-1">
-									<Text className="font-bold text-[#0d2137] text-lg">
-										Did you know?
-									</Text>
-									<Text className="mt-1 text-[#73808C] text-sm leading-5">
-										{getTipText()}
-									</Text>
-								</View>
+				<View className="flex-1">
+					{/* Mascot Header */}
+					<View className="mt-4 items-center">
+						<View className="relative">
+							<LinearGradient
+								colors={THEME.accentGradient}
+								start={{ x: 0, y: 0 }}
+								style={{
+									height: 112,
+									width: 112,
+									borderRadius: 56,
+									alignItems: "center",
+									justifyContent: "center",
+									shadowColor: THEME.accentShadow,
+									shadowOffset: { width: 0, height: 10 },
+									shadowOpacity: 0.25,
+									shadowRadius: 15,
+									elevation: 10,
+								}}
+							>
+								<Moon color="white" fill="white" size={52} />
+							</LinearGradient>
+							{/* Badge */}
+							<View
+								className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-indigo-400"
+								style={{
+									shadowColor: "#000",
+									shadowOffset: { width: 0, height: 4 },
+									shadowOpacity: 0.1,
+									shadowRadius: 5,
+									elevation: 5,
+								}}
+							>
+								<Moon color="white" fill="white" size={14} />
 							</View>
 						</View>
 					</View>
-				</ScrollView>
 
-				<View className="pt-4">
-					<ContinueButton onPress={handleContinue} />
+					<StepHeader
+						align="center"
+						className="mt-6"
+						description="Quality sleep is the foundation of natural healing and energy recovery."
+						title="How would you rate your sleep?"
+					/>
+
+					<View className="mt-6 flex-1">
+						<SingleSelectList
+							onSelect={(id) => setAnswer("sleepQuality", Number(id))}
+							options={SLEEP_OPTIONS}
+							selectedId={selectedId}
+						/>
+					</View>
 				</View>
+
+				<SafeAreaView edges={["bottom"]}>
+					<View className="pt-4">
+						<ContinueButton
+							isDisabled={!sleepQuality}
+							onPress={handleContinue}
+						/>
+					</View>
+				</SafeAreaView>
 			</View>
 		</View>
 	);

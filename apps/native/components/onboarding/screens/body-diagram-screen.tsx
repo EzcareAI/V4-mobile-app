@@ -1,308 +1,122 @@
-import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import type React from "react";
+import { MoveRight } from "lucide-react-native";
 import { useState } from "react";
-import {
-	Dimensions,
-	Platform,
-	ScrollView,
-	StyleSheet,
-	Text,
-	TouchableOpacity,
-	View,
-} from "react-native";
-import Svg, { Circle, G, Path, Rect } from "react-native-svg";
-import { type BodyZone, useOnboardingStore } from "@/stores/onboarding-store";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { THEME } from "@/lib/theme";
+import { useOnboardingStore } from "@/stores/onboarding-store";
+import { BodyRegionSelector } from "../common/body-region-selector";
+import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
-
-const BodyPart = ({
-	id,
-	selectedZone,
-	color = "rgba(14, 165, 233, 0.15)",
-	stroke = "rgba(14, 165, 233, 0.4)",
-	children,
-}: {
-	id: string;
-	selectedZone: string | null;
-	color?: string;
-	stroke?: string;
-	children: React.ReactNode;
-}) => {
-	const isSelected = selectedZone === id;
-	const activeColor = isSelected ? "rgba(45, 212, 191, 0.4)" : color;
-	const activeStroke = isSelected ? "#2DD4BF" : stroke;
-	const opacity = isSelected ? 1 : 0.8;
-
-	return (
-		<G opacity={opacity}>
-			<G
-				fill={activeColor}
-				stroke={activeStroke}
-				strokeWidth={isSelected ? "3" : "1.5"}
-			>
-				{children}
-			</G>
-			{isSelected && (
-				<G opacity={0.3}>
-					<Circle
-						cx={id === "head" ? "100" : "100"}
-						cy={id === "head" ? "60" : "200"}
-						fill="#2DD4BF"
-						r="40"
-					/>
-				</G>
-			)}
-		</G>
-	);
-};
-
-const BodyDiagram = ({
-	selectedZone,
-	width,
-}: {
-	selectedZone: string | null;
-	width: number;
-}) => {
-	return (
-		<View className="mb-10 items-center overflow-hidden rounded-[40px] border border-blue-100/30 bg-slate-900/5 py-10 shadow-2xl">
-			<Svg height={420} viewBox="0 0 200 420" width={width - 48}>
-				{/* Background Grid for Blueprint feel */}
-				<G opacity={0.1}>
-					{[0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200].map((x) => (
-						<Path d={`M ${x} 0 L ${x} 420`} key={`v-${x}`} stroke="#0EA5E9" />
-					))}
-					{[
-						0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280,
-						300, 320, 340, 360, 380, 400, 420,
-					].map((y) => (
-						<Path d={`M 0 ${y} L 200 ${y}`} key={`h-${y}`} stroke="#0EA5E9" />
-					))}
-				</G>
-
-				<G>
-					{/* Head & Neck */}
-					<BodyPart id="head" selectedZone={selectedZone}>
-						<Circle cx="100" cy="50" r="28" />
-						<Rect height="20" width="16" x="92" y="70" />
-					</BodyPart>
-
-					{/* Chest / Upper Torso */}
-					<BodyPart id="chest" selectedZone={selectedZone}>
-						<Rect height="65" rx="15" width="76" x="62" y="90" />
-					</BodyPart>
-
-					{/* Stomach / Lower Torso */}
-					<BodyPart id="stomach" selectedZone={selectedZone}>
-						<Rect height="65" rx="15" width="64" x="68" y="150" />
-					</BodyPart>
-
-					{/* Immune / Aura (Center of body) */}
-					<BodyPart id="inflammation" selectedZone={selectedZone}>
-						<Circle cx="100" cy="150" r="12" />
-					</BodyPart>
-
-					{/* Joints (Arms and Legs) */}
-					<BodyPart id="joints" selectedZone={selectedZone}>
-						{/* Left Arm */}
-						<Rect
-							height="110"
-							rx="10"
-							transform="rotate(12 40 100)"
-							width="20"
-							x="38"
-							y="100"
-						/>
-						{/* Right Arm */}
-						<Rect
-							height="110"
-							rx="10"
-							transform="rotate(-12 160 100)"
-							width="20"
-							x="142"
-							y="100"
-						/>
-						{/* Left Leg */}
-						<Rect height="140" rx="11" width="24" x="72" y="210" />
-						{/* Right Leg */}
-						<Rect height="140" rx="11" width="24" x="104" y="210" />
-					</BodyPart>
-				</G>
-			</Svg>
-		</View>
-	);
-};
-
-interface ZoneCardProps {
-	id: BodyZone;
-	label: string;
-	description: string;
-	icon: string;
-	isSelected: boolean;
-	onPress: (id: BodyZone) => void;
-}
-
-const ZoneCard = ({
-	id,
-	label,
-	description,
-	icon,
-	isSelected,
-	onPress,
-}: ZoneCardProps) => {
-	const handlePress = async () => {
-		if (Platform.OS === "ios") {
-			try {
-				await impactAsync(ImpactFeedbackStyle.Light);
-			} catch {
-				/* ignore */
-			}
-		}
-		onPress(id);
-	};
-
-	return (
-		<TouchableOpacity
-			activeOpacity={0.8}
-			className={`relative mb-4 flex-row items-center rounded-3xl border-2 p-5 transition-all ${
-				isSelected
-					? "border-[#28B898] bg-white shadow-blue-100 shadow-xl"
-					: "border-slate-100 bg-white"
-			}`}
-			onPress={handlePress}
-		>
-			<View
-				className={`mr-4 h-14 w-14 items-center justify-center rounded-2xl ${isSelected ? "bg-[#28B898]" : "bg-slate-50"}`}
-			>
-				<Text className="text-2xl">{icon}</Text>
-			</View>
-			<View className="flex-1">
-				<Text
-					className={`font-bold text-lg ${isSelected ? "text-[#0d2137]" : "text-[#29303D]"}`}
-				>
-					{label}
-				</Text>
-				<Text className="text-[#73808C] text-sm">{description}</Text>
-			</View>
-			{isSelected && (
-				<View className="h-6 w-6 items-center justify-center rounded-full bg-[#28B898]">
-					<View className="h-2 w-2 rounded-full bg-white" />
-				</View>
-			)}
-		</TouchableOpacity>
-	);
-};
 
 export default function BodyDiagramScreen() {
 	const router = useRouter();
-	const { setAnswer, nextStep } = useOnboardingStore();
-	const [selectedZone, setSelectedZone] = useState<BodyZone | null>(null);
-	const { width } = Dimensions.get("window");
+	const { nextStep, setAnswer, bodyZoneSelected } = useOnboardingStore();
 
-	const handleZoneSelect = (zoneId: BodyZone) => {
-		setSelectedZone(zoneId);
-		setAnswer("bodyZoneSelected", zoneId);
+	// Since we are changing UX from single-to-multi-select but the existing
+	// store field is likely typed string | null, we just use local state for the array
+	// and join them into a string (or store the first one if the backend expects one).
+	// We'll store the raw array as a JSON string so it doesn't break typed contracts:
+	const initialZones = bodyZoneSelected ? bodyZoneSelected.split(",") : [];
+	const [selectedZones, setSelectedZones] = useState<string[]>(initialZones);
+
+	const handleContinue = () => {
+		// Store comma-separated list of selected zones
+		setAnswer("bodyZoneSelected", selectedZones.join(","));
 		setAnswer("intentType", "zone");
-		setTimeout(() => {
-			nextStep();
-			router.push("/(onboarding)/14");
-		}, 600);
+		nextStep();
+		router.push("/(onboarding)/14");
 	};
 
-	const handleOverallHealth = async () => {
-		if (Platform.OS === "ios") {
-			try {
-				await impactAsync(ImpactFeedbackStyle.Medium);
-			} catch {
-				/* ignore */
-			}
-		}
-		setSelectedZone(null);
-		setAnswer("bodyZoneSelected", null);
+	const handleOverallHealth = () => {
+		setSelectedZones([]);
+		setAnswer("bodyZoneSelected", "overall");
 		setAnswer("intentType", "overall");
-		setTimeout(() => {
-			nextStep();
-			router.push("/(onboarding)/14");
-		}, 300);
+		nextStep();
+		router.push("/(onboarding)/14");
 	};
+
+	const hasSelection = selectedZones.length > 0;
 
 	return (
-		<ScrollView
-			className="flex-1 bg-[#EBF5F4]"
-			contentContainerClassName="px-6 pt-10 pb-20"
-			showsVerticalScrollIndicator={false}
-		>
-			<StepHeader
-				align="center"
-				description="Tap a body area to focus on specific issues, or choose overall wellness."
-				title="Focus Areas"
-			/>
+		<View className="flex-1 bg-[#EBF5F4]">
+			<View className="flex-1 justify-between px-5 pb-8">
+				<ScrollView
+					className="flex-1"
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					showsVerticalScrollIndicator={false}
+				>
+					<View className="flex-1 px-1">
+						<StepHeader
+							align="center"
+							className="mt-6 mb-4"
+							description="Tap body areas to focus on specific issues, or skip for overall wellness."
+							title="Focus Areas"
+						/>
 
-			<BodyDiagram selectedZone={selectedZone} width={width} />
+						{/* ── Interactive Body Photograph Overlay ── */}
+						<BodyRegionSelector
+							accentColor={THEME.accent}
+							debug={false} // Switch to true if you need to trace new coordinate maps
+							onChange={setSelectedZones}
+							value={selectedZones}
+						/>
 
-			<View className="mt-2">
-				<ZoneCard
-					description="Focus on your brain health, stress, and mood."
-					icon="🧠"
-					id="head"
-					isSelected={selectedZone === "head"}
-					label="Head & Mental"
-					onPress={handleZoneSelect}
-				/>
-				<ZoneCard
-					description="Heart health, breathing, and circulation."
-					icon="❤️"
-					id="chest"
-					isSelected={selectedZone === "chest"}
-					label="Chest & Heart"
-					onPress={handleZoneSelect}
-				/>
-				<ZoneCard
-					description="Gut health, digestion, and metabolic wellness."
-					icon="🔄"
-					id="stomach"
-					isSelected={selectedZone === "stomach"}
-					label="Digestion & Gut"
-					onPress={handleZoneSelect}
-				/>
-				<ZoneCard
-					description="Mobility, recovery, and physical strength."
-					icon="💪"
-					id="joints"
-					isSelected={selectedZone === "joints"}
-					label="Joints & Mobility"
-					onPress={handleZoneSelect}
-				/>
-				<ZoneCard
-					description="Immunity, energy levels, and inflammation."
-					icon="🛡️"
-					id="inflammation"
-					isSelected={selectedZone === "inflammation"}
-					label="Immune & Vitality"
-					onPress={handleZoneSelect}
-				/>
+						{/* ── Overall Wellness Skip Option ── */}
+						{!hasSelection && (
+							<TouchableOpacity
+								activeOpacity={0.9}
+								className="mt-8 overflow-hidden rounded-[28px] shadow-lg"
+								onPress={handleOverallHealth}
+								style={{
+									shadowColor: THEME.accentShadow,
+									shadowOpacity: 0.15,
+									shadowRadius: 10,
+								}}
+							>
+								{/* Subtle blue gradient matching theme */}
+								<LinearGradient
+									colors={[THEME.accent, THEME.accentLight]}
+									end={{ x: 1, y: 0 }}
+									start={{ x: 0, y: 0 }}
+									style={{
+										position: "absolute",
+										width: "100%",
+										height: "100%",
+									}}
+								/>
+								<View className="p-6">
+									<View className="flex-row items-center justify-between">
+										<View>
+											<Text className="font-bold text-white text-xl">
+												Overall Wellness
+											</Text>
+											<Text className="mt-1 font-medium text-sm text-white/80">
+												Skip specific zones, focus on general longevity
+											</Text>
+										</View>
+										<View className="h-10 w-10 items-center justify-center rounded-full bg-white/20">
+											<MoveRight color="white" size={20} />
+										</View>
+									</View>
+								</View>
+							</TouchableOpacity>
+						)}
+					</View>
+				</ScrollView>
+
+				<SafeAreaView edges={["bottom"]}>
+					<View className="pt-4">
+						{/* Only show Continue if they tapped zones (otherwise they tap "Overall Wellness") */}
+						<ContinueButton
+							isDisabled={!hasSelection}
+							label={`Continue with ${selectedZones.length} Zone${selectedZones.length === 1 ? "" : "s"}`}
+							onPress={handleContinue}
+						/>
+					</View>
+				</SafeAreaView>
 			</View>
-
-			<TouchableOpacity
-				activeOpacity={0.9}
-				className="mt-6 overflow-hidden rounded-[28px] shadow-blue-200 shadow-lg"
-				onPress={handleOverallHealth}
-			>
-				<LinearGradient
-					colors={["#28B898", "#2DE2E2"]}
-					end={{ x: 1, y: 0 }}
-					start={{ x: 0, y: 0 }}
-					style={StyleSheet.absoluteFill}
-				/>
-				<View className="px-8 py-5">
-					<Text className="text-center font-bold text-white text-xl">
-						Overall Wellness
-					</Text>
-					<Text className="mt-1 text-center text-sm text-white/80">
-						I want to improve my general longevity & health
-					</Text>
-				</View>
-			</TouchableOpacity>
-		</ScrollView>
+		</View>
 	);
 }

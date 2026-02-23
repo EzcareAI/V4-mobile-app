@@ -2,6 +2,7 @@
 import { PressableFeedback } from "heroui-native";
 import { Check, type LucideIcon } from "lucide-react-native";
 import { Text, View } from "react-native";
+import { THEME } from "@/lib/theme";
 
 export interface MultiSelectOption {
 	id: string;
@@ -29,18 +30,39 @@ const MultiSelectItem = ({
 	return (
 		<PressableFeedback
 			className={`flex-row items-center rounded-2xl border-2 p-4 transition-all duration-300 ${
-				isSelected
-					? "border-[#28B898] bg-[#EAF3F1] shadow-[#28B898]/30 shadow-lg"
-					: "border-transparent bg-white shadow-sm"
+				isSelected ? "shadow-lg" : "border-transparent bg-white shadow-sm"
 			}`}
 			onPress={onPress}
+			style={
+				isSelected
+					? {
+							borderColor: THEME.accent,
+							backgroundColor: THEME.accentBg,
+							shadowColor: THEME.accentShadow,
+							shadowOpacity: 0.15,
+							shadowRadius: 8,
+							elevation: 3,
+						}
+					: undefined
+			}
 		>
 			<View
 				className={`mr-4 h-12 w-12 items-center justify-center rounded-xl ${
 					isSelected
-						? "bg-[#28B898] shadow-[#28B898]/30 shadow-md"
+						? "shadow-md"
 						: "border border-slate-100 bg-white shadow-sm"
 				}`}
+				style={
+					isSelected
+						? {
+								backgroundColor: THEME.accent,
+								shadowColor: THEME.accentShadow,
+								shadowOpacity: 0.3,
+								shadowRadius: 6,
+								elevation: 3,
+							}
+						: undefined
+				}
 			>
 				{option.emoji ? (
 					<Text className="text-2xl">{option.emoji}</Text>
@@ -61,10 +83,13 @@ const MultiSelectItem = ({
 			</Text>
 			<View
 				className={`ml-4 h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-					isSelected
-						? "border-[#28B898] bg-[#28B898]"
-						: "border-slate-200 bg-white"
+					isSelected ? "" : "border-slate-200 bg-white"
 				}`}
+				style={
+					isSelected
+						? { borderColor: THEME.accent, backgroundColor: THEME.accent }
+						: undefined
+				}
 			>
 				{isSelected && <Check color="white" size={14} strokeWidth={4} />}
 			</View>

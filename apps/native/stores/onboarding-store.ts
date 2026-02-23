@@ -6,14 +6,7 @@ export type Gender = "male" | "female" | "other" | "prefer_not_to_say";
 export type ActivityLevel = 1 | 2 | 3 | 4 | 5;
 export type UnitPreference = "metric" | "imperial";
 export type IntentType = "zone" | "overall";
-export type BodyZone =
-	| "head"
-	| "chest"
-	| "stomach"
-	| "energy"
-	| "joints"
-	| "inflammation"
-	| null;
+export type BodyZone = string | null;
 
 export interface OnboardingState {
 	// Navigation

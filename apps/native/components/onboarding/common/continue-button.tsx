@@ -1,6 +1,7 @@
 import { selectionAsync } from "expo-haptics";
 import { Button } from "heroui-native";
 import { Platform } from "react-native";
+import { THEME } from "@/lib/theme";
 
 interface ContinueButtonProps {
 	onPress: () => void;
@@ -15,7 +16,7 @@ export const ContinueButton = ({
 }: ContinueButtonProps) => {
 	return (
 		<Button
-			className="h-14 w-full self-center rounded-2xl bg-[#28B898] shadow-[#28B898]/20 shadow-lg transition-all"
+			className="h-14 w-full self-center rounded-2xl shadow-lg transition-all"
 			isDisabled={isDisabled}
 			onPress={() => {
 				if (!isDisabled) {
@@ -29,6 +30,14 @@ export const ContinueButton = ({
 			}}
 			pressableFeedbackVariant="none"
 			size="lg"
+			style={{
+				backgroundColor: isDisabled ? "#94A3B8" : THEME.accent,
+				shadowColor: THEME.accentShadow,
+				shadowOffset: { width: 0, height: 4 },
+				shadowOpacity: 0.2,
+				shadowRadius: 8,
+				elevation: 4,
+			}}
 		>
 			<Button.Label className="font-semibold text-base text-white">
 				{label}

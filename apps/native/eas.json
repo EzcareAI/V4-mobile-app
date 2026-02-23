@@ -8,7 +8,7 @@
       "node": "22.12.0",
       "bun": "1.3.9",
       "env": {
-        "EAS_PROJECT_ROOT": "apps/native",
+        "EAS_PROJECT_ROOT": ".",
         "EAS_SKIP_AUTO_FINGERPRINT": "1",
         "NODE_OPTIONS": "--max-old-space-size=8192",
         "EXPO_PUBLIC_SUPABASE_URL": "https://gutftkmzvskuyxlldzkx.supabase.co",

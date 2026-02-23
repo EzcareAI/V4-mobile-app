@@ -1,31 +1,128 @@
-import { Picker } from "@react-native-picker/picker";
 import { useRouter } from "expo-router";
-import { Tabs } from "heroui-native";
 import { Ruler } from "lucide-react-native";
-import { useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { useCallback, useState } from "react";
+import { Pressable, ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { THEME } from "@/lib/theme";
 import {
 	type UnitPreference,
 	useOnboardingStore,
 } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
+import { WheelPicker } from "../common/wheel-picker";
+
+// ─── Metric heights: 100 – 250 cm ─────────────────────────────────
+const CM_VALUES = Array.from({ length: 151 }, (_, i) => i + 100);
+const CM_ITEMS = CM_VALUES.map((v) => `${v} cm`);
+
+// ─── Imperial heights: 3'0" – 8'11" ──────────────────────────────
+const FT_VALUES = Array.from({ length: 6 }, (_, i) => i + 3);
+const IN_VALUES = Array.from({ length: 12 }, (_, i) => i);
+const FT_ITEMS = FT_VALUES.map((v) => `${v} ft`);
+const IN_ITEMS = IN_VALUES.map((v) => `${v} in`);
+
+// ─── Metric weights: 30 – 200 kg ──────────────────────────────────
+const KG_VALUES = Array.from({ length: 171 }, (_, i) => i + 30);
+const KG_ITEMS = KG_VALUES.map((v) => `${v} kg`);
+
+// ─── Imperial weights: 66 – 440 lbs ──────────────────────────────
+const LB_VALUES = Array.from({ length: 375 }, (_, i) => i + 66);
+const LB_ITEMS = LB_VALUES.map((v) => `${v} lb`);
+
+function cmToFtIn(cm: number): { ft: number; inches: number } {
+	const totalIn = cm / 2.54;
+	const ft = Math.floor(totalIn / 12);
+	const inches = Math.round(totalIn % 12);
+	return { ft, inches };
+}
+
+// ─── Centered imperial / metric toggle ────────────────────────────
+const UnitToggle = ({
+	value,
+	onChange,
+}: {
+	value: UnitPreference;
+	onChange: (v: UnitPreference) => void;
+}) => (
+	<View
+		className="flex-row self-center rounded-2xl bg-slate-100 p-1"
+		style={{ width: 260 }}
+	>
+		{(["imperial", "metric"] as const).map((unit) => {
+			const active = value === unit;
+			return (
+				<Pressable
+					className="flex-1 items-center rounded-xl py-3"
+					key={unit}
+					onPress={() => onChange(unit)}
+					style={
+						active
+							? {
+									backgroundColor: THEME.accent,
+									shadowColor: THEME.accentShadow,
+									shadowOpacity: 0.25,
+									shadowRadius: 6,
+									elevation: 3,
+								}
+							: undefined
+					}
+				>
+					<Text
+						className="font-bold text-sm"
+						style={{ color: active ? "white" : "#73808C" }}
+					>
+						{unit === "imperial" ? "Imperial" : "Metric"}
+					</Text>
+				</Pressable>
+			);
+		})}
+	</View>
+);
 
 export const HeightWeightScreen = () => {
 	const router = useRouter();
 	const { heightCm, weightKg, unitPreference, setAnswer, nextStep } =
 		useOnboardingStore();
 
-	const [currentHeight, setCurrentHeight] = useState(heightCm || 170);
-	const [currentWeight, setCurrentWeight] = useState(weightKg || 70);
+	const isImperial = unitPreference === "imperial";
 
-	const toggleUnits = (pref: UnitPreference) => {
-		setAnswer("unitPreference", pref);
-	};
+	// Height state
+	const { ft: initFt, inches: initIn } = cmToFtIn(heightCm || 170);
+	const initCmIdx = Math.max(0, CM_VALUES.indexOf(heightCm || 170));
+	const [cmIdx, setCmIdx] = useState(initCmIdx === -1 ? 70 : initCmIdx);
+	const [ftIdx, setFtIdx] = useState(Math.max(0, FT_VALUES.indexOf(initFt)));
+	const [inIdx, setInIdx] = useState(Math.max(0, IN_VALUES.indexOf(initIn)));
+
+	// Weight state
+	const initKgIdx = Math.max(0, KG_VALUES.indexOf(weightKg || 70));
+	const [kgIdx, setKgIdx] = useState(initKgIdx === -1 ? 40 : initKgIdx);
+	const [lbIdx, setLbIdx] = useState(() => {
+		const lbs = Math.round((weightKg || 70) * 2.204_62);
+		const idx = LB_VALUES.indexOf(lbs);
+		return idx >= 0 ? idx : 100;
+	});
+
+	const getCurrentHeightCm = useCallback((): number => {
+		if (!isImperial) {
+			return CM_VALUES[cmIdx] ?? 170;
+		}
+		const ft = FT_VALUES[ftIdx] ?? 5;
+		const inches = IN_VALUES[inIdx] ?? 6;
+		return Math.round((ft * 12 + inches) * 2.54);
+	}, [isImperial, cmIdx, ftIdx, inIdx]);
+
+	const getCurrentWeightKg = useCallback((): number => {
+		if (!isImperial) {
+			return KG_VALUES[kgIdx] ?? 70;
+		}
+		const lbs = LB_VALUES[lbIdx] ?? 154;
+		return Math.round(lbs / 2.204_62);
+	}, [isImperial, kgIdx, lbIdx]);
 
 	const handleContinue = () => {
-		setAnswer("heightCm", currentHeight);
-		setAnswer("weightKg", currentWeight);
+		setAnswer("heightCm", getCurrentHeightCm());
+		setAnswer("weightKg", getCurrentWeightKg());
 		nextStep();
 		router.push("/(onboarding)/4");
 	};
@@ -39,130 +136,86 @@ export const HeightWeightScreen = () => {
 					contentInsetAdjustmentBehavior="automatic"
 					showsVerticalScrollIndicator={false}
 				>
-					{/* Premium Icon Header */}
-					<View className="mt-8 items-center">
-						<View className="relative h-32 w-32 items-center justify-center">
-							<View className="absolute h-28 w-28 rounded-[32px] bg-blue-50 shadow-2xl shadow-blue-100" />
-							<View className="h-24 w-24 items-center justify-center rounded-[28px] border border-slate-50 bg-white shadow-sm">
-								<Ruler color="#28B898" size={44} strokeWidth={2.5} />
+					<View className="flex-1 px-1">
+						{/* Icon Header */}
+						<View className="mt-8 items-center">
+							<View className="relative h-32 w-32 items-center justify-center">
+								<View className="absolute h-28 w-28 rounded-[32px] bg-blue-50 shadow-2xl shadow-blue-100" />
+								<View className="h-24 w-24 items-center justify-center rounded-[28px] border border-slate-50 bg-white shadow-sm">
+									<Ruler color={THEME.accent} size={44} strokeWidth={2.5} />
+								</View>
 							</View>
 						</View>
-					</View>
 
-					<StepHeader
-						align="center"
-						className="mt-10"
-						description="Accurate sizing is critical for calculating your precise nutritional needs and metabolic index."
-						title="What is your body size?"
-					/>
+						<StepHeader
+							align="center"
+							className="mt-8"
+							description="We use this to calculate your precise nutritional needs and metabolic index."
+							title="What is your body size?"
+						/>
 
-					<View className="mt-12 items-center">
-						<Tabs
-							className="mb-10 w-[240px]"
-							onValueChange={(value: string) =>
-								toggleUnits(value as UnitPreference)
-							}
-							value={unitPreference}
-						>
-							<Tabs.List className="rounded-[20px] border border-slate-100 bg-slate-50 p-1.5">
-								<Tabs.Indicator className="rounded-[14px] bg-white shadow-sm" />
-								<Tabs.Trigger className="py-2.5" value="imperial">
-									<Tabs.Label className="font-bold text-[#73808C] active:text-[#29303D]">
-										Imperial
-									</Tabs.Label>
-								</Tabs.Trigger>
-								<Tabs.Trigger className="py-2.5" value="metric">
-									<Tabs.Label className="font-bold text-[#73808C] active:text-[#29303D]">
-										Metric
-									</Tabs.Label>
-								</Tabs.Trigger>
-							</Tabs.List>
-						</Tabs>
-					</View>
+						{/* Unit toggle — symmetrically centered */}
+						<View className="mt-6 items-center">
+							<UnitToggle
+								onChange={(v) => setAnswer("unitPreference", v)}
+								value={unitPreference}
+							/>
+						</View>
 
-					<View className="gap-y-10">
-						{/* Height Section */}
-						<View className="rounded-[40px] border border-white/50 bg-white/60 p-8 shadow-2xl shadow-blue-100/30">
-							<Text className="mb-6 text-center font-black text-[15px] text-[#29303D] uppercase tracking-widest">
+						{/* Height Card */}
+						<View className="mt-8 rounded-[32px] border border-white/50 bg-white/70 p-6 shadow-xl">
+							<Text className="mb-6 text-center font-black text-[#29303D] text-[15px] uppercase tracking-widest">
 								Height
 							</Text>
-							<View className="h-32 justify-center overflow-hidden">
-								{unitPreference === "metric" ? (
-									<Picker
-										onValueChange={setCurrentHeight}
-										selectedValue={currentHeight}
-									>
-										{Array.from({ length: 151 }, (_, i) => i + 100).map((v) => (
-											<Picker.Item key={v} label={`${v} cm`} value={v} />
-										))}
-									</Picker>
-								) : (
-									<View className="flex-row items-center justify-center">
-										<Picker
-											onValueChange={(ft) => {
-												const inches = Math.round((currentHeight / 2.54) % 12);
-												setCurrentHeight(Math.round((ft * 12 + inches) * 2.54));
-											}}
-											selectedValue={Math.floor(currentHeight / 2.54 / 12)}
-											style={{ width: 100 }}
-										>
-											{Array.from({ length: 6 }, (_, i) => i + 3).map((v) => (
-												<Picker.Item key={v} label={`${v}'`} value={v} />
-											))}
-										</Picker>
-										<Picker
-											onValueChange={(inc) => {
-												const feet = Math.floor(currentHeight / 2.54 / 12);
-												setCurrentHeight(Math.round((feet * 12 + inc) * 2.54));
-											}}
-											selectedValue={Math.round((currentHeight / 2.54) % 12)}
-											style={{ width: 100 }}
-										>
-											{Array.from({ length: 12 }, (_, i) => i).map((v) => (
-												<Picker.Item key={v} label={`${v}"`} value={v} />
-											))}
-										</Picker>
-									</View>
-								)}
-							</View>
+							{isImperial ? (
+								<View className="flex-row items-center justify-center gap-4">
+									<WheelPicker
+										items={FT_ITEMS}
+										onSelect={setFtIdx}
+										selectedIndex={ftIdx}
+										width={110}
+									/>
+									<WheelPicker
+										items={IN_ITEMS}
+										onSelect={setInIdx}
+										selectedIndex={inIdx}
+										width={110}
+									/>
+								</View>
+							) : (
+								<View className="items-center">
+									<WheelPicker
+										items={CM_ITEMS}
+										onSelect={setCmIdx}
+										selectedIndex={cmIdx}
+										width={160}
+									/>
+								</View>
+							)}
 						</View>
 
-						{/* Weight Section */}
-						<View className="rounded-[40px] border border-white/50 bg-white/60 p-8 shadow-2xl shadow-blue-100/30">
-							<Text className="mb-6 text-center font-black text-[15px] text-[#29303D] uppercase tracking-widest">
+						{/* Weight Card */}
+						<View className="mt-6 rounded-[32px] border border-white/50 bg-white/70 p-6 shadow-xl">
+							<Text className="mb-6 text-center font-black text-[#29303D] text-[15px] uppercase tracking-widest">
 								Weight
 							</Text>
-							<View className="h-32 justify-center overflow-hidden">
-								<Picker
-									onValueChange={(val) => {
-										setCurrentWeight(
-											unitPreference === "metric"
-												? val
-												: Math.round(val / 2.204_62)
-										);
-									}}
-									selectedValue={
-										unitPreference === "metric"
-											? currentWeight
-											: Math.round(currentWeight * 2.204_62)
-									}
-								>
-									{unitPreference === "metric"
-										? Array.from({ length: 171 }, (_, i) => i + 30).map((v) => (
-												<Picker.Item key={v} label={`${v} kg`} value={v} />
-											))
-										: Array.from({ length: 375 }, (_, i) => i + 66).map((v) => (
-												<Picker.Item key={v} label={`${v} lbs`} value={v} />
-											))}
-								</Picker>
+							<View className="items-center">
+								<WheelPicker
+									items={isImperial ? LB_ITEMS : KG_ITEMS}
+									onSelect={isImperial ? setLbIdx : setKgIdx}
+									selectedIndex={isImperial ? lbIdx : kgIdx}
+									width={160}
+								/>
 							</View>
 						</View>
 					</View>
 				</ScrollView>
 
-				<View className="pt-4">
-					<ContinueButton onPress={handleContinue} />
-				</View>
+				<SafeAreaView edges={["bottom"]}>
+					<View className="pt-4">
+						<ContinueButton onPress={handleContinue} />
+					</View>
+				</SafeAreaView>
 			</View>
 		</View>
 	);

@@ -1,7 +1,10 @@
+/** biome-ignore-all lint/style/noNestedTernary: false positive */
 import { selectionAsync } from "expo-haptics";
 import { RadioGroup } from "heroui-native";
 import type { LucideIcon } from "lucide-react-native";
-import { Platform } from "react-native";
+import { Platform, Text, View } from "react-native";
+import Svg, { Path } from "react-native-svg";
+import { THEME } from "@/lib/theme";
 
 export interface SingleSelectOption {
 	id: string;
@@ -18,9 +21,6 @@ interface SingleSelectListProps<T extends string = string> {
 	onSelect: (id: T) => void;
 }
 
-import { Text, View } from "react-native";
-import Svg, { Path } from "react-native-svg";
-
 const SelectItem = ({
 	option,
 	isSelected,
@@ -32,21 +32,44 @@ const SelectItem = ({
 		<View
 			className={`flex-row items-center rounded-2xl border-2 p-4 transition-all duration-300 ${
 				isSelected
-					? "border-[#28B898] bg-[#EAF3F1] shadow-[#28B898]/30 shadow-lg"
+					? "border-blue-500 bg-blue-50 shadow-lg"
 					: "border-transparent bg-white shadow-sm"
 			}`}
+			style={
+				isSelected
+					? {
+							borderColor: THEME.accent,
+							backgroundColor: THEME.accentBg,
+							shadowColor: THEME.accentShadow,
+							shadowOpacity: 0.15,
+							shadowRadius: 8,
+							elevation: 3,
+						}
+					: undefined
+			}
 		>
 			<View
 				className={`mr-4 h-12 w-12 items-center justify-center rounded-xl ${
 					isSelected
-						? "bg-[#28B898] shadow-[#28B898]/30 shadow-md"
+						? "shadow-md"
 						: "border border-slate-100 bg-white shadow-sm"
 				}`}
+				style={
+					isSelected
+						? {
+								backgroundColor: THEME.accent,
+								shadowColor: THEME.accentShadow,
+								shadowOpacity: 0.3,
+								shadowRadius: 6,
+								elevation: 3,
+							}
+						: undefined
+				}
 			>
 				{option.emoji ? (
 					<Text className="text-2xl">{option.emoji}</Text>
-					// biome-ignore lint/style/noNestedTernary: biome false positive
-				) : option.icon ? (
+				) : // biome-ignore lint/style/noNestedTernary: biome false positive
+				option.icon ? (
 					<option.icon
 						color={isSelected ? "white" : (option.iconColor ?? "#73808C")}
 						size={24}
@@ -73,10 +96,13 @@ const SelectItem = ({
 
 			<View
 				className={`ml-4 h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-all ${
-					isSelected
-						? "border-[#28B898] bg-[#28B898]"
-						: "border-slate-200 bg-white"
+					isSelected ? "bg-blue-500" : "border-slate-200 bg-white"
 				}`}
+				style={
+					isSelected
+						? { borderColor: THEME.accent, backgroundColor: THEME.accent }
+						: undefined
+				}
 			>
 				{isSelected && (
 					<Svg

@@ -86,10 +86,12 @@ export const WheelPicker: React.FC<WheelPickerProps> = ({
 		>
 			{/* Selection highlight */}
 			<View
-				className="pointer-events-none absolute inset-x-2 z-10 rounded-lg border-[#28B898]/10 border-y bg-[#28B898]/5"
+				className="pointer-events-none absolute inset-x-2 z-10 rounded-lg border-y"
 				style={{
 					height: itemHeight,
 					top: paddingTopBottom,
+					backgroundColor: "rgba(37, 99, 235, 0.06)",
+					borderColor: "rgba(37, 99, 235, 0.12)",
 				}}
 			/>
 

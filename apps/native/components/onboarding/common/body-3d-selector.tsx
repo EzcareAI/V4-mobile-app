@@ -20,8 +20,7 @@ interface Body3DSelectorProps {
  */
 function BodyModel({ value = [], onChange }: Body3DSelectorProps) {
 	const modelRef = useRef<Group>(null);
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const { scene } = useGLTF(MODEL_URI) as any;
+	const { scene } = useGLTF(MODEL_URI) as unknown as { scene: Group };
 
 	const [selected, setSelected] = useState<string[]>(value);
 

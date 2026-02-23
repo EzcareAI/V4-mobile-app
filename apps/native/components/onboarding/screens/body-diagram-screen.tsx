@@ -2,11 +2,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { MoveRight } from "lucide-react-native";
 import { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { THEME } from "@/lib/theme";
 import { useOnboardingStore } from "@/stores/onboarding-store";
-import { BodyRegionSelector } from "../common/body-region-selector";
+import { Body3DSelector } from "../common/body-3d-selector";
 import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
 
@@ -42,69 +42,60 @@ export default function BodyDiagramScreen() {
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
 			<View className="flex-1 justify-between px-5 pb-8">
-				<ScrollView
-					className="flex-1"
-					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
-					showsVerticalScrollIndicator={false}
-				>
-					<View className="flex-1 px-1">
-						<StepHeader
-							align="center"
-							className="mt-6 mb-4"
-							description="Tap body areas to focus on specific issues, or skip for overall wellness."
-							title="Focus Areas"
-						/>
+				<View className="mt-4 flex-1 px-1">
+					<StepHeader
+						align="center"
+						className="mb-4"
+						description="Tap body areas to focus on specific issues, or skip for overall wellness."
+						title="Focus Areas"
+					/>
 
-						{/* ── Interactive Body Photograph Overlay ── */}
-						<BodyRegionSelector
-							accentColor={THEME.accent}
-							debug={false} // Switch to true if you need to trace new coordinate maps
-							onChange={setSelectedZones}
-							value={selectedZones}
-						/>
+					{/* ── Interactive 3D Body Canvas ── */}
+					<View className="min-h-[400px] flex-1 pb-4">
+						<Body3DSelector onChange={setSelectedZones} value={selectedZones} />
+					</View>
 
-						{/* ── Overall Wellness Skip Option ── */}
-						{!hasSelection && (
-							<TouchableOpacity
-								activeOpacity={0.9}
-								className="mt-8 overflow-hidden rounded-[28px] shadow-lg"
-								onPress={handleOverallHealth}
+					{/* ── Overall Wellness Skip Option ── */}
+					{!hasSelection && (
+						<TouchableOpacity
+							activeOpacity={0.9}
+							className="mt-8 overflow-hidden rounded-[28px] shadow-lg"
+							onPress={handleOverallHealth}
+							style={{
+								shadowColor: THEME.accentShadow,
+								shadowOpacity: 0.15,
+								shadowRadius: 10,
+							}}
+						>
+							{/* Subtle blue gradient matching theme */}
+							<LinearGradient
+								colors={[THEME.accent, THEME.accentLight]}
+								end={{ x: 1, y: 0 }}
+								start={{ x: 0, y: 0 }}
 								style={{
-									shadowColor: THEME.accentShadow,
-									shadowOpacity: 0.15,
-									shadowRadius: 10,
+									position: "absolute",
+									width: "100%",
+									height: "100%",
 								}}
-							>
-								{/* Subtle blue gradient matching theme */}
-								<LinearGradient
-									colors={[THEME.accent, THEME.accentLight]}
-									end={{ x: 1, y: 0 }}
-									start={{ x: 0, y: 0 }}
-									style={{
-										position: "absolute",
-										width: "100%",
-										height: "100%",
-									}}
-								/>
-								<View className="p-6">
-									<View className="flex-row items-center justify-between">
-										<View>
-											<Text className="font-bold text-white text-xl">
-												Overall Wellness
-											</Text>
-											<Text className="mt-1 font-medium text-sm text-white/80">
-												Skip specific zones, focus on general longevity
-											</Text>
-										</View>
-										<View className="h-10 w-10 items-center justify-center rounded-full bg-white/20">
-											<MoveRight color="white" size={20} />
-										</View>
+							/>
+							<View className="p-6">
+								<View className="flex-row items-center justify-between">
+									<View>
+										<Text className="font-bold text-white text-xl">
+											Overall Wellness
+										</Text>
+										<Text className="mt-1 font-medium text-sm text-white/80">
+											Skip specific zones, focus on general longevity
+										</Text>
+									</View>
+									<View className="h-10 w-10 items-center justify-center rounded-full bg-white/20">
+										<MoveRight color="white" size={20} />
 									</View>
 								</View>
-							</TouchableOpacity>
-						)}
-					</View>
-				</ScrollView>
+							</View>
+						</TouchableOpacity>
+					)}
+				</View>
 
 				<SafeAreaView edges={["bottom"]}>
 					<View className="pt-4">

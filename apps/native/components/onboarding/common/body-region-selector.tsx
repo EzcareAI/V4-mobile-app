@@ -26,11 +26,10 @@ import Svg, { Polygon, Text as SvgText } from "react-native-svg";
 import { THEME } from "@/lib/theme";
 import { type BodyRegion, FRONT_REGIONS, getRegionLabel } from "./body-regions";
 
-// ── The body image (place it here as a require so the bundler tracks it) ─────
-// Replace with your actual image path once the asset is in the repo.
+// ── The body image ───────────────────────────────────────────────────────────
 // The image should be the front-view column of the provided anatomy photograph.
 // biome-ignore lint/style/useImportType: require() call cannot use type import
-const BODY_IMAGE = require("@/assets/images/body-diagram.png");
+const BODY_IMAGE = require("@/assets/images/body-diagram.jpg");
 
 // ── Coordinate system: must match body-regions.ts ─────────────────────────
 const VIEW_BOX_W = 400;

@@ -11,6 +11,7 @@ import {
 	View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { THEME } from "@/lib/theme";
 
 const logoSource = require("@/assets/images/EZCare_Logo.jpg");
 
@@ -51,7 +52,7 @@ export default function OnboardingIndex() {
 				<View style={styles.brandSection}>
 					<Text style={styles.headline}>Welcome to</Text>
 					<LinearGradient
-						colors={["#3BAFDA", "#3EC9B5"]}
+						colors={THEME.accentGradient}
 						end={{ x: 1, y: 0 }}
 						start={{ x: 0, y: 0 }}
 						style={styles.gradientTextWrapper}
@@ -72,7 +73,7 @@ export default function OnboardingIndex() {
 						style={styles.ctaButton}
 					>
 						<LinearGradient
-							colors={["#3BAFDA", "#3EC9B5"]}
+							colors={THEME.accentGradient}
 							end={{ x: 1, y: 0 }}
 							start={{ x: 0, y: 0 }}
 							style={StyleSheet.absoluteFill}
@@ -92,7 +93,7 @@ export default function OnboardingIndex() {
 					<View style={styles.trustRow}>
 						<View style={styles.trustItem}>
 							<View style={styles.trustIcon}>
-								<Check color="#3EC9B5" size={13} />
+								<Check color={THEME.accent} size={13} />
 							</View>
 							<Text style={styles.trustLabel}>Clinically Trusted</Text>
 						</View>
@@ -101,7 +102,7 @@ export default function OnboardingIndex() {
 
 						<View style={styles.trustItem}>
 							<View style={styles.trustIcon}>
-								<Leaf color="#3EC9B5" size={13} />
+								<Leaf color={THEME.accent} size={13} />
 							</View>
 							<Text style={styles.trustLabel}>100% Natural</Text>
 						</View>

@@ -1,7 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Moon } from "lucide-react-native";
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { THEME } from "@/lib/theme";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -59,7 +59,12 @@ export const SleepScreen = () => {
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
 			<View className="flex-1 justify-between px-5 pb-8">
-				<View className="flex-1">
+				{/* ── Scrollable content ──────────────────────────────────────── */}
+				<ScrollView
+					className="flex-1"
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
+					showsVerticalScrollIndicator={false}
+				>
 					{/* Mascot Header */}
 					<View className="mt-4 items-center">
 						<View className="relative">
@@ -83,8 +88,9 @@ export const SleepScreen = () => {
 							</LinearGradient>
 							{/* Badge */}
 							<View
-								className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-indigo-400"
+								className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white"
 								style={{
+									backgroundColor: THEME.accentLight,
 									shadowColor: "#000",
 									shadowOffset: { width: 0, height: 4 },
 									shadowOpacity: 0.1,
@@ -104,15 +110,16 @@ export const SleepScreen = () => {
 						title="How would you rate your sleep?"
 					/>
 
-					<View className="mt-6 flex-1">
+					<View className="mt-6">
 						<SingleSelectList
 							onSelect={(id) => setAnswer("sleepQuality", Number(id))}
 							options={SLEEP_OPTIONS}
 							selectedId={selectedId}
 						/>
 					</View>
-				</View>
+				</ScrollView>
 
+				{/* ── Docked Continue Button (never scrolls away) ─────────────── */}
 				<SafeAreaView edges={["bottom"]}>
 					<View className="pt-4">
 						<ContinueButton

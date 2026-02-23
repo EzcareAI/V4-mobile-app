@@ -1,8 +1,8 @@
 import { useGLTF } from "@react-three/drei/native";
-import { Canvas, useFrame } from "@react-three/fiber/native";
+import { Canvas, type ThreeEvent, useFrame } from "@react-three/fiber/native";
 import { Suspense, useMemo, useRef, useState } from "react";
 import { Text, View } from "react-native";
-import * as THREE from "three";
+import { Color, type Group, Mesh, MeshStandardMaterial } from "three";
 import { THEME } from "@/lib/theme";
 
 // The Metro bundler now packages this asset because of our metro.config.js update.
@@ -19,20 +19,21 @@ interface Body3DSelectorProps {
  * and maintains the multiple selection state by toggling `emissive` materials.
  */
 function BodyModel({ value = [], onChange }: Body3DSelectorProps) {
-	const modelRef = useRef<THREE.Group>(null);
+	const modelRef = useRef<Group>(null);
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const { scene } = useGLTF(MODEL_URI) as any;
 
 	const [selected, setSelected] = useState<string[]>(value);
 
 	// Slow ambient rotation around Y axis
-	useFrame((state, delta) => {
+	useFrame((_, delta) => {
 		if (modelRef.current) {
 			modelRef.current.rotation.y += delta * 0.15;
 		}
 	});
 
 	// Toggle selection state
-	const toggleRegion = (e: any) => {
+	const toggleRegion = (e: ThreeEvent<MouseEvent> & { object: Mesh }) => {
 		// Stop raycast from penetrating to meshes behind
 		e.stopPropagation();
 		const meshName = e.object.name;
@@ -50,10 +51,10 @@ function BodyModel({ value = [], onChange }: Body3DSelectorProps) {
 		const clone = scene.clone();
 
 		// Setup materials for each mesh
-		clone.traverse((node: any) => {
-			if (node.isMesh) {
+		clone.traverse((node: unknown) => {
+			if (node instanceof Mesh) {
 				// Neutral plastic-like material for the base body
-				const mat = new THREE.MeshStandardMaterial({
+				const mat = new MeshStandardMaterial({
 					color: 0xcc_cc_cc,
 					roughness: 0.6,
 					metalness: 0.1,
@@ -68,10 +69,10 @@ function BodyModel({ value = [], onChange }: Body3DSelectorProps) {
 	}, [scene]);
 
 	// Update emissive glow every render based on selection
-	clonedScene.traverse((node: any) => {
-		if (node.isMesh && node.material) {
+	clonedScene.traverse((node: unknown) => {
+		if (node instanceof Mesh && node.material instanceof MeshStandardMaterial) {
 			const isSelected = selected.includes(node.name);
-			node.material.emissive = new THREE.Color(
+			node.material.emissive = new Color(
 				isSelected ? THEME.accent : 0x00_00_00
 			);
 			node.material.emissiveIntensity = isSelected ? 0.6 : 0;

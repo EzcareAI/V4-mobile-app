@@ -196,7 +196,7 @@ export function ProgressBoostScreen() {
 
 	const handleContinue = () => {
 		nextStep();
-		router.push("/(onboarding)/14");
+		router.push("/(onboarding)/13");
 	};
 
 	return (
@@ -294,9 +294,7 @@ export function ProgressBoostScreen() {
 					</View>
 				</ScrollView>
 
-				
-					<ContinueButton onPress={handleContinue} />
-				
+				<ContinueButton onPress={handleContinue} />
 			</View>
 		</View>
 	);

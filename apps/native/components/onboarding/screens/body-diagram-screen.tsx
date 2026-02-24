@@ -13,19 +13,16 @@ export default function BodyDiagramScreen() {
 	const router = useRouter();
 	const { nextStep, setAnswer, bodyZoneSelected } = useOnboardingStore();
 
-	// Since we are changing UX from single-to-multi-select but the existing
-	// store field is likely typed string | null, we just use local state for the array
-	// and join them into a string (or store the first one if the backend expects one).
-	// We'll store the raw array as a JSON string so it doesn't break typed contracts:
-	const initialZones = bodyZoneSelected ? bodyZoneSelected.split(",") : [];
+	// `bodyZoneSelected` is now enforced as `string[]` in the Zustand store.
+	const initialZones = bodyZoneSelected || [];
 	const [selectedZones, setSelectedZones] = useState<string[]>(initialZones);
 
 	// Track whether the user is interacting with the 3D canvas so we can freeze the outer scroll
 	const [scrollEnabled, setScrollEnabled] = useState(true);
 
 	const handleContinue = () => {
-		// Store comma-separated list of selected zones
-		setAnswer("bodyZoneSelected", selectedZones.join(","));
+		// Store the array of selected zones natively
+		setAnswer("bodyZoneSelected", selectedZones);
 		setAnswer("intentType", "zone");
 		nextStep();
 		router.push("/(onboarding)/14");
@@ -33,7 +30,7 @@ export default function BodyDiagramScreen() {
 
 	const handleOverallHealth = () => {
 		setSelectedZones([]);
-		setAnswer("bodyZoneSelected", "overall");
+		setAnswer("bodyZoneSelected", []);
 		setAnswer("intentType", "overall");
 		nextStep();
 		router.push("/(onboarding)/14");

@@ -48,7 +48,7 @@ export function HealthConditionsScreen() {
 
 	const handleContinue = () => {
 		nextStep();
-		router.push("/(onboarding)/13");
+		router.push("/(onboarding)/12");
 	};
 
 	return (

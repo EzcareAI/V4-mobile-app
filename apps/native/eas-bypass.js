@@ -1,6 +1,6 @@
-import { execSync } from "child_process";
-import fs from "fs";
-import path from "path";
+const { execSync } = require("node:child_process");
+const fs = require("node:fs");
+const path = require("node:path");
 
 console.log("🛠️ Starting EAS Build Custom Archive Bypass 🛠️");
 
@@ -15,7 +15,7 @@ try {
 	console.log("Compressing to .tar.gz using Node zlib...");
 	// Use zlib to compress the tar file properly
 	const buf = fs.readFileSync(archivePath);
-	const zlib = require("zlib");
+	const zlib = require("node:zlib");
 	const compressed = zlib.gzipSync(buf);
 	fs.writeFileSync("project.tar.gz", compressed);
 

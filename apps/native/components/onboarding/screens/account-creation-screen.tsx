@@ -1,20 +1,28 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { Mail, ShieldCheck } from "lucide-react-native";
+import { ShieldCheck } from "lucide-react-native";
+import { useState } from "react";
 import {
+	ActivityIndicator,
 	Platform,
 	ScrollView,
 	StyleSheet,
 	Text,
+	TextInput,
 	TouchableOpacity,
 	View,
 } from "react-native";
+import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function AccountCreationScreen() {
 	const { setAnswer, nextStep } = useOnboardingStore();
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [loading, setLoading] = useState(false);
+	const [errorMsg, setErrorMsg] = useState("");
 
-	const handleContinue = async () => {
+	const handleSignUp = async () => {
 		if (Platform.OS === "ios") {
 			try {
 				await impactAsync(ImpactFeedbackStyle.Medium);
@@ -22,6 +30,30 @@ export function AccountCreationScreen() {
 				/* ignore */
 			}
 		}
+
+		if (!(email && password)) {
+			setErrorMsg("Please enter both email and password.");
+			return;
+		}
+
+		setLoading(true);
+		setErrorMsg("");
+
+		const { data, error } = await supabase.auth.signUp({
+			email,
+			password,
+		});
+
+		if (error) {
+			setErrorMsg(error.message);
+			setLoading(false);
+			return;
+		}
+
+		if (data.user) {
+			setAnswer("userId", data.user.id);
+		}
+
 		setAnswer("authMethod", "email");
 		nextStep();
 	};
@@ -33,63 +65,56 @@ export function AccountCreationScreen() {
 		>
 			<View className="px-8 pt-12 pb-12">
 				<View className="mb-10">
-					<Text className="font-black text-[34px] text-[#29303D] leading-10 tracking-tight">
+					<Text className="font-black text-[#29303D] text-[34px] leading-10 tracking-tight">
 						Almost There!
 					</Text>
-					<Text className="mt-4 font-medium text-[17px] text-[#73808C] leading-7">
+					<Text className="mt-4 font-medium text-[#73808C] text-[17px] leading-7">
 						Let's create your private account to save your personalized healing
 						plan.
 					</Text>
 				</View>
 
-				{/* Email Input (Mockup for design) */}
-				<View className="mb-10">
-					<Text className="mb-3 px-2 font-bold text-[15px] text-[#29303D] uppercase tracking-widest">
+				{/* Email & Password Input */}
+				<View className="mb-8">
+					<Text className="mb-2 px-2 font-bold text-[#29303D] text-[15px] uppercase tracking-widest">
 						Email Address
 					</Text>
-					<View className="rounded-[24px] border-2 border-slate-100 bg-slate-50 px-6 py-5 shadow-sm">
-						<Text className="font-medium text-lg text-[#73808C]">
-							your@email.com
-						</Text>
+					<View className="mb-4 rounded-[24px] border-2 border-slate-100 bg-slate-50 px-6 py-4 shadow-sm focus:border-blue-400">
+						<TextInput
+							autoCapitalize="none"
+							autoCorrect={false}
+							className="font-medium text-[#29303D] text-lg"
+							keyboardType="email-address"
+							onChangeText={setEmail}
+							placeholder="your@email.com"
+							placeholderTextColor="#94A3B8"
+							value={email}
+						/>
 					</View>
-				</View>
 
-				{/* Auth Options */}
-				<View className="mb-10">
-					<Text className="mb-5 px-2 font-bold text-[15px] text-[#29303D] uppercase tracking-widest">
-						Secure Sign Up
+					<Text className="mb-2 px-2 font-bold text-[#29303D] text-[15px] uppercase tracking-widest">
+						Password
 					</Text>
+					<View className="rounded-[24px] border-2 border-slate-100 bg-slate-50 px-6 py-4 shadow-sm focus:border-blue-400">
+						<TextInput
+							autoCapitalize="none"
+							className="font-medium text-[#29303D] text-lg"
+							onChangeText={setPassword}
+							placeholder="••••••••"
+							placeholderTextColor="#94A3B8"
+							secureTextEntry
+							value={password}
+						/>
+					</View>
 
-					<TouchableOpacity className="mb-4 flex-row items-center rounded-[24px] bg-slate-100 p-5">
-						<View className="mr-5 h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
-							<Text className="text-2xl">🍎</Text>
-						</View>
-						<Text className="flex-1 font-bold text-lg text-[#29303D]">
-							Continue with Apple
+					{errorMsg ? (
+						<Text className="mt-3 px-4 font-medium text-red-500 text-sm">
+							{errorMsg}
 						</Text>
-					</TouchableOpacity>
-
-					<TouchableOpacity className="mb-4 flex-row items-center rounded-[24px] bg-slate-100 p-5">
-						<View className="mr-5 h-12 w-12 items-center justify-center rounded-2xl bg-white shadow-sm">
-							<Text className="text-2xl">🔵</Text>
-						</View>
-						<Text className="flex-1 font-bold text-lg text-[#29303D]">
-							Continue with Google
-						</Text>
-					</TouchableOpacity>
-
-					<TouchableOpacity
-						className="flex-row items-center rounded-[24px] border-2 border-slate-100 bg-white p-5 shadow-sm"
-						onPress={handleContinue}
-					>
-						<View className="mr-5 h-12 w-12 items-center justify-center rounded-2xl bg-slate-50">
-							<Mail className="text-[#73808C]" size={24} strokeWidth={2.5} />
-						</View>
-						<Text className="flex-1 font-bold text-lg text-[#29303D]">
-							Continue with Email
-						</Text>
-					</TouchableOpacity>
+					) : null}
 				</View>
+
+				{/* Auth Options logic hidden for scope, email logic is primary */}
 
 				{/* Benefits Guarantee */}
 				<View className="mb-12 rounded-[32px] border border-emerald-100 bg-emerald-50/50 p-8">
@@ -106,7 +131,7 @@ export function AccountCreationScreen() {
 				</View>
 
 				{/* Privacy Notice */}
-				<Text className="mb-10 px-4 text-center font-medium text-[13px] text-[#73808C] leading-5">
+				<Text className="mb-10 px-4 text-center font-medium text-[#73808C] text-[13px] leading-5">
 					By creating an account, you agree to our{"\n"}
 					<Text className="font-bold text-[#73808C]">Terms of Service</Text> and{" "}
 					<Text className="font-bold text-[#73808C]">Privacy Policy</Text>.
@@ -116,7 +141,8 @@ export function AccountCreationScreen() {
 				<TouchableOpacity
 					activeOpacity={0.9}
 					className="relative w-full overflow-hidden rounded-[28px] py-5 shadow-2xl shadow-blue-200"
-					onPress={handleContinue}
+					disabled={loading}
+					onPress={handleSignUp}
 				>
 					<LinearGradient
 						colors={["#28B898", "#2DE2E2"]}
@@ -124,9 +150,13 @@ export function AccountCreationScreen() {
 						start={{ x: 0, y: 0 }}
 						style={StyleSheet.absoluteFill}
 					/>
-					<Text className="text-center font-black text-white text-xl tracking-tight">
-						Create My Plan →
-					</Text>
+					{loading ? (
+						<ActivityIndicator color="white" />
+					) : (
+						<Text className="text-center font-black text-white text-xl tracking-tight">
+							Create My Plan →
+						</Text>
+					)}
 				</TouchableOpacity>
 			</View>
 		</ScrollView>

@@ -45,7 +45,7 @@ export const StressLevelScreen = () => {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5 pb-8">
+			<View className="flex-1 justify-between px-5">
 				<ScrollView
 					className="flex-1"
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
@@ -107,9 +107,7 @@ export const StressLevelScreen = () => {
 					</View>
 				</ScrollView>
 
-				<View className="pt-4">
-					<ContinueButton isDisabled={!stressLevel} onPress={handleContinue} />
-				</View>
+				<ContinueButton isDisabled={!stressLevel} onPress={handleContinue} />
 			</View>
 		</View>
 	);

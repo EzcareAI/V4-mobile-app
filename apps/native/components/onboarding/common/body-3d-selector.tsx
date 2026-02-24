@@ -1,7 +1,7 @@
 import { useGLTF } from "@react-three/drei/native";
 import { Canvas, type ThreeEvent, useFrame } from "@react-three/fiber/native";
 import { Suspense, useMemo, useRef, useState } from "react";
-import { Text, View } from "react-native";
+import { PanResponder, Text, View } from "react-native";
 import { Color, type Group, Mesh, MeshStandardMaterial } from "three";
 import { THEME } from "@/lib/theme";
 
@@ -11,7 +11,13 @@ const MODEL_URI = require("@/assets/models/body.glb");
 interface Body3DSelectorProps {
 	value?: string[];
 	onChange?: (regions: string[]) => void;
+	onInteractionStart?: () => void;
+	onInteractionEnd?: () => void;
 }
+
+// Global mutable state for current drag delta.
+// We use an external proxy object to bypass React renders for pure 60fps rotation.
+const globalRotation = { x: 0, y: 0 };
 
 /**
  * 3D Human Body Component.
@@ -24,10 +30,26 @@ function BodyModel({ value = [], onChange }: Body3DSelectorProps) {
 
 	const [selected, setSelected] = useState<string[]>(value);
 
-	// Slow ambient rotation around Y axis
+	// Respond to PanResponder drags + apply slow ambient rotation
 	useFrame((_, delta) => {
 		if (modelRef.current) {
+			// Apply ambient rotation
 			modelRef.current.rotation.y += delta * 0.15;
+
+			// Apply user drag rotation
+			if (globalRotation.y !== 0 || globalRotation.x !== 0) {
+				modelRef.current.rotation.y += globalRotation.y;
+				modelRef.current.rotation.x += globalRotation.x;
+				// Dampen the global rotation after applying (simulates inertia)
+				globalRotation.y *= 0.8;
+				globalRotation.x *= 0.8;
+
+				// Clamp x rotation so it doesn't flip completely upside down
+				modelRef.current.rotation.x = Math.max(
+					-0.5,
+					Math.min(0.5, modelRef.current.rotation.x)
+				);
+			}
 		}
 	});
 
@@ -91,10 +113,41 @@ function BodyModel({ value = [], onChange }: Body3DSelectorProps) {
 }
 
 export function Body3DSelector(props: Body3DSelectorProps) {
-	const { value = [] } = props;
+	const { value = [], onInteractionStart, onInteractionEnd } = props;
+
+	// Only intercept gesture if they move their finger (allows tapping to pass through)
+	const panResponder = useMemo(
+		() =>
+			PanResponder.create({
+				onStartShouldSetPanResponder: () => false,
+				onMoveShouldSetPanResponder: (_, gestureState) => {
+					// Require at least 5px of movement to become a drag,
+					// otherwise it's probably a tap for R3F to handle
+					return Math.abs(gestureState.dx) > 5 || Math.abs(gestureState.dy) > 5;
+				},
+				onPanResponderGrant: () => {
+					globalRotation.x = 0;
+					globalRotation.y = 0;
+					onInteractionStart?.();
+				},
+				onPanResponderMove: (_, gestureState) => {
+					// Supply raw deltas to the R3F frame loop via the global object
+					// vx/vy are velocity, dx/dy are cumulative, so we can just use velocity for smooth, delta-based turning
+					globalRotation.y = gestureState.vx * 0.05;
+					globalRotation.x = gestureState.vy * 0.05;
+				},
+				onPanResponderRelease: () => {
+					onInteractionEnd?.();
+				},
+				onPanResponderTerminate: () => {
+					onInteractionEnd?.();
+				},
+			}),
+		[onInteractionStart, onInteractionEnd]
+	);
 
 	return (
-		<View className="relative w-full flex-1">
+		<View className="relative w-full flex-1" {...panResponder.panHandlers}>
 			{/* Canvas wrapper */}
 			<View className="flex-1 overflow-hidden rounded-[32px] border border-blue-100/40 bg-[#F8FBFF] shadow-xl">
 				<Canvas camera={{ position: [0, 0, 10], fov: 45 }}>

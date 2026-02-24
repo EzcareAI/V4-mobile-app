@@ -2,7 +2,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useMemo, useState } from "react";
 import { Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import { WheelPicker } from "../common/wheel-picker";
@@ -35,7 +34,7 @@ export const BirthdayScreen = () => {
 				year: d.getFullYear(),
 			};
 		}
-		return { month: 3, day: 14, year: 1990 };
+		return { month: 3, day: 14, year: 2000 };
 	}, [birthDate]);
 
 	const [monthIndex, setMonthIndex] = useState(initialDate.month);
@@ -67,84 +66,80 @@ export const BirthdayScreen = () => {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<SafeAreaView edges={["bottom"]} style={{ flex: 1 }}>
-				<View className="flex-1 justify-between px-5 pb-8">
-					{/* Content — NOT wrapped in ScrollView so WheelPickers get the touch events */}
-					<View className="flex-1 px-1">
-						{/* Mascot Header */}
-						<View className="mt-4 items-center">
-							<View className="relative">
-								<LinearGradient
-									colors={["#4FD1C5", "#28B898"]}
-									start={{ x: 0, y: 0 }}
-									style={{
-										height: 112,
-										width: 112,
-										borderRadius: 56,
-										alignItems: "center",
-										justifyContent: "center",
-										shadowColor: "#28B898",
-										shadowOffset: { width: 0, height: 10 },
-										shadowOpacity: 0.2,
-										shadowRadius: 15,
-										elevation: 10,
-									}}
-								>
-									<Text style={{ fontSize: 48 }}>🎂</Text>
-								</LinearGradient>
-								{/* Badge */}
-								<View
-									className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-pink-400"
-									style={{
-										shadowColor: "#000",
-										shadowOffset: { width: 0, height: 4 },
-										shadowOpacity: 0.1,
-										shadowRadius: 5,
-										elevation: 5,
-									}}
-								>
-									<Text style={{ fontSize: 14 }}>🎉</Text>
-								</View>
+			<View className="flex-1 justify-between px-5">
+				{/* Content — NOT wrapped in ScrollView so WheelPickers get the touch events */}
+				<View className="flex-1 px-1">
+					{/* Mascot Header */}
+					<View className="mt-4 items-center">
+						<View className="relative">
+							<LinearGradient
+								colors={["#4FD1C5", "#28B898"]}
+								start={{ x: 0, y: 0 }}
+								style={{
+									height: 112,
+									width: 112,
+									borderRadius: 56,
+									alignItems: "center",
+									justifyContent: "center",
+									shadowColor: "#28B898",
+									shadowOffset: { width: 0, height: 10 },
+									shadowOpacity: 0.2,
+									shadowRadius: 15,
+									elevation: 10,
+								}}
+							>
+								<Text style={{ fontSize: 48 }}>🎂</Text>
+							</LinearGradient>
+							{/* Badge */}
+							<View
+								className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-pink-400"
+								style={{
+									shadowColor: "#000",
+									shadowOffset: { width: 0, height: 4 },
+									shadowOpacity: 0.1,
+									shadowRadius: 5,
+									elevation: 5,
+								}}
+							>
+								<Text style={{ fontSize: 14 }}>🎉</Text>
 							</View>
 						</View>
-
-						<View className="mt-8 items-center">
-							<Text className="font-bold text-2xl text-[#0d2137]">
-								When were you born?
-							</Text>
-							<Text className="mt-2 text-center text-[#73808C]">
-								We use your age to personalize recommendations.
-							</Text>
-						</View>
-
-						{/* Wheel Picker — in a plain View so no outer ScrollView steals touches */}
-						<View className="mt-8 flex-row justify-center gap-2 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-							<WheelPicker
-								items={months}
-								onSelect={setMonthIndex}
-								selectedIndex={monthIndex}
-								width={80}
-							/>
-							<WheelPicker
-								items={days}
-								onSelect={setDayIndex}
-								selectedIndex={dayIndex}
-								width={64}
-							/>
-							<WheelPicker
-								items={yearsOffsets}
-								onSelect={setYearIndex}
-								selectedIndex={yearIndex}
-								width={80}
-							/>
-						</View>
 					</View>
 
-					<View className="pt-4">
-						<ContinueButton isDisabled={!isValid} onPress={handleContinue} />
+					<View className="mt-8 items-center">
+						<Text className="font-bold text-2xl text-[#0d2137]">
+							When were you born?
+						</Text>
+						<Text className="mt-2 text-center text-[#73808C]">
+							We use your age to personalize recommendations.
+						</Text>
+					</View>
+
+					{/* Wheel Picker — in a plain View so no outer ScrollView steals touches */}
+					<View className="mt-8 flex-row justify-center gap-2 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+						<WheelPicker
+							items={months}
+							onSelect={setMonthIndex}
+							selectedIndex={monthIndex}
+							width={80}
+						/>
+						<WheelPicker
+							items={days}
+							onSelect={setDayIndex}
+							selectedIndex={dayIndex}
+							width={64}
+						/>
+						<WheelPicker
+							items={yearsOffsets}
+							onSelect={setYearIndex}
+							selectedIndex={yearIndex}
+							width={80}
+						/>
 					</View>
 				</View>
-			</SafeAreaView>
+
+				<ContinueButton isDisabled={!isValid} onPress={handleContinue} />
+			</View>
 		</View>
 	);
 };

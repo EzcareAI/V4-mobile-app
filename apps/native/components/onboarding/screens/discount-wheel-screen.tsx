@@ -25,7 +25,7 @@ export function DiscountWheelScreen() {
 
 	return (
 		<ScrollView className="flex-1 bg-gradient-to-b from-yellow-50 to-orange-50">
-			<View className="items-center px-6 pt-8 pb-8">
+			<View className="items-center px-6 pt-8">
 				{/* Header */}
 				<Text className="mb-2 font-bold text-2xl text-gray-900">
 					🎡 Spin to Save!

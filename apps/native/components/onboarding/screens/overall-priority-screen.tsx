@@ -1,7 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { ScrollView, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { THEME } from "@/lib/theme";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
@@ -55,7 +54,7 @@ export function OverallPriorityScreen() {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5 pb-8">
+			<View className="flex-1 justify-between px-5">
 				<ScrollView
 					className="flex-1"
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
@@ -110,14 +109,12 @@ export function OverallPriorityScreen() {
 					</View>
 				</ScrollView>
 
-				<SafeAreaView edges={["bottom"]}>
-					<View className="pt-4">
-						<ContinueButton
+				
+					<ContinueButton
 							isDisabled={!overallPriority}
 							onPress={handleContinue}
 						/>
-					</View>
-				</SafeAreaView>
+				
 			</View>
 		</View>
 	);

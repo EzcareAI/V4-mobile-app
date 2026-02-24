@@ -2,7 +2,6 @@ import { useRouter } from "expo-router";
 import { Ruler } from "lucide-react-native";
 import { useCallback, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { THEME } from "@/lib/theme";
 import {
 	type UnitPreference,
@@ -129,7 +128,7 @@ export const HeightWeightScreen = () => {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5 pb-8">
+			<View className="flex-1 justify-between px-5">
 				<ScrollView
 					className="flex-1"
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
@@ -211,11 +210,9 @@ export const HeightWeightScreen = () => {
 					</View>
 				</ScrollView>
 
-				<SafeAreaView edges={["bottom"]}>
-					<View className="pt-4">
-						<ContinueButton onPress={handleContinue} />
-					</View>
-				</SafeAreaView>
+				
+					<ContinueButton onPress={handleContinue} />
+				
 			</View>
 		</View>
 	);

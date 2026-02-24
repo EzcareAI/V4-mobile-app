@@ -1,6 +1,6 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
 	Modal,
 	Platform,
@@ -10,7 +10,7 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 const FEATURES = [
@@ -29,10 +29,29 @@ const BENEFITS = [
 ];
 
 export default function PaywallScreen() {
-	const { setAnswer, nextStep, prevStep, discountWheelShown } =
-		useOnboardingStore();
+	const {
+		setAnswer,
+		nextStep,
+		prevStep,
+		discountWheelShown,
+		onboardingRecordId,
+	} = useOnboardingStore();
 	const [isProcessing, setIsProcessing] = useState(false);
 	const [showDiscountWheel, setShowDiscountWheel] = useState(false);
+
+	useEffect(() => {
+		// Log paywall view event to backend independent of draft
+		supabase
+			.from("events")
+			.insert([
+				{
+					event_type: "paywall_view",
+					session_id: onboardingRecordId,
+					timestamp: new Date().toISOString(),
+				},
+			])
+			.then();
+	}, [onboardingRecordId]);
 
 	const handlePayment = async () => {
 		if (Platform.OS === "ios") {
@@ -43,10 +62,30 @@ export default function PaywallScreen() {
 			}
 		}
 		setIsProcessing(true);
+
+		// Log checkout attempt
+		await supabase.from("events").insert([
+			{
+				event_type: "checkout_attempted",
+				session_id: onboardingRecordId,
+				timestamp: new Date().toISOString(),
+			},
+		]);
+
 		// TODO: Integrate with Stripe/RevenueCat
-		setTimeout(() => {
+		setTimeout(async () => {
 			setAnswer("subscriptionStatus", "active");
 			setAnswer("paymentAttempted", true);
+
+			// Log success
+			await supabase.from("events").insert([
+				{
+					event_type: "checkout_success",
+					session_id: onboardingRecordId,
+					timestamp: new Date().toISOString(),
+				},
+			]);
+
 			setIsProcessing(false);
 			nextStep();
 		}, 2000);
@@ -108,7 +147,7 @@ export default function PaywallScreen() {
 
 						{/* Best Value Badge */}
 						<View className="absolute top-6 right-6 rounded-full bg-yellow-400 px-4 py-1.5 shadow-sm">
-							<Text className="font-bold text-[10px] text-[#29303D] uppercase tracking-widest">
+							<Text className="font-bold text-[#29303D] text-[10px] uppercase tracking-widest">
 								BEST VALUE
 							</Text>
 						</View>
@@ -169,13 +208,13 @@ export default function PaywallScreen() {
 
 						<View className="mb-6 flex-row items-baseline">
 							<Text className="font-black text-4xl text-[#29303D]">€11.99</Text>
-							<Text className="ml-2 font-bold text-lg text-[#73808C]">
+							<Text className="ml-2 font-bold text-[#73808C] text-lg">
 								/month
 							</Text>
 						</View>
 
 						<View className="rounded-2xl border border-slate-200 bg-white py-4 shadow-sm">
-							<Text className="text-center font-bold text-lg text-[#29303D]">
+							<Text className="text-center font-bold text-[#29303D] text-lg">
 								Get Monthly Access
 							</Text>
 						</View>
@@ -184,13 +223,13 @@ export default function PaywallScreen() {
 
 				{/* Features Checklist */}
 				<View className="mx-6 mt-10 rounded-[28px] border border-blue-50 bg-blue-50/30 p-8 shadow-sm">
-					<Text className="mb-6 font-bold text-lg text-[#29303D]">
+					<Text className="mb-6 font-bold text-[#29303D] text-lg">
 						What's Included:
 					</Text>
 					{FEATURES.map((f) => (
 						<View className="mb-4 flex-row items-start gap-3" key={f}>
 							<Text className="text-lg leading-5">{f.split(" ")[0]}</Text>
-							<Text className="flex-1 font-medium text-[15px] text-[#73808C] leading-6">
+							<Text className="flex-1 font-medium text-[#73808C] text-[15px] leading-6">
 								{f.split(" ").slice(1).join(" ")}
 							</Text>
 						</View>
@@ -203,7 +242,7 @@ export default function PaywallScreen() {
 						<View className="mb-3 h-12 w-12 items-center justify-center rounded-2xl bg-slate-50">
 							<Text className="text-2xl">🛡️</Text>
 						</View>
-						<Text className="text-center font-bold text-[10px] text-[#73808C] uppercase leading-4 tracking-widest">
+						<Text className="text-center font-bold text-[#73808C] text-[10px] uppercase leading-4 tracking-widest">
 							Safe &{"\n"}Secure
 						</Text>
 					</View>
@@ -211,7 +250,7 @@ export default function PaywallScreen() {
 						<View className="mb-3 h-12 w-12 items-center justify-center rounded-2xl bg-slate-50">
 							<Text className="text-2xl">🌱</Text>
 						</View>
-						<Text className="text-center font-bold text-[10px] text-[#73808C] uppercase leading-4 tracking-widest">
+						<Text className="text-center font-bold text-[#73808C] text-[10px] uppercase leading-4 tracking-widest">
 							Natural{"\n"}Approach
 						</Text>
 					</View>
@@ -219,7 +258,7 @@ export default function PaywallScreen() {
 						<View className="mb-3 h-12 w-12 items-center justify-center rounded-2xl bg-slate-50">
 							<Text className="text-2xl">💡</Text>
 						</View>
-						<Text className="text-center font-bold text-[10px] text-[#73808C] uppercase leading-4 tracking-widest">
+						<Text className="text-center font-bold text-[#73808C] text-[10px] uppercase leading-4 tracking-widest">
 							AI{"\n"}Intelligence
 						</Text>
 					</View>
@@ -227,13 +266,13 @@ export default function PaywallScreen() {
 
 				{/* Decline Link */}
 				<TouchableOpacity className="mt-12 items-center" onPress={handleExit}>
-					<Text className="font-bold text-base text-[#73808C] tracking-tight">
+					<Text className="font-bold text-[#73808C] text-base tracking-tight">
 						I'll decide later
 					</Text>
 				</TouchableOpacity>
 
 				{/* Fine Print */}
-				<Text className="mx-10 mt-8 text-center text-[11px] text-[#73808C] leading-5">
+				<Text className="mx-10 mt-8 text-center text-[#73808C] text-[11px] leading-5">
 					By starting your subscription, you agree to our Terms of Service and
 					Privacy Policy. Renewals are automatic. Manage in Apple/Google Play
 					settings.
@@ -266,63 +305,58 @@ function DiscountWheelModal({
 			visible={visible}
 		>
 			<View className="flex-1 items-center justify-end bg-slate-900/60 p-6">
-				<SafeAreaView
-					className="w-full items-center rounded-[40px] bg-white p-8 shadow-2xl"
-					edges={["bottom"]}
-				>
-					<View className="mb-4 h-1 w-12 rounded-full bg-slate-100" />
+				<View className="mb-4 h-1 w-12 rounded-full bg-slate-100" />
 
-					<View className="mb-6 h-20 w-20 items-center justify-center rounded-[28px] bg-yellow-50">
-						<Text className="text-5xl">🎁</Text>
-					</View>
+				<View className="mb-6 h-20 w-20 items-center justify-center rounded-[28px] bg-yellow-50">
+					<Text className="text-5xl">🎁</Text>
+				</View>
 
-					<Text className="mb-2 font-black text-3xl text-[#29303D]">Wait!</Text>
-					<Text className="mb-8 text-center text-[17px] text-[#73808C] leading-6">
-						We've unlocked an exclusive, one-time reward for your first year.
+				<Text className="mb-2 font-black text-3xl text-[#29303D]">Wait!</Text>
+				<Text className="mb-8 text-center text-[#73808C] text-[17px] leading-6">
+					We've unlocked an exclusive, one-time reward for your first year.
+				</Text>
+
+				{/* Reward Showcase */}
+				<View className="relative mb-10 w-full items-center overflow-hidden rounded-[32px] border-4 border-yellow-400 bg-yellow-50/50 p-8">
+					<Text className="font-black text-[56px] text-yellow-600 tracking-tighter">
+						80% OFF
 					</Text>
+					<Text className="mt-2 font-bold text-[#29303D] text-lg tracking-tight">
+						Claim €10 instant credit
+					</Text>
+					<Text className="mt-1 font-medium text-[#73808C]">
+						€39.99 →{" "}
+						<Text className="font-bold text-[#29303D]">€29.99/year</Text>
+					</Text>
+				</View>
 
-					{/* Reward Showcase */}
-					<View className="relative mb-10 w-full items-center overflow-hidden rounded-[32px] border-4 border-yellow-400 bg-yellow-50/50 p-8">
-						<Text className="font-black text-[56px] text-yellow-600 tracking-tighter">
-							80% OFF
-						</Text>
-						<Text className="mt-2 font-bold text-lg text-[#29303D] tracking-tight">
-							Claim €10 instant credit
-						</Text>
-						<Text className="mt-1 font-medium text-[#73808C]">
-							€39.99 →{" "}
-							<Text className="font-bold text-[#29303D]">€29.99/year</Text>
-						</Text>
-					</View>
+				<View className="mb-8 w-full rounded-2xl bg-rose-50 py-3">
+					<Text className="text-center font-bold text-[13px] text-rose-600 uppercase tracking-widest">
+						⏰ Offer expires in 24 hours
+					</Text>
+				</View>
 
-					<View className="mb-8 w-full rounded-2xl bg-rose-50 py-3">
-						<Text className="text-center font-bold text-[13px] text-rose-600 uppercase tracking-widest">
-							⏰ Offer expires in 24 hours
-						</Text>
-					</View>
+				<TouchableOpacity
+					activeOpacity={0.9}
+					className="relative w-full overflow-hidden rounded-[24px] py-5 shadow-blue-200 shadow-xl"
+					onPress={onClaim}
+				>
+					<LinearGradient
+						colors={["#28B898", "#2DE2E2"]}
+						end={{ x: 1, y: 0 }}
+						start={{ x: 0, y: 0 }}
+						style={StyleSheet.absoluteFill}
+					/>
+					<Text className="text-center font-bold text-white text-xl">
+						Claim My Offer
+					</Text>
+				</TouchableOpacity>
 
-					<TouchableOpacity
-						activeOpacity={0.9}
-						className="relative w-full overflow-hidden rounded-[24px] py-5 shadow-blue-200 shadow-xl"
-						onPress={onClaim}
-					>
-						<LinearGradient
-							colors={["#28B898", "#2DE2E2"]}
-							end={{ x: 1, y: 0 }}
-							start={{ x: 0, y: 0 }}
-							style={StyleSheet.absoluteFill}
-						/>
-						<Text className="text-center font-bold text-white text-xl">
-							Claim My Offer
-						</Text>
-					</TouchableOpacity>
-
-					<TouchableOpacity className="mt-6" onPress={onClose}>
-						<Text className="font-bold text-base text-[#73808C]">
-							Return to pricing
-						</Text>
-					</TouchableOpacity>
-				</SafeAreaView>
+				<TouchableOpacity className="mt-6" onPress={onClose}>
+					<Text className="font-bold text-[#73808C] text-base">
+						Return to pricing
+					</Text>
+				</TouchableOpacity>
 			</View>
 		</Modal>
 	);

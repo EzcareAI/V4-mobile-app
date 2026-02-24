@@ -2,8 +2,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { MoveRight } from "lucide-react-native";
 import { useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { THEME } from "@/lib/theme";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { Body3DSelector } from "../common/body-3d-selector";
@@ -20,6 +19,9 @@ export default function BodyDiagramScreen() {
 	// We'll store the raw array as a JSON string so it doesn't break typed contracts:
 	const initialZones = bodyZoneSelected ? bodyZoneSelected.split(",") : [];
 	const [selectedZones, setSelectedZones] = useState<string[]>(initialZones);
+
+	// Track whether the user is interacting with the 3D canvas so we can freeze the outer scroll
+	const [scrollEnabled, setScrollEnabled] = useState(true);
 
 	const handleContinue = () => {
 		// Store comma-separated list of selected zones
@@ -41,8 +43,13 @@ export default function BodyDiagramScreen() {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5 pb-8">
-				<View className="mt-4 flex-1 px-1">
+			<View className="flex-1 justify-between px-5">
+				<ScrollView
+					className="mt-4 flex-1 px-1"
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
+					scrollEnabled={scrollEnabled}
+					showsVerticalScrollIndicator={false}
+				>
 					<StepHeader
 						align="center"
 						className="mb-4"
@@ -51,8 +58,13 @@ export default function BodyDiagramScreen() {
 					/>
 
 					{/* ── Interactive 3D Body Canvas ── */}
-					<View className="min-h-[400px] flex-1 pb-4">
-						<Body3DSelector onChange={setSelectedZones} value={selectedZones} />
+					<View className="min-h-[450px] flex-1 pb-4">
+						<Body3DSelector
+							onChange={setSelectedZones}
+							onInteractionEnd={() => setScrollEnabled(true)}
+							onInteractionStart={() => setScrollEnabled(false)}
+							value={selectedZones}
+						/>
 					</View>
 
 					{/* ── Overall Wellness Skip Option ── */}
@@ -95,18 +107,16 @@ export default function BodyDiagramScreen() {
 							</View>
 						</TouchableOpacity>
 					)}
-				</View>
+				</ScrollView>
 
-				<SafeAreaView edges={["bottom"]}>
-					<View className="pt-4">
-						{/* Only show Continue if they tapped zones (otherwise they tap "Overall Wellness") */}
-						<ContinueButton
-							isDisabled={!hasSelection}
-							label={`Continue with ${selectedZones.length} Zone${selectedZones.length === 1 ? "" : "s"}`}
-							onPress={handleContinue}
-						/>
-					</View>
-				</SafeAreaView>
+				<View className="pt-4">
+					{/* Only show Continue if they tapped zones (otherwise they tap "Overall Wellness") */}
+					<ContinueButton
+						isDisabled={!hasSelection}
+						label={`Continue with ${selectedZones.length} Zone${selectedZones.length === 1 ? "" : "s"}`}
+						onPress={handleContinue}
+					/>
+				</View>
 			</View>
 		</View>
 	);

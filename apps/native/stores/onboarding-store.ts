@@ -2,16 +2,18 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+import { supabase } from "@/lib/supabase";
+
 export type Gender = "male" | "female" | "other" | "prefer_not_to_say";
 export type ActivityLevel = 1 | 2 | 3 | 4 | 5;
 export type UnitPreference = "metric" | "imperial";
 export type IntentType = "zone" | "overall";
-export type BodyZone = string | null;
 
 export interface OnboardingState {
 	// Navigation
 	currentStep: number;
 	totalSteps: number;
+	onboardingRecordId?: string; // Backend sync ID
 
 	// Phase 1: Core Profile
 	gender?: Gender;
@@ -26,10 +28,10 @@ export interface OnboardingState {
 	stressLevel?: "low" | "moderate" | "high";
 	smokingFrequency?: "never" | "occasionally" | "regularly";
 	alcoholFrequency?: "never" | "occasionally" | "weekly" | "often";
-	healthConditions?: string;
+	healthConditions: string[];
 
 	// Phase 3: Body Diagram Intent
-	bodyZoneSelected?: BodyZone;
+	bodyZoneSelected: string[];
 	intentType?: IntentType;
 
 	// Phase 3A: Zone-Specific Smart Questions
@@ -82,6 +84,7 @@ export interface OnboardingState {
 	prevStep: () => void;
 	reset: () => void;
 	computeHealthScore: () => number;
+	syncToSupabase: () => Promise<void>;
 }
 
 export const useOnboardingStore = create<OnboardingState>()(
@@ -98,13 +101,20 @@ export const useOnboardingStore = create<OnboardingState>()(
 			obstacles: [],
 			symptoms: [],
 			cravings: [],
+			healthConditions: [],
+			bodyZoneSelected: [],
 
-			setAnswer: (key, value) => set((state) => ({ ...state, [key]: value })),
+			setAnswer: (key, value) => {
+				set((state) => ({ ...state, [key]: value }));
+			},
 
-			nextStep: () =>
+			nextStep: () => {
 				set((state) => ({
 					currentStep: Math.min(state.currentStep + 1, state.totalSteps),
-				})),
+				}));
+				// Fire-and-forget sync to backend on every step progression to capture funnel drop-offs
+				get().syncToSupabase();
+			},
 
 			prevStep: () =>
 				set((state) => ({ currentStep: Math.max(state.currentStep - 1, 0) })),
@@ -123,7 +133,7 @@ export const useOnboardingStore = create<OnboardingState>()(
 					stressLevel: undefined,
 					smokingFrequency: undefined,
 					alcoholFrequency: undefined,
-					bodyZoneSelected: null,
+					bodyZoneSelected: [],
 					intentType: undefined,
 					zoneSymptomIntensity: undefined,
 					zoneDuration: undefined,
@@ -150,10 +160,63 @@ export const useOnboardingStore = create<OnboardingState>()(
 					obstacles: [],
 					symptoms: [],
 					cravings: [],
+					healthConditions: [],
 					digestionSensitivity: undefined,
 					processedFoodsFrequency: undefined,
 					primaryGoal: undefined,
+					onboardingRecordId: undefined,
 				}),
+
+			syncToSupabase: async () => {
+				const state = get();
+				// Ensure at least step 1 has been started before syncing junk
+				if (state.currentStep < 1) {
+					return;
+				}
+
+				const payload = {
+					gender: state.gender,
+					birthday: state.birthDate,
+					height_cm: state.heightCm,
+					weight_kg: state.weightKg,
+					activity_level: state.activityLevel,
+					sleep_rating: state.sleepQuality,
+					stress_level: state.stressLevel,
+					smoking_status: state.smokingFrequency,
+					alcohol_status: state.alcoholFrequency,
+					health_goals: state.goals,
+					primary_goal: state.primaryGoal,
+					health_conditions: state.healthConditions,
+					body_parts_selected: state.bodyZoneSelected,
+					branch: state.intentType,
+					paywall_plan_selected: state.subscriptionStatus,
+					last_completed_step: state.currentStep,
+					user_id: state.userId,
+					updated_at: new Date().toISOString(),
+				};
+
+				try {
+					if (state.onboardingRecordId) {
+						await supabase
+							.from("onboarding_profiles")
+							.update(payload)
+							.eq("id", state.onboardingRecordId);
+					} else {
+						// Create new draft
+						const { data, error } = await supabase
+							.from("onboarding_profiles")
+							.insert([payload])
+							.select()
+							.single();
+
+						if (!error && data?.id) {
+							set({ onboardingRecordId: data.id });
+						}
+					}
+				} catch (err) {
+					console.error("Supabase sync exception", err);
+				}
+			},
 
 			computeHealthScore: () => {
 				const state = get();

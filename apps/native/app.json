@@ -23,9 +23,10 @@
     },
     "extra": {
       "eas": {
-        "projectId": "80a4e637-eede-4da7-84a9-fee385bd5b7c"
+        "projectId": "8618fe87-dba6-4541-8985-6a4fec540613"
       },
       "router": {}
-    }
+    },
+    "owner": "ezcare_ai3"
   }
 }

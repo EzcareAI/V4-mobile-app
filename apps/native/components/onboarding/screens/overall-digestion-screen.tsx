@@ -14,7 +14,7 @@ export function OverallDigestionScreen() {
 
 	return (
 		<ScrollView className="flex-1 bg-white">
-			<View className="px-6 pt-8 pb-8">
+			<View className="px-6 pt-8">
 				<Text className="mb-2 font-bold text-2xl text-gray-900">
 					How's your digestion?
 				</Text>

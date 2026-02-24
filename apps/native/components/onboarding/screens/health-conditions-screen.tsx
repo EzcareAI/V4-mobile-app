@@ -4,12 +4,12 @@ import { ScrollView, Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import {
-	SingleSelectList,
-	type SingleSelectOption,
-} from "../common/single-select-list";
+	MultiSelectList,
+	type MultiSelectOption,
+} from "../common/multi-select-list";
 import { StepHeader } from "../common/step-header";
 
-const CONDITION_OPTIONS: SingleSelectOption[] = [
+const CONDITION_OPTIONS: MultiSelectOption[] = [
 	{ id: "none", label: "No conditions", emoji: "✅" },
 	{ id: "diabetes", label: "Diabetes", emoji: "🩺" },
 	{ id: "hypertension", label: "High blood pressure", emoji: "❤️" },
@@ -23,6 +23,29 @@ export function HealthConditionsScreen() {
 	const router = useRouter();
 	const { healthConditions, setAnswer, nextStep } = useOnboardingStore();
 
+	const handleToggle = (id: string) => {
+		if (id === "none") {
+			setAnswer("healthConditions", ["none"]);
+			return;
+		}
+
+		let current = healthConditions || [];
+
+		// If "none" was selected, clear it out when selecting a real condition
+		if (current.includes("none")) {
+			current = [];
+		}
+
+		if (current.includes(id)) {
+			setAnswer(
+				"healthConditions",
+				current.filter((item) => item !== id)
+			);
+		} else {
+			setAnswer("healthConditions", [...current, id]);
+		}
+	};
+
 	const handleContinue = () => {
 		nextStep();
 		router.push("/(onboarding)/13");
@@ -30,7 +53,7 @@ export function HealthConditionsScreen() {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5 pb-8">
+			<View className="flex-1 justify-between px-5">
 				<ScrollView
 					className="flex-1"
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
@@ -83,18 +106,19 @@ export function HealthConditionsScreen() {
 						/>
 
 						<View className="mt-8">
-							<SingleSelectList
-								onSelect={(id) => setAnswer("healthConditions", id)}
+							<MultiSelectList
+								onToggle={handleToggle}
 								options={CONDITION_OPTIONS}
-								selectedId={healthConditions ?? null}
+								selectedIds={healthConditions || []}
 							/>
 						</View>
 					</View>
 				</ScrollView>
 
-				<View className="pt-4">
-					<ContinueButton onPress={handleContinue} />
-				</View>
+				<ContinueButton
+					isDisabled={!healthConditions || healthConditions.length === 0}
+					onPress={handleContinue}
+				/>
 			</View>
 		</View>
 	);

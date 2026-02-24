@@ -54,7 +54,7 @@ export function AlcoholScreen() {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5 pb-8">
+			<View className="flex-1 justify-between px-5">
 				<ScrollView
 					className="flex-1"
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
@@ -116,12 +116,10 @@ export function AlcoholScreen() {
 					</View>
 				</ScrollView>
 
-				<View className="pt-4">
-					<ContinueButton
+				<ContinueButton
 						isDisabled={!alcoholFrequency}
 						onPress={handleContinue}
 					/>
-				</View>
 			</View>
 		</View>
 	);

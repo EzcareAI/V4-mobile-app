@@ -11,7 +11,7 @@ export const GreatStartScreen = () => {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5 pb-8">
+			<View className="flex-1 justify-between px-5">
 				<ScrollView
 					className="flex-1"
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
@@ -69,9 +69,7 @@ export const GreatStartScreen = () => {
 					</View>
 				</ScrollView>
 
-				<View className="pt-4">
-					<ContinueButton onPress={() => router.push("/(onboarding)/6")} />
-				</View>
+				<ContinueButton onPress={() => router.push("/(onboarding)/6")} />
 			</View>
 		</View>
 	);

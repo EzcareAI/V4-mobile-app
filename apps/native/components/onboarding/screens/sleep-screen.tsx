@@ -2,7 +2,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Moon } from "lucide-react-native";
 import { ScrollView, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { THEME } from "@/lib/theme";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
@@ -58,7 +57,7 @@ export const SleepScreen = () => {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5 pb-8">
+			<View className="flex-1 justify-between px-5">
 				{/* ── Scrollable content ──────────────────────────────────────── */}
 				<ScrollView
 					className="flex-1"
@@ -120,14 +119,12 @@ export const SleepScreen = () => {
 				</ScrollView>
 
 				{/* ── Docked Continue Button (never scrolls away) ─────────────── */}
-				<SafeAreaView edges={["bottom"]}>
-					<View className="pt-4">
-						<ContinueButton
+				
+					<ContinueButton
 							isDisabled={!sleepQuality}
 							onPress={handleContinue}
 						/>
-					</View>
-				</SafeAreaView>
+				
 			</View>
 		</View>
 	);

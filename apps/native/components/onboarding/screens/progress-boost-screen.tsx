@@ -13,7 +13,6 @@ import { useRouter } from "expo-router";
 import { ChevronDown, ChevronUp } from "lucide-react-native";
 import { useEffect, useRef, useState } from "react";
 import { Animated, Pressable, ScrollView, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { THEME } from "@/lib/theme";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
@@ -295,11 +294,9 @@ export function ProgressBoostScreen() {
 					</View>
 				</ScrollView>
 
-				<SafeAreaView edges={["bottom"]}>
-					<View className="pt-4">
-						<ContinueButton onPress={handleContinue} />
-					</View>
-				</SafeAreaView>
+				
+					<ContinueButton onPress={handleContinue} />
+				
 			</View>
 		</View>
 	);

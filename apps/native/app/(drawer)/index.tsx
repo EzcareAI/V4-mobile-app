@@ -29,9 +29,11 @@ export default function Home() {
 			{session?.user ? (
 				<Card className="mb-6 p-4" variant="secondary">
 					<Text className="mb-2 text-base text-foreground">
-						Welcome, <Text className="font-medium">{session.user.name}</Text>
+						Welcome, <Text className="font-medium">{session?.user?.name}</Text>
 					</Text>
-					<Text className="mb-4 text-muted text-sm">{session.user.email}</Text>
+					<Text className="mb-4 text-muted text-sm">
+						{session?.user?.email}
+					</Text>
 					<Button
 						className="self-start"
 						onPress={() => {

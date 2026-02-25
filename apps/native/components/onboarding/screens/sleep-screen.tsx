@@ -57,7 +57,7 @@ export const SleepScreen = () => {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5">
+			<View className="flex-1 justify-between px-6 pb-10">
 				{/* ── Scrollable content ──────────────────────────────────────── */}
 				<ScrollView
 					className="flex-1"
@@ -120,10 +120,12 @@ export const SleepScreen = () => {
 
 				{/* ── Docked Continue Button (never scrolls away) ─────────────── */}
 				
-					<ContinueButton
+					<View className="pt-6">
+						<ContinueButton
 							isDisabled={!sleepQuality}
 							onPress={handleContinue}
 						/>
+					</View>
 				
 			</View>
 		</View>

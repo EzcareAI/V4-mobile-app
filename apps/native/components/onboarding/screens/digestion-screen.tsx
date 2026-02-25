@@ -48,7 +48,7 @@ export const DigestionScreen = () => {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5">
+			<View className="flex-1 justify-between px-6 pb-10">
 				<ScrollView
 					className="flex-1"
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
@@ -129,10 +129,12 @@ export const DigestionScreen = () => {
 					</View>
 				</ScrollView>
 
-				<ContinueButton
+				<View className="pt-6">
+					<ContinueButton
 						isDisabled={!digestionSensitivity}
 						onPress={handleContinue}
 					/>
+				</View>
 			</View>
 		</View>
 	);

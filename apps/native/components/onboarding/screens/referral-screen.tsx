@@ -19,10 +19,10 @@ export const ReferralScreen = () => {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5">
+			<View className="flex-1 justify-between px-6 pb-10">
 				<ScrollView
 					className="flex-1"
-					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
 					contentInsetAdjustmentBehavior="automatic"
 					showsVerticalScrollIndicator={false}
 				>
@@ -113,41 +113,44 @@ export const ReferralScreen = () => {
 								/>
 							</TextField>
 						</View>
-
-						{/* Submit Button */}
-						<ContinueButton
-							isDisabled={referralCode?.length === 0}
-							label={
-								<View className="flex-row items-center">
-									<Text className="mr-2 text-2xl text-white">✓</Text>
-									<Button.Label className="font-semibold text-base text-white">
-										Submit Code
-									</Button.Label>
-								</View>
-							}
-							onPress={handleFinish}
-						/>
-
-						{/* Skip Link */}
-						<Button
-							className="mt-2 h-12 bg-transparent"
-							onPress={handleFinish}
-							variant="ghost"
-						>
-							<Button.Label className="text-[#73808C] text-base underline">
-								Skip for now
-							</Button.Label>
-						</Button>
-
-						{/* Footer Info */}
-						<View className="mt-4 px-4 pb-10">
-							<Text className="text-center text-[#73808C] text-sm leading-5">
-								Don't have a referral code? No worries! You can add one later in
-								your profile settings.
-							</Text>
-						</View>
 					</View>
 				</ScrollView>
+
+				{/* Fixed Footer Actions */}
+				<View className="pt-4">
+					{/* Submit Button */}
+					<ContinueButton
+						isDisabled={referralCode?.length === 0}
+						label={
+							<View className="flex-row items-center">
+								<Text className="mr-2 text-2xl text-white">✓</Text>
+								<Button.Label className="font-semibold text-base text-white">
+									Submit Code
+								</Button.Label>
+							</View>
+						}
+						onPress={handleFinish}
+					/>
+
+					{/* Skip Link */}
+					<Button
+						className="mt-2 h-12 bg-transparent"
+						onPress={handleFinish}
+						variant="ghost"
+					>
+						<Button.Label className="text-[#73808C] text-base underline">
+							Skip for now
+						</Button.Label>
+					</Button>
+
+					{/* Footer Info */}
+					<View className="mt-4 px-4">
+						<Text className="text-center text-[#73808C] text-[13px] leading-5">
+							Don't have a referral code? No worries! You can add one later in
+							your profile settings.
+						</Text>
+					</View>
+				</View>
 			</View>
 		</View>
 	);

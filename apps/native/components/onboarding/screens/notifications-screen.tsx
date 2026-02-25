@@ -20,10 +20,10 @@ export const NotificationsScreen = () => {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5">
+			<View className="flex-1 justify-between px-6 pb-10">
 				<ScrollView
 					className="flex-1"
-					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
 					contentInsetAdjustmentBehavior="automatic"
 					showsVerticalScrollIndicator={false}
 				>
@@ -113,76 +113,78 @@ export const NotificationsScreen = () => {
 									<Text className="font-bold text-2xl text-[#2DE2E2]">
 										100%
 									</Text>
-									<Text className="mt-1 text-center text-[11px] text-[#73808C] leading-4">
+									<Text className="mt-1 text-center text-[#73808C] text-[11px] leading-4">
 										Better{"\n"}Results
 									</Text>
 								</View>
 								<View className="flex-1 items-center">
 									<Text className="font-bold text-2xl text-[#28B898]">85%</Text>
-									<Text className="mt-1 text-center text-[11px] text-[#73808C] leading-4">
+									<Text className="mt-1 text-center text-[#73808C] text-[11px] leading-4">
 										Higher{"\n"}Consistency
 									</Text>
 								</View>
 								<View className="flex-1 items-center">
 									<Text className="font-bold text-2xl text-[#818CF8]">90%</Text>
-									<Text className="mt-1 text-center text-[11px] text-[#73808C] leading-4">
+									<Text className="mt-1 text-center text-[#73808C] text-[11px] leading-4">
 										Goal{"\n"}Achievement
 									</Text>
 								</View>
 							</View>
 						</View>
-
-						{/* Action Buttons */}
-						<View className="mt-12 mb-6 gap-y-4">
-							<Pressable
-								onPress={() => {
-									handleToggle(true);
-									handleContinue();
-								}}
-							>
-								<LinearGradient
-									colors={["#2DE2E2", "#28B898"]}
-									end={{ x: 1, y: 1 }}
-									start={{ x: 0, y: 0 }}
-									style={{ borderRadius: 36 }}
-								>
-									<View className="h-16 flex-row items-center justify-center">
-										<Bell color="white" size={22} />
-										<Text className="ml-3 font-bold text-lg text-white">
-											Allow Notifications
-										</Text>
-									</View>
-								</LinearGradient>
-							</Pressable>
-
-							<Pressable
-								className="opacity-70"
-								onPress={() => {
-									handleToggle(false);
-									handleContinue();
-								}}
-							>
-								<LinearGradient
-									colors={["#f4f4f5", "#e4e4e7"]}
-									end={{ x: 1, y: 1 }}
-									start={{ x: 0, y: 0 }}
-									style={{ borderRadius: 36 }}
-								>
-									<View className="h-16 flex-row items-center justify-center">
-										<BellOff color="#71717a" size={22} />
-										<Text className="ml-3 font-bold text-lg text-[#73808C]">
-											Don't Allow
-										</Text>
-									</View>
-								</LinearGradient>
-							</Pressable>
-						</View>
-
-						<Text className="mt-2 mb-10 text-center text-[#73808C] text-sm">
-							You can change notification preferences anytime in Settings
-						</Text>
 					</View>
 				</ScrollView>
+
+				{/* Fixed Footer Actions */}
+				<View className="pt-4">
+					<View className="mb-4 gap-y-4">
+						<Pressable
+							onPress={() => {
+								handleToggle(true);
+								handleContinue();
+							}}
+						>
+							<LinearGradient
+								colors={["#2DE2E2", "#28B898"]}
+								end={{ x: 1, y: 1 }}
+								start={{ x: 0, y: 0 }}
+								style={{ borderRadius: 36 }}
+							>
+								<View className="h-16 flex-row items-center justify-center">
+									<Bell color="white" size={22} />
+									<Text className="ml-3 font-bold text-lg text-white">
+										Allow Notifications
+									</Text>
+								</View>
+							</LinearGradient>
+						</Pressable>
+
+						<Pressable
+							className="opacity-70"
+							onPress={() => {
+								handleToggle(false);
+								handleContinue();
+							}}
+						>
+							<LinearGradient
+								colors={["#f4f4f5", "#e4e4e7"]}
+								end={{ x: 1, y: 1 }}
+								start={{ x: 0, y: 0 }}
+								style={{ borderRadius: 36 }}
+							>
+								<View className="h-16 flex-row items-center justify-center">
+									<BellOff color="#71717a" size={22} />
+									<Text className="ml-3 font-bold text-[#73808C] text-lg">
+										Don't Allow
+									</Text>
+								</View>
+							</LinearGradient>
+						</Pressable>
+					</View>
+
+					<Text className="text-center text-[#73808C] text-sm">
+						You can change notification preferences anytime in Settings
+					</Text>
+				</View>
 			</View>
 		</View>
 	);

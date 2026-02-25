@@ -90,10 +90,10 @@ export const LoadingPlanScreen = () => {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5">
+			<View className="flex-1 justify-between px-6 pb-10">
 				<ScrollView
 					className="flex-1"
-					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
 					contentInsetAdjustmentBehavior="automatic"
 					showsVerticalScrollIndicator={false}
 				>
@@ -117,7 +117,7 @@ export const LoadingPlanScreen = () => {
 								</View>
 							</View>
 
-							<Text className="mt-10 text-center font-bold text-[28px] text-[#29303D] leading-[38px] tracking-tight">
+							<Text className="mt-10 text-center font-bold text-[#29303D] text-[28px] leading-[38px] tracking-tight">
 								EZBuddy is preparing{"\n"}your natural plan...
 							</Text>
 						</View>
@@ -175,12 +175,12 @@ export const LoadingPlanScreen = () => {
 										</View>
 										<View className="flex-1">
 											<Text
-												className={`font-bold text-[16px] text-[#29303D] ${!isDone && "opacity-60"}`}
+												className={`font-bold text-[#29303D] text-[16px] ${!isDone && "opacity-60"}`}
 											>
 												{stage.title}
 											</Text>
 											{isDone && (
-												<Text className="mt-0.5 font-medium text-[13px] text-[#73808C]">
+												<Text className="mt-0.5 font-medium text-[#73808C] text-[13px]">
 													{stage.id === "nutrition"
 														? getDietDescription()
 														: stage.description}
@@ -222,10 +222,12 @@ export const LoadingPlanScreen = () => {
 				</ScrollView>
 
 				{/* Footer Button */}
-				<ContinueButton
+				<View className="pt-6">
+					<ContinueButton
 						isDisabled={progress < 100}
 						onPress={handleContinue}
 					/>
+				</View>
 			</View>
 		</View>
 	);

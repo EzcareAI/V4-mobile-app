@@ -66,7 +66,7 @@ export const BirthdayScreen = () => {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5">
+			<View className="flex-1 justify-between px-6 pb-10">
 				{/* Content — NOT wrapped in ScrollView so WheelPickers get the touch events */}
 				<View className="flex-1 px-1">
 					{/* Mascot Header */}
@@ -138,7 +138,9 @@ export const BirthdayScreen = () => {
 					</View>
 				</View>
 
-				<ContinueButton isDisabled={!isValid} onPress={handleContinue} />
+				<View className="pt-6">
+					<ContinueButton isDisabled={!isValid} onPress={handleContinue} />
+				</View>
 			</View>
 		</View>
 	);

@@ -40,7 +40,7 @@ export default function BodyDiagramScreen() {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5">
+			<View className="flex-1 justify-between px-6 pb-10">
 				<ScrollView
 					className="mt-4 flex-1 px-1"
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
@@ -108,11 +108,13 @@ export default function BodyDiagramScreen() {
 
 				<View className="pt-4">
 					{/* Only show Continue if they tapped zones (otherwise they tap "Overall Wellness") */}
-					<ContinueButton
+					<View className="pt-6">
+						<ContinueButton
 						isDisabled={!hasSelection}
 						label={`Continue with ${selectedZones.length} Zone${selectedZones.length === 1 ? "" : "s"}`}
 						onPress={handleContinue}
 					/>
+					</View>
 				</View>
 			</View>
 		</View>

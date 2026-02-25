@@ -46,7 +46,7 @@ export function ConfidenceMomentScreen() {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5">
+			<View className="flex-1 justify-between px-6 pb-10">
 				<ScrollView
 					className="flex-1"
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
@@ -145,10 +145,12 @@ export function ConfidenceMomentScreen() {
 				</ScrollView>
 
 				
-					<ContinueButton
+					<View className="pt-6">
+						<ContinueButton
 							label="See Your Results →"
 							onPress={handleContinue}
 						/>
+					</View>
 				
 			</View>
 		</View>

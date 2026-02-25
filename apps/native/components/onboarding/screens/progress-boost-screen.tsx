@@ -201,7 +201,7 @@ export function ProgressBoostScreen() {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-5 pb-6">
+			<View className="flex-1 justify-between px-6 pb-10">
 				<ScrollView
 					className="flex-1"
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 16 }}
@@ -294,7 +294,9 @@ export function ProgressBoostScreen() {
 					</View>
 				</ScrollView>
 
-				<ContinueButton onPress={handleContinue} />
+				<View className="pt-6">
+					<ContinueButton onPress={handleContinue} />
+				</View>
 			</View>
 		</View>
 	);

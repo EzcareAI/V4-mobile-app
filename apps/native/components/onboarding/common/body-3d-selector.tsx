@@ -1,7 +1,15 @@
 import { useGLTF } from "@react-three/drei/native";
 import { Canvas, type ThreeEvent, useFrame } from "@react-three/fiber/native";
+import { Asset } from "expo-asset";
 import { useFocusEffect } from "expo-router";
-import { Suspense, useCallback, useMemo, useRef, useState } from "react";
+import {
+	Suspense,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { PanResponder, Text, View } from "react-native";
 import { Color, type Group, Mesh, MeshStandardMaterial } from "three";
 import { THEME } from "@/lib/theme";
@@ -25,12 +33,14 @@ const globalRotation = { x: 0, y: 0 };
  * Parses the GLB meshes dynamically, assigns touch handlers for raycasting,
  * and maintains the multiple selection state by toggling `emissive` materials.
  */
-function BodyModel({ value = [], onChange }: Body3DSelectorProps) {
+function BodyModel({
+	value = [],
+	onChange,
+	uri,
+}: Body3DSelectorProps & { uri: string }) {
 	const modelRef = useRef<Group>(null);
 
-	// On Native Expo with Drei, useGLTF can directly parse the require() module ID
-	// because we injected `glb` into the metro assetExts.
-	const { scene } = useGLTF(MODEL_MODULE) as unknown as { scene: Group };
+	const { scene } = useGLTF(uri) as unknown as { scene: Group };
 
 	const [selected, setSelected] = useState<string[]>(value);
 
@@ -116,6 +126,33 @@ function BodyModel({ value = [], onChange }: Body3DSelectorProps) {
 	);
 }
 
+function BodyModelAssetLoader(props: Body3DSelectorProps) {
+	const [uri, setUri] = useState<string | null>(null);
+
+	useEffect(() => {
+		let isMounted = true;
+		async function preloadAsset() {
+			try {
+				const asset = await Asset.loadAsync(MODEL_MODULE);
+				if (isMounted && asset && asset[0]) {
+					setUri(asset[0].localUri || asset[0].uri);
+				}
+			} catch (e) {
+				console.warn("Failed to load body model asset", e);
+			}
+		}
+		preloadAsset();
+		return () => {
+			isMounted = false;
+		};
+	}, []);
+
+	if (!uri) {
+		return null;
+	}
+	return <BodyModel {...props} uri={uri} />;
+}
+
 export function Body3DSelector(props: Body3DSelectorProps) {
 	const { value = [], onInteractionStart, onInteractionEnd } = props;
 
@@ -162,20 +199,29 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 	return (
 		<View className="relative w-full flex-1" {...panResponder.panHandlers}>
 			{/* Canvas wrapper */}
-			<View className="flex-1 overflow-hidden rounded-[32px] border border-blue-100/40 bg-[#F8FBFF] shadow-xl">
+			<View className="flex-1 rounded-[32px] border border-blue-100/40 bg-[#F8FBFF] shadow-xl">
 				{isFocused ? (
-					<Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
-						<ambientLight intensity={0.8} />
-						<hemisphereLight
-							color="#ffffff"
-							groundColor="#000000"
-							intensity={1}
-						/>
-						<directionalLight intensity={2} position={[10, 10, 10]} />
-						<directionalLight intensity={1} position={[-10, 5, -10]} />
+					<Canvas
+						camera={{ position: [0, 0, 10], fov: 45 }}
+						style={{ flex: 1 }}
+					>
+						{/* DEBUG BOX: Placed explicitly OUTSIDE Suspense. If this pink box renders but the body doesn't, useGLTF is broken. If no box renders, the Canvas is definitively broken natively! */}
+						<mesh position={[0, 3, 0]}>
+							<boxGeometry args={[1, 1, 1]} />
+							<meshStandardMaterial color="hotpink" />
+						</mesh>
 
 						<Suspense fallback={null}>
-							<BodyModel {...props} />
+							<ambientLight intensity={0.8} />
+							<hemisphereLight
+								color="#ffffff"
+								groundColor="#000000"
+								intensity={1}
+							/>
+							<directionalLight intensity={2} position={[10, 10, 10]} />
+							<directionalLight intensity={1} position={[-10, 5, -10]} />
+
+							<BodyModelAssetLoader {...props} />
 						</Suspense>
 					</Canvas>
 				) : null}

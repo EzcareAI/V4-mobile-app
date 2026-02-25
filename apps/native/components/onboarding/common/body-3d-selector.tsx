@@ -1,12 +1,13 @@
 import { useGLTF } from "@react-three/drei/native";
 import { Canvas, type ThreeEvent, useFrame } from "@react-three/fiber/native";
-import { Suspense, useMemo, useRef, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import { PanResponder, Text, View } from "react-native";
 import { Color, type Group, Mesh, MeshStandardMaterial } from "three";
 import { THEME } from "@/lib/theme";
 
 // The Metro bundler now packages this asset because of our metro.config.js update.
-const MODEL_URI = require("@/assets/models/body.glb");
+const MODEL_MODULE = require("@/assets/models/body.glb");
 
 interface Body3DSelectorProps {
 	value?: string[];
@@ -26,7 +27,10 @@ const globalRotation = { x: 0, y: 0 };
  */
 function BodyModel({ value = [], onChange }: Body3DSelectorProps) {
 	const modelRef = useRef<Group>(null);
-	const { scene } = useGLTF(MODEL_URI) as unknown as { scene: Group };
+
+	// On Native Expo with Drei, useGLTF can directly parse the require() module ID
+	// because we injected `glb` into the metro assetExts.
+	const { scene } = useGLTF(MODEL_MODULE) as unknown as { scene: Group };
 
 	const [selected, setSelected] = useState<string[]>(value);
 
@@ -146,19 +150,35 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 		[onInteractionStart, onInteractionEnd]
 	);
 
+	const [isFocused, setIsFocused] = useState(false);
+
+	useFocusEffect(
+		useCallback(() => {
+			setIsFocused(true);
+			return () => setIsFocused(false);
+		}, [])
+	);
+
 	return (
 		<View className="relative w-full flex-1" {...panResponder.panHandlers}>
 			{/* Canvas wrapper */}
 			<View className="flex-1 overflow-hidden rounded-[32px] border border-blue-100/40 bg-[#F8FBFF] shadow-xl">
-				<Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
-					<ambientLight intensity={0.4} />
-					<directionalLight intensity={1.5} position={[10, 10, 10]} />
-					<directionalLight intensity={0.8} position={[-10, 5, -10]} />
+				{isFocused ? (
+					<Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
+						<ambientLight intensity={0.8} />
+						<hemisphereLight
+							color="#ffffff"
+							groundColor="#000000"
+							intensity={1}
+						/>
+						<directionalLight intensity={2} position={[10, 10, 10]} />
+						<directionalLight intensity={1} position={[-10, 5, -10]} />
 
-					<Suspense fallback={null}>
-						<BodyModel {...props} />
-					</Suspense>
-				</Canvas>
+						<Suspense fallback={null}>
+							<BodyModel {...props} />
+						</Suspense>
+					</Canvas>
+				) : null}
 
 				{/* Transparent overlay for touch indication (optional) */}
 				<View className="pointer-events-none absolute right-0 bottom-4 left-0 items-center">

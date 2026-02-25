@@ -1,15 +1,37 @@
 import { useRouter } from "expo-router";
+import { Check } from "lucide-react-native";
+import { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+import { ContinueButton } from "../common/continue-button";
+import { StepHeader } from "../common/step-header";
 
 export function ZoneTriggerScreen() {
 	const router = useRouter();
-	const { setAnswer, nextStep } = useOnboardingStore();
+	const { zoneTriggers, setAnswer, nextStep } = useOnboardingStore();
+	const [selected, setSelected] = useState<string[]>(zoneTriggers ?? []);
 
-	const handleSelect = (triggers: string[]) => {
-		setAnswer("zoneTriggers", triggers);
-		nextStep();
-		router.push("/(onboarding)/18");
+	const toggleTrigger = (id: string) => {
+		if (id === "not-sure") {
+			setSelected(["not-sure"]);
+			return;
+		}
+
+		let next = [...selected].filter((t) => t !== "not-sure");
+		if (next.includes(id)) {
+			next = next.filter((item) => item !== id);
+		} else {
+			next.push(id);
+		}
+		setSelected(next);
+	};
+
+	const handleContinue = () => {
+		if (selected.length > 0) {
+			setAnswer("zoneTriggers", selected);
+			nextStep();
+			router.push("/(onboarding)/18");
+		}
 	};
 
 	const triggerOptions = [
@@ -22,44 +44,79 @@ export function ZoneTriggerScreen() {
 	];
 
 	return (
-		<ScrollView className="flex-1 bg-white">
-			<View className="px-6 pt-8">
-				<Text className="mb-2 font-bold text-2xl text-gray-900">
-					What makes it worse?
-				</Text>
-				<Text className="mb-1 text-gray-600">
-					Select any triggers you've noticed
-				</Text>
-				<Text className="mb-8 text-gray-500 text-xs">
-					(You can pick multiple)
-				</Text>
-
-				<View className="mb-8 gap-3">
-					{triggerOptions.map(({ id, label, icon }) => (
-						<TouchableOpacity
-							className="flex-row items-center justify-between rounded-xl border-2 border-teal-200 bg-gradient-to-r from-teal-50 to-blue-50 p-4 active:bg-teal-100"
-							key={id} // Simplified for MVP - full version would support multi-select
-							onPress={() => handleSelect([id])}
-						>
-							<Text className="font-semibold text-gray-900">{label}</Text>
-							<Text className="text-2xl">{icon}</Text>
-						</TouchableOpacity>
-					))}
-				</View>
-
-				{/* Divider */}
-				<View className="mb-6 border-gray-200 border-t pt-6" />
-
-				{/* Skip Option */}
-				<TouchableOpacity
-					className="rounded-lg border border-gray-300 bg-gray-100 px-4 py-3"
-					onPress={() => handleSelect(["not-sure"])}
+		<View className="flex-1 bg-[#EBF5F4]">
+			<View className="flex-1 justify-between px-6 pb-10">
+				<ScrollView
+					className="flex-1"
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+					showsVerticalScrollIndicator={false}
 				>
-					<Text className="text-center font-semibold text-gray-900">
-						I'm not sure
-					</Text>
-				</TouchableOpacity>
+					<View className="flex-1">
+						<StepHeader
+							className="mt-8"
+							description="Select any triggers you've noticed (You can pick multiple)"
+							title="What makes it worse?"
+						/>
+
+						<View className="mt-8 gap-3">
+							{triggerOptions.map(({ id, label, icon }) => {
+								const isSelected = selected.includes(id);
+								return (
+									<TouchableOpacity
+										activeOpacity={0.7}
+										className={`flex-row items-center justify-between overflow-hidden rounded-2xl border-2 p-4 ${
+											isSelected
+												? "border-[#28B898] bg-[#28B898]/10"
+												: "border-transparent bg-white shadow-[#28B898]/5 shadow-sm"
+										}`}
+										key={id}
+										onPress={() => toggleTrigger(id)}
+									>
+										<View className="flex-row items-center gap-3">
+											<View
+												className={`h-6 w-6 items-center justify-center rounded-md border ${isSelected ? "border-[#28B898] bg-[#28B898]" : "border-slate-300 bg-slate-50"}`}
+											>
+												{isSelected && (
+													<Check color="white" size={14} strokeWidth={3} />
+												)}
+											</View>
+											<Text
+												className={`font-bold text-base ${
+													isSelected ? "text-[#28B898]" : "text-[#0d2137]"
+												}`}
+											>
+												{label}
+											</Text>
+										</View>
+										<Text className="text-2xl">{icon}</Text>
+									</TouchableOpacity>
+								);
+							})}
+						</View>
+
+						{/* Skip Option */}
+						<View className="mt-6 flex-row items-center justify-center">
+							<TouchableOpacity
+								className={`rounded-xl px-5 py-3 ${selected.includes("not-sure") ? "bg-[#28B898]/10" : "bg-white shadow-sm"}`}
+								onPress={() => toggleTrigger("not-sure")}
+							>
+								<Text
+									className={`font-semibold ${selected.includes("not-sure") ? "text-[#28B898]" : "text-[#64748B]"}`}
+								>
+									I'm not sure
+								</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</ScrollView>
+
+				<View className="pt-6">
+					<ContinueButton
+						isDisabled={selected.length === 0}
+						onPress={handleContinue}
+					/>
+				</View>
 			</View>
-		</ScrollView>
+		</View>
 	);
 }

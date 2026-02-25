@@ -1,83 +1,120 @@
 import { useRouter } from "expo-router";
+import { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+import { ContinueButton } from "../common/continue-button";
+import { StepHeader } from "../common/step-header";
 
 export function ZoneFrequencyScreen() {
 	const router = useRouter();
-	const { setAnswer, nextStep } = useOnboardingStore();
+	const { zoneFrequency, setAnswer, nextStep } = useOnboardingStore();
+	const [selected, setSelected] = useState<string | null>(
+		zoneFrequency ?? null
+	);
 
-	const handleSelect = (
-		frequency: "constantly" | "often" | "sometimes" | "rarely"
-	) => {
-		setAnswer("zoneFrequency", frequency);
-		nextStep();
-		router.push("/(onboarding)/17");
+	const handleContinue = () => {
+		if (selected) {
+			setAnswer(
+				"zoneFrequency",
+				selected as "constantly" | "often" | "sometimes" | "rarely"
+			);
+			nextStep();
+			router.push("/(onboarding)/17");
+		}
 	};
 
+	const options = [
+		{
+			value: "constantly",
+			label: "Constant",
+			subtext: "All day, every day",
+			icon: "🔴",
+		},
+		{ value: "often", label: "Frequently", subtext: "Most days", icon: "🟠" },
+		{
+			value: "sometimes",
+			label: "Intermittent",
+			subtext: "Some days",
+			icon: "🟡",
+		},
+		{
+			value: "rarely",
+			label: "Occasionally",
+			subtext: "Few times a week",
+			icon: "🟢",
+		},
+		{
+			value: "very_rarely",
+			label: "Rarely",
+			subtext: "Once in a while",
+			icon: "💙",
+		},
+	];
+
 	return (
-		<ScrollView className="flex-1 bg-white">
-			<View className="px-6 pt-8">
-				<Text className="mb-2 font-bold text-2xl text-gray-900">
-					How often does it happen?
-				</Text>
-				<Text className="mb-8 text-gray-600">
-					Is this constant or does it come and go?
-				</Text>
+		<View className="flex-1 bg-[#EBF5F4]">
+			<View className="flex-1 justify-between px-6 pb-10">
+				<ScrollView
+					className="flex-1"
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+					showsVerticalScrollIndicator={false}
+				>
+					<View className="flex-1">
+						<StepHeader
+							className="mt-8"
+							description="Is this constant or does it come and go?"
+							title="How often does it happen?"
+						/>
 
-				<View className="mb-8 gap-3">
-					{[
-						{
-							value: "constantly" as const,
-							label: "Constant",
-							subtext: "All day, every day",
-							icon: "🔴",
-						},
-						{
-							value: "often" as const,
-							label: "Frequently",
-							subtext: "Most days",
-							icon: "🟠",
-						},
-						{
-							value: "sometimes" as const,
-							label: "Intermittent",
-							subtext: "Some days",
-							icon: "🟡",
-						},
-						{
-							value: "rarely" as const,
-							label: "Occasionally",
-							subtext: "Few times a week",
-							icon: "🟢",
-						},
-						{
-							value: "rarely" as const,
-							label: "Rarely",
-							subtext: "Once in a while",
-							icon: "💙",
-						},
-					].map(({ value, label, subtext, icon }) => (
-						<TouchableOpacity
-							className="flex-row items-center justify-between rounded-xl border-2 border-teal-200 bg-gradient-to-r from-teal-50 to-blue-50 p-4 active:bg-teal-100"
-							key={value}
-							onPress={() => handleSelect(value)}
-						>
-							<View className="flex-1">
-								<Text className="font-semibold text-gray-900">{label}</Text>
-								<Text className="text-gray-600 text-xs">{subtext}</Text>
-							</View>
-							<Text className="text-2xl">{icon}</Text>
-						</TouchableOpacity>
-					))}
-				</View>
+						<View className="mt-8 gap-3">
+							{options.map(({ value, label, subtext, icon }) => {
+								const isSelected = selected === value;
+								return (
+									<TouchableOpacity
+										activeOpacity={0.7}
+										className={`flex-row items-center justify-between overflow-hidden rounded-2xl border-2 p-4 ${
+											isSelected
+												? "border-[#28B898] bg-[#28B898]/10"
+												: "border-transparent bg-white shadow-[#28B898]/5 shadow-sm"
+										}`}
+										key={value}
+										onPress={() => setSelected(value)}
+									>
+										<View className="flex-1">
+											<Text
+												className={`font-bold text-base ${
+													isSelected ? "text-[#28B898]" : "text-[#0d2137]"
+												}`}
+											>
+												{label}
+											</Text>
+											<Text
+												className={`mt-1 text-xs ${
+													isSelected ? "text-[#28B898]/80" : "text-[#73808C]"
+												}`}
+											>
+												{subtext}
+											</Text>
+										</View>
+										<Text className="text-2xl">{icon}</Text>
+									</TouchableOpacity>
+								);
+							})}
+						</View>
 
-				<View className="rounded-lg border border-blue-200 bg-blue-50 p-3">
-					<Text className="text-blue-900 text-xs leading-4">
-						📊 Frequency patterns help us tailor strategies to your specific
-						needs.
-					</Text>
+						<View className="mt-8 rounded-2xl border border-blue-100 bg-blue-50/50 p-4">
+							<Text className="text-[#64748B] text-xs leading-5">
+								📊 Frequency patterns help us tailor strategies to your specific
+								needs.
+							</Text>
+						</View>
+					</View>
+				</ScrollView>
+
+				<View className="pt-6">
+					<ContinueButton isDisabled={!selected} onPress={handleContinue} />
 				</View>
 			</View>
-		</ScrollView>
+		</View>
 	);
 }

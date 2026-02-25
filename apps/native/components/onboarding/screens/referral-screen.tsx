@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import { Button, TextField } from "heroui-native";
 import { Bot, Crown, Gift, Sparkles, Users } from "lucide-react-native";
 import { ScrollView, Text, View } from "react-native";
@@ -6,12 +7,14 @@ import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
 
 export const ReferralScreen = () => {
+	const router = useRouter();
 	const { referralCode, setAnswer, nextStep } = useOnboardingStore();
 
 	const handleFinish = () => {
-		// Mark onboarding as complete by incrementing past step 20
-		// This will trigger the navigation guard in _layout.tsx to redirect to /(drawer)
+		// Mark onboarding as complete and formally route the user into the protected dashboard
+		setAnswer("onboardingComplete", true);
 		nextStep();
+		router.replace("/(drawer)");
 	};
 
 	return (
@@ -131,7 +134,7 @@ export const ReferralScreen = () => {
 							onPress={handleFinish}
 							variant="ghost"
 						>
-							<Button.Label className="text-base text-[#73808C] underline">
+							<Button.Label className="text-[#73808C] text-base underline">
 								Skip for now
 							</Button.Label>
 						</Button>

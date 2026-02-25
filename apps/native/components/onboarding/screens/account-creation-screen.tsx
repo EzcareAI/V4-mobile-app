@@ -1,5 +1,6 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import { ShieldCheck } from "lucide-react-native";
 import { useState } from "react";
 import {
@@ -16,6 +17,7 @@ import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function AccountCreationScreen() {
+	const router = useRouter();
 	const { setAnswer, nextStep } = useOnboardingStore();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -56,6 +58,7 @@ export function AccountCreationScreen() {
 
 		setAnswer("authMethod", "email");
 		nextStep();
+		router.push("/(onboarding)/24");
 	};
 
 	return (

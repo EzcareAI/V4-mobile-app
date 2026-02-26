@@ -1,6 +1,7 @@
 import { useGLTF } from "@react-three/drei/native";
 import { Canvas, type ThreeEvent, useFrame } from "@react-three/fiber/native";
 import { Asset } from "expo-asset";
+import { cacheDirectory, downloadAsync, getInfoAsync } from "expo-file-system";
 import { useFocusEffect } from "expo-router";
 import {
 	Suspense,
@@ -135,12 +136,22 @@ function BodyModelAssetLoader(props: Body3DSelectorProps) {
 
 	// In Android release builds, passing the raw numeric require() module to useGLTF
 	// fails because the GLTFLoader uses fetch(), which cannot read from the asset:// scheme.
-	// We MUST use expo-asset to copy the bundle buffer onto the physical file system (file://)
+	// We MUST use expo-file-system to copy the bundle buffer onto the physical file system (file://)
 	useEffect(() => {
 		async function loadAsset() {
 			try {
 				const assets = await Asset.loadAsync(MODEL_MODULE);
-				const uri = assets[0].localUri || assets[0].uri;
+				let uri = assets[0].localUri || assets[0].uri;
+
+				if (uri && (uri.startsWith("asset://") || uri.startsWith("http"))) {
+					const localPath = `${cacheDirectory}body.glb`;
+					const fileInfo = await getInfoAsync(localPath);
+					if (!fileInfo.exists) {
+						await downloadAsync(uri, localPath);
+					}
+					uri = localPath;
+				}
+
 				setModelUri(uri);
 			} catch (e) {
 				console.error("Fallback asset resolution failed for body.glb:", e);

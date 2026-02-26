@@ -1,7 +1,8 @@
 import { useGLTF } from "@react-three/drei/native";
 import { Canvas, type ThreeEvent, useFrame } from "@react-three/fiber/native";
 import { Asset } from "expo-asset";
-import { cacheDirectory, downloadAsync, getInfoAsync } from "expo-file-system";
+// biome-ignore lint/performance/noNamespaceImport: Legacy FS requires namespace import
+import * as FileSystem from "expo-file-system/legacy";
 import { useFocusEffect } from "expo-router";
 import {
 	Suspense,
@@ -141,18 +142,21 @@ function BodyModelAssetLoader(props: Body3DSelectorProps) {
 		async function loadAsset() {
 			try {
 				const assets = await Asset.loadAsync(MODEL_MODULE);
-				let uri = assets[0].localUri || assets[0].uri;
+				const uri = assets[0].localUri || assets[0].uri;
 
-				if (uri && (uri.startsWith("asset://") || uri.startsWith("http"))) {
-					const localPath = `${cacheDirectory}body.glb`;
-					const fileInfo = await getInfoAsync(localPath);
-					if (!fileInfo.exists) {
-						await downloadAsync(uri, localPath);
-					}
-					uri = localPath;
+				// Force copy the binary data from the Android asset:// stream into a readable physical file
+				// The GLTFLoader ALSO specifically needs the .glb extension in the path to parse it perfectly
+				const localPath = `${FileSystem.cacheDirectory}body.glb`;
+				const fileInfo = await FileSystem.getInfoAsync(localPath);
+
+				if (!fileInfo.exists) {
+					await FileSystem.copyAsync({
+						from: uri,
+						to: localPath,
+					});
 				}
 
-				setModelUri(uri);
+				setModelUri(localPath);
 			} catch (e) {
 				console.error("Fallback asset resolution failed for body.glb:", e);
 			}

@@ -12,8 +12,8 @@ try {
 	const rootPath = path.join(process.cwd(), "..", "..");
 
 	// Run git archive from the root directory so the entire monorepo is captured,
-	// but output the tarball back into apps/native
-	execSync(`git archive --format=tar HEAD > "${archivePath}"`, {
+	// but use --output instead of > redirection to prevent Windows shell from corrupting the binary stream!
+	execSync(`git archive --format=tar --output="${archivePath}" HEAD`, {
 		stdio: "inherit",
 		cwd: rootPath,
 	});

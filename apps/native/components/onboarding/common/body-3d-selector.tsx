@@ -34,7 +34,7 @@ function BodyModel({
 }: Body3DSelectorProps & { uri: unknown }) {
 	const modelRef = useRef<Group>(null);
 
-	const { scene } = useGLTF(uri) as unknown as { scene: Group };
+	const { scene } = useGLTF(uri as any) as unknown as { scene: Group };
 
 	const [selected, setSelected] = useState<string[]>(value);
 

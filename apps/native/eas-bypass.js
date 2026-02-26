@@ -7,10 +7,16 @@ console.log("🛠️ Starting EAS Build Custom Archive Bypass 🛠️");
 try {
 	// 1. Manually create the tarball using git archive (which creates valid tar format)
 	// We use gzip natively within JS to avoid Windows pipe corruption
-	console.log("Packing clean git archive...");
+	console.log("Packing clean git archive from the monorepo root...");
 	const archivePath = path.join(process.cwd(), "project.tar");
+	const rootPath = path.join(process.cwd(), "..", "..");
 
-	execSync("git archive --format=tar HEAD > project.tar", { stdio: "inherit" });
+	// Run git archive from the root directory so the entire monorepo is captured,
+	// but output the tarball back into apps/native
+	execSync(`git archive --format=tar HEAD > "${archivePath}"`, {
+		stdio: "inherit",
+		cwd: rootPath,
+	});
 
 	console.log("Compressing to .tar.gz using Node zlib...");
 	// Use zlib to compress the tar file properly

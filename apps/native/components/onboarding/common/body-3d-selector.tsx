@@ -1,20 +1,14 @@
 import { useGLTF } from "@react-three/drei/native";
 import { Canvas, type ThreeEvent, useFrame } from "@react-three/fiber/native";
-import { Asset } from "expo-asset";
 import { useFocusEffect } from "expo-router";
-import {
-	Suspense,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from "react";
+import { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import { PanResponder, Text, View } from "react-native";
 import { Color, type Group, Mesh, MeshStandardMaterial } from "three";
 import { THEME } from "@/lib/theme";
 
 // The Metro bundler now packages this asset because of our metro.config.js update.
+// In native builds, @react-three/drei expects the raw require module, not the local file URL,
+// because it internally wraps it in useAsset() using expo-file-system.
 const MODEL_MODULE = require("@/assets/models/body.glb");
 
 interface Body3DSelectorProps {
@@ -37,7 +31,7 @@ function BodyModel({
 	value = [],
 	onChange,
 	uri,
-}: Body3DSelectorProps & { uri: string }) {
+}: Body3DSelectorProps & { uri: unknown }) {
 	const modelRef = useRef<Group>(null);
 
 	const { scene } = useGLTF(uri) as unknown as { scene: Group };
@@ -127,30 +121,9 @@ function BodyModel({
 }
 
 function BodyModelAssetLoader(props: Body3DSelectorProps) {
-	const [uri, setUri] = useState<string | null>(null);
-
-	useEffect(() => {
-		let isMounted = true;
-		async function preloadAsset() {
-			try {
-				const asset = await Asset.loadAsync(MODEL_MODULE);
-				if (isMounted && asset && asset[0]) {
-					setUri(asset[0].localUri || asset[0].uri);
-				}
-			} catch (e) {
-				console.warn("Failed to load body model asset", e);
-			}
-		}
-		preloadAsset();
-		return () => {
-			isMounted = false;
-		};
-	}, []);
-
-	if (!uri) {
-		return null;
-	}
-	return <BodyModel {...props} uri={uri} />;
+	// Let @react-three/drei/native handle the GLB module resolution
+	// (it internally uses expo-file-system and useAsset for Android asset:// compatibility)
+	return <BodyModel {...props} uri={MODEL_MODULE} />;
 }
 
 export function Body3DSelector(props: Body3DSelectorProps) {

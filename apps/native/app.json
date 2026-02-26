@@ -22,11 +22,10 @@
       "package": "com.blastshoum.ezcare"
     },
     "extra": {
+      "router": {},
       "eas": {
-        "projectId": "8618fe87-dba6-4541-8985-6a4fec540613"
-      },
-      "router": {}
-    },
-    "owner": "ezcare_ai3"
+        "projectId": "8badc40b-e2ce-4d3b-96a4-96c094747e70"
+      }
+    }
   }
 }

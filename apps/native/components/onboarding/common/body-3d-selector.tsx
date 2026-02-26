@@ -1,7 +1,15 @@
 import { useGLTF } from "@react-three/drei/native";
 import { Canvas, type ThreeEvent, useFrame } from "@react-three/fiber/native";
+import { Asset } from "expo-asset";
 import { useFocusEffect } from "expo-router";
-import { Suspense, useCallback, useMemo, useRef, useState } from "react";
+import {
+	Suspense,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { PanResponder, Text, View } from "react-native";
 import { Color, type Group, Mesh, MeshStandardMaterial } from "three";
 import { THEME } from "@/lib/theme";
@@ -123,9 +131,29 @@ function BodyModel({
 }
 
 function BodyModelAssetLoader(props: Body3DSelectorProps) {
-	// Let @react-three/drei/native handle the GLB module resolution
-	// (it internally uses expo-file-system and useAsset for Android asset:// compatibility)
-	return <BodyModel {...props} uri={MODEL_MODULE} />;
+	const [modelUri, setModelUri] = useState<string | null>(null);
+
+	// In Android release builds, passing the raw numeric require() module to useGLTF
+	// fails because the GLTFLoader uses fetch(), which cannot read from the asset:// scheme.
+	// We MUST use expo-asset to copy the bundle buffer onto the physical file system (file://)
+	useEffect(() => {
+		async function loadAsset() {
+			try {
+				const assets = await Asset.loadAsync(MODEL_MODULE);
+				const uri = assets[0].localUri || assets[0].uri;
+				setModelUri(uri);
+			} catch (e) {
+				console.error("Fallback asset resolution failed for body.glb:", e);
+			}
+		}
+		loadAsset();
+	}, []);
+
+	if (!modelUri) {
+		return null;
+	}
+
+	return <BodyModel {...props} uri={modelUri} />;
 }
 
 export function Body3DSelector(props: Body3DSelectorProps) {

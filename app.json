@@ -1,3 +1,12 @@
 {
-  "expo": {}
+  "expo": {
+    "android": {
+      "package": "com.blastshoum.ezcare"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8badc40b-e2ce-4d3b-96a4-96c094747e70"
+      }
+    }
+  }
 }

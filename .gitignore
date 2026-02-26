@@ -53,3 +53,5 @@ EZCare-Saas-Reference/
 .cache
 tmp
 temp
+.bin/
+node_portable/

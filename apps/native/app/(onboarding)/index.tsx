@@ -38,11 +38,12 @@ export default function OnboardingIndex() {
 		>
 			<SafeAreaView style={styles.safeArea}>
 				{/* Developer Debug Shortcut */}
-				<Link asChild href="/debug-3d">
-					<TouchableOpacity style={styles.debugBtn}>
-						<Bug color="#94a3b8" size={20} />
-					</TouchableOpacity>
-				</Link>
+				<TouchableOpacity
+					onPress={() => router.push("/debug-3d")}
+					style={styles.debugBtn}
+				>
+					<Bug color="#94a3b8" size={20} />
+				</TouchableOpacity>
 
 				{/* Logo Section */}
 				<View style={styles.logoSection}>

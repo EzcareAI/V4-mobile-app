@@ -126,6 +126,25 @@ function BodyModel({
  *  - GLTFLoader.load() uses fetch() which CANNOT read asset:// URIs on Android
  *  - expo-asset.loadAsync() returns a localUri that IS a valid file:// path
  */
+async function prepareAsset(): Promise<string> {
+	const assets = await Asset.loadAsync(MODEL_MODULE);
+	const uri = assets[0].localUri ?? assets[0].uri;
+
+	if (!uri) {
+		throw new Error("Asset missing URI after loadAsync");
+	}
+
+	// Android asset bundles strip the .glb extension resulting in silent GLTFLoader crashes
+	const physicalPath = `${cacheDirectory}body-diagram.glb`;
+	const fileInfo = await getInfoAsync(physicalPath);
+
+	if (!fileInfo.exists) {
+		await copyAsync({ from: uri, to: physicalPath });
+	}
+
+	return physicalPath;
+}
+
 function BodyModelLoader(props: Body3DSelectorProps) {
 	const [modelUri, setModelUri] = useState<string | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
@@ -133,40 +152,17 @@ function BodyModelLoader(props: Body3DSelectorProps) {
 	useEffect(() => {
 		let mounted = true;
 
-		async function resolveAndCopyAsset() {
-			try {
-				const assets = await Asset.loadAsync(MODEL_MODULE);
-				const uri = assets[0].localUri ?? assets[0].uri;
-
-				if (!uri) {
-					throw new Error("Asset missing URI after loadAsync");
-				}
-
-				// The critical fix: Android bundles assets without the .glb extension
-				// (e.g. `ExponentAsset-abcdef...`) which causes Three.js GLTFLoader
-				// to crash silently or attempt a JSON parse instead of a binary parse.
-				// We MUST copy the stream to a physical file named `.glb`.
-				const physicalPath = `${cacheDirectory}body-diagram.glb`;
-				const fileInfo = await getInfoAsync(physicalPath);
-
-				if (!fileInfo.exists) {
-					await copyAsync({
-						from: uri,
-						to: physicalPath,
-					});
-				}
-
+		prepareAsset()
+			.then((uri) => {
 				if (mounted) {
-					setModelUri(physicalPath);
+					setModelUri(uri);
 				}
-			} catch (err: unknown) {
+			})
+			.catch((err: unknown) => {
 				if (mounted) {
 					setLoadError(err instanceof Error ? err.message : String(err));
 				}
-			}
-		}
-
-		resolveAndCopyAsset();
+			});
 
 		return () => {
 			mounted = false;

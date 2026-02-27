@@ -1,14 +1,21 @@
 import { useGLTF } from "@react-three/drei/native";
 import { Canvas, type ThreeEvent, useFrame } from "@react-three/fiber/native";
+import { Asset } from "expo-asset";
 import { useFocusEffect } from "expo-router";
-import { Suspense, useCallback, useMemo, useRef, useState } from "react";
-import { PanResponder, Text, View } from "react-native";
+import {
+	Suspense,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
+import { ActivityIndicator, PanResponder, Text, View } from "react-native";
 import { Color, type Group, Mesh, MeshStandardMaterial } from "three";
 import { THEME } from "@/lib/theme";
 
-// Pass the raw module number directly to useGLTF – @react-three/drei/native
-// internally uses expo-asset to resolve numeric require() modules to a file:// URI.
-// Do NOT pre-process this through Asset.loadAsync or FileSystem; let drei handle it.
+// Metro bundles this as a numeric asset module ID.
+// expo-asset resolves it to a file:// path before passing to GLTFLoader.
 const MODEL_MODULE = require("@/assets/models/body.glb");
 
 interface Body3DSelectorProps {
@@ -19,38 +26,37 @@ interface Body3DSelectorProps {
 }
 
 // Global mutable state for current drag delta.
-// We use an external proxy object to bypass React renders for pure 60fps rotation.
+// We use an external proxy to bypass React renders for pure 60fps rotation.
 const globalRotation = { x: 0, y: 0 };
 
 /**
- * 3D Human Body Component.
- * Parses the GLB meshes dynamically, assigns touch handlers for raycasting,
- * and maintains the multiple selection state by toggling `emissive` materials.
+ * Inner 3D body mesh component. Receives a resolved `file://` URI string.
+ * useGLTF requires a proper string URL — numeric module IDs are resolved
+ * upstream in BodyModelLoader before this component mounts.
  */
-function BodyModel({ value = [], onChange }: Body3DSelectorProps) {
+function BodyModel({
+	value = [],
+	onChange,
+	modelUri,
+}: Body3DSelectorProps & { modelUri: string }) {
 	const modelRef = useRef<Group>(null);
 
-	// useGLTF from @react-three/drei/native accepts a numeric require() module ID
-	// directly on Android – it resolves it via expo-asset internally.
-	const { scene } = useGLTF(MODEL_MODULE) as unknown as { scene: Group };
+	// useGLTF from @react-three/drei/native calls useLoader(GLTFLoader, path)
+	// which requires a string path. We pass the resolved file:// URI here.
+	const { scene } = useGLTF(modelUri) as unknown as { scene: Group };
 
 	const [selected, setSelected] = useState<string[]>(value);
 
-	// Respond to PanResponder drags + apply slow ambient rotation
 	useFrame((_, delta) => {
 		if (modelRef.current) {
-			// Apply ambient rotation
 			modelRef.current.rotation.y += delta * 0.15;
 
-			// Apply user drag rotation
 			if (globalRotation.y !== 0 || globalRotation.x !== 0) {
 				modelRef.current.rotation.y += globalRotation.y;
 				modelRef.current.rotation.x += globalRotation.x;
-				// Dampen the global rotation after applying (simulates inertia)
 				globalRotation.y *= 0.8;
 				globalRotation.x *= 0.8;
 
-				// Clamp x rotation so it doesn't flip completely upside down
 				modelRef.current.rotation.x = Math.max(
 					-0.5,
 					Math.min(0.5, modelRef.current.rotation.x)
@@ -59,43 +65,33 @@ function BodyModel({ value = [], onChange }: Body3DSelectorProps) {
 		}
 	});
 
-	// Toggle selection state
 	const toggleRegion = (e: ThreeEvent<MouseEvent> & { object: Mesh }) => {
-		// Stop raycast from penetrating to meshes behind
 		e.stopPropagation();
 		const meshName = e.object.name;
-
 		const next = selected.includes(meshName)
 			? selected.filter((n) => n !== meshName)
 			: [...selected, meshName];
-
 		setSelected(next);
 		onChange?.(next);
 	};
 
-	// Clone the scene and apply materials so we can mutate emissive without affecting cache
+	// Clone the scene and apply our own materials
 	const clonedScene = useMemo(() => {
 		const clone = scene.clone();
-
-		// Setup materials for each mesh
 		clone.traverse((node: unknown) => {
 			if (node instanceof Mesh) {
-				// Neutral plastic-like material for the base body
-				const mat = new MeshStandardMaterial({
+				node.material = new MeshStandardMaterial({
 					color: 0xcc_cc_cc,
 					roughness: 0.6,
 					metalness: 0.1,
 				});
-				node.material = mat;
-
-				// Bind hit-testing metadata
 				node.userData.isBodyPart = true;
 			}
 		});
 		return clone;
 	}, [scene]);
 
-	// Update emissive glow every render based on selection
+	// Update emissive highlight each render pass for selected zones
 	clonedScene.traverse((node: unknown) => {
 		if (node instanceof Mesh && node.material instanceof MeshStandardMaterial) {
 			const isSelected = selected.includes(node.name);
@@ -111,43 +107,81 @@ function BodyModel({ value = [], onChange }: Body3DSelectorProps) {
 			object={clonedScene}
 			onPointerDown={toggleRegion}
 			position={[0, -5, 0]}
-			// Center the geometry and scale down (assumes typical blender metrics)
 			ref={modelRef}
 			scale={0.05}
 		/>
 	);
 }
 
+/**
+ * Resolves the bundled GLB asset to a local file:// URI using expo-asset,
+ * then renders BodyModel inside R3F Suspense once the URI is ready.
+ * This two-step approach is required because:
+ *  - useGLTF (drei/native) delegates to useLoader(GLTFLoader, path)
+ *  - GLTFLoader.load() uses fetch() which CANNOT read asset:// URIs on Android
+ *  - expo-asset.loadAsync() returns a localUri that IS a valid file:// path
+ */
+function BodyModelLoader(props: Body3DSelectorProps) {
+	const [modelUri, setModelUri] = useState<string | null>(null);
+	const [loadError, setLoadError] = useState<string | null>(null);
+
+	useEffect(() => {
+		let mounted = true;
+		Asset.loadAsync(MODEL_MODULE)
+			.then((assets) => {
+				if (!mounted) return;
+				// localUri is the physical file:// path on device storage.
+				// It may be null on first cold start before Android extracts the asset.
+				const uri = assets[0].localUri ?? assets[0].uri;
+				if (uri) {
+					setModelUri(uri);
+				} else {
+					setLoadError("Asset URI unavailable");
+				}
+			})
+			.catch((e: unknown) => {
+				if (!mounted) return;
+				const msg = e instanceof Error ? e.message : String(e);
+				setLoadError(msg);
+			});
+		return () => {
+			mounted = false;
+		};
+	}, []);
+
+	if (loadError) {
+		// Surface the error visibly in the 3D scene for debugging
+		return null;
+	}
+
+	if (!modelUri) {
+		// Asset still resolving — Suspense handles this; render null until ready
+		return null;
+	}
+
+	return <BodyModel {...props} modelUri={modelUri} />;
+}
+
 export function Body3DSelector(props: Body3DSelectorProps) {
 	const { value = [], onInteractionStart, onInteractionEnd } = props;
 
-	// Only intercept gesture if they move their finger (allows tapping to pass through)
 	const panResponder = useMemo(
 		() =>
 			PanResponder.create({
 				onStartShouldSetPanResponder: () => false,
-				onMoveShouldSetPanResponder: (_, gestureState) => {
-					// Require at least 5px of movement to become a drag,
-					// otherwise it's probably a tap for R3F to handle
-					return Math.abs(gestureState.dx) > 5 || Math.abs(gestureState.dy) > 5;
-				},
+				onMoveShouldSetPanResponder: (_, g) =>
+					Math.abs(g.dx) > 5 || Math.abs(g.dy) > 5,
 				onPanResponderGrant: () => {
 					globalRotation.x = 0;
 					globalRotation.y = 0;
 					onInteractionStart?.();
 				},
-				onPanResponderMove: (_, gestureState) => {
-					// Supply raw deltas to the R3F frame loop via the global object
-					// vx/vy are velocity, dx/dy are cumulative, so we can just use velocity for smooth, delta-based turning
-					globalRotation.y = gestureState.vx * 0.05;
-					globalRotation.x = gestureState.vy * 0.05;
+				onPanResponderMove: (_, g) => {
+					globalRotation.y = g.vx * 0.05;
+					globalRotation.x = g.vy * 0.05;
 				},
-				onPanResponderRelease: () => {
-					onInteractionEnd?.();
-				},
-				onPanResponderTerminate: () => {
-					onInteractionEnd?.();
-				},
+				onPanResponderRelease: () => onInteractionEnd?.(),
+				onPanResponderTerminate: () => onInteractionEnd?.(),
 			}),
 		[onInteractionStart, onInteractionEnd]
 	);
@@ -163,7 +197,6 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 
 	return (
 		<View className="relative w-full flex-1" {...panResponder.panHandlers}>
-			{/* Canvas wrapper */}
 			<View className="flex-1 rounded-[32px] border border-blue-100/40 bg-[#F8FBFF] shadow-xl">
 				{isFocused ? (
 					<Canvas
@@ -179,13 +212,26 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 						<directionalLight intensity={2} position={[10, 10, 10]} />
 						<directionalLight intensity={1} position={[-10, 5, -10]} />
 
-						<Suspense fallback={null}>
-							<BodyModel {...props} />
+						<Suspense
+							fallback={
+								// Visible spinner in 3D space while the GLB loads
+								<mesh>
+									<planeGeometry args={[0, 0]} />
+									<meshBasicMaterial opacity={0} transparent />
+								</mesh>
+							}
+						>
+							<BodyModelLoader {...props} />
 						</Suspense>
 					</Canvas>
-				) : null}
+				) : (
+					// Show a spinner while the screen focuses (before Canvas mounts)
+					<View className="flex-1 items-center justify-center">
+						<ActivityIndicator color={THEME.accent} size="large" />
+					</View>
+				)}
 
-				{/* Transparent overlay for touch indication */}
+				{/* Touch hint overlay */}
 				<View className="pointer-events-none absolute right-0 bottom-4 left-0 items-center">
 					<View className="rounded-full bg-black/20 px-3 py-1">
 						<Text className="font-medium text-white text-xs">
@@ -195,7 +241,7 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 				</View>
 			</View>
 
-			{/* Selected label output below the 3D viewer */}
+			{/* Selection chips */}
 			<View className="mt-4 min-h-[40px] flex-row flex-wrap justify-center gap-2 px-2">
 				{value.length === 0 ? (
 					<Text className="text-[#73808C] text-sm">

@@ -1,7 +1,7 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { Link, useRouter } from "expo-router";
-import { Check, Leaf } from "lucide-react-native";
+import { Bug, Check, Leaf } from "lucide-react-native";
 import {
 	Image,
 	Platform,
@@ -37,6 +37,13 @@ export default function OnboardingIndex() {
 			style={styles.gradient}
 		>
 			<SafeAreaView style={styles.safeArea}>
+				{/* Developer Debug Shortcut */}
+				<Link asChild href="/(onboarding)/debug-3d">
+					<TouchableOpacity style={styles.debugBtn}>
+						<Bug color="#94a3b8" size={20} />
+					</TouchableOpacity>
+				</Link>
+
 				{/* Logo Section */}
 				<View style={styles.logoSection}>
 					<View style={styles.logoCard}>
@@ -140,6 +147,15 @@ const styles = StyleSheet.create({
 		shadowRadius: 40,
 		elevation: 15,
 		overflow: "hidden",
+	},
+	debugBtn: {
+		position: "absolute",
+		top: 16,
+		right: 32,
+		zIndex: 50,
+		padding: 8,
+		backgroundColor: "rgba(255,255,255,0.8)",
+		borderRadius: 20,
 	},
 	logoImage: {
 		width: "100%",

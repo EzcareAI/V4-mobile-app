@@ -1,6 +1,11 @@
 import { useGLTF } from "@react-three/drei/native";
 import { Canvas, type ThreeEvent, useFrame } from "@react-three/fiber/native";
 import { Asset } from "expo-asset";
+import {
+	cacheDirectory,
+	copyAsync,
+	getInfoAsync,
+} from "expo-file-system/legacy";
 import { useFocusEffect } from "expo-router";
 import {
 	Suspense,
@@ -127,35 +132,53 @@ function BodyModelLoader(props: Body3DSelectorProps) {
 
 	useEffect(() => {
 		let mounted = true;
-		Asset.loadAsync(MODEL_MODULE)
-			.then((assets) => {
-				if (!mounted) return;
-				// localUri is the physical file:// path on device storage.
-				// It may be null on first cold start before Android extracts the asset.
+
+		async function resolveAndCopyAsset() {
+			try {
+				const assets = await Asset.loadAsync(MODEL_MODULE);
 				const uri = assets[0].localUri ?? assets[0].uri;
-				if (uri) {
-					setModelUri(uri);
-				} else {
-					setLoadError("Asset URI unavailable");
+
+				if (!uri) {
+					throw new Error("Asset missing URI after loadAsync");
 				}
-			})
-			.catch((e: unknown) => {
-				if (!mounted) return;
-				const msg = e instanceof Error ? e.message : String(e);
-				setLoadError(msg);
-			});
+
+				// The critical fix: Android bundles assets without the .glb extension
+				// (e.g. `ExponentAsset-abcdef...`) which causes Three.js GLTFLoader
+				// to crash silently or attempt a JSON parse instead of a binary parse.
+				// We MUST copy the stream to a physical file named `.glb`.
+				const physicalPath = `${cacheDirectory}body-diagram.glb`;
+				const fileInfo = await getInfoAsync(physicalPath);
+
+				if (!fileInfo.exists) {
+					await copyAsync({
+						from: uri,
+						to: physicalPath,
+					});
+				}
+
+				if (mounted) {
+					setModelUri(physicalPath);
+				}
+			} catch (err: unknown) {
+				if (mounted) {
+					setLoadError(err instanceof Error ? err.message : String(err));
+				}
+			}
+		}
+
+		resolveAndCopyAsset();
+
 		return () => {
 			mounted = false;
 		};
 	}, []);
 
 	if (loadError) {
-		// Surface the error visibly in the 3D scene for debugging
+		console.error("3D Body Model Loading Error:", loadError);
 		return null;
 	}
 
 	if (!modelUri) {
-		// Asset still resolving — Suspense handles this; render null until ready
 		return null;
 	}
 

@@ -1,24 +1,14 @@
 import { useGLTF } from "@react-three/drei/native";
 import { Canvas, type ThreeEvent, useFrame } from "@react-three/fiber/native";
-import { Asset } from "expo-asset";
-// biome-ignore lint/performance/noNamespaceImport: Legacy FS requires namespace import
-import * as FileSystem from "expo-file-system/legacy";
 import { useFocusEffect } from "expo-router";
-import {
-	Suspense,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from "react";
+import { Suspense, useCallback, useMemo, useRef, useState } from "react";
 import { PanResponder, Text, View } from "react-native";
 import { Color, type Group, Mesh, MeshStandardMaterial } from "three";
 import { THEME } from "@/lib/theme";
 
-// The Metro bundler now packages this asset because of our metro.config.js update.
-// In native builds, @react-three/drei expects the raw require module, not the local file URL,
-// because it internally wraps it in useAsset() using expo-file-system.
+// Pass the raw module number directly to useGLTF – @react-three/drei/native
+// internally uses expo-asset to resolve numeric require() modules to a file:// URI.
+// Do NOT pre-process this through Asset.loadAsync or FileSystem; let drei handle it.
 const MODEL_MODULE = require("@/assets/models/body.glb");
 
 interface Body3DSelectorProps {
@@ -37,16 +27,12 @@ const globalRotation = { x: 0, y: 0 };
  * Parses the GLB meshes dynamically, assigns touch handlers for raycasting,
  * and maintains the multiple selection state by toggling `emissive` materials.
  */
-function BodyModel({
-	value = [],
-	onChange,
-	uri,
-}: Body3DSelectorProps & { uri: unknown }) {
+function BodyModel({ value = [], onChange }: Body3DSelectorProps) {
 	const modelRef = useRef<Group>(null);
 
-	const { scene } = useGLTF(uri as unknown as string) as unknown as {
-		scene: Group;
-	};
+	// useGLTF from @react-three/drei/native accepts a numeric require() module ID
+	// directly on Android – it resolves it via expo-asset internally.
+	const { scene } = useGLTF(MODEL_MODULE) as unknown as { scene: Group };
 
 	const [selected, setSelected] = useState<string[]>(value);
 
@@ -132,45 +118,6 @@ function BodyModel({
 	);
 }
 
-function BodyModelAssetLoader(props: Body3DSelectorProps) {
-	const [modelUri, setModelUri] = useState<string | null>(null);
-
-	// In Android release builds, passing the raw numeric require() module to useGLTF
-	// fails because the GLTFLoader uses fetch(), which cannot read from the asset:// scheme.
-	// We MUST use expo-file-system to copy the bundle buffer onto the physical file system (file://)
-	useEffect(() => {
-		async function loadAsset() {
-			try {
-				const assets = await Asset.loadAsync(MODEL_MODULE);
-				const uri = assets[0].localUri || assets[0].uri;
-
-				// Force copy the binary data from the Android asset:// stream into a readable physical file
-				// The GLTFLoader ALSO specifically needs the .glb extension in the path to parse it perfectly
-				const localPath = `${FileSystem.cacheDirectory}body.glb`;
-				const fileInfo = await FileSystem.getInfoAsync(localPath);
-
-				if (!fileInfo.exists) {
-					await FileSystem.copyAsync({
-						from: uri,
-						to: localPath,
-					});
-				}
-
-				setModelUri(localPath);
-			} catch (e) {
-				console.error("Fallback asset resolution failed for body.glb:", e);
-			}
-		}
-		loadAsset();
-	}, []);
-
-	if (!modelUri) {
-		return null;
-	}
-
-	return <BodyModel {...props} uri={modelUri} />;
-}
-
 export function Body3DSelector(props: Body3DSelectorProps) {
 	const { value = [], onInteractionStart, onInteractionEnd } = props;
 
@@ -223,28 +170,22 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 						camera={{ position: [0, 0, 10], fov: 45 }}
 						style={{ flex: 1 }}
 					>
-						{/* DEBUG BOX: Placed explicitly OUTSIDE Suspense. If this pink box renders but the body doesn't, useGLTF is broken. If no box renders, the Canvas is definitively broken natively! */}
-						<mesh position={[0, 3, 0]}>
-							<boxGeometry args={[1, 1, 1]} />
-							<meshStandardMaterial color="hotpink" />
-						</mesh>
+						<ambientLight intensity={0.8} />
+						<hemisphereLight
+							color="#ffffff"
+							groundColor="#000000"
+							intensity={1}
+						/>
+						<directionalLight intensity={2} position={[10, 10, 10]} />
+						<directionalLight intensity={1} position={[-10, 5, -10]} />
 
 						<Suspense fallback={null}>
-							<ambientLight intensity={0.8} />
-							<hemisphereLight
-								color="#ffffff"
-								groundColor="#000000"
-								intensity={1}
-							/>
-							<directionalLight intensity={2} position={[10, 10, 10]} />
-							<directionalLight intensity={1} position={[-10, 5, -10]} />
-
-							<BodyModelAssetLoader {...props} />
+							<BodyModel {...props} />
 						</Suspense>
 					</Canvas>
 				) : null}
 
-				{/* Transparent overlay for touch indication (optional) */}
+				{/* Transparent overlay for touch indication */}
 				<View className="pointer-events-none absolute right-0 bottom-4 left-0 items-center">
 					<View className="rounded-full bg-black/20 px-3 py-1">
 						<Text className="font-medium text-white text-xs">

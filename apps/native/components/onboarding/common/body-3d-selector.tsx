@@ -145,42 +145,6 @@ async function prepareAsset(): Promise<string> {
 	return physicalPath;
 }
 
-function BodyModelLoader(props: Body3DSelectorProps) {
-	const [modelUri, setModelUri] = useState<string | null>(null);
-	const [loadError, setLoadError] = useState<string | null>(null);
-
-	useEffect(() => {
-		let mounted = true;
-
-		prepareAsset()
-			.then((uri) => {
-				if (mounted) {
-					setModelUri(uri);
-				}
-			})
-			.catch((err: unknown) => {
-				if (mounted) {
-					setLoadError(err instanceof Error ? err.message : String(err));
-				}
-			});
-
-		return () => {
-			mounted = false;
-		};
-	}, []);
-
-	if (loadError) {
-		console.error("3D Body Model Loading Error:", loadError);
-		return null;
-	}
-
-	if (!modelUri) {
-		return null;
-	}
-
-	return <BodyModel {...props} modelUri={modelUri} />;
-}
-
 export function Body3DSelector(props: Body3DSelectorProps) {
 	const { value = [], onInteractionStart, onInteractionEnd } = props;
 
@@ -206,6 +170,28 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 	);
 
 	const [isFocused, setIsFocused] = useState(false);
+	const [modelUri, setModelUri] = useState<string | null>(null);
+	const [loadError, setLoadError] = useState<string | null>(null);
+
+	useEffect(() => {
+		let mounted = true;
+
+		prepareAsset()
+			.then((uri) => {
+				if (mounted) {
+					setModelUri(uri);
+				}
+			})
+			.catch((err: unknown) => {
+				if (mounted) {
+					setLoadError(err instanceof Error ? err.message : String(err));
+				}
+			});
+
+		return () => {
+			mounted = false;
+		};
+	}, []);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -216,8 +202,19 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 
 	return (
 		<View className="relative w-full flex-1" {...panResponder.panHandlers}>
-			<View className="flex-1 rounded-[32px] border border-blue-100/40 bg-[#F8FBFF] shadow-xl">
-				{isFocused ? (
+			<View className="flex-1 overflow-hidden rounded-[32px] border border-blue-100/40 bg-[#F8FBFF] shadow-xl">
+				{loadError && (
+					<View className="flex-1 items-center justify-center bg-red-50/50 p-6">
+						<Text className="mb-2 text-center font-bold text-base text-red-500">
+							Asset Mount Error
+						</Text>
+						<Text className="text-center font-mono text-gray-600 text-xs">
+							{loadError}
+						</Text>
+					</View>
+				)}
+
+				{!loadError && isFocused && modelUri && (
 					<Canvas
 						camera={{ position: [0, 0, 10], fov: 45 }}
 						style={{ flex: 1 }}
@@ -233,31 +230,42 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 
 						<Suspense
 							fallback={
-								// Visible spinner in 3D space while the GLB loads
 								<mesh>
 									<planeGeometry args={[0, 0]} />
 									<meshBasicMaterial opacity={0} transparent />
 								</mesh>
 							}
 						>
-							<BodyModelLoader {...props} />
+							<BodyModel {...props} modelUri={modelUri} />
 						</Suspense>
 					</Canvas>
-				) : (
-					// Show a spinner while the screen focuses (before Canvas mounts)
-					<View className="flex-1 items-center justify-center">
+				)}
+
+				{!loadError && !(isFocused && modelUri) && (
+					<View className="flex-1 items-center justify-center bg-[#F8FBFF]">
 						<ActivityIndicator color={THEME.accent} size="large" />
+						{!isFocused && (
+							<Text className="mt-4 font-medium text-gray-400 text-xs">
+								Mounting context...
+							</Text>
+						)}
+						{isFocused && !modelUri && (
+							<Text className="mt-4 font-medium text-gray-400 text-xs">
+								Extracting native file path...
+							</Text>
+						)}
 					</View>
 				)}
 
-				{/* Touch hint overlay */}
-				<View className="pointer-events-none absolute right-0 bottom-4 left-0 items-center">
-					<View className="rounded-full bg-black/20 px-3 py-1">
-						<Text className="font-medium text-white text-xs">
-							Drag to rotate • Tap to select
-						</Text>
+				{!loadError && (
+					<View className="pointer-events-none absolute right-0 bottom-4 left-0 items-center">
+						<View className="rounded-full bg-black/20 px-3 py-1">
+							<Text className="font-medium text-white text-xs">
+								Drag to rotate • Tap to select
+							</Text>
+						</View>
 					</View>
-				</View>
+				)}
 			</View>
 
 			{/* Selection chips */}

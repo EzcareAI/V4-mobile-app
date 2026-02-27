@@ -38,7 +38,7 @@ export default function OnboardingIndex() {
 		>
 			<SafeAreaView style={styles.safeArea}>
 				{/* Developer Debug Shortcut */}
-				<Link asChild href="/(onboarding)/debug-3d">
+				<Link asChild href="/debug-3d">
 					<TouchableOpacity style={styles.debugBtn}>
 						<Bug color="#94a3b8" size={20} />
 					</TouchableOpacity>

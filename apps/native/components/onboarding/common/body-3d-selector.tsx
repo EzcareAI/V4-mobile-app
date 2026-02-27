@@ -200,6 +200,10 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 		}, [])
 	);
 
+	const isReady = isFocused && modelUri !== null;
+	const showModel = !loadError && isReady;
+	const showLoading = !(loadError || isReady);
+
 	return (
 		<View className="relative w-full flex-1" {...panResponder.panHandlers}>
 			<View className="flex-1 overflow-hidden rounded-[32px] border border-blue-100/40 bg-[#F8FBFF] shadow-xl">
@@ -214,7 +218,7 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 					</View>
 				)}
 
-				{!loadError && isFocused && modelUri && (
+				{showModel && (
 					<Canvas
 						camera={{ position: [0, 0, 10], fov: 45 }}
 						style={{ flex: 1 }}
@@ -236,12 +240,12 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 								</mesh>
 							}
 						>
-							<BodyModel {...props} modelUri={modelUri} />
+							<BodyModel {...props} modelUri={modelUri as string} />
 						</Suspense>
 					</Canvas>
 				)}
 
-				{!loadError && !(isFocused && modelUri) && (
+				{showLoading && (
 					<View className="flex-1 items-center justify-center bg-[#F8FBFF]">
 						<ActivityIndicator color={THEME.accent} size="large" />
 						{!isFocused && (

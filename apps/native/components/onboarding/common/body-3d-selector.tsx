@@ -50,8 +50,7 @@ function BodyModel({
 	value = [],
 	onChange,
 	modelUri,
-	log,
-}: Body3DSelectorProps & { modelUri: string; log: (msg: string) => void }) {
+}: Body3DSelectorProps & { modelUri: string }) {
 	const modelRef = useRef<Group>(null);
 
 	// useGLTF from @react-three/drei/native calls useLoader(GLTFLoader, path)
@@ -98,46 +97,34 @@ function BodyModel({
 			const center = new Vector3();
 			box.getCenter(center);
 
-			log(
-				`Size: [${size.x.toFixed(2)}, ${size.y.toFixed(2)}, ${size.z.toFixed(2)}]`
-			);
-
 			const maxDim = Math.max(size.x, size.y, size.z);
 			let calculatedScale = 1;
 			// If maxDim is extremely huge or tiny, auto-scale to 8 units
 			if (maxDim > 0 && maxDim !== Number.POSITIVE_INFINITY) {
 				calculatedScale = 8 / maxDim;
-			} else {
-				log("Warning: Invalid Box3 constraints");
 			}
-			log(`Auto-scale applied: ${calculatedScale.toFixed(4)}`);
 
-			let meshCount = 0;
 			scene.traverse((node: unknown) => {
-				if (node instanceof Mesh) {
-					meshCount++;
-					if (!node.userData.hasCustomMaterial) {
-						node.material = new MeshStandardMaterial({
-							color: 0xcc_cc_cc,
-							roughness: 0.6,
-							metalness: 0.1,
-						});
-						node.userData.isBodyPart = true;
-						node.userData.hasCustomMaterial = true;
-					}
+				if (node instanceof Mesh && !node.userData.hasCustomMaterial) {
+					node.material = new MeshStandardMaterial({
+						color: 0xcc_cc_cc,
+						roughness: 0.6,
+						metalness: 0.1,
+					});
+					node.userData.isBodyPart = true;
+					node.userData.hasCustomMaterial = true;
 				}
 			});
-			log(`Mesh nodes resolved: ${meshCount}`);
 
 			return {
 				scale: calculatedScale,
 				centerOffset: center.multiplyScalar(-1),
 			};
 		} catch (err) {
-			log(`Scene parse error: ${err}`);
+			console.error(`[Body3D] Scene parse error: ${err}`);
 			return { scale: 1, centerOffset: new Vector3(0, 0, 0) };
 		}
-	}, [scene, log]);
+	}, [scene]);
 
 	// Update emissive highlight each render pass for selected zones
 	useMemo(() => {
@@ -220,28 +207,20 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 	const [isFocused, setIsFocused] = useState(false);
 	const [modelUri, setModelUri] = useState<string | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
-	const [onScreenLogs, setOnScreenLogs] = useState<string[]>([]);
-
-	const log = useCallback((msg: string) => {
-		console.log(`[Body3D] ${msg}`);
-		setOnScreenLogs((prev) => [msg, ...prev].slice(0, 5));
-	}, []);
 
 	useEffect(() => {
 		let mounted = true;
-		log("Mounting component...");
 
 		prepareAsset()
 			.then((uri) => {
 				if (mounted) {
-					log(`Asset ready: ${uri.split("/").pop()}`);
 					setModelUri(uri);
 				}
 			})
 			.catch((err: unknown) => {
 				if (mounted) {
 					const msg = err instanceof Error ? err.message : String(err);
-					log(`ERROR: ${msg}`);
+					console.error(`[Body3D] Asset Error: ${msg}`);
 					setLoadError(msg);
 				}
 			});
@@ -249,17 +228,15 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 		return () => {
 			mounted = false;
 		};
-	}, [log]);
+	}, []);
 
 	useFocusEffect(
 		useCallback(() => {
-			log("Screen Focused");
 			setIsFocused(true);
 			return () => {
-				log("Screen Blurred");
 				setIsFocused(false);
 			};
-		}, [log])
+		}, [])
 	);
 
 	const isReady = isFocused && modelUri !== null;
@@ -288,22 +265,8 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 						<ambientLight intensity={1.5} />
 						<directionalLight intensity={2} position={[10, 10, 10]} />
 
-						{/* TEST CUBE: If you see a RED CUBE, WebGL is ALIVE */}
-						<mesh position={[-2, 0, 0]}>
-							<boxGeometry args={[1, 1, 1]} />
-							<meshStandardMaterial color="red" />
-						</mesh>
-
-						<Suspense
-							fallback={
-								/* TEST SPHERE: If you see YELLOW, it is STUCK LOADING */
-								<mesh position={[2, 0, 0]}>
-									<sphereGeometry args={[0.5, 16, 16]} />
-									<meshStandardMaterial color="yellow" />
-								</mesh>
-							}
-						>
-							<BodyModel {...props} log={log} modelUri={modelUri as string} />
+						<Suspense fallback={null}>
+							<BodyModel {...props} modelUri={modelUri as string} />
 						</Suspense>
 					</Canvas>
 				)}
@@ -323,17 +286,6 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 						)}
 					</View>
 				)}
-
-				<View className="pointer-events-none absolute top-0 right-0 left-0 bg-black/40 p-2">
-					{onScreenLogs.map((msg, i) => {
-						const key = `${msg.substring(0, 20)}-${onScreenLogs.length - i}`;
-						return (
-							<Text className="font-mono text-[10px] text-green-400" key={key}>
-								{msg}
-							</Text>
-						);
-					})}
-				</View>
 
 				{!loadError && (
 					<View className="pointer-events-none absolute right-0 bottom-4 left-0 items-center">

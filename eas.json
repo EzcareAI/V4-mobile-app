@@ -1,18 +1,11 @@
 {
   "cli": {
-    "version": ">= 18.0.3",
+    "version": ">= 18.0.1",
     "appVersionSource": "remote"
   },
   "build": {
-    "development": {
-      "developmentClient": true,
-      "distribution": "internal"
-    },
-    "preview": {
-      "distribution": "internal",
-      "android": {
-        "buildType": "apk"
-      },
+    "base": {
+      "projectRoot": "apps/native",
       "node": "22.12.0",
       "bun": "1.3.9",
       "env": {
@@ -24,8 +17,27 @@
         "EXPO_PUBLIC_SERVER_URL": "http://192.168.1.24:3000"
       }
     },
+    "development": {
+      "extends": "base",
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "extends": "base",
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
+    },
     "production": {
+      "extends": "base",
       "autoIncrement": true
+    },
+    "production_apk": {
+      "extends": "production",
+      "android": {
+        "buildType": "apk"
+      }
     }
   },
   "submit": {

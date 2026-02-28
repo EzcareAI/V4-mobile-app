@@ -244,8 +244,8 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 	const showLoading = !(loadError || isReady);
 
 	return (
-		<View className="relative w-full flex-1" {...panResponder.panHandlers}>
-			<View className="flex-1 overflow-hidden rounded-[32px] border border-blue-100/40 bg-neutral-900 shadow-xl">
+		<View className="relative w-full" {...panResponder.panHandlers}>
+			<View className="h-[420px] w-full overflow-hidden rounded-[32px] border border-blue-100/40 bg-neutral-900 shadow-xl">
 				{loadError && (
 					<View className="flex-1 items-center justify-center bg-red-50/50 p-6">
 						<Text className="mb-2 text-center font-bold text-base text-red-500">

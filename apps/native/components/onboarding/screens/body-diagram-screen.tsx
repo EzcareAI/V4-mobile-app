@@ -55,7 +55,7 @@ export default function BodyDiagramScreen() {
 					/>
 
 					{/* ── Interactive 3D Body Canvas ── */}
-					<View className="min-h-[450px] flex-1 pb-4">
+					<View className="pb-4">
 						<Body3DSelector
 							onChange={setSelectedZones}
 							onInteractionEnd={() => setScrollEnabled(true)}
@@ -110,10 +110,10 @@ export default function BodyDiagramScreen() {
 					{/* Only show Continue if they tapped zones (otherwise they tap "Overall Wellness") */}
 					<View className="pt-6">
 						<ContinueButton
-						isDisabled={!hasSelection}
-						label={`Continue with ${selectedZones.length} Zone${selectedZones.length === 1 ? "" : "s"}`}
-						onPress={handleContinue}
-					/>
+							isDisabled={!hasSelection}
+							label={`Continue with ${selectedZones.length} Zone${selectedZones.length === 1 ? "" : "s"}`}
+							onPress={handleContinue}
+						/>
 					</View>
 				</View>
 			</View>

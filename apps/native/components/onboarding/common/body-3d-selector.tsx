@@ -16,7 +16,14 @@ import {
 	useState,
 } from "react";
 import { ActivityIndicator, PanResponder, Text, View } from "react-native";
-import { Color, type Group, Mesh, MeshStandardMaterial } from "three";
+import {
+	Box3,
+	Color,
+	type Group,
+	Mesh,
+	MeshStandardMaterial,
+	Vector3,
+} from "three";
 import { THEME } from "@/lib/theme";
 
 // Metro bundles this as a numeric asset module ID.
@@ -43,7 +50,8 @@ function BodyModel({
 	value = [],
 	onChange,
 	modelUri,
-}: Body3DSelectorProps & { modelUri: string }) {
+	log,
+}: Body3DSelectorProps & { modelUri: string; log: (msg: string) => void }) {
 	const modelRef = useRef<Group>(null);
 
 	// useGLTF from @react-three/drei/native calls useLoader(GLTFLoader, path)
@@ -80,41 +88,81 @@ function BodyModel({
 		onChange?.(next);
 	};
 
-	// Clone the scene and apply our own materials
-	const clonedScene = useMemo(() => {
-		const clone = scene.clone();
-		clone.traverse((node: unknown) => {
-			if (node instanceof Mesh) {
-				node.material = new MeshStandardMaterial({
-					color: 0xcc_cc_cc,
-					roughness: 0.6,
-					metalness: 0.1,
-				});
-				node.userData.isBodyPart = true;
+	// Calculate bounds and compute a perfect scale factor without cloning
+	// (cloning often breaks SkinnedMeshes causing them to be invisible)
+	const { scale, centerOffset } = useMemo(() => {
+		try {
+			const box = new Box3().setFromObject(scene);
+			const size = new Vector3();
+			box.getSize(size);
+			const center = new Vector3();
+			box.getCenter(center);
+
+			log(
+				`Size: [${size.x.toFixed(2)}, ${size.y.toFixed(2)}, ${size.z.toFixed(2)}]`
+			);
+
+			const maxDim = Math.max(size.x, size.y, size.z);
+			let calculatedScale = 1;
+			// If maxDim is extremely huge or tiny, auto-scale to 8 units
+			if (maxDim > 0 && maxDim !== Number.POSITIVE_INFINITY) {
+				calculatedScale = 8 / maxDim;
+			} else {
+				log("Warning: Invalid Box3 constraints");
 			}
-		});
-		return clone;
-	}, [scene]);
+			log(`Auto-scale applied: ${calculatedScale.toFixed(4)}`);
+
+			let meshCount = 0;
+			scene.traverse((node: unknown) => {
+				if (node instanceof Mesh) {
+					meshCount++;
+					if (!node.userData.hasCustomMaterial) {
+						node.material = new MeshStandardMaterial({
+							color: 0xcc_cc_cc,
+							roughness: 0.6,
+							metalness: 0.1,
+						});
+						node.userData.isBodyPart = true;
+						node.userData.hasCustomMaterial = true;
+					}
+				}
+			});
+			log(`Mesh nodes resolved: ${meshCount}`);
+
+			return {
+				scale: calculatedScale,
+				centerOffset: center.multiplyScalar(-1),
+			};
+		} catch (err) {
+			log(`Scene parse error: ${err}`);
+			return { scale: 1, centerOffset: new Vector3(0, 0, 0) };
+		}
+	}, [scene, log]);
 
 	// Update emissive highlight each render pass for selected zones
-	clonedScene.traverse((node: unknown) => {
-		if (node instanceof Mesh && node.material instanceof MeshStandardMaterial) {
-			const isSelected = selected.includes(node.name);
-			node.material.emissive = new Color(
-				isSelected ? THEME.accent : 0x00_00_00
-			);
-			node.material.emissiveIntensity = isSelected ? 0.6 : 0;
-		}
-	});
+	useMemo(() => {
+		scene.traverse((node: unknown) => {
+			if (
+				node instanceof Mesh &&
+				node.material instanceof MeshStandardMaterial
+			) {
+				const isSelected = selected.includes(node.name);
+				node.material.emissive = new Color(
+					isSelected ? THEME.accent : 0x00_00_00
+				);
+				node.material.emissiveIntensity = isSelected ? 0.6 : 0;
+			}
+		});
+	}, [scene, selected]);
 
 	return (
-		<primitive
-			object={clonedScene}
-			onPointerDown={toggleRegion}
-			position={[0, -5, 0]}
-			ref={modelRef}
-			scale={0.05}
-		/>
+		<group ref={modelRef} scale={scale}>
+			<primitive
+				object={scene}
+				onPointerDown={toggleRegion}
+				position={[centerOffset.x, centerOffset.y, centerOffset.z]}
+			/>
+		</group>
 	);
 }
 
@@ -255,7 +303,7 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 								</mesh>
 							}
 						>
-							<BodyModel {...props} modelUri={modelUri as string} />
+							<BodyModel {...props} log={log} modelUri={modelUri as string} />
 						</Suspense>
 					</Canvas>
 				)}

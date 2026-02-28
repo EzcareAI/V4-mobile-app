@@ -1,3 +1,4 @@
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Check } from "lucide-react-native";
 import { useState } from "react";
@@ -51,7 +52,43 @@ export function ZoneTriggerScreen() {
 					contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
 					showsVerticalScrollIndicator={false}
 				>
-					<View className="flex-1">
+					<View className="flex-1 px-1">
+						{/* Mascot Header */}
+						<View className="mt-4 items-center">
+							<View className="relative">
+								<LinearGradient
+									colors={["#4FD1C5", "#28B898"]}
+									start={{ x: 0, y: 0 }}
+									style={{
+										height: 112,
+										width: 112,
+										borderRadius: 56,
+										alignItems: "center",
+										justifyContent: "center",
+										shadowColor: "#28B898",
+										shadowOffset: { width: 0, height: 10 },
+										shadowOpacity: 0.2,
+										shadowRadius: 15,
+										elevation: 10,
+									}}
+								>
+									<Text style={{ fontSize: 48 }}>⚡</Text>
+								</LinearGradient>
+								<View
+									className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-blue-400"
+									style={{
+										shadowColor: "#000",
+										shadowOffset: { width: 0, height: 4 },
+										shadowOpacity: 0.1,
+										shadowRadius: 5,
+										elevation: 5,
+									}}
+								>
+									<Text style={{ fontSize: 14 }}>🎯</Text>
+								</View>
+							</View>
+						</View>
+
 						<StepHeader
 							className="mt-8"
 							description="Select any triggers you've noticed (You can pick multiple)"

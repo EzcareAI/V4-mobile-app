@@ -1,7 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { ScrollView, View } from "react-native";
-import { THEME } from "@/lib/theme";
+import { ScrollView, Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import {
@@ -65,7 +64,7 @@ export function OverallPriorityScreen() {
 						<View className="mt-4 items-center">
 							<View className="relative">
 								<LinearGradient
-									colors={THEME.accentGradient}
+									colors={["#4FD1C5", "#28B898"]}
 									start={{ x: 0, y: 0 }}
 									style={{
 										height: 112,
@@ -73,17 +72,27 @@ export function OverallPriorityScreen() {
 										borderRadius: 56,
 										alignItems: "center",
 										justifyContent: "center",
-										shadowColor: THEME.accentShadow,
+										shadowColor: "#28B898",
 										shadowOffset: { width: 0, height: 10 },
 										shadowOpacity: 0.2,
 										shadowRadius: 15,
 										elevation: 10,
 									}}
 								>
-									{/* This inner LinearGradient seems redundant based on the instruction's replacement.
-									    The instruction implies a single LinearGradient for the background and then the emoji.
-									    I'm removing the inner one as per the provided replacement structure. */}
+									<Text style={{ fontSize: 48 }}>🌟</Text>
 								</LinearGradient>
+								<View
+									className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-green-400"
+									style={{
+										shadowColor: "#000",
+										shadowOffset: { width: 0, height: 4 },
+										shadowOpacity: 0.1,
+										shadowRadius: 5,
+										elevation: 5,
+									}}
+								>
+									<Text style={{ fontSize: 14 }}>🌱</Text>
+								</View>
 							</View>
 						</View>
 
@@ -109,14 +118,12 @@ export function OverallPriorityScreen() {
 					</View>
 				</ScrollView>
 
-				
-					<View className="pt-6">
-						<ContinueButton
-							isDisabled={!overallPriority}
-							onPress={handleContinue}
-						/>
-					</View>
-				
+				<View className="pt-6">
+					<ContinueButton
+						isDisabled={!overallPriority}
+						onPress={handleContinue}
+					/>
+				</View>
 			</View>
 		</View>
 	);

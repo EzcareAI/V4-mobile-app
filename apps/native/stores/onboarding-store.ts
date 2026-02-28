@@ -196,11 +196,24 @@ export const useOnboardingStore = create<OnboardingState>()(
 				};
 
 				try {
+					console.log("\n--- SUPABASE SYNC ---");
+					console.log(
+						"Preparing to sync onboarding draft. Record ID:",
+						state.onboardingRecordId
+					);
+					console.log("Payload:", JSON.stringify(payload, null, 2));
+
 					if (state.onboardingRecordId) {
-						await supabase
+						const { error } = await supabase
 							.from("onboarding_profiles")
 							.update(payload)
 							.eq("id", state.onboardingRecordId);
+
+						if (error) {
+							console.error("❌ SUPABASE UPDATE ERROR:", error);
+						} else {
+							console.log("✅ SUPABASE UPDATE SUCCESSFUL");
+						}
 					} else {
 						// Create new draft
 						const { data, error } = await supabase
@@ -209,12 +222,15 @@ export const useOnboardingStore = create<OnboardingState>()(
 							.select()
 							.single();
 
-						if (!error && data?.id) {
+						if (error) {
+							console.error("❌ SUPABASE INSERT ERROR:", error);
+						} else if (data?.id) {
+							console.log("✅ SUPABASE INSERT SUCCESSFUL. New ID:", data.id);
 							set({ onboardingRecordId: data.id });
 						}
 					}
 				} catch (err) {
-					console.error("Supabase sync exception", err);
+					console.error("❌ SUPABASE CRITICAL EXCEPTION:", err);
 				}
 			},
 

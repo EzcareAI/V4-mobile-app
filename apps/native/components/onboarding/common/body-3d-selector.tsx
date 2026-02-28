@@ -172,32 +172,46 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 	const [isFocused, setIsFocused] = useState(false);
 	const [modelUri, setModelUri] = useState<string | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
+	const [onScreenLogs, setOnScreenLogs] = useState<string[]>([]);
+
+	const log = useCallback((msg: string) => {
+		console.log(`[Body3D] ${msg}`);
+		setOnScreenLogs((prev) => [msg, ...prev].slice(0, 5));
+	}, []);
 
 	useEffect(() => {
 		let mounted = true;
+		log("Mounting component...");
 
 		prepareAsset()
 			.then((uri) => {
 				if (mounted) {
+					log(`Asset ready: ${uri.split("/").pop()}`);
 					setModelUri(uri);
 				}
 			})
 			.catch((err: unknown) => {
 				if (mounted) {
-					setLoadError(err instanceof Error ? err.message : String(err));
+					const msg = err instanceof Error ? err.message : String(err);
+					log(`ERROR: ${msg}`);
+					setLoadError(msg);
 				}
 			});
 
 		return () => {
 			mounted = false;
 		};
-	}, []);
+	}, [log]);
 
 	useFocusEffect(
 		useCallback(() => {
+			log("Screen Focused");
 			setIsFocused(true);
-			return () => setIsFocused(false);
-		}, [])
+			return () => {
+				log("Screen Blurred");
+				setIsFocused(false);
+			};
+		}, [log])
 	);
 
 	const isReady = isFocused && modelUri !== null;
@@ -206,7 +220,7 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 
 	return (
 		<View className="relative w-full flex-1" {...panResponder.panHandlers}>
-			<View className="flex-1 overflow-hidden rounded-[32px] border border-blue-100/40 bg-[#F8FBFF] shadow-xl">
+			<View className="flex-1 overflow-hidden rounded-[32px] border border-blue-100/40 bg-neutral-900 shadow-xl">
 				{loadError && (
 					<View className="flex-1 items-center justify-center bg-red-50/50 p-6">
 						<Text className="mb-2 text-center font-bold text-base text-red-500">
@@ -223,20 +237,21 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 						camera={{ position: [0, 0, 10], fov: 45 }}
 						style={{ flex: 1 }}
 					>
-						<ambientLight intensity={0.8} />
-						<hemisphereLight
-							color="#ffffff"
-							groundColor="#000000"
-							intensity={1}
-						/>
+						<ambientLight intensity={1.5} />
 						<directionalLight intensity={2} position={[10, 10, 10]} />
-						<directionalLight intensity={1} position={[-10, 5, -10]} />
+
+						{/* TEST CUBE: If you see a RED CUBE, WebGL is ALIVE */}
+						<mesh position={[-2, 0, 0]}>
+							<boxGeometry args={[1, 1, 1]} />
+							<meshStandardMaterial color="red" />
+						</mesh>
 
 						<Suspense
 							fallback={
-								<mesh>
-									<planeGeometry args={[0, 0]} />
-									<meshBasicMaterial opacity={0} transparent />
+								/* TEST SPHERE: If you see YELLOW, it is STUCK LOADING */
+								<mesh position={[2, 0, 0]}>
+									<sphereGeometry args={[0.5, 16, 16]} />
+									<meshStandardMaterial color="yellow" />
 								</mesh>
 							}
 						>
@@ -246,20 +261,31 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 				)}
 
 				{showLoading && (
-					<View className="flex-1 items-center justify-center bg-[#F8FBFF]">
+					<View className="flex-1 items-center justify-center bg-neutral-900">
 						<ActivityIndicator color={THEME.accent} size="large" />
 						{!isFocused && (
 							<Text className="mt-4 font-medium text-gray-400 text-xs">
-								Mounting context...
+								Waiting for focus...
 							</Text>
 						)}
 						{isFocused && !modelUri && (
 							<Text className="mt-4 font-medium text-gray-400 text-xs">
-								Extracting native file path...
+								Extracting asset: {MODEL_MODULE}
 							</Text>
 						)}
 					</View>
 				)}
+
+				<View className="pointer-events-none absolute top-0 right-0 left-0 bg-black/40 p-2">
+					{onScreenLogs.map((msg, i) => {
+						const key = `${msg.substring(0, 20)}-${onScreenLogs.length - i}`;
+						return (
+							<Text className="font-mono text-[10px] text-green-400" key={key}>
+								{msg}
+							</Text>
+						);
+					})}
+				</View>
 
 				{!loadError && (
 					<View className="pointer-events-none absolute right-0 bottom-4 left-0 items-center">

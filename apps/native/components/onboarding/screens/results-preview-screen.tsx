@@ -59,7 +59,6 @@ export default function ResultsPreviewScreen() {
 		computeHealthScore,
 		bodyZoneSelected,
 		intentType,
-		scanMode,
 	} = useOnboardingStore();
 
 	const router = useRouter();
@@ -82,12 +81,9 @@ export default function ResultsPreviewScreen() {
 				/* ignore */
 			}
 		}
-		if (scanMode === "home") {
-			// Home-entry scan: go directly to paywall route
-			router.push("/(onboarding)/21");
-		} else {
-			nextStep();
-		}
+		// Always navigate forward — nextStep() alone does not trigger expo-router
+		nextStep();
+		router.push("/(onboarding)/21");
 	};
 
 	const getProbableCauses = () => {
@@ -143,7 +139,7 @@ export default function ResultsPreviewScreen() {
 			showsVerticalScrollIndicator={false}
 		>
 			{/* Premium Header */}
-			<View className="relative px-6 pt-10 pb-12">
+			<View className="relative px-6 pt-6 pb-6">
 				<LinearGradient
 					colors={["#F8FAFC", "#F1F5F9"]}
 					style={StyleSheet.absoluteFill}
@@ -151,13 +147,13 @@ export default function ResultsPreviewScreen() {
 				<Text className="mb-2 text-center font-bold text-[28px] text-foreground tracking-tight">
 					Your Health Core is Ready ✨
 				</Text>
-				<Text className="mb-10 text-center text-[17px] text-muted-foreground leading-6">
+				<Text className="mb-5 text-center text-[15px] text-muted-foreground leading-6">
 					We've analyzed your data to create your personalized blueprint.
 				</Text>
 
 				{/* Elevated Health Score Display */}
 				<View
-					className={`${scoreInfo.bg} mb-6 items-center rounded-[40px] border border-white p-10 shadow-2xl shadow-blue-100/50`}
+					className={`${scoreInfo.bg} mb-4 items-center rounded-[32px] border border-white p-6 shadow-blue-100/50 shadow-xl`}
 				>
 					<View className="relative h-[160px] w-[160px] items-center justify-center">
 						<Svg height={160} viewBox="0 0 160 160" width={160}>
@@ -214,10 +210,10 @@ export default function ResultsPreviewScreen() {
 			</View>
 
 			{/* Main Content Sections */}
-			<View className="px-6 py-8">
+			<View className="px-6 py-4">
 				{/* Focus Area Card */}
 				{intentType === "zone" && primaryZoneName && (
-					<View className="mb-8 overflow-hidden rounded-[32px] border border-blue-50 bg-white p-6 shadow-blue-50/50 shadow-xl">
+					<View className="mb-4 overflow-hidden rounded-[24px] border border-blue-50 bg-white p-4 shadow-blue-50/50 shadow-xl">
 						<View className="flex-row items-center gap-4">
 							<View className="h-12 w-12 items-center justify-center rounded-2xl bg-blue-50">
 								<Text className="text-2xl">📍</Text>
@@ -236,13 +232,13 @@ export default function ResultsPreviewScreen() {
 				)}
 
 				{/* Probable Causes with Rich Icons */}
-				<View className="mb-10">
-					<Text className="mb-6 font-bold text-2xl text-foreground">
+				<View className="mb-4">
+					<Text className="mb-3 font-bold text-foreground text-xl">
 						Personal Insights
 					</Text>
 					{probableCauses.map((cause) => (
 						<View
-							className="mb-4 flex-row items-center rounded-2xl bg-white p-4 shadow-sm"
+							className="mb-2 flex-row items-center rounded-2xl bg-white p-3 shadow-sm"
 							key={cause.text}
 						>
 							<View className="mr-4 h-10 w-10 items-center justify-center rounded-xl bg-slate-50">
@@ -254,8 +250,8 @@ export default function ResultsPreviewScreen() {
 				</View>
 
 				{/* Premium Plan Preview Section */}
-				<View className="mb-10">
-					<Text className="mb-6 font-bold text-2xl text-foreground">
+				<View className="mb-4">
+					<Text className="mb-3 font-bold text-foreground text-xl">
 						Your Customized Plan
 					</Text>
 
@@ -285,7 +281,7 @@ export default function ResultsPreviewScreen() {
 				</View>
 
 				{/* Methodology Card */}
-				<View className="mb-12 rounded-[24px] border border-blue-100 bg-blue-50/50 p-6">
+				<View className="mb-5 rounded-[16px] border border-blue-100 bg-blue-50/50 p-4">
 					<Text className="mb-2 font-bold text-[#28B898] text-xs uppercase tracking-widest">
 						Our Methodology
 					</Text>
@@ -299,7 +295,7 @@ export default function ResultsPreviewScreen() {
 				{/* Fixed Floating CTA */}
 				<TouchableOpacity
 					activeOpacity={0.9}
-					className="mb-12 overflow-hidden rounded-[28px] shadow-2xl shadow-[#28B898]/30"
+					className="mb-8 overflow-hidden rounded-[24px] shadow-2xl shadow-[#28B898]/30"
 					onPress={handleUnlock}
 				>
 					<LinearGradient

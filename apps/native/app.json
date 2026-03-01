@@ -19,7 +19,7 @@
       "reactCompiler": false
     },
     "android": {
-      "package": "com.blastshoum.ezcare"
+      "package": "com.ezcare_ai4.ezcare"
     },
     "extra": {
       "router": {},

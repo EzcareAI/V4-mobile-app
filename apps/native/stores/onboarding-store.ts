@@ -13,6 +13,7 @@ export interface OnboardingState {
 	// Navigation
 	currentStep: number;
 	totalSteps: number;
+	firstName?: string;
 	onboardingRecordId?: string; // Backend sync ID
 
 	// Phase 1: Core Profile
@@ -93,7 +94,7 @@ export const useOnboardingStore = create<OnboardingState>()(
 	persist(
 		(set, get) => ({
 			currentStep: 0,
-			totalSteps: 25,
+			totalSteps: 26,
 			unitPreference: "imperial",
 			notificationsEnabled: true,
 			discountWheelShown: false,
@@ -124,8 +125,9 @@ export const useOnboardingStore = create<OnboardingState>()(
 			reset: () =>
 				set({
 					currentStep: 0,
-					totalSteps: 24,
+					totalSteps: 26,
 					scanMode: "onboarding",
+					firstName: undefined,
 					gender: undefined,
 					birthDate: undefined,
 					heightCm: undefined,
@@ -196,6 +198,7 @@ export const useOnboardingStore = create<OnboardingState>()(
 					paywall_plan_selected: state.subscriptionStatus,
 					last_completed_step: state.currentStep,
 					user_id: state.userId,
+					first_name: state.firstName,
 					updated_at: new Date().toISOString(),
 				};
 

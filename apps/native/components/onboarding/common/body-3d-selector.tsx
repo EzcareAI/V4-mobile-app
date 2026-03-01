@@ -302,7 +302,7 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 
 	return (
 		<View className="relative w-full" {...panResponder.panHandlers}>
-			<View className="h-[420px] w-full overflow-hidden rounded-[32px] border border-blue-100/40 bg-neutral-900 shadow-xl">
+			<View className="h-[440px] w-full overflow-hidden rounded-[40px] border-2 border-slate-50 bg-white/60 shadow-inner">
 				{loadError && (
 					<View className="flex-1 items-center justify-center bg-red-50/50 p-6">
 						<Text className="mb-2 text-center font-bold text-base text-red-500">
@@ -319,8 +319,14 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 						camera={{ position: [0, 0, 10], fov: 45 }}
 						style={{ flex: 1 }}
 					>
-						<ambientLight intensity={1.5} />
-						<directionalLight intensity={2} position={[10, 10, 10]} />
+						<ambientLight intensity={1.8} />
+						<directionalLight intensity={2.5} position={[10, 10, 10]} />
+						<spotLight
+							angle={0.15}
+							intensity={1.5}
+							penumbra={1}
+							position={[5, 10, 5]}
+						/>
 
 						<Suspense fallback={null}>
 							<BodyModel {...props} modelUri={modelUri as string} />
@@ -329,7 +335,7 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 				)}
 
 				{showLoading && (
-					<View className="flex-1 items-center justify-center bg-neutral-900">
+					<View className="flex-1 items-center justify-center bg-slate-50/50">
 						<ActivityIndicator color={THEME.accent} size="large" />
 						{!isFocused && (
 							<Text className="mt-4 font-medium text-gray-400 text-xs">
@@ -346,8 +352,8 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 
 				{!loadError && (
 					<View className="pointer-events-none absolute right-0 bottom-4 left-0 items-center">
-						<View className="rounded-full bg-black/20 px-3 py-1">
-							<Text className="font-medium text-white text-xs">
+						<View className="rounded-full bg-[#1A2138]/5 px-4 py-1.5 ring-1 ring-[#1A2138]/10">
+							<Text className="font-bold text-[#60708F] text-[10px] uppercase tracking-widest">
 								Drag to rotate • Tap to select
 							</Text>
 						</View>

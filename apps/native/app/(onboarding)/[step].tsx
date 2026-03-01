@@ -15,6 +15,7 @@ import { DopamineScreen } from "@/components/onboarding/screens/dopamine-screen"
 import { GenderScreen } from "@/components/onboarding/screens/gender-screen";
 import { HeightWeightScreen } from "@/components/onboarding/screens/height-weight-screen";
 import { LoadingPlanScreen } from "@/components/onboarding/screens/loading-plan-screen";
+import { NameScreen } from "@/components/onboarding/screens/name-screen";
 import { NotificationsScreen } from "@/components/onboarding/screens/notifications-screen";
 import { OverallBlockerScreen } from "@/components/onboarding/screens/overall-blocker-screen";
 import { OverallDigestionScreen } from "@/components/onboarding/screens/overall-digestion-screen";
@@ -63,26 +64,28 @@ const OnboardingStep = () => {
 	const renderBaseline = () => {
 		switch (stepNumber) {
 			case 1:
-				return <GenderScreen />;
+				return <NameScreen />;
 			case 2:
-				return <BirthdayScreen />;
+				return <GenderScreen />;
 			case 3:
-				return <HeightWeightScreen />;
+				return <BirthdayScreen />;
 			case 4:
-				return <ActivityLevelScreen />;
+				return <HeightWeightScreen />;
 			case 5:
-				return <DopamineScreen type="reinforcement" />;
+				return <ActivityLevelScreen />;
 			case 6:
-				return <SleepScreen />;
+				return <DopamineScreen type="reinforcement" />;
 			case 7:
-				return <StressLevelScreen />;
+				return <SleepScreen />;
 			case 8:
-				return <SmokingScreen />;
+				return <StressLevelScreen />;
 			case 9:
-				return <AlcoholScreen />;
+				return <SmokingScreen />;
 			case 10:
-				return <DopamineScreen type="progress" />;
+				return <AlcoholScreen />;
 			case 11:
+				return <DopamineScreen type="progress" />;
+			case 12:
 				return <BodyDiagramScreen />;
 			default:
 				return null;
@@ -92,15 +95,15 @@ const OnboardingStep = () => {
 	const renderConditionalPath = () => {
 		if (intentType === "zone") {
 			switch (stepNumber) {
-				case 12:
-					return <ZoneSymptomIntensityScreen />;
 				case 13:
-					return <ZoneDurationScreen />;
+					return <ZoneSymptomIntensityScreen />;
 				case 14:
-					return <ZoneFrequencyScreen />;
+					return <ZoneDurationScreen />;
 				case 15:
-					return <ZoneTriggerScreen />;
+					return <ZoneFrequencyScreen />;
 				case 16:
+					return <ZoneTriggerScreen />;
+				case 17:
 					return <ZoneImpactScreen />;
 				default:
 					return null;
@@ -109,15 +112,15 @@ const OnboardingStep = () => {
 
 		if (intentType === "overall") {
 			switch (stepNumber) {
-				case 12:
-					return <OverallPriorityScreen />;
 				case 13:
-					return <OverallBlockerScreen />;
+					return <OverallPriorityScreen />;
 				case 14:
-					return <OverallEnergyScreen />;
+					return <OverallBlockerScreen />;
 				case 15:
-					return <OverallDigestionScreen />;
+					return <OverallEnergyScreen />;
 				case 16:
+					return <OverallDigestionScreen />;
+				case 17:
 					return <OverallMotivationScreen />;
 				default:
 					return null;
@@ -128,31 +131,31 @@ const OnboardingStep = () => {
 
 	const renderConvergence = () => {
 		switch (stepNumber) {
-			case 17:
-				return <ConfidenceMomentScreen />;
 			case 18:
+				return <ConfidenceMomentScreen />;
+			case 19:
 				return (
 					<Suspense fallback={<LoadingFallback />}>
 						<ResultsPreviewScreen />
 					</Suspense>
 				);
-			case 19:
-				return <PaywallScreen />;
 			case 20:
-				return <DiscountWheelScreen />;
+				return <PaywallScreen />;
 			case 21:
-				return <AccountCreationScreen />;
+				return <DiscountWheelScreen />;
 			case 22:
-				return <LoadingPlanScreen />;
+				return <AccountCreationScreen />;
 			case 23:
+				return <LoadingPlanScreen />;
+			case 24:
 				return (
 					<Suspense fallback={<LoadingFallback />}>
 						<PerfectPlanScreen />
 					</Suspense>
 				);
-			case 24:
-				return <NotificationsScreen />;
 			case 25:
+				return <NotificationsScreen />;
+			case 26:
 				return <ReferralScreen />;
 			default:
 				return null;

@@ -34,7 +34,7 @@ export default function BodyDiagramScreen() {
 	const hasSelection = selectedZones.length > 0;
 
 	return (
-		<View className="flex-1 bg-[#EBF5F4]">
+		<View className="flex-1 bg-[#F8FBFA]">
 			<View className="flex-1 justify-between px-6 pb-10">
 				<ScrollView
 					className="mt-4 flex-1 px-1"

@@ -26,7 +26,8 @@ import { Body3DSelector } from "@/components/onboarding/common/body-3d-selector"
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export default function Home() {
-	const { healthScore, bodyZoneSelected, setAnswer } = useOnboardingStore();
+	const { healthScore, bodyZoneSelected, setAnswer, firstName } =
+		useOnboardingStore();
 	// Check-in state (Morning / Evening / Completed)
 	// For demo: Let's assume Morning is not completed yet
 	const [checkInDone, setCheckInDone] = useState(false);
@@ -62,11 +63,11 @@ export default function Home() {
 				{/* --- 1. Header --- */}
 				<View className="flex-row items-center justify-between pt-4 pb-8">
 					<View>
-						<Text className="font-bold text-[#1A2138] text-[32px] leading-tight">
-							Welcome back! 👋
+						<Text className="font-bold text-[#1A2138] text-[28px] leading-tight">
+							Welcome back,
 						</Text>
-						<Text className="font-medium text-[#60708F] text-base">
-							Let's check in on your healing journey
+						<Text className="font-black text-[#28B898] text-[36px] leading-[44px]">
+							{firstName || "Friend"}! 👋
 						</Text>
 					</View>
 					<TouchableOpacity className="relative h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-[#3EC9B520]">
@@ -243,9 +244,6 @@ export default function Home() {
 					</View>
 
 					<View className="relative h-[480px] w-full items-center justify-center overflow-hidden rounded-[40px] bg-white ring-1 ring-[#3EC9B510]">
-						{/* Background soft glow */}
-						<View className="absolute h-[300px] w-[300px] rounded-full bg-[#3EC9B508]" />
-
 						<View className="z-10 h-full w-full">
 							<Body3DSelector
 								onChange={(zones) => {

@@ -44,13 +44,13 @@ const PRIORITY_OPTIONS: SingleSelectOption[] = [
 
 export function OverallPriorityScreen() {
 	const router = useRouter();
-	const { overallPriority, setAnswer, nextStep, scanMode } =
+	const { overallPriority, setAnswer, nextStep, scanMode, currentStep } =
 		useOnboardingStore();
 
 	const handleContinue = () => {
 		nextStep();
 		if (scanMode !== "home") {
-			router.push("/(onboarding)/15");
+			router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 		}
 	};
 

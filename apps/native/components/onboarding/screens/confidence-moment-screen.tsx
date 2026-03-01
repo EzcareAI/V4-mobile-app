@@ -37,13 +37,11 @@ const BADGES = [
 
 export function ConfidenceMomentScreen() {
 	const router = useRouter();
-	const { nextStep, scanMode } = useOnboardingStore();
+	const { nextStep, currentStep } = useOnboardingStore();
 
 	const handleContinue = () => {
 		nextStep();
-		if (scanMode !== "home") {
-			router.push("/(onboarding)/20");
-		}
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	return (

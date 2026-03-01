@@ -10,6 +10,7 @@ import { Heart, TrendingUp, Zap } from "lucide-react-native";
 import React from "react";
 import { Platform, ScrollView, Text, View } from "react-native";
 import { CartesianChart, Line } from "victory-native";
+import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
 
@@ -34,6 +35,8 @@ export const PerfectPlanScreen = () => {
 		return () => clearTimeout(timer);
 	}, []);
 
+	const { nextStep, currentStep } = useOnboardingStore();
+
 	const handleContinue = async () => {
 		if (Platform.OS === "ios") {
 			try {
@@ -42,7 +45,8 @@ export const PerfectPlanScreen = () => {
 				/* ignore */
 			}
 		}
-		router.push("/(onboarding)/26");
+		nextStep();
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	return (

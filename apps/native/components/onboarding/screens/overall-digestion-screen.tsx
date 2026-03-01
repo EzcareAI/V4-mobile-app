@@ -8,7 +8,7 @@ import { StepHeader } from "../common/step-header";
 
 export function OverallDigestionScreen() {
 	const router = useRouter();
-	const { currentDigestionComfort, setAnswer, nextStep, scanMode } =
+	const { currentDigestionComfort, setAnswer, nextStep, currentStep } =
 		useOnboardingStore();
 	const [selected, setSelected] = useState<number | null>(
 		currentDigestionComfort ?? null
@@ -18,9 +18,7 @@ export function OverallDigestionScreen() {
 		if (selected !== null) {
 			setAnswer("currentDigestionComfort", selected);
 			nextStep();
-			if (scanMode !== "home") {
-				router.push("/(onboarding)/18");
-			}
+			router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 		}
 	};
 

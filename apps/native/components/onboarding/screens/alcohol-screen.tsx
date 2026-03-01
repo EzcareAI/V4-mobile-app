@@ -38,7 +38,8 @@ const ALCOHOL_OPTIONS: SingleSelectOption[] = [
 
 export function AlcoholScreen() {
 	const router = useRouter();
-	const { alcoholFrequency, setAnswer, nextStep } = useOnboardingStore();
+	const { alcoholFrequency, setAnswer, nextStep, currentStep } =
+		useOnboardingStore();
 
 	const handleSelect = (id: string) => {
 		setAnswer(
@@ -49,7 +50,7 @@ export function AlcoholScreen() {
 
 	const handleContinue = () => {
 		nextStep();
-		router.push("/(onboarding)/9");
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	return (

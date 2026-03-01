@@ -8,7 +8,8 @@ import { StepHeader } from "../common/step-header";
 
 export function ZoneDurationScreen() {
 	const router = useRouter();
-	const { zoneDuration, setAnswer, nextStep, scanMode } = useOnboardingStore();
+	const { zoneDuration, setAnswer, nextStep, scanMode, currentStep } =
+		useOnboardingStore();
 	const [selected, setSelected] = useState<string | null>(zoneDuration ?? null);
 
 	const handleContinue = () => {
@@ -19,7 +20,7 @@ export function ZoneDurationScreen() {
 			);
 			nextStep();
 			if (scanMode !== "home") {
-				router.push("/(onboarding)/16");
+				router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 			}
 		}
 	};

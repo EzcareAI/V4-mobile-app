@@ -7,7 +7,7 @@ import { StepHeader } from "../common/step-header";
 
 export const NotificationsScreen = () => {
 	const router = useRouter();
-	const { setAnswer, nextStep } = useOnboardingStore();
+	const { setAnswer, nextStep, currentStep } = useOnboardingStore();
 
 	const handleToggle = (val: boolean) => {
 		setAnswer("notificationsEnabled", val);
@@ -15,7 +15,7 @@ export const NotificationsScreen = () => {
 
 	const handleContinue = () => {
 		nextStep();
-		router.push("/(onboarding)/27");
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	return (

@@ -8,7 +8,7 @@ import { StepHeader } from "../common/step-header";
 
 export function ZoneImpactScreen() {
 	const router = useRouter();
-	const { zoneImpact, bodyZoneSelected, setAnswer, nextStep, scanMode } =
+	const { zoneImpact, bodyZoneSelected, setAnswer, nextStep, currentStep } =
 		useOnboardingStore();
 	const [selected, setSelected] = useState<number | null>(zoneImpact ?? null);
 
@@ -20,9 +20,7 @@ export function ZoneImpactScreen() {
 		if (selected !== null) {
 			setAnswer("zoneImpact", selected);
 			nextStep();
-			if (scanMode !== "home") {
-				router.push("/(onboarding)/19");
-			}
+			router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 		}
 	};
 

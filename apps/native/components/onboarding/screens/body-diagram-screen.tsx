@@ -17,18 +17,18 @@ export default function BodyDiagramScreen() {
 	const [scrollEnabled, setScrollEnabled] = useState(true);
 
 	const handleContinue = () => {
-		setAnswer("bodyZoneSelected", selectedZones);
-		setAnswer("intentType", "zone");
-		nextStep();
-		router.push("/(onboarding)/14");
+		if (selectedZones.length > 0) {
+			setAnswer("bodyZoneSelected", selectedZones);
+			setAnswer("intentType", "zone");
+			nextStep();
+			router.push("/(onboarding)/12");
+		}
 	};
-
 	const handleOverallHealth = () => {
-		setSelectedZones([]);
 		setAnswer("bodyZoneSelected", []);
 		setAnswer("intentType", "overall");
 		nextStep();
-		router.push("/(onboarding)/14");
+		router.push("/(onboarding)/12");
 	};
 
 	const hasSelection = selectedZones.length > 0;

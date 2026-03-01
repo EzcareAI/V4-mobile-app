@@ -8,7 +8,7 @@ import { StepHeader } from "../common/step-header";
 
 export function OverallEnergyScreen() {
 	const router = useRouter();
-	const { currentEnergyLevel, setAnswer, nextStep, scanMode } =
+	const { currentEnergyLevel, setAnswer, nextStep, currentStep } =
 		useOnboardingStore();
 	const [selected, setSelected] = useState<number | null>(
 		currentEnergyLevel ?? null
@@ -18,9 +18,7 @@ export function OverallEnergyScreen() {
 		if (selected !== null) {
 			setAnswer("currentEnergyLevel", selected);
 			nextStep();
-			if (scanMode !== "home") {
-				router.push("/(onboarding)/17");
-			}
+			router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 		}
 	};
 

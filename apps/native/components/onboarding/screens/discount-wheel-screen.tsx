@@ -6,13 +6,14 @@ import { StepHeader } from "../common/step-header";
 
 export function DiscountWheelScreen() {
 	const router = useRouter();
-	const { discountWheelShown, setAnswer, nextStep } = useOnboardingStore();
+	const { setAnswer, nextStep, currentStep, discountWheelShown } =
+		useOnboardingStore();
 
 	// If wheel was already shown, skip to next screen
 	if (discountWheelShown) {
 		setTimeout(() => {
 			nextStep();
-			router.push("/(onboarding)/23");
+			router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 		}, 500);
 		return (
 			<View className="flex-1 items-center justify-center bg-[#EBF5F4]">
@@ -22,16 +23,14 @@ export function DiscountWheelScreen() {
 	}
 
 	const handleClaimDiscount = () => {
-		setAnswer("discountWheelShown", true);
-		setAnswer("appliedDiscount", 10);
 		nextStep();
-		router.push("/(onboarding)/23");
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	const handleSkip = () => {
 		setAnswer("discountWheelShown", true);
 		nextStep();
-		router.push("/(onboarding)/23");
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	return (

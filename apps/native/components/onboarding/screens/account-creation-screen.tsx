@@ -18,7 +18,7 @@ import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function AccountCreationScreen() {
 	const router = useRouter();
-	const { setAnswer, nextStep } = useOnboardingStore();
+	const { setAnswer, nextStep, currentStep } = useOnboardingStore();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -58,7 +58,7 @@ export function AccountCreationScreen() {
 
 		setAnswer("authMethod", "email");
 		nextStep();
-		router.push("/(onboarding)/24");
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	return (

@@ -14,6 +14,7 @@ export function ZoneSymptomIntensityScreen() {
 		setAnswer,
 		nextStep,
 		scanMode,
+		currentStep,
 	} = useOnboardingStore();
 	const [selected, setSelected] = useState<number | null>(
 		zoneSymptomIntensity ?? null
@@ -28,7 +29,7 @@ export function ZoneSymptomIntensityScreen() {
 			setAnswer("zoneSymptomIntensity", selected);
 			nextStep();
 			if (scanMode !== "home") {
-				router.push("/(onboarding)/15");
+				router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 			}
 		}
 	};

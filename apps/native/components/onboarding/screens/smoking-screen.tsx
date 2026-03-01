@@ -29,7 +29,8 @@ const SMOKING_OPTIONS = [
 
 export function SmokingScreen() {
 	const router = useRouter();
-	const { smokingFrequency, setAnswer, nextStep } = useOnboardingStore();
+	const { smokingFrequency, setAnswer, nextStep, currentStep } =
+		useOnboardingStore();
 
 	const handleSelect = (id: string) => {
 		setAnswer("smokingFrequency", id as "never" | "occasionally" | "regularly");
@@ -37,7 +38,7 @@ export function SmokingScreen() {
 
 	const handleContinue = () => {
 		nextStep();
-		router.push("/(onboarding)/8");
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	return (

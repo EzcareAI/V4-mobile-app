@@ -8,7 +8,7 @@ import { StepHeader } from "../common/step-header";
 
 export function OverallBlockerScreen() {
 	const router = useRouter();
-	const { overallBlocker, setAnswer, nextStep, scanMode } =
+	const { overallBlocker, setAnswer, nextStep, scanMode, currentStep } =
 		useOnboardingStore();
 	const [selected, setSelected] = useState<string | null>(
 		overallBlocker ?? null
@@ -22,7 +22,7 @@ export function OverallBlockerScreen() {
 			);
 			nextStep();
 			if (scanMode !== "home") {
-				router.push("/(onboarding)/16");
+				router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 			}
 		}
 	};

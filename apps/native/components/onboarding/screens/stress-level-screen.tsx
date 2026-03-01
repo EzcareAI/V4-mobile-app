@@ -36,11 +36,12 @@ const STRESS_OPTIONS: SingleSelectOption[] = [
 
 export const StressLevelScreen = () => {
 	const router = useRouter();
-	const { stressLevel, setAnswer, nextStep } = useOnboardingStore();
+	const { stressLevel, setAnswer, nextStep, currentStep } =
+		useOnboardingStore();
 
 	const handleContinue = () => {
 		nextStep();
-		router.push("/(onboarding)/8");
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	return (

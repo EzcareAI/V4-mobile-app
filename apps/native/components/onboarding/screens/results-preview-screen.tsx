@@ -59,6 +59,7 @@ export default function ResultsPreviewScreen() {
 		computeHealthScore,
 		bodyZoneSelected,
 		intentType,
+		currentStep,
 	} = useOnboardingStore();
 
 	const router = useRouter();
@@ -81,9 +82,9 @@ export default function ResultsPreviewScreen() {
 				/* ignore */
 			}
 		}
-		// Always navigate forward — nextStep() alone does not trigger expo-router
+		// Always navigate forward
 		nextStep();
-		router.push("/(onboarding)/21");
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	const getProbableCauses = () => {

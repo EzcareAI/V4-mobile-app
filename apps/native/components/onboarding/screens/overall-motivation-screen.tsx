@@ -8,7 +8,7 @@ import { StepHeader } from "../common/step-header";
 
 export function OverallMotivationScreen() {
 	const router = useRouter();
-	const { motivationLevel, setAnswer, nextStep, scanMode } =
+	const { motivationLevel, setAnswer, nextStep, currentStep } =
 		useOnboardingStore();
 	const [selected, setSelected] = useState<number | null>(
 		motivationLevel ?? null
@@ -18,9 +18,7 @@ export function OverallMotivationScreen() {
 		if (selected !== null) {
 			setAnswer("motivationLevel", selected);
 			nextStep();
-			if (scanMode !== "home") {
-				router.push("/(onboarding)/19");
-			}
+			router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 		}
 	};
 

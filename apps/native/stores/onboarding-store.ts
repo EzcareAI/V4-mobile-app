@@ -93,7 +93,7 @@ export const useOnboardingStore = create<OnboardingState>()(
 	persist(
 		(set, get) => ({
 			currentStep: 0,
-			totalSteps: 24,
+			totalSteps: 25,
 			unitPreference: "imperial",
 			notificationsEnabled: true,
 			discountWheelShown: false,

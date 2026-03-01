@@ -1,0 +1,31 @@
+# Exclude node_modules throughout the monorepo
+node_modules
+**/node_modules
+
+# Exclude build and cache directories
+.expo
+.turbo
+dist
+build
+.cache
+tmp
+temp
+
+# Exclude large local tools and assets
+node
+node_portable
+.bin
+EZCare-Saas-Reference
+ezcare-saas-reference
+
+# Exclude local environment files
+.env
+*.local
+
+# Exclude logs
+*.log
+logs
+
+# Exclude system files
+.DS_Store
+Thumbs.db

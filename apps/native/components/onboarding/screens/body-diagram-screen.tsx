@@ -1,27 +1,22 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { MoveRight } from "lucide-react-native";
+import { ArrowRight, MapPin, Sparkles } from "lucide-react-native";
 import { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { THEME } from "@/lib/theme";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { Body3DSelector } from "../common/body-3d-selector";
-import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
 
 export default function BodyDiagramScreen() {
 	const router = useRouter();
 	const { nextStep, setAnswer, bodyZoneSelected } = useOnboardingStore();
 
-	// `bodyZoneSelected` is now enforced as `string[]` in the Zustand store.
 	const initialZones = bodyZoneSelected || [];
 	const [selectedZones, setSelectedZones] = useState<string[]>(initialZones);
-
-	// Track whether the user is interacting with the 3D canvas so we can freeze the outer scroll
 	const [scrollEnabled, setScrollEnabled] = useState(true);
 
 	const handleContinue = () => {
-		// Store the array of selected zones natively
 		setAnswer("bodyZoneSelected", selectedZones);
 		setAnswer("intentType", "zone");
 		nextStep();
@@ -49,10 +44,36 @@ export default function BodyDiagramScreen() {
 				>
 					<StepHeader
 						align="center"
-						className="mb-4"
+						className="mb-2"
 						description="Tap body areas to focus on specific issues, or skip for overall wellness."
 						title="Focus Areas"
 					/>
+
+					{/* ── "Select body part(s)" label ── */}
+					<View
+						style={{
+							flexDirection: "row",
+							alignItems: "center",
+							justifyContent: "center",
+							gap: 6,
+							marginBottom: 12,
+							marginTop: 4,
+						}}
+					>
+						<MapPin color={THEME.accent} size={13} strokeWidth={2.5} />
+						<Text
+							style={{
+								color: THEME.accent,
+								fontSize: 12,
+								fontWeight: "700",
+								letterSpacing: 1,
+								textTransform: "uppercase",
+							}}
+						>
+							Select body part(s)
+						</Text>
+						<MapPin color={THEME.accent} size={13} strokeWidth={2.5} />
+					</View>
 
 					{/* ── Interactive 3D Body Canvas ── */}
 					<View className="pb-4">
@@ -64,57 +85,160 @@ export default function BodyDiagramScreen() {
 						/>
 					</View>
 
-					{/* ── Overall Wellness Skip Option ── */}
+					{/* ── Overall Wellness Option (shown when no zone selected) ── */}
 					{!hasSelection && (
 						<TouchableOpacity
-							activeOpacity={0.9}
-							className="mt-8 overflow-hidden rounded-[28px] shadow-lg"
+							activeOpacity={0.88}
 							onPress={handleOverallHealth}
 							style={{
+								marginTop: 8,
+								borderRadius: 24,
+								overflow: "hidden",
 								shadowColor: THEME.accentShadow,
-								shadowOpacity: 0.15,
-								shadowRadius: 10,
+								shadowOffset: { width: 0, height: 8 },
+								shadowOpacity: 0.22,
+								shadowRadius: 16,
+								elevation: 8,
 							}}
 						>
-							{/* Subtle blue gradient matching theme */}
 							<LinearGradient
-								colors={[THEME.accent, THEME.accentLight]}
-								end={{ x: 1, y: 0 }}
+								colors={["#1A9E8F", THEME.accent, "#4FD1C5"]}
+								end={{ x: 1, y: 1 }}
 								start={{ x: 0, y: 0 }}
-								style={{
-									position: "absolute",
-									width: "100%",
-									height: "100%",
-								}}
-							/>
-							<View className="p-6">
-								<View className="flex-row items-center justify-between">
-									<View>
-										<Text className="font-bold text-white text-xl">
-											Overall Wellness
+								style={{ padding: 20 }}
+							>
+								{/* RECOMMENDED badge */}
+								<View style={{ marginBottom: 12, flexDirection: "row" }}>
+									<View
+										style={{
+											backgroundColor: "rgba(255,255,255,0.2)",
+											borderRadius: 20,
+											paddingHorizontal: 10,
+											paddingVertical: 4,
+											flexDirection: "row",
+											alignItems: "center",
+											gap: 4,
+										}}
+									>
+										<Sparkles color="white" size={11} strokeWidth={2.5} />
+										<Text
+											style={{
+												color: "white",
+												fontSize: 10,
+												fontWeight: "700",
+												letterSpacing: 1,
+											}}
+										>
+											RECOMMENDED
 										</Text>
-										<Text className="mt-1 font-medium text-sm text-white/80">
-											Skip specific zones, focus on general longevity
-										</Text>
-									</View>
-									<View className="h-10 w-10 items-center justify-center rounded-full bg-white/20">
-										<MoveRight color="white" size={20} />
 									</View>
 								</View>
-							</View>
+
+								<View
+									style={{
+										flexDirection: "row",
+										alignItems: "center",
+										justifyContent: "space-between",
+									}}
+								>
+									<View style={{ flex: 1 }}>
+										<Text
+											style={{
+												color: "white",
+												fontSize: 20,
+												fontWeight: "800",
+												letterSpacing: -0.3,
+											}}
+										>
+											Overall Wellness
+										</Text>
+										<Text
+											style={{
+												color: "rgba(255,255,255,0.85)",
+												fontSize: 13,
+												fontWeight: "500",
+												marginTop: 4,
+											}}
+										>
+											Skip zones — scan your full health picture
+										</Text>
+									</View>
+
+									{/* Circular arrow */}
+									<View
+										style={{
+											height: 44,
+											width: 44,
+											borderRadius: 22,
+											backgroundColor: "rgba(255,255,255,0.25)",
+											alignItems: "center",
+											justifyContent: "center",
+											marginLeft: 12,
+											borderWidth: 1,
+											borderColor: "rgba(255,255,255,0.4)",
+										}}
+									>
+										<ArrowRight color="white" size={20} strokeWidth={2.5} />
+									</View>
+								</View>
+							</LinearGradient>
 						</TouchableOpacity>
 					)}
 				</ScrollView>
 
-				<View className="pt-4">
-					{/* Only show Continue if they tapped zones (otherwise they tap "Overall Wellness") */}
-					<View className="pt-6">
-						<ContinueButton
-							isDisabled={!hasSelection}
-							label={`Continue with ${selectedZones.length} Zone${selectedZones.length === 1 ? "" : "s"}`}
-							onPress={handleContinue}
-						/>
-					</View>
+				{/* ── Premium Continue Button ── */}
+				<View style={{ paddingTop: 16 }}>
+					<TouchableOpacity
+						activeOpacity={hasSelection ? 0.85 : 1}
+						disabled={!hasSelection}
+						onPress={handleContinue}
+						style={{
+							borderRadius: 20,
+							overflow: "hidden",
+							shadowColor: hasSelection ? THEME.accentShadow : "transparent",
+							shadowOffset: { width: 0, height: 8 },
+							shadowOpacity: hasSelection ? 0.35 : 0,
+							shadowRadius: 16,
+							elevation: hasSelection ? 10 : 0,
+						}}
+					>
+						<LinearGradient
+							colors={
+								hasSelection
+									? ["#1A9E8F", THEME.accent, "#38B2AC"]
+									: ["#CBD5E1", "#94A3B8"]
+							}
+							end={{ x: 1, y: 0 }}
+							start={{ x: 0, y: 0 }}
+							style={{
+								paddingVertical: 18,
+								paddingHorizontal: 28,
+								flexDirection: "row",
+								alignItems: "center",
+								justifyContent: "center",
+								gap: 10,
+							}}
+						>
+							{hasSelection && (
+								<Sparkles color="white" size={18} strokeWidth={2} />
+							)}
+							<Text
+								style={{
+									color: "white",
+									fontSize: 16,
+									fontWeight: "700",
+									letterSpacing: 0.2,
+								}}
+							>
+								{hasSelection
+									? `Continue with ${selectedZones.length} Zone${selectedZones.length === 1 ? "" : "s"}`
+									: "Select a zone to continue"}
+							</Text>
+							{hasSelection && (
+								<ArrowRight color="white" size={18} strokeWidth={2.5} />
+							)}
+						</LinearGradient>
+					</TouchableOpacity>
 				</View>
 			</View>
 		</View>

@@ -8,8 +8,13 @@ import { StepHeader } from "../common/step-header";
 
 export function ZoneSymptomIntensityScreen() {
 	const router = useRouter();
-	const { zoneSymptomIntensity, bodyZoneSelected, setAnswer, nextStep } =
-		useOnboardingStore();
+	const {
+		zoneSymptomIntensity,
+		bodyZoneSelected,
+		setAnswer,
+		nextStep,
+		scanMode,
+	} = useOnboardingStore();
 	const [selected, setSelected] = useState<number | null>(
 		zoneSymptomIntensity ?? null
 	);
@@ -22,7 +27,9 @@ export function ZoneSymptomIntensityScreen() {
 		if (selected !== null) {
 			setAnswer("zoneSymptomIntensity", selected);
 			nextStep();
-			router.push("/(onboarding)/15");
+			if (scanMode !== "home") {
+				router.push("/(onboarding)/14");
+			}
 		}
 	};
 

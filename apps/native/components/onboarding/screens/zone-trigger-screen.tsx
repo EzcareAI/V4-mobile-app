@@ -9,7 +9,7 @@ import { StepHeader } from "../common/step-header";
 
 export function ZoneTriggerScreen() {
 	const router = useRouter();
-	const { zoneTriggers, setAnswer, nextStep } = useOnboardingStore();
+	const { zoneTriggers, setAnswer, nextStep, scanMode } = useOnboardingStore();
 	const [selected, setSelected] = useState<string[]>(zoneTriggers ?? []);
 
 	const toggleTrigger = (id: string) => {
@@ -31,7 +31,9 @@ export function ZoneTriggerScreen() {
 		if (selected.length > 0) {
 			setAnswer("zoneTriggers", selected);
 			nextStep();
-			router.push("/(onboarding)/18");
+			if (scanMode !== "home") {
+				router.push("/(onboarding)/17");
+			}
 		}
 	};
 

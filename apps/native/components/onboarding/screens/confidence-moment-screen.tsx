@@ -37,11 +37,13 @@ const BADGES = [
 
 export function ConfidenceMomentScreen() {
 	const router = useRouter();
-	const { nextStep } = useOnboardingStore();
+	const { nextStep, scanMode } = useOnboardingStore();
 
 	const handleContinue = () => {
 		nextStep();
-		router.push("/(onboarding)/20");
+		if (scanMode !== "home") {
+			router.push("/(onboarding)/19");
+		}
 	};
 
 	return (
@@ -144,14 +146,9 @@ export function ConfidenceMomentScreen() {
 					</View>
 				</ScrollView>
 
-				
-					<View className="pt-6">
-						<ContinueButton
-							label="See Your Results →"
-							onPress={handleContinue}
-						/>
-					</View>
-				
+				<View className="pt-6">
+					<ContinueButton label="See Your Results →" onPress={handleContinue} />
+				</View>
 			</View>
 		</View>
 	);

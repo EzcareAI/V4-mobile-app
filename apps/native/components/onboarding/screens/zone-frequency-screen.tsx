@@ -8,7 +8,7 @@ import { StepHeader } from "../common/step-header";
 
 export function ZoneFrequencyScreen() {
 	const router = useRouter();
-	const { zoneFrequency, setAnswer, nextStep } = useOnboardingStore();
+	const { zoneFrequency, setAnswer, nextStep, scanMode } = useOnboardingStore();
 	const [selected, setSelected] = useState<string | null>(
 		zoneFrequency ?? null
 	);
@@ -20,7 +20,9 @@ export function ZoneFrequencyScreen() {
 				selected as "constantly" | "often" | "sometimes" | "rarely"
 			);
 			nextStep();
-			router.push("/(onboarding)/17");
+			if (scanMode !== "home") {
+				router.push("/(onboarding)/16");
+			}
 		}
 	};
 

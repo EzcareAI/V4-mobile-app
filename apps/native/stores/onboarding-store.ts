@@ -51,6 +51,7 @@ export interface OnboardingState {
 	// Phase 4: Results & Payment
 	healthScore?: number;
 	resultsShown?: string; // ISO timestamp
+	scanMode?: "onboarding" | "home"; // Which entry point triggered the scan
 
 	// Phase 5: Payment & Account
 	subscriptionStatus?: "active" | "pending" | "failed" | "cancelled";
@@ -123,6 +124,7 @@ export const useOnboardingStore = create<OnboardingState>()(
 				set({
 					currentStep: 0,
 					totalSteps: 24,
+					scanMode: "onboarding",
 					gender: undefined,
 					birthDate: undefined,
 					heightCm: undefined,

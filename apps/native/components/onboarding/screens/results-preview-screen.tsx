@@ -1,5 +1,6 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
 	Platform,
@@ -17,7 +18,7 @@ import Svg, {
 } from "react-native-svg";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
-const ZONE_NAMES = {
+const ZONE_NAMES: Record<string, string> = {
 	head: "Mental Clarity",
 	chest: "Respiratory",
 	stomach: "Digestion",
@@ -58,8 +59,10 @@ export default function ResultsPreviewScreen() {
 		computeHealthScore,
 		bodyZoneSelected,
 		intentType,
+		scanMode,
 	} = useOnboardingStore();
 
+	const router = useRouter();
 	const [score, setScore] = useState(0);
 
 	useEffect(() => {
@@ -79,7 +82,12 @@ export default function ResultsPreviewScreen() {
 				/* ignore */
 			}
 		}
-		nextStep();
+		if (scanMode === "home") {
+			// Home-entry scan: go directly to paywall route
+			router.push("/(onboarding)/21");
+		} else {
+			nextStep();
+		}
 	};
 
 	const getProbableCauses = () => {
@@ -115,6 +123,19 @@ export default function ResultsPreviewScreen() {
 		}
 		return "Immediate Attention Recommended";
 	};
+
+	// Display label for selected zones
+	const primaryZone =
+		bodyZoneSelected && bodyZoneSelected.length > 0
+			? bodyZoneSelected[0]
+			: null;
+	const primaryZoneName = primaryZone
+		? (ZONE_NAMES[primaryZone] ?? primaryZone)
+		: null;
+	const extraZones =
+		bodyZoneSelected && bodyZoneSelected.length > 1
+			? ` +${bodyZoneSelected.length - 1} more`
+			: "";
 
 	return (
 		<ScrollView
@@ -195,7 +216,7 @@ export default function ResultsPreviewScreen() {
 			{/* Main Content Sections */}
 			<View className="px-6 py-8">
 				{/* Focus Area Card */}
-				{intentType === "zone" && bodyZoneSelected && (
+				{intentType === "zone" && primaryZoneName && (
 					<View className="mb-8 overflow-hidden rounded-[32px] border border-blue-50 bg-white p-6 shadow-blue-50/50 shadow-xl">
 						<View className="flex-row items-center gap-4">
 							<View className="h-12 w-12 items-center justify-center rounded-2xl bg-blue-50">
@@ -206,8 +227,8 @@ export default function ResultsPreviewScreen() {
 									Area of Primary Focus
 								</Text>
 								<Text className="font-bold text-foreground text-xl">
-									{ZONE_NAMES[bodyZoneSelected as keyof typeof ZONE_NAMES] ||
-										bodyZoneSelected}
+									{primaryZoneName}
+									{extraZones}
 								</Text>
 							</View>
 						</View>

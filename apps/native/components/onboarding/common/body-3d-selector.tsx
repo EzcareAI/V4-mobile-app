@@ -30,6 +30,46 @@ import { THEME } from "@/lib/theme";
 // expo-asset resolves it to a file:// path before passing to GLTFLoader.
 const MODEL_MODULE = require("@/assets/models/body.glb");
 
+/** Maps raw GLB mesh node names → human-readable display labels */
+const ZONE_LABELS: Record<string, string> = {
+	head: "Head",
+	neck: "Neck",
+	Chest: "Chest",
+	Abdominal: "Abdomen",
+	Pelvic: "Pelvis",
+	Upper_back: "Upper Back",
+	Lower_back: "Lower Back",
+	Right_shoulder: "Right Shoulder",
+	Left_shoulder: "Left Shoulder",
+	Right_brachial: "Right Upper Arm",
+	Left_brachial: "Left Upper Arm",
+	Right_arm: "Right Arm",
+	Left_arm: "Left Arm",
+	"Right_fore _arm": "Right Forearm",
+	"Left_fore _arm": "Left Forearm",
+	Right_wriist: "Right Wrist",
+	Left_wrist: "Left Wrist",
+	Right_lats: "Right Lats",
+	left_lats: "Left Lats",
+	Right_thigh: "Right Thigh",
+	"Left _thigh": "Left Thigh",
+	Right_knee: "Right Knee",
+	"Left _knee": "Left Knee",
+	Right_lower_leg: "Right Lower Leg",
+	"Left _lower_leg": "Left Lower Leg",
+	"Left _leg": "Left Leg",
+	Right_foot: "Right Foot",
+	"Left _foot": "Left Foot",
+};
+
+/** Returns the human-readable label for a mesh name, or a cleaned-up fallback */
+function zoneLabel(meshName: string): string {
+	return (
+		ZONE_LABELS[meshName] ??
+		meshName.replace(/_/g, " ").replace(/ {2,}/g, " ").trim()
+	);
+}
+
 interface Body3DSelectorProps {
 	value?: string[];
 	onChange?: (regions: string[]) => void;
@@ -77,9 +117,21 @@ function BodyModel({
 		}
 	});
 
+	// Meshes that exist in the GLB but should not be selectable or highlighted
+	const HIDDEN_MESHES = new Set([
+		"Cube",
+		"Object.006",
+		"male_Base_mesh",
+		"male_Base_mesh.007",
+	]);
+
 	const toggleRegion = (e: ThreeEvent<MouseEvent> & { object: Mesh }) => {
 		e.stopPropagation();
 		const meshName = e.object.name;
+		// Ignore non-anatomy meshes
+		if (HIDDEN_MESHES.has(meshName)) {
+			return;
+		}
 		const next = selected.includes(meshName)
 			? selected.filter((n) => n !== meshName)
 			: [...selected, meshName];
@@ -106,12 +158,17 @@ function BodyModel({
 
 			scene.traverse((node: unknown) => {
 				if (node instanceof Mesh && !node.userData.hasCustomMaterial) {
-					node.material = new MeshStandardMaterial({
-						color: 0xcc_cc_cc,
-						roughness: 0.6,
-						metalness: 0.1,
-					});
-					node.userData.isBodyPart = true;
+					const isHidden = HIDDEN_MESHES.has(node.name);
+					if (isHidden) {
+						node.visible = false;
+					} else {
+						node.material = new MeshStandardMaterial({
+							color: 0xcc_cc_cc,
+							roughness: 0.6,
+							metalness: 0.1,
+						});
+						node.userData.isBodyPart = true;
+					}
 					node.userData.hasCustomMaterial = true;
 				}
 			});
@@ -315,7 +372,7 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 								className="font-semibold text-xs"
 								style={{ color: THEME.accent }}
 							>
-								{id}
+								{zoneLabel(id)}
 							</Text>
 						</View>
 					))

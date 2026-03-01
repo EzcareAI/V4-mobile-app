@@ -78,7 +78,7 @@ export const LoadingPlanScreen = () => {
 
 	const handleContinue = () => {
 		nextStep();
-		router.push("/(onboarding)/19");
+		router.push("/(onboarding)/25");
 	};
 
 	const getDietDescription = () => {

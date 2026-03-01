@@ -1,13 +1,19 @@
+import { useRouter } from "expo-router";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
 
 export function DiscountWheelScreen() {
+	const router = useRouter();
 	const { discountWheelShown, setAnswer, nextStep } = useOnboardingStore();
 
 	// If wheel was already shown, skip to next screen
 	if (discountWheelShown) {
+		setTimeout(() => {
+			nextStep();
+			router.push("/(onboarding)/23");
+		}, 500);
 		return (
 			<View className="flex-1 items-center justify-center bg-[#EBF5F4]">
 				<Text className="text-center text-[#73808C]">Loading...</Text>
@@ -17,12 +23,15 @@ export function DiscountWheelScreen() {
 
 	const handleClaimDiscount = () => {
 		setAnswer("discountWheelShown", true);
+		setAnswer("appliedDiscount", 10);
 		nextStep();
+		router.push("/(onboarding)/23");
 	};
 
 	const handleSkip = () => {
 		setAnswer("discountWheelShown", true);
 		nextStep();
+		router.push("/(onboarding)/23");
 	};
 
 	return (

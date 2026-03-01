@@ -15,7 +15,7 @@ export const NotificationsScreen = () => {
 
 	const handleContinue = () => {
 		nextStep();
-		router.push("/(onboarding)/20");
+		router.push("/(onboarding)/27");
 	};
 
 	return (

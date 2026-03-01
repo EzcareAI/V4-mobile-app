@@ -42,7 +42,7 @@ export const PerfectPlanScreen = () => {
 				/* ignore */
 			}
 		}
-		router.push("/(onboarding)/15");
+		router.push("/(onboarding)/26");
 	};
 
 	return (

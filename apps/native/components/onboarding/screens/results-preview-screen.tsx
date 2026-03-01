@@ -144,10 +144,10 @@ export default function ResultsPreviewScreen() {
 					colors={["#F8FAFC", "#F1F5F9"]}
 					style={StyleSheet.absoluteFill}
 				/>
-				<Text className="mb-2 text-center font-bold text-[28px] text-foreground tracking-tight">
+				<Text className="mb-2 text-center font-bold text-[28px] text-ezcare-navy tracking-tight">
 					Your Health Core is Ready ✨
 				</Text>
-				<Text className="mb-5 text-center text-[15px] text-muted-foreground leading-6">
+				<Text className="mb-5 text-center text-[15px] text-ezcare-slate leading-6">
 					We've analyzed your data to create your personalized blueprint.
 				</Text>
 
@@ -192,10 +192,10 @@ export default function ResultsPreviewScreen() {
 							/>
 						</Svg>
 						<View className="absolute items-center justify-center">
-							<Text className="font-bold text-5xl text-foreground">
+							<Text className="font-bold text-5xl text-ezcare-navy">
 								{score}
 							</Text>
-							<Text className="font-medium text-muted-foreground text-sm">
+							<Text className="font-medium text-ezcare-slate text-sm">
 								/ 100
 							</Text>
 						</View>
@@ -219,10 +219,10 @@ export default function ResultsPreviewScreen() {
 								<Text className="text-2xl">📍</Text>
 							</View>
 							<View>
-								<Text className="font-medium text-muted-foreground text-xs uppercase tracking-wider">
+								<Text className="font-medium text-ezcare-slate text-xs uppercase tracking-wider">
 									Area of Primary Focus
 								</Text>
-								<Text className="font-bold text-foreground text-xl">
+								<Text className="font-bold text-ezcare-navy text-xl">
 									{primaryZoneName}
 									{extraZones}
 								</Text>
@@ -233,7 +233,7 @@ export default function ResultsPreviewScreen() {
 
 				{/* Probable Causes with Rich Icons */}
 				<View className="mb-4">
-					<Text className="mb-3 font-bold text-foreground text-xl">
+					<Text className="mb-3 font-bold text-ezcare-navy text-xl">
 						Personal Insights
 					</Text>
 					{probableCauses.map((cause) => (
@@ -251,7 +251,7 @@ export default function ResultsPreviewScreen() {
 
 				{/* Premium Plan Preview Section */}
 				<View className="mb-4">
-					<Text className="mb-3 font-bold text-foreground text-xl">
+					<Text className="mb-3 font-bold text-ezcare-navy text-xl">
 						Your Customized Plan
 					</Text>
 

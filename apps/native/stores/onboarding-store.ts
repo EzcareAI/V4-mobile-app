@@ -57,6 +57,7 @@ export interface OnboardingState {
 	subscriptionStatus?: "active" | "pending" | "failed" | "cancelled";
 	discountWheelShown?: boolean; // Flag to show only once
 	paymentAttempted?: boolean;
+	appliedDiscount?: number; // Discount amount from the wheel spin
 
 	// Phase 6: Post-Payment
 	userId?: string;
@@ -152,6 +153,7 @@ export const useOnboardingStore = create<OnboardingState>()(
 					subscriptionStatus: undefined,
 					discountWheelShown: false,
 					paymentAttempted: false,
+					appliedDiscount: undefined,
 					userId: undefined,
 					authMethod: undefined,
 					notificationsEnabled: true,

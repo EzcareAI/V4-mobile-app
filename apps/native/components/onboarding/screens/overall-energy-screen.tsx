@@ -19,7 +19,7 @@ export function OverallEnergyScreen() {
 			setAnswer("currentEnergyLevel", selected);
 			nextStep();
 			if (scanMode !== "home") {
-				router.push("/(onboarding)/18");
+				router.push("/(onboarding)/17");
 			}
 		}
 	};

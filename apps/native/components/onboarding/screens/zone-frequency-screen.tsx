@@ -21,7 +21,7 @@ export function ZoneFrequencyScreen() {
 			);
 			nextStep();
 			if (scanMode !== "home") {
-				router.push("/(onboarding)/16");
+				router.push("/(onboarding)/17");
 			}
 		}
 	};

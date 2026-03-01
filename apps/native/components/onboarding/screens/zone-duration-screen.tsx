@@ -19,7 +19,7 @@ export function ZoneDurationScreen() {
 			);
 			nextStep();
 			if (scanMode !== "home") {
-				router.push("/(onboarding)/15");
+				router.push("/(onboarding)/16");
 			}
 		}
 	};

@@ -28,7 +28,7 @@ export function ZoneSymptomIntensityScreen() {
 			setAnswer("zoneSymptomIntensity", selected);
 			nextStep();
 			if (scanMode !== "home") {
-				router.push("/(onboarding)/14");
+				router.push("/(onboarding)/15");
 			}
 		}
 	};

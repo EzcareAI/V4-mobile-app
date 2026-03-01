@@ -42,7 +42,7 @@ export function ConfidenceMomentScreen() {
 	const handleContinue = () => {
 		nextStep();
 		if (scanMode !== "home") {
-			router.push("/(onboarding)/19");
+			router.push("/(onboarding)/20");
 		}
 	};
 

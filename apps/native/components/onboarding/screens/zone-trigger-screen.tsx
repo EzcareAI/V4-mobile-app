@@ -32,7 +32,7 @@ export function ZoneTriggerScreen() {
 			setAnswer("zoneTriggers", selected);
 			nextStep();
 			if (scanMode !== "home") {
-				router.push("/(onboarding)/17");
+				router.push("/(onboarding)/18");
 			}
 		}
 	};

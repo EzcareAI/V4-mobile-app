@@ -19,7 +19,7 @@ export function OverallDigestionScreen() {
 			setAnswer("currentDigestionComfort", selected);
 			nextStep();
 			if (scanMode !== "home") {
-				router.push("/(onboarding)/19");
+				router.push("/(onboarding)/18");
 			}
 		}
 	};

@@ -19,7 +19,7 @@ export function OverallMotivationScreen() {
 			setAnswer("motivationLevel", selected);
 			nextStep();
 			if (scanMode !== "home") {
-				router.push("/(onboarding)/18");
+				router.push("/(onboarding)/19");
 			}
 		}
 	};

@@ -19,7 +19,8 @@
       "reactCompiler": false
     },
     "android": {
-      "package": "com.ezcare_ai4.ezcare"
+      "package": "com.ezcare_ai4.ezcare",
+      "versionCode": 1
     },
     "extra": {
       "router": {},

@@ -67,7 +67,6 @@ export interface OnboardingState {
 	// Phase 6: Post-Payment
 	userId?: string;
 	authMethod?: "google" | "email";
-	notificationsEnabled: boolean;
 	referralCode?: string;
 
 	// Completion

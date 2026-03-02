@@ -66,6 +66,7 @@ export interface OnboardingState {
 
 	// Phase 6: Post-Payment
 	userId?: string;
+	email?: string;
 	authMethod?: "google" | "email";
 	referralCode?: string;
 
@@ -201,6 +202,7 @@ export const useOnboardingStore = create<OnboardingState>()(
 					paywall_plan_selected: state.subscriptionStatus,
 					last_completed_step: state.currentStep,
 					user_id: state.userId,
+					email: state.email,
 					first_name: state.firstName,
 					updated_at: new Date().toISOString(),
 				};

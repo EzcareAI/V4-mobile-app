@@ -18,7 +18,7 @@ import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export function AccountCreationScreen() {
 	const router = useRouter();
-	const { setAnswer, nextStep, currentStep } = useOnboardingStore();
+	const { setAnswer, nextStep, currentStep, firstName } = useOnboardingStore();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -44,6 +44,12 @@ export function AccountCreationScreen() {
 		const { data, error } = await supabase.auth.signUp({
 			email,
 			password,
+			options: {
+				data: {
+					first_name: firstName,
+					name: firstName, // Common fallback field
+				},
+			},
 		});
 
 		if (error) {
@@ -56,6 +62,7 @@ export function AccountCreationScreen() {
 			setAnswer("userId", data.user.id);
 		}
 
+		setAnswer("email", email);
 		setAnswer("authMethod", "email");
 		nextStep();
 		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);

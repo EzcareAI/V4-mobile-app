@@ -34,14 +34,14 @@ export const anthropicService = {
 			});
 
 			if (!response.ok) {
-				const errorData = await response.json();
+				const errorData = (await response.json()) as { error?: { message?: string } };
 				console.error("Anthropic API Error:", errorData);
 				throw new Error(
 					errorData.error?.message || "Failed to call Anthropic API"
 				);
 			}
 
-			const data = await response.json();
+			const data = (await response.json()) as { content: { text: string }[] };
 			return data.content[0].text;
 		} catch (error) {
 			console.error("Anthropic Service Exception:", error);

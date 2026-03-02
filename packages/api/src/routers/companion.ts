@@ -103,11 +103,11 @@ export const companionRouter = router({
 				healthScore: latestScore?.overallScore,
 				recentCheckins: recentCheckins.map((c) => ({
 					date: c.date,
-					sleepScore: c.sleepScore,
-					energyScore: c.energyScore,
-					stressScore: c.stressScore,
-					digestionScore: c.digestionScore,
-					hasPain: c.hasPain,
+					sleepScore: c.sleepQuality,
+					energyScore: c.energy,
+					stressScore: c.mood, // Mapping mood to stress score temporarily
+					digestionScore: c.digestion,
+					hasPain: c.pain > 0,
 				})),
 				profile: profile
 					? {

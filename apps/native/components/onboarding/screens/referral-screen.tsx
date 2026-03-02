@@ -124,7 +124,7 @@ export const ReferralScreen = () => {
 							<View className="flex-row items-center">
 								<Text className="mr-2 text-2xl text-white">✓</Text>
 								<Text className="font-semibold text-base text-white">
-									{referralCode?.length > 0 ? "Submit Code" : "Continue"}
+									{(referralCode?.length ?? 0) > 0 ? "Submit Code" : "Continue"}
 								</Text>
 							</View>
 						}

@@ -4,7 +4,7 @@
  * Purpose: Surface ONE focus for the day.
  */
 
-import type { CheckInData } from "./ezScore";
+import type { CheckInData } from "./ez-score";
 
 export type TodayFocus =
 	| "Recover energy today"

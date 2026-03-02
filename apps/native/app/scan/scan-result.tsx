@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, Text } from "react-native";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import { Container } from "@/components/container";
 import { ResultPreview } from "@/components/scan/result-preview";
@@ -9,8 +10,8 @@ import { trpc } from "@/utils/trpc";
 export default function ScanResult() {
 	const { scanId } = useLocalSearchParams<{ scanId: string }>();
 
-	const generateResult = trpc.scan.generateResult.useMutation();
-	const { data: subscription } = trpc.subscription.getStatus.useQuery();
+	const generateResult = useMutation(trpc.scan.generateResult.mutationOptions());
+	const { data: subscription } = useQuery(trpc.subscription.status.queryOptions());
 
 	// Call mutation on mount
 	useEffect(() => {

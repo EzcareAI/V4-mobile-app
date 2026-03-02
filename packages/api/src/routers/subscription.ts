@@ -220,7 +220,7 @@ export const subscriptionRouter = router({
 					})
 					.where(eq(subscription.userId, userId))
 					.returning();
-				subResult = updated;
+				subResult = updated as Subscription;
 			} else {
 				const [created] = await db
 					.insert(subscription)
@@ -233,7 +233,7 @@ export const subscriptionRouter = router({
 						originalPurchaseDate: new Date(),
 					})
 					.returning();
-				subResult = created;
+				subResult = created as Subscription;
 			}
 
 			// Update user table status as well

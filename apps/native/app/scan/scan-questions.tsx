@@ -1,6 +1,7 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Text } from "react-native";
+import { useMutation } from "@tanstack/react-query";
 
 import { Container } from "@/components/container";
 import {
@@ -56,8 +57,8 @@ export default function ScanQuestions() {
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const { zone, symptom, scanId, setScanId } = useScanStore();
 
-	const createScan = trpc.scan.create.useMutation();
-	const submitAnswers = trpc.scan.submitAnswers.useMutation();
+	const createScan = useMutation(trpc.scan.create.mutationOptions());
+	const submitAnswers = useMutation(trpc.scan.submitAnswers.mutationOptions());
 
 	const handleComplete = async (answers: Record<string, unknown>) => {
 		try {
@@ -70,7 +71,7 @@ export default function ScanQuestions() {
 					startedAt: new Date().toISOString(),
 				});
 				currentScanId = scan.scanId;
-				setScanId(currentScanId);
+				setScanId(currentScanId as string);
 			}
 
 			if (!currentScanId) {

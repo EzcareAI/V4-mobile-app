@@ -10,7 +10,7 @@ import { StepHeader } from "../common/step-header";
 
 export default function BodyDiagramScreen() {
 	const router = useRouter();
-	const { nextStep, setAnswer, bodyZoneSelected } = useOnboardingStore();
+	const { nextStep, setAnswer, bodyZoneSelected, currentStep } = useOnboardingStore();
 
 	const initialZones = bodyZoneSelected || [];
 	const [selectedZones, setSelectedZones] = useState<string[]>(initialZones);
@@ -21,14 +21,14 @@ export default function BodyDiagramScreen() {
 			setAnswer("bodyZoneSelected", selectedZones);
 			setAnswer("intentType", "zone");
 			nextStep();
-			router.push("/(onboarding)/12");
+			router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 		}
 	};
 	const handleOverallHealth = () => {
 		setAnswer("bodyZoneSelected", []);
 		setAnswer("intentType", "overall");
 		nextStep();
-		router.push("/(onboarding)/12");
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	const hasSelection = selectedZones.length > 0;

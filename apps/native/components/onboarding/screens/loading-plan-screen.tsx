@@ -46,7 +46,7 @@ const STAGES = [
 
 export const LoadingPlanScreen = () => {
 	const router = useRouter();
-	const { nextStep, dietType } = useOnboardingStore();
+	const { nextStep, dietType, currentStep } = useOnboardingStore();
 	const [progress, setProgress] = useState(0);
 	const progressAnim = useRef(new Animated.Value(0)).current;
 
@@ -78,7 +78,7 @@ export const LoadingPlanScreen = () => {
 
 	const handleContinue = () => {
 		nextStep();
-		router.push("/(onboarding)/25");
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	const getDietDescription = () => {

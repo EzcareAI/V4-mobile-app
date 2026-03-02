@@ -52,13 +52,13 @@ const ACTIVITY_OPTIONS: SingleSelectOption[] = [
 
 export const ActivityLevelScreen = () => {
 	const router = useRouter();
-	const { activityLevel, setAnswer, nextStep } = useOnboardingStore();
+	const { activityLevel, setAnswer, nextStep, currentStep } = useOnboardingStore();
 
 	const selectedId = activityLevel ? String(activityLevel) : null;
 
 	const handleContinue = () => {
 		nextStep();
-		router.push("/(onboarding)/5");
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	return (

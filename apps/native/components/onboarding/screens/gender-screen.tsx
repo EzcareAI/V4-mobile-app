@@ -35,11 +35,11 @@ const GENDER_OPTIONS: SingleSelectOption[] = [
 
 export const GenderScreen = () => {
 	const router = useRouter();
-	const { gender, setAnswer, nextStep } = useOnboardingStore();
+	const { gender, setAnswer, nextStep, currentStep } = useOnboardingStore();
 
 	const handleContinue = () => {
 		nextStep();
-		router.push("/(onboarding)/2");
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	return (

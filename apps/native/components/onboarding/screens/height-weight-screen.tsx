@@ -81,7 +81,7 @@ const UnitToggle = ({
 
 export const HeightWeightScreen = () => {
 	const router = useRouter();
-	const { heightCm, weightKg, unitPreference, setAnswer, nextStep } =
+	const { heightCm, weightKg, unitPreference, setAnswer, nextStep, currentStep } =
 		useOnboardingStore();
 
 	const isImperial = unitPreference === "imperial";
@@ -123,7 +123,7 @@ export const HeightWeightScreen = () => {
 		setAnswer("heightCm", getCurrentHeightCm());
 		setAnswer("weightKg", getCurrentWeightKg());
 		nextStep();
-		router.push("/(onboarding)/4");
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	return (

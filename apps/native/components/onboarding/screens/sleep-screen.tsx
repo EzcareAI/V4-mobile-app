@@ -46,11 +46,11 @@ const SLEEP_OPTIONS: SingleSelectOption[] = [
 
 export const SleepScreen = () => {
 	const router = useRouter();
-	const { sleepQuality, setAnswer, nextStep } = useOnboardingStore();
+	const { sleepQuality, setAnswer, nextStep, currentStep } = useOnboardingStore();
 
 	const handleContinue = () => {
 		nextStep();
-		router.push("/(onboarding)/7");
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	const selectedId = sleepQuality ? String(sleepQuality) : null;

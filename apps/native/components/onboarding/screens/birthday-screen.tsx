@@ -23,7 +23,7 @@ const months = [
 
 export const BirthdayScreen = () => {
 	const router = useRouter();
-	const { birthDate, setAnswer, nextStep } = useOnboardingStore();
+	const { birthDate, setAnswer, nextStep, currentStep } = useOnboardingStore();
 
 	const initialDate = useMemo(() => {
 		if (birthDate) {
@@ -58,7 +58,7 @@ export const BirthdayScreen = () => {
 
 		setAnswer("birthDate", dateObj.toISOString());
 		nextStep();
-		router.push("/(onboarding)/3");
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 	const selectedYear = 1940 + yearIndex;

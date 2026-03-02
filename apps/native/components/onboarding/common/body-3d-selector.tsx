@@ -261,7 +261,6 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 		[onInteractionStart, onInteractionEnd]
 	);
 
-	const [isFocused, setIsFocused] = useState(false);
 	const [modelUri, setModelUri] = useState<string | null>(null);
 	const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -287,16 +286,7 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 		};
 	}, []);
 
-	useFocusEffect(
-		useCallback(() => {
-			setIsFocused(true);
-			return () => {
-				setIsFocused(false);
-			};
-		}, [])
-	);
-
-	const isReady = isFocused && modelUri !== null;
+	const isReady = modelUri !== null;
 	const showModel = !loadError && isReady;
 	const showLoading = !(loadError || isReady);
 
@@ -337,14 +327,9 @@ export function Body3DSelector(props: Body3DSelectorProps) {
 				{showLoading && (
 					<View className="flex-1 items-center justify-center bg-slate-50/50">
 						<ActivityIndicator color={THEME.accent} size="large" />
-						{!isFocused && (
+						{!modelUri && (
 							<Text className="mt-4 font-medium text-gray-400 text-xs">
-								Waiting for focus...
-							</Text>
-						)}
-						{isFocused && !modelUri && (
-							<Text className="mt-4 font-medium text-gray-400 text-xs">
-								Extracting asset: {MODEL_MODULE}
+								Extracting 3D Model...
 							</Text>
 						)}
 					</View>

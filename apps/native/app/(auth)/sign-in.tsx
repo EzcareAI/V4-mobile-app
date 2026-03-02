@@ -72,7 +72,8 @@ export default function SignInScreen() {
 				console.warn("Post-login sync failed:", syncError);
 			}
 
-			// Redirection is handled by root layout's session check
+			// Explicit redirection to dashboard after successful login
+			router.replace("/(drawer)");
 		} catch (error) {
 			Alert.alert("Error", "An unexpected error occurred");
 			console.error(error);

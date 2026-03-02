@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useRouter } from "expo-router";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -9,12 +10,18 @@ export function DiscountWheelScreen() {
 	const { setAnswer, nextStep, currentStep, discountWheelShown } =
 		useOnboardingStore();
 
-	// If wheel was already shown, skip to next screen
+	// If wheel was already shown, skip to next screen — in useEffect to avoid side-effects during render
+	useEffect(() => {
+		if (discountWheelShown) {
+			const timer = setTimeout(() => {
+				nextStep();
+				router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+			}, 500);
+			return () => clearTimeout(timer);
+		}
+	}, [discountWheelShown, nextStep, router, currentStep]);
+
 	if (discountWheelShown) {
-		setTimeout(() => {
-			nextStep();
-			router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
-		}, 500);
 		return (
 			<View className="flex-1 items-center justify-center bg-[#EBF5F4]">
 				<Text className="text-center text-[#73808C]">Loading...</Text>

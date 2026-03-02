@@ -1,5 +1,6 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
 	Modal,
@@ -29,10 +30,12 @@ const BENEFITS = [
 ];
 
 export default function PaywallScreen() {
+	const router = useRouter();
 	const {
 		setAnswer,
 		nextStep,
 		prevStep,
+		currentStep,
 		discountWheelShown,
 		onboardingRecordId,
 	} = useOnboardingStore();
@@ -88,6 +91,7 @@ export default function PaywallScreen() {
 
 			setIsProcessing(false);
 			nextStep();
+			router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 		}, 2000);
 	};
 

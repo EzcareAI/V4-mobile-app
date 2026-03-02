@@ -201,10 +201,10 @@ export default function ResultsPreviewScreen() {
 					style={StyleSheet.absoluteFill}
 				/>
 				<Text className="mb-2 text-center font-bold text-[28px] text-ezcare-navy tracking-tight">
-					Your Health Core is Ready ✨
+					Your AI Blueprint is Ready 🚀
 				</Text>
-				<Text className="mb-5 text-center text-[15px] text-ezcare-slate leading-6">
-					We've analyzed your data to create your personalized blueprint.
+				<Text className="mb-5 text-center text-[15px] text-ezcare-slate leading-6 px-2">
+					We've analyzed 40+ distinct biomarkers to engineer a highly personalized longevity protocol for you.
 				</Text>
 
 				{/* Elevated Health Score Display */}
@@ -312,28 +312,44 @@ export default function ResultsPreviewScreen() {
 				{/* Premium Plan Preview Section */}
 				<View className="mb-4">
 					<Text className="mb-3 font-bold text-ezcare-navy text-xl">
-						Your Customized Plan
+						Your Customized Protocol
 					</Text>
 
-					<View className="relative overflow-hidden rounded-[32px] bg-slate-900 p-8 shadow-2xl">
-						<View className="opacity-20">
-							<View className="mb-8">
-								<View className="mb-4 h-4 w-1/2 rounded bg-white/20" />
-								<View className="mb-2 h-3 w-3/4 rounded bg-white/10" />
-								<View className="h-3 w-2/3 rounded bg-white/10" />
+					<View className="relative overflow-hidden rounded-[32px] border border-blue-50 bg-white p-6 shadow-2xl">
+						{/* Faded/Skeleton Content Backdrop */}
+						<View className="opacity-20 gap-y-4">
+							<View className="flex-row items-center gap-4">
+								<View className="h-12 w-12 rounded-full bg-blue-200" />
+								<View className="flex-1 gap-y-2">
+									<View className="h-3.5 w-3/4 rounded-full bg-slate-300" />
+									<View className="h-2.5 w-1/2 rounded-full bg-slate-200" />
+								</View>
 							</View>
-							<View>
-								<View className="mb-4 h-4 w-1/3 rounded bg-white/20" />
-								<View className="mb-2 h-3 w-4/5 rounded bg-white/10" />
-								<View className="h-3 w-3/4 rounded bg-white/10" />
+							<View className="flex-row items-center gap-4">
+								<View className="h-12 w-12 rounded-full bg-emerald-200" />
+								<View className="flex-1 gap-y-2">
+									<View className="h-3.5 w-5/6 rounded-full bg-slate-300" />
+									<View className="h-2.5 w-2/3 rounded-full bg-slate-200" />
+								</View>
+							</View>
+							<View className="flex-row items-center gap-4">
+								<View className="h-12 w-12 rounded-full bg-rose-200" />
+								<View className="flex-1 gap-y-2">
+									<View className="h-3.5 w-2/3 rounded-full bg-slate-300" />
+									<View className="h-2.5 w-1/3 rounded-full bg-slate-200" />
+								</View>
 							</View>
 						</View>
 
-						{/* Premium Unlock Overlay */}
-						<View className="absolute inset-0 items-center justify-center bg-slate-900/40">
-							<View className="items-center rounded-3xl border border-white/20 bg-white/10 px-6 py-4">
-								<Text className="font-bold text-base text-white">
-									🔒 Personalized Logic Locked
+						{/* Premium Unlock Frosted Overlay */}
+						<View className="absolute inset-0 items-center justify-center bg-white/75">
+							<View className="items-center rounded-3xl border border-blue-100 bg-blue-50/90 px-8 py-5 shadow-sm">
+								<Text className="mb-2 text-3xl">🧩</Text>
+								<Text className="font-bold text-lg text-ezcare-navy text-center tracking-tight">
+									Hidden AI Intelligence
+								</Text>
+								<Text className="mt-1 font-medium text-center text-xs text-ezcare-slate">
+									Unlock to reveal your exact daily tasks
 								</Text>
 							</View>
 						</View>
@@ -355,7 +371,7 @@ export default function ResultsPreviewScreen() {
 				{/* Fixed Floating CTA */}
 				<TouchableOpacity
 					activeOpacity={0.9}
-					className="mb-8 overflow-hidden rounded-[24px] shadow-2xl shadow-[#28B898]/30"
+					className="mt-6 mb-16 overflow-hidden rounded-[24px] shadow-2xl shadow-[#28B898]/30 mx-2"
 					onPress={handleUnlock}
 				>
 					<LinearGradient

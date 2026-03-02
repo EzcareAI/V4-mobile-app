@@ -1,8 +1,9 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import {
+	BackHandler,
 	Modal,
 	Platform,
 	ScrollView,
@@ -22,25 +23,32 @@ const FEATURES = [
 	"📱 Unlimited access on all devices",
 ];
 
-const BENEFITS = [
-	"Full health analysis",
-	"Personalized 7-day plans",
-	"Daily check-ins",
-	"EZBuddy guidance",
-];
-
 export default function PaywallScreen() {
 	const router = useRouter();
 	const {
 		setAnswer,
 		nextStep,
-		prevStep,
 		currentStep,
-		discountWheelShown,
 		onboardingRecordId,
 	} = useOnboardingStore();
 	const [isProcessing, setIsProcessing] = useState(false);
-	const [showDiscountWheel, setShowDiscountWheel] = useState(false);
+
+	useFocusEffect(
+		useCallback(() => {
+			const onBackPress = () => {
+				const state = useOnboardingStore.getState();
+				if (!state.discountWheelShown) {
+					state.setAnswer("discountWheelShown", true);
+					state.nextStep();
+					router.push("/(onboarding)/21");
+					return true;
+				}
+				return false;
+			};
+			const backSubscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+			return () => backSubscription.remove();
+		}, [router])
+	);
 
 	useEffect(() => {
 		// Log paywall view event to backend independent of draft
@@ -95,21 +103,7 @@ export default function PaywallScreen() {
 		}, 2000);
 	};
 
-	const handleExit = async () => {
-		if (Platform.OS === "ios") {
-			try {
-				await impactAsync(ImpactFeedbackStyle.Light);
-			} catch {
-				/* ignore */
-			}
-		}
-		if (discountWheelShown) {
-			prevStep();
-		} else {
-			setAnswer("discountWheelShown", true);
-			setShowDiscountWheel(true);
-		}
-	};
+
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
@@ -133,12 +127,12 @@ export default function PaywallScreen() {
 					</Text>
 				</View>
 
-				{/* Pricing Cards */}
-				<View className="-mt-4 gap-y-6 px-6">
+				{/* Pricing Cards (Side-by-Side) */}
+				<View className="-mt-4 flex-row gap-x-4 px-6">
 					{/* Annual — Primary Card */}
 					<TouchableOpacity
 						activeOpacity={0.9}
-						className="relative overflow-hidden rounded-[32px] p-8 shadow-2xl shadow-blue-200"
+						className="relative flex-1 overflow-hidden rounded-[28px] p-5 shadow-2xl shadow-blue-200"
 						disabled={isProcessing}
 						onPress={handlePayment}
 					>
@@ -150,46 +144,25 @@ export default function PaywallScreen() {
 						/>
 
 						{/* Best Value Badge */}
-						<View className="absolute top-6 right-6 rounded-full bg-yellow-400 px-4 py-1.5 shadow-sm">
-							<Text className="font-bold text-[#29303D] text-[10px] uppercase tracking-widest">
+						<View className="absolute top-0 right-0 rounded-bl-[16px] bg-yellow-400 px-3 py-1.5 shadow-sm">
+							<Text className="font-bold text-[#29303D] text-[9px] uppercase tracking-widest">
 								BEST VALUE
 							</Text>
 						</View>
 
-						<View className="mb-6 pr-20">
-							<Text className="font-bold text-2xl text-white">Annual Plan</Text>
-							<Text className="mt-1 text-sm text-white/80">
-								Commit for a year and save 60%
-							</Text>
-						</View>
+						<Text className="mt-3 font-bold text-xl text-white">Annual</Text>
+						<Text className="mt-1 text-xs text-white/80 h-8">Save 60%</Text>
 
-						<View className="mb-2 flex-row items-baseline">
-							<Text className="font-black text-5xl text-white">€39.99</Text>
-							<Text className="ml-2 font-bold text-lg text-white/80">
-								/year
-							</Text>
+						<View className="mt-3 mb-1">
+							<Text className="font-black text-3xl text-white">€39.99</Text>
 						</View>
-						<Text className="mb-8 font-medium text-sm text-white/70">
-							€3.33/month billed annually
+						<Text className="font-medium text-[10px] text-white/80">
+							€3.33/mo, billed yearly
 						</Text>
 
-						{/* Benefits List */}
-						<View className="mb-8 gap-y-3">
-							{BENEFITS.map((b) => (
-								<View className="flex-row items-center gap-3" key={b}>
-									<View className="h-5 w-5 items-center justify-center rounded-full bg-white/20">
-										<Text className="text-[10px] text-white">✓</Text>
-									</View>
-									<Text className="font-semibold text-[15px] text-white">
-										{b}
-									</Text>
-								</View>
-							))}
-						</View>
-
-						<View className="rounded-2xl bg-white/20 py-4">
-							<Text className="text-center font-bold text-lg text-white">
-								{isProcessing ? "Processing Analysis…" : "Start Now →"}
+						<View className="mt-6 rounded-2xl bg-white/20 py-3.5">
+							<Text className="text-center font-bold text-sm text-white">
+								{isProcessing ? "Wait..." : "Select"}
 							</Text>
 						</View>
 					</TouchableOpacity>
@@ -197,29 +170,23 @@ export default function PaywallScreen() {
 					{/* Monthly — Secondary Card */}
 					<TouchableOpacity
 						activeOpacity={0.9}
-						className="rounded-[32px] border-2 border-slate-100 bg-slate-50 p-8"
+						className="flex-1 rounded-[28px] border-2 border-slate-100 bg-slate-50 p-5"
 						disabled={isProcessing}
 						onPress={handlePayment}
 					>
-						<View className="mb-4">
-							<Text className="font-bold text-[#29303D] text-xl">
-								Monthly Plan
-							</Text>
-							<Text className="mt-1 text-[#73808C] text-sm">
-								Cancel anytime, zero commitment
-							</Text>
-						</View>
+						<Text className="mt-3 font-bold text-[#29303D] text-xl">Monthly</Text>
+						<Text className="mt-1 text-[#73808C] text-xs h-8">Zero commitment</Text>
 
-						<View className="mb-6 flex-row items-baseline">
-							<Text className="font-black text-4xl text-[#29303D]">€11.99</Text>
-							<Text className="ml-2 font-bold text-[#73808C] text-lg">
-								/month
-							</Text>
+						<View className="mt-3 mb-1">
+							<Text className="font-black text-3xl text-[#29303D]">€11.99</Text>
 						</View>
+						<Text className="font-medium text-[10px] text-[#73808C]">
+							Billed monthly
+						</Text>
 
-						<View className="rounded-2xl border border-slate-200 bg-white py-4 shadow-sm">
-							<Text className="text-center font-bold text-[#29303D] text-lg">
-								Get Monthly Access
+						<View className="mt-6 rounded-2xl border border-slate-200 bg-white py-3.5 shadow-sm">
+							<Text className="text-center font-bold text-[#29303D] text-sm">
+								Select
 							</Text>
 						</View>
 					</TouchableOpacity>
@@ -268,12 +235,7 @@ export default function PaywallScreen() {
 					</View>
 				</View>
 
-				{/* Decline Link */}
-				<TouchableOpacity className="mt-12 items-center" onPress={handleExit}>
-					<Text className="font-bold text-[#73808C] text-base tracking-tight">
-						I'll decide later
-					</Text>
-				</TouchableOpacity>
+
 
 				{/* Fine Print */}
 				<Text className="mx-10 mt-8 text-center text-[#73808C] text-[11px] leading-5">

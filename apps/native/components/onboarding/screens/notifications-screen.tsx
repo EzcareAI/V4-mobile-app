@@ -1,5 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
 import { Bell, BellOff, Bot } from "lucide-react-native";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -16,6 +18,42 @@ export const NotificationsScreen = () => {
 	const handleContinue = () => {
 		nextStep();
 		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+	};
+
+	const handleRequestPermissions = async () => {
+		if (!Device.isDevice) {
+			// Simulators do not fully support push
+			handleToggle(true);
+			handleContinue();
+			return;
+		}
+
+		try {
+			const { status: existingStatus } = await Notifications.getPermissionsAsync();
+			let finalStatus = existingStatus;
+
+			if (existingStatus !== "granted") {
+				const { status } = await Notifications.requestPermissionsAsync();
+				finalStatus = status;
+			}
+
+			handleToggle(finalStatus === "granted");
+
+			// Fetch push token 
+			if (finalStatus === "granted") {
+				try {
+					const tokenData = await Notifications.getExpoPushTokenAsync();
+					setAnswer("pushToken", tokenData.data);
+				} catch (err) {
+					console.log("Failed to get Expo Push Token:", err);
+				}
+			}
+		} catch (error) {
+			console.log("Error requesting notifications permissions:", error);
+			handleToggle(false);
+		} finally {
+			handleContinue();
+		}
 	};
 
 	return (
@@ -138,10 +176,7 @@ export const NotificationsScreen = () => {
 				<View className="pt-4">
 					<View className="mb-4 gap-y-4">
 						<Pressable
-							onPress={() => {
-								handleToggle(true);
-								handleContinue();
-							}}
+							onPress={handleRequestPermissions}
 						>
 							<LinearGradient
 								colors={["#2DE2E2", "#28B898"]}

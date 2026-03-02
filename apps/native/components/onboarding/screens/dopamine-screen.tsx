@@ -110,7 +110,7 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 							<View className="flex-row items-center rounded-full bg-teal-50 px-2 py-1">
 								<TrendingUp color="#3EC9B5" size={14} />
 								<Text className="ml-1 font-bold text-[#3EC9B5] text-xs">
-									+42%
+									{isReinforcement ? "+42%" : "+85%"}
 								</Text>
 							</View>
 						</View>
@@ -134,16 +134,39 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 								<Path d="M 0 70 L 300 70" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4,4" />
 								<Path d="M 0 105 L 300 105" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4,4" />
 
-								{/* Animated Fill */}
+								{/* Animated Fill (With EZCare) */}
 								<AnimatedPath
-									d="M 0 120 C 80 120, 120 70, 180 60 S 260 20, 300 10 L 300 140 L 0 140 Z"
+									d={
+										isReinforcement
+											? "M 0 120 C 80 110, 140 80, 200 60 S 260 40, 300 30 L 300 140 L 0 140 Z"
+											: "M 0 120 C 60 100, 100 40, 160 30 S 240 10, 300 5 L 300 140 L 0 140 Z"
+									}
 									fill="url(#fillGrad)"
 									opacity={fillOpacityAnim}
 								/>
 								
-								{/* Animated Curve */}
+								{/* Without EZCare Baseline Curve */}
 								<AnimatedPath
-									d="M 0 120 C 80 120, 120 70, 180 60 S 260 20, 300 10"
+									d={
+										isReinforcement
+											? "M 0 120 C 100 120, 200 125, 300 128"
+											: "M 0 120 C 100 120, 200 128, 300 135"
+									}
+									fill="none"
+									stroke="#CBD5E1"
+									strokeWidth="3"
+									strokeLinecap="round"
+									strokeDasharray="400"
+									strokeDashoffset={pathAnim}
+								/>
+
+								{/* With EZCare Animated Curve */}
+								<AnimatedPath
+									d={
+										isReinforcement
+											? "M 0 120 C 80 110, 140 80, 200 60 S 260 40, 300 30"
+											: "M 0 120 C 60 100, 100 40, 160 30 S 240 10, 300 5"
+									}
 									fill="none"
 									stroke="url(#lineGrad)"
 									strokeWidth="4"
@@ -153,10 +176,27 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 								/>
 							</Svg>
 						</View>
+
+						{/* Timestamps */}
+						<View className="mt-2 flex-row justify-between px-1">
+							<Text className="font-medium text-[#94A3B8] text-[11px] uppercase tracking-wider">Today</Text>
+							<Text className="font-medium text-[#94A3B8] text-[11px] uppercase tracking-wider">
+								{isReinforcement ? "Week 4" : "Month 3"}
+							</Text>
+							<Text className="font-medium text-[#94A3B8] text-[11px] uppercase tracking-wider">
+								{isReinforcement ? "Week 12" : "Month 6"}
+							</Text>
+						</View>
 						
-						<View className="mt-2 flex-row justify-between">
-							<Text className="font-medium text-[#94A3B8] text-xs">Today</Text>
-							<Text className="font-medium text-[#94A3B8] text-xs">Goal</Text>
+						<View className="mt-4 flex-row justify-center gap-6">
+							<View className="flex-row items-center gap-2">
+								<View className="h-2.5 w-2.5 rounded-full bg-[#3EC9B5]" />
+								<Text className="font-medium text-[#60708F] text-xs">With EZCare</Text>
+							</View>
+							<View className="flex-row items-center gap-2">
+								<View className="h-2.5 w-2.5 rounded-full bg-[#CBD5E1]" />
+								<Text className="font-medium text-[#60708F] text-xs">Without</Text>
+							</View>
 						</View>
 					</View>
 				</Animated.View>

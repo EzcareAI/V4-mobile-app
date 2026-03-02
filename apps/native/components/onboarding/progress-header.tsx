@@ -44,6 +44,17 @@ export const ProgressHeader = () => {
 				// Ignore haptics errors
 			}
 		}
+
+		// Intercept Paywall (Step 20) Back Action to show Discount Wheel
+		if (displayStep === 20) {
+			const state = useOnboardingStore.getState();
+			if (!state.discountWheelShown) {
+				state.setAnswer("discountWheelShown", true);
+				state.nextStep();
+				router.push("/(onboarding)/21");
+				return;
+			}
+		}
 		if (displayStep > 1) {
 			prevStep();
 			router.back();

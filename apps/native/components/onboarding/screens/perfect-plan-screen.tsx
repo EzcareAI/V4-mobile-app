@@ -9,7 +9,8 @@ import { useRouter } from "expo-router";
 import { Heart, TrendingUp, Zap } from "lucide-react-native";
 import React from "react";
 import { Platform, ScrollView, Text, View } from "react-native";
-import { CartesianChart, Line } from "victory-native";
+import { runOnJS, useAnimatedReaction } from "react-native-reanimated";
+import { CartesianChart, Line, useChartPressState } from "victory-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
@@ -34,6 +35,30 @@ export const PerfectPlanScreen = () => {
 		}, 300);
 		return () => clearTimeout(timer);
 	}, []);
+
+	const { state: chartState, isActive } = useChartPressState({
+		x: "Week 1",
+		y: { score: 0 },
+	});
+	const [activeScore, setActiveScore] = React.useState<number | null>(null);
+
+	useAnimatedReaction(
+		() => {
+			return chartState.y.score.value.value;
+		},
+		(score) => {
+			if (typeof score === "number" && !isNaN(score)) {
+				runOnJS(setActiveScore)(Math.round(score));
+			}
+		},
+		[chartState]
+	);
+
+	React.useEffect(() => {
+		if (!isActive) {
+			setActiveScore(null);
+		}
+	}, [isActive]);
 
 	const { nextStep, currentStep } = useOnboardingStore();
 
@@ -102,23 +127,24 @@ export const PerfectPlanScreen = () => {
 
 							{/* Graph Section */}
 							<View className="h-56 flex-row">
-								<View className="items-end justify-between py-2 pr-4">
+								<View className="items-end justify-between py-2 pr-2">
 									{["100", "80", "60", "40", "20", "0"].map((v) => (
 										<Text
 											className="font-bold text-[10px] text-slate-300"
 											key={v}
 										>
-											{v}%
+											{v}
 										</Text>
 									))}
 								</View>
 
 								<View className="relative flex-1">
 									<CartesianChart
+										chartPressState={chartState}
 										data={chartData}
 										domain={{ y: [0, 100] }}
-										domainPadding={{ left: 20, right: 20 }}
-										padding={{ top: 10, bottom: 10 }}
+										domainPadding={{ left: 24, right: 24, top: 10, bottom: 10 }}
+										padding={0}
 										xKey="week"
 										yKeys={["score"]}
 									>
@@ -180,19 +206,18 @@ export const PerfectPlanScreen = () => {
 										)}
 									</CartesianChart>
 
-									{/* Projected Tooltip */}
-									<View className="absolute top-2 right-2 items-center">
+									{/* Projected Target Box */}
+									<View className="absolute top-0 right-0 items-center">
 										<View className="rounded-xl bg-slate-900 px-3 py-1.5 shadow-lg">
 											<Text className="font-black text-[14px] text-white">
-												72%
+												{activeScore !== null ? activeScore : 72}%
 											</Text>
 										</View>
-										<View className="-mt-1 h-2 w-2 rotate-45 bg-slate-900" />
 									</View>
 								</View>
 							</View>
 
-							<View className="mt-4 flex-row justify-between px-2">
+							<View className="mt-4 flex-row justify-between px-6">
 								{["Wk 1", "Wk 2", "Wk 3", "Wk 4"].map((w) => (
 									<Text
 										className="font-bold text-[#73808C] text-[11px] uppercase tracking-tighter"

@@ -58,6 +58,10 @@ export interface OnboardingState {
 	subscriptionStatus?: "active" | "pending" | "failed" | "cancelled";
 	discountWheelShown?: boolean; // Flag to show only once
 	paymentAttempted?: boolean;
+
+	// Misc
+	notificationsEnabled?: boolean;
+	pushToken?: string;
 	appliedDiscount?: number; // Discount amount from the wheel spin
 
 	// Phase 6: Post-Payment

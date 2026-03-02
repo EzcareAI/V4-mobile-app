@@ -120,13 +120,12 @@ export const ReferralScreen = () => {
 				<View className="pt-4">
 					{/* Submit Button */}
 					<ContinueButton
-						isDisabled={referralCode?.length === 0}
 						label={
 							<View className="flex-row items-center">
 								<Text className="mr-2 text-2xl text-white">✓</Text>
-								<Button.Label className="font-semibold text-base text-white">
-									Submit Code
-								</Button.Label>
+								<Text className="font-semibold text-base text-white">
+									{referralCode?.length > 0 ? "Submit Code" : "Continue"}
+								</Text>
 							</View>
 						}
 						onPress={handleFinish}

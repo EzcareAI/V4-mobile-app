@@ -1,8 +1,9 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
+	Animated,
 	Platform,
 	ScrollView,
 	StyleSheet,
@@ -64,13 +65,67 @@ export default function ResultsPreviewScreen() {
 
 	const router = useRouter();
 	const [score, setScore] = useState(0);
+	const [displayScore, setDisplayScore] = useState(0);
+
+	// Animation Values
+	const fadeAnim = useRef(new Animated.Value(0)).current;
+	const slideAnimY = useRef(new Animated.Value(40)).current;
+	const floatAnimY = useRef(new Animated.Value(0)).current;
 
 	useEffect(() => {
 		const computed = computeHealthScore();
 		setScore(computed);
 		setAnswer("healthScore", computed);
 		setAnswer("resultsShown", new Date().toISOString());
-	}, [computeHealthScore, setAnswer]);
+
+		// 1. Initial Entry Animation (Fade & Slide UP)
+		Animated.parallel([
+			Animated.timing(fadeAnim, {
+				toValue: 1,
+				duration: 800,
+				useNativeDriver: true,
+			}),
+			Animated.spring(slideAnimY, {
+				toValue: 0,
+				tension: 50,
+				friction: 8,
+				useNativeDriver: true,
+			}),
+		]).start();
+
+		// 2. Continuous Floating Animation for the Score Circle
+		Animated.loop(
+			Animated.sequence([
+				Animated.timing(floatAnimY, {
+					toValue: -12,
+					duration: 2000,
+					useNativeDriver: true,
+				}),
+				Animated.timing(floatAnimY, {
+					toValue: 0,
+					duration: 2000,
+					useNativeDriver: true,
+				}),
+			])
+		).start();
+
+		// 3. Ticker Animation for Score (0 to computed)
+		let start = 0;
+		const duration = 1500;
+		const animateScore = (timestamp: number) => {
+			if (!start) start = timestamp;
+			const progress = Math.min((timestamp - start) / duration, 1);
+			// Ease-out cubic polynomial
+			const easeOut = 1 - Math.pow(1 - progress, 3);
+			setDisplayScore(Math.floor(easeOut * computed));
+			
+			if (progress < 1) {
+				requestAnimationFrame(animateScore);
+			}
+		};
+		requestAnimationFrame(animateScore);
+
+	}, [computeHealthScore, setAnswer, fadeAnim, slideAnimY, floatAnimY]);
 
 	const scoreInfo = getScoreColor(score);
 
@@ -140,7 +195,7 @@ export default function ResultsPreviewScreen() {
 			showsVerticalScrollIndicator={false}
 		>
 			{/* Premium Header */}
-			<View className="relative px-6 pt-6 pb-6">
+			<Animated.View style={{ opacity: fadeAnim }} className="relative px-6 pt-6 pb-6">
 				<LinearGradient
 					colors={["#F8FAFC", "#F1F5F9"]}
 					style={StyleSheet.absoluteFill}
@@ -153,7 +208,8 @@ export default function ResultsPreviewScreen() {
 				</Text>
 
 				{/* Elevated Health Score Display */}
-				<View
+				<Animated.View
+					style={{ transform: [{ translateY: floatAnimY }] }}
 					className={`${scoreInfo.bg} mb-4 items-center rounded-[32px] border border-white p-6 shadow-blue-100/50 shadow-xl`}
 				>
 					<View className="relative h-[160px] w-[160px] items-center justify-center">
@@ -179,14 +235,14 @@ export default function ResultsPreviewScreen() {
 								stroke="#E2E8F0"
 								strokeWidth="10"
 							/>
-							{/* Progress Bar */}
+							{/* Progress Bar (Animated) */}
 							<Circle
 								cx="80"
 								cy="80"
 								fill="none"
 								r="70"
 								stroke="url(#scoreGradient)"
-								strokeDasharray={`${(score / 100) * 440} 440`}
+								strokeDasharray={`${(displayScore / 100) * 440} 440`}
 								strokeLinecap="round"
 								strokeWidth="12"
 								transform="rotate(-90 80 80)"
@@ -194,7 +250,7 @@ export default function ResultsPreviewScreen() {
 						</Svg>
 						<View className="absolute items-center justify-center">
 							<Text className="font-bold text-5xl text-ezcare-navy">
-								{score}
+								{displayScore}
 							</Text>
 							<Text className="font-medium text-ezcare-slate text-sm">
 								/ 100
@@ -207,11 +263,14 @@ export default function ResultsPreviewScreen() {
 					>
 						{getStatusText()}
 					</Text>
-				</View>
-			</View>
+				</Animated.View>
+			</Animated.View>
 
 			{/* Main Content Sections */}
-			<View className="px-6 py-4">
+			<Animated.View 
+				style={{ opacity: fadeAnim, transform: [{ translateY: slideAnimY }] }} 
+				className="px-6 py-4"
+			>
 				{/* Focus Area Card */}
 				{intentType === "zone" && primaryZoneName && (
 					<View className="mb-4 overflow-hidden rounded-[24px] border border-blue-50 bg-white p-4 shadow-blue-50/50 shadow-xl">
@@ -314,7 +373,7 @@ export default function ResultsPreviewScreen() {
 						</Text>
 					</View>
 				</TouchableOpacity>
-			</View>
+			</Animated.View>
 		</ScrollView>
 	);
 }

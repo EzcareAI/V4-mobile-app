@@ -15,13 +15,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
-const FEATURES = [
-	"🎯 Custom health scoring based on your data",
-	"📊 Progress tracking and analytics",
-	"🤖 AI-powered EZBuddy recommendations",
-	"🔔 Daily wellness reminders",
-	"📱 Unlimited access on all devices",
-];
+
 
 export default function PaywallScreen() {
 	const router = useRouter();
@@ -192,19 +186,33 @@ export default function PaywallScreen() {
 					</TouchableOpacity>
 				</View>
 
-				{/* Features Checklist */}
-				<View className="mx-6 mt-10 rounded-[28px] border border-blue-50 bg-blue-50/30 p-8 shadow-sm">
-					<Text className="mb-6 font-bold text-[#29303D] text-lg">
-						What's Included:
+				{/* Pros & Cons Comparison */}
+				<View className="mx-6 mt-10 rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
+					<Text className="mb-6 text-center font-bold text-[#29303D] text-lg">
+						Choose Your Best Path
 					</Text>
-					{FEATURES.map((f) => (
-						<View className="mb-4 flex-row items-start gap-3" key={f}>
-							<Text className="text-lg leading-5">{f.split(" ")[0]}</Text>
-							<Text className="flex-1 font-medium text-[#73808C] text-[15px] leading-6">
-								{f.split(" ").slice(1).join(" ")}
-							</Text>
+					
+					{/* Annual Pros/Cons */}
+					<View className="mb-6 rounded-2xl bg-[#EBF5F4] p-4">
+						<Text className="mb-3 font-bold text-[#28B898] text-base">Annual Plan</Text>
+						<View className="gap-y-2">
+							<Text className="text-[#334155] text-[13px] leading-5">✅ Biggest discount (Save 80%)</Text>
+							<Text className="text-[#334155] text-[13px] leading-5">✅ Full year commitment to results</Text>
+							<Text className="text-[#334155] text-[13px] leading-5">✅ Lowest monthly cost ($3.33/mo)</Text>
+							<Text className="text-[#73808C] text-[13px] leading-5">❌ Paid upfront</Text>
 						</View>
-					))}
+					</View>
+
+					{/* Monthly Pros/Cons */}
+					<View className="rounded-2xl bg-slate-50 p-4">
+						<Text className="mb-3 font-bold text-[#73808C] text-base">Monthly Plan</Text>
+						<View className="gap-y-2">
+							<Text className="text-[#334155] text-[13px] leading-5">✅ Zero long-term commitment</Text>
+							<Text className="text-[#334155] text-[13px] leading-5">✅ Cancel anytime</Text>
+							<Text className="text-[#334155] text-[13px] leading-5">✅ Lowest upfront cost</Text>
+							<Text className="text-[#73808C] text-[13px] leading-5">❌ Nearly 4x more expensive</Text>
+						</View>
+					</View>
 				</View>
 
 				{/* Trust Badges */}

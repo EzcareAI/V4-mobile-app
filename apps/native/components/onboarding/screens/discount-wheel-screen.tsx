@@ -14,12 +14,12 @@ import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
 
 const PRIZES = [
-	{ label: "$10 OFF", color: "#FBBF24" }, // Winner (Index 0)
-	{ label: "1 Mo FREE", color: "#34D399" },
-	{ label: "10% OFF", color: "#F87171" },
-	{ label: "$5 OFF", color: "#60A5FA" },
-	{ label: "50% OFF", color: "#A78BFA" },
-	{ label: "20% OFF", color: "#F472B6" },
+	{ label: "🎁", color: "#FBBF24" }, // Winner (Index 0)
+	{ label: "1 Mo", color: "#34D399" },
+	{ label: "10%", color: "#F87171" },
+	{ label: "$5", color: "#60A5FA" },
+	{ label: "50%", color: "#A78BFA" },
+	{ label: "20%", color: "#F472B6" },
 ];
 
 const SLICE_ANGLE = 360 / PRIZES.length; // 60 degrees
@@ -166,7 +166,7 @@ export function DiscountWheelScreen() {
 													<SvgText
 														alignmentBaseline="middle"
 														fill="#FFFFFF"
-														fontSize="22"
+														fontSize="30"
 														fontWeight="bold"
 														textAnchor="middle"
 														transform={`rotate(${textAngle + 90}, ${textX}, ${textY})`}
@@ -228,10 +228,10 @@ export function DiscountWheelScreen() {
 				<Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
 					<TouchableOpacity
 						activeOpacity={0.8}
-						className="w-full flex-row items-center justify-center rounded-[32px] bg-[#EF4444] py-5 shadow-red-200 shadow-xl"
+						className="w-full flex-row items-center justify-center rounded-[32px] bg-[#FACC15] py-5 shadow-yellow-200 shadow-xl"
 						onPress={handleClaimDiscount}
 					>
-						<Text className="font-black text-white text-[22px] tracking-widest uppercase">
+						<Text className="font-black text-[#422006] text-[22px] tracking-widest uppercase">
 							✨ Claim $10 Off Now
 						</Text>
 					</TouchableOpacity>

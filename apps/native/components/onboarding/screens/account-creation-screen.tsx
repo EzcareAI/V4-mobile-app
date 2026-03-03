@@ -138,7 +138,35 @@ export function AccountCreationScreen() {
 					) : null}
 				</View>
 
-				{/* Auth Options logic hidden for scope, email logic is primary */}
+				<View className="mb-6 flex-row items-center">
+					<View className="h-[1px] flex-1 bg-slate-200" />
+					<Text className="px-4 font-bold text-[#94A3B8] text-xs uppercase tracking-widest">
+						Or Continue With
+					</Text>
+					<View className="h-[1px] flex-1 bg-slate-200" />
+				</View>
+
+				<View className="mb-12 gap-y-3">
+					{/* Apple Button */}
+					<TouchableOpacity
+						activeOpacity={0.8}
+						className="flex-row items-center justify-center rounded-[24px] bg-[#000000] py-4 shadow-sm"
+					>
+						<Text className="font-bold text-[17px] text-white tracking-wide">
+							 Continue with Apple
+						</Text>
+					</TouchableOpacity>
+
+					{/* Google Button */}
+					<TouchableOpacity
+						activeOpacity={0.8}
+						className="flex-row items-center justify-center rounded-[24px] border border-slate-200 bg-white py-4 shadow-sm"
+					>
+						<Text className="font-bold text-[17px] text-[#29303D] tracking-wide">
+							<Text className="text-xl">G</Text>  Continue with Google
+						</Text>
+					</TouchableOpacity>
+				</View>
 
 				{/* Benefits Guarantee */}
 				<View className="mb-12 rounded-[32px] border border-emerald-100 bg-emerald-50/50 p-8">

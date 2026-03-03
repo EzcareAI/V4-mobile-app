@@ -1,7 +1,7 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import {
 	BackHandler,
 	Modal,
@@ -11,6 +11,7 @@ import {
 	Text,
 	TouchableOpacity,
 	View,
+	Animated,
 } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -26,6 +27,24 @@ export default function PaywallScreen() {
 		onboardingRecordId,
 	} = useOnboardingStore();
 	const [isProcessing, setIsProcessing] = useState(false);
+	const pulseAnim = useRef(new Animated.Value(1)).current;
+
+	useEffect(() => {
+		Animated.loop(
+			Animated.sequence([
+				Animated.timing(pulseAnim, {
+					toValue: 1.02,
+					duration: 800,
+					useNativeDriver: true,
+				}),
+				Animated.timing(pulseAnim, {
+					toValue: 1,
+					duration: 800,
+					useNativeDriver: true,
+				})
+			])
+		).start();
+	}, [pulseAnim]);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -206,18 +225,20 @@ export default function PaywallScreen() {
 					</Text>
 					
 					{/* Annual Pros/Cons */}
-					<View className="mb-6 rounded-2xl border-2 border-[#3EC9B5] bg-[#EBF5F4] p-4 shadow-sm relative">
-						<View className="absolute -top-3 right-4 bg-[#3EC9B5] px-2 py-0.5 rounded-full">
-							<Text className="text-[9px] font-bold text-white uppercase tracking-wider">Recommended</Text>
+					<Animated.View style={{ transform: [{ scale: pulseAnim }], zIndex: 10 }}>
+						<View className="mb-6 rounded-2xl border-2 border-yellow-400 bg-yellow-50 p-4 shadow-lg shadow-yellow-200 relative">
+							<View className="absolute -top-3 right-4 bg-yellow-400 px-3 py-1 rounded-full shadow-sm">
+								<Text className="text-[9px] font-black text-[#422006] uppercase tracking-wider">Recommended</Text>
+							</View>
+							<Text className="mb-3 font-black text-[#502808] text-base tracking-wide">✨ Annual Plan</Text>
+							<View className="gap-y-2">
+								<Text className="text-[#422006] font-medium text-[13px] leading-5">✅ Biggest discount (Save 80%)</Text>
+								<Text className="text-[#422006] font-medium text-[13px] leading-5">✅ Full year commitment to results</Text>
+								<Text className="text-[#422006] font-medium text-[13px] leading-5">✅ Lowest monthly cost ($3.33/mo)</Text>
+								<Text className="text-[#422006]/60 text-[13px] leading-5">❌ Paid upfront</Text>
+							</View>
 						</View>
-						<Text className="mb-3 font-bold text-[#28B898] text-base">Annual Plan</Text>
-						<View className="gap-y-2">
-							<Text className="text-[#334155] text-[13px] leading-5">✅ Biggest discount (Save 80%)</Text>
-							<Text className="text-[#334155] text-[13px] leading-5">✅ Full year commitment to results</Text>
-							<Text className="text-[#334155] text-[13px] leading-5">✅ Lowest monthly cost ($3.33/mo)</Text>
-							<Text className="text-[#73808C] text-[13px] leading-5">❌ Paid upfront</Text>
-						</View>
-					</View>
+					</Animated.View>
 
 					{/* Monthly Pros/Cons */}
 					<View className="rounded-2xl bg-slate-50 p-4">

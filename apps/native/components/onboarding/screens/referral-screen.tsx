@@ -2,6 +2,8 @@ import { useRouter } from "expo-router";
 import { Button, TextField } from "heroui-native";
 import { Bot, Crown, Gift, Sparkles, Users } from "lucide-react-native";
 import { ScrollView, Text, View } from "react-native";
+import React from "react";
+import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
@@ -10,11 +12,42 @@ export const ReferralScreen = () => {
 	const router = useRouter();
 	const { referralCode, setAnswer, nextStep } = useOnboardingStore();
 
+	const [isValidating, setIsValidating] = React.useState(false);
+	const [errorMsg, setErrorMsg] = React.useState("");
+
 	const handleFinish = () => {
 		// Mark onboarding as complete and formally route the user into the protected dashboard
 		setAnswer("onboardingComplete", true);
 		nextStep();
 		router.replace("/(drawer)");
+	};
+
+	const handleSubmitCode = async () => {
+		if (!referralCode || referralCode.trim().length === 0) return;
+		
+		setIsValidating(true);
+		setErrorMsg("");
+
+		try {
+			const { data, error } = await supabase
+				.from("profiles")
+				.select("id")
+				.eq("referral_code", referralCode.trim().toUpperCase())
+				.limit(1)
+				.single();
+
+			if (error || !data) {
+				setErrorMsg("This referral code is not correct or available.");
+				return;
+			}
+
+			// Valid code found
+			handleFinish();
+		} catch (err) {
+			setErrorMsg("This referral code is not correct or available.");
+		} finally {
+			setIsValidating(false);
+		}
 	};
 
 	return (
@@ -106,12 +139,20 @@ export const ReferralScreen = () => {
 								<TextField.Label>Referral Code (Optional)</TextField.Label>
 								<TextField.Input
 									autoCapitalize="characters"
-									onChangeText={(val) => setAnswer("referralCode", val)}
+									onChangeText={(val: string) => {
+										setErrorMsg("");
+										setAnswer("referralCode", val.toUpperCase());
+									}}
 									placeholder="e.g., HEALTH2024"
 									placeholderTextColor="#94a3b8"
 									value={referralCode}
 								/>
 							</TextField>
+							{errorMsg ? (
+								<Text className="mt-2 ml-2 font-medium text-red-500 text-[13px]">
+									{errorMsg}
+								</Text>
+							) : null}
 						</View>
 					</View>
 				</ScrollView>
@@ -120,15 +161,16 @@ export const ReferralScreen = () => {
 				<View className="pt-4">
 					{/* Submit Button */}
 					<ContinueButton
+						isDisabled={!referralCode || referralCode.trim().length === 0 || isValidating}
 						label={
 							<View className="flex-row items-center">
 								<Text className="mr-2 text-2xl text-white">✓</Text>
 								<Text className="font-semibold text-base text-white">
-									{(referralCode?.length ?? 0) > 0 ? "Submit Code" : "Continue"}
+									{isValidating ? "Verifying..." : "Submit Code"}
 								</Text>
 							</View>
 						}
-						onPress={handleFinish}
+						onPress={handleSubmitCode}
 					/>
 
 					{/* Skip Link */}

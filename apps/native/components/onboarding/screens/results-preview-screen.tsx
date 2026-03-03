@@ -439,26 +439,25 @@ export default function ResultsPreviewScreen() {
 
 				{/* Fixed Floating CTA */}
 				<TouchableOpacity
-					activeOpacity={0.8}
-					className="mt-2 overflow-hidden rounded-[16px] mx-1"
+					activeOpacity={0.9}
+					className="mt-6 mb-16 overflow-hidden rounded-[24px] shadow-2xl shadow-[#28B898]/30 mx-2"
 					onPress={handleUnlock}
 				>
 					<LinearGradient
-						colors={["#54C8EA", "#28CDA8"]}
-						end={{ x: 1, y: 0.5 }}
-						start={{ x: 0, y: 0.5 }}
+						colors={["#28B898", "#2DE2E2"]}
+						end={{ x: 1, y: 0 }}
+						start={{ x: 0, y: 0 }}
 						style={StyleSheet.absoluteFill}
 					/>
-					<View className="h-[60px] items-center justify-center">
-						<Text className="font-bold text-white text-[18px]">
-							Get Started
+					<View className="px-8 py-5">
+						<Text className="text-center font-bold text-white text-xl">
+							Unlock Detailed Results
+						</Text>
+						<Text className="mt-1 text-center text-sm text-white/80">
+							Instant access to your 7-day blueprint
 						</Text>
 					</View>
 				</TouchableOpacity>
-
-				<Text className="mt-4 mb-20 text-center font-medium text-[#94A3B8] text-[14px]">
-					See full personalized recommendations
-				</Text>
 			</Animated.View>
 		</ScrollView>
 	);

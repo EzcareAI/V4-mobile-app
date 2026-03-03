@@ -7,6 +7,7 @@ import {
 	Text,
 	TouchableOpacity,
 	View,
+	StyleSheet,
 } from "react-native";
 import Svg, { Circle, G, Path, Polygon, Text as SvgText } from "react-native-svg";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -41,6 +42,72 @@ function createSlicePath(startAngle: number, endAngle: number) {
 		"A", RADIUS, RADIUS, 0, largeArcFlag, 1, endX, endY,
 		"Z",
 	].join(" ");
+}
+
+const FireworkParticle = ({ delay, angle, distance, color }: { delay: number, angle: number, distance: number, color: string }) => {
+	const progress = useRef(new Animated.Value(0)).current;
+	
+	useEffect(() => {
+		Animated.sequence([
+			Animated.delay(delay),
+			Animated.spring(progress, {
+				toValue: 1,
+				friction: 6,
+				tension: 40,
+				useNativeDriver: true,
+			})
+		]).start();
+	}, []);
+
+	const translateX = progress.interpolate({
+		inputRange: [0, 1],
+		outputRange: [0, Math.cos(angle) * distance]
+	});
+	const translateY = progress.interpolate({
+		inputRange: [0, 1],
+		outputRange: [0, Math.sin(angle) * distance]
+	});
+	const opacity = progress.interpolate({
+		inputRange: [0, 0.7, 1],
+		outputRange: [1, 1, 0]
+	});
+	const scale = progress.interpolate({
+		inputRange: [0, 0.2, 1],
+		outputRange: [0, 1.5, 0]
+	});
+
+	return (
+		<Animated.View
+			style={{
+				position: 'absolute',
+				width: 10,
+				height: 10,
+				borderRadius: 5,
+				backgroundColor: color,
+				transform: [{ translateX }, { translateY }, { scale }],
+				opacity,
+				zIndex: 100
+			}}
+		/>
+	);
+}
+
+const Fireworks = () => {
+	const particles = Array.from({ length: 45 }).map((_, i) => ({
+		id: i,
+		angle: (Math.PI * 2 * i) / 20 + (Math.random() * 0.8),
+		distance: 80 + Math.random() * 120, // shoot out pretty far
+		delay: Math.random() * 400,
+		color: ['#F59E0B', '#10B981', '#3EC9B5', '#EC4899', '#8B5CF6', '#38BDF8'][Math.floor(Math.random() * 6)]
+	}));
+
+	return (
+		<View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center', zIndex: 50 }]} pointerEvents="none">
+			{particles.map(p => (
+				<FireworkParticle key={p.id} {...p} />
+			))}
+		</View>
+	);
 }
 
 export function DiscountWheelScreen() {
@@ -126,7 +193,8 @@ export function DiscountWheelScreen() {
 						</View>
 
 						{/* Spinning Wheel */}
-						<View className="mt-4 mb-4 items-center justify-center">
+						<View className="mt-4 mb-4 items-center justify-center relative">
+							{!spinning && <Fireworks />}
 							{/* Downward Pointer Triangle */}
 							<View className="z-10 -mb-4 items-center drop-shadow-md">
 								<Svg height="30" viewBox="0 0 24 24" width="30">

@@ -14,19 +14,19 @@ import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
 
 const PRIZES = [
-	{ label: "80% OFF", color: "#FBBF24" }, // Winner (Index 0)
+	{ label: "$10 OFF", color: "#FBBF24" }, // Winner (Index 0)
 	{ label: "1 Mo FREE", color: "#34D399" },
 	{ label: "10% OFF", color: "#F87171" },
-	{ label: "€5 OFF", color: "#60A5FA" },
+	{ label: "$5 OFF", color: "#60A5FA" },
 	{ label: "50% OFF", color: "#A78BFA" },
 	{ label: "20% OFF", color: "#F472B6" },
 ];
 
 const SLICE_ANGLE = 360 / PRIZES.length; // 60 degrees
 
-const SVG_SIZE = 280;
-const RADIUS = SVG_SIZE / 2;
-const CENTER = RADIUS;
+const SVG_SIZE = 300;
+const CENTER = SVG_SIZE / 2;
+const RADIUS = CENTER - 10; // 10px padding to avoid stroke clipping
 
 function createSlicePath(startAngle: number, endAngle: number) {
 	const startX = CENTER + RADIUS * Math.cos((Math.PI * (startAngle - 90)) / 180);
@@ -85,21 +85,20 @@ export function DiscountWheelScreen() {
 		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
-	// Spin 5 full rotations ending exactly on 0 degrees (the 80% OFF slice)
+	// Spin 5 full rotations ending exactly with the slice's center at the top pointer (1800 - 30 degrees = 1770)
 	const spinInterpolate = spinAnim.interpolate({
 		inputRange: [0, 1],
-		outputRange: ["0deg", "1800deg"],
+		outputRange: ["0deg", "1770deg"],
 	});
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
-			<View className="flex-1 justify-between px-6 pb-10">
-				<ScrollView
-					className="flex-1"
-					contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
-					showsVerticalScrollIndicator={false}
-				>
-					<View className="flex-1">
+			<ScrollView
+				className="flex-1"
+				contentContainerStyle={{ flexGrow: 1, paddingBottom: 24, paddingHorizontal: 24 }}
+				showsVerticalScrollIndicator={false}
+			>
+				<View className="flex-1">
 						{/* Header */}
 						<View className="mt-8">
 							<StepHeader
@@ -184,14 +183,14 @@ export function DiscountWheelScreen() {
 						>
 							<View className="mb-4 items-center">
 								<Text className="mb-2 font-black text-5xl text-yellow-500">
-									{spinning ? "???" : "€10 OFF"}
+									{spinning ? "???" : "$10 OFF"}
 								</Text>
 								<Text className="mb-2 text-center font-bold text-[#29303D] text-xl">
-									{spinning ? "Spinning..." : "Save €10 on Annual Plan"}
+									{spinning ? "Spinning..." : "Save $10 on Annual Plan"}
 								</Text>
 								{!spinning && (
 									<Text className="text-center font-medium text-[#73808C] text-sm">
-										€39.99 → €29.99/year
+										$39.99 → $29.99/year
 									</Text>
 								)}
 							</View>
@@ -205,21 +204,20 @@ export function DiscountWheelScreen() {
 							)}
 						</View>
 					</View>
-				</ScrollView>
+			</ScrollView>
 
-				{/* Footer CTA */}
-				<View className={`gap-y-3 pt-6 ${spinning ? "opacity-0" : "opacity-100"}`}>
-					<ContinueButton label="Claim €10 Off Now" onPress={handleClaimDiscount} />
-					<TouchableOpacity
-						activeOpacity={0.7}
-						className="w-full rounded-[28px] border-2 border-slate-200 bg-transparent py-4 shadow-sm"
-						onPress={handleSkip}
-					>
-						<Text className="text-center font-bold text-[#73808C] text-[17px]">
-							I'll Pay Full Price
-						</Text>
-					</TouchableOpacity>
-				</View>
+			{/* Static Footer CTA */}
+			<View className={`px-6 pb-10 pt-4 bg-[#EBF5F4] border-t border-transparent gap-y-3 ${spinning ? "opacity-0" : "opacity-100"}`}>
+				<ContinueButton label="Claim $10 Off Now" onPress={handleClaimDiscount} />
+				<TouchableOpacity
+					activeOpacity={0.7}
+					className="w-full rounded-[28px] border-2 border-slate-200 bg-transparent py-4 shadow-sm"
+					onPress={handleSkip}
+				>
+					<Text className="text-center font-bold text-[#73808C] text-[17px]">
+						I'll Pay Full Price
+					</Text>
+				</TouchableOpacity>
 			</View>
 		</View>
 	);

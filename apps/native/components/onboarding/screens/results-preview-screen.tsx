@@ -383,7 +383,7 @@ export default function ResultsPreviewScreen() {
 				)}
 
 				{/* Probable Causes with Rich Icons */}
-				<View className="mb-4">
+				<View className="mb-8">
 					<Text className="mb-3 font-bold text-ezcare-navy text-xl">
 						Personal Insights
 					</Text>

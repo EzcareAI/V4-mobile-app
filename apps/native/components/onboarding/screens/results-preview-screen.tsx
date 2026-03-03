@@ -12,7 +12,7 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import { ChevronRight, Dna, FlaskConical, GraduationCap, Microscope, Moon, HeartPulse, Dumbbell, Activity, Brain } from "lucide-react-native";
+import { ChevronRight, Dna, FlaskConical, GraduationCap, Microscope, Moon, HeartPulse, Dumbbell, Activity, Brain, Sparkles } from "lucide-react-native";
 import Svg, {
 	Circle,
 	Defs,
@@ -53,6 +53,68 @@ const getScoreColor = (score: number) => {
 		text: "text-rose-700",
 		gradient: ["#EF4444", "#F87171"],
 	};
+};
+
+const PulseRing = ({ delay = 0, color = "#10B981" }) => {
+	const pulseAnim = useRef(new Animated.Value(0)).current;
+
+	useEffect(() => {
+		Animated.loop(
+			Animated.sequence([
+				Animated.delay(delay),
+				Animated.timing(pulseAnim, {
+					toValue: 1,
+					duration: 2500,
+					useNativeDriver: true,
+				}),
+			])
+		).start();
+	}, [pulseAnim, delay]);
+
+	const scale = pulseAnim.interpolate({
+		inputRange: [0, 1],
+		outputRange: [0.8, 1.8],
+	});
+
+	const opacity = pulseAnim.interpolate({
+		inputRange: [0, 0.5, 1],
+		outputRange: [0, 0.4, 0],
+	});
+
+	return (
+		<Animated.View
+			style={{
+				position: "absolute",
+				width: 140,
+				height: 140,
+				borderRadius: 70,
+				borderWidth: 2,
+				borderColor: color,
+				transform: [{ scale }],
+				opacity,
+			}}
+		/>
+	);
+};
+
+const TwinkleStar = ({ delay = 0, size = 20, color = "#FBBF24", top, left, right, bottom }: any) => {
+	const twinkleAnim = useRef(new Animated.Value(0)).current;
+
+	useEffect(() => {
+		Animated.loop(
+			Animated.sequence([
+				Animated.delay(delay),
+				Animated.timing(twinkleAnim, { toValue: 1, duration: 1000, useNativeDriver: true }),
+				Animated.timing(twinkleAnim, { toValue: 0, duration: 1000, useNativeDriver: true }),
+			])
+		).start();
+	}, [twinkleAnim, delay]);
+
+	return (
+		<Animated.View style={{ position: "absolute", top, left, right, bottom, opacity: twinkleAnim, transform: [{ scale: twinkleAnim.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1.2] }) }], zIndex: 10 }}>
+			<Sparkles color={color} size={size} fill={color} />
+		</Animated.View>
+	);
 };
 
 export default function ResultsPreviewScreen() {
@@ -212,9 +274,20 @@ export default function ResultsPreviewScreen() {
 				{/* Elevated Health Score Display */}
 				<Animated.View
 					style={{ transform: [{ translateY: floatAnimY }] }}
-					className={`${scoreInfo.bg} mb-4 items-center rounded-[32px] border border-white p-6 shadow-blue-100/50 shadow-xl`}
+					className={`${scoreInfo.bg} mb-4 items-center rounded-[32px] border border-white p-6 shadow-blue-100/50 shadow-xl overflow-hidden`}
 				>
+					{/* Premium Magical Fireworks/Sparkles overlay */}
+					<TwinkleStar delay={100} size={32} color="#FBBF24" top={10} left={10} />
+					<TwinkleStar delay={800} size={24} color="#2DE2E2" top={30} right={15} />
+					<TwinkleStar delay={400} size={36} color="#FACC15" bottom={20} left={25} />
+					<TwinkleStar delay={1200} size={28} color="#10B981" bottom={40} right={20} />
+					<TwinkleStar delay={1600} size={20} color="#60A5FA" top={80} left={-5} />
+
 					<View className="relative h-[160px] w-[160px] items-center justify-center">
+						<PulseRing delay={0} color={scoreInfo.gradient[0]} />
+						<PulseRing delay={800} color={scoreInfo.gradient[1]} />
+						<PulseRing delay={1600} color={scoreInfo.gradient[0]} />
+						
 						<Svg height={160} viewBox="0 0 160 160" width={160}>
 							<Defs>
 								<SvgGradient

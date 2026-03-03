@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useEffect, useState, useRef } from "react";
 import {
 	Animated,
+	Linking,
 	Platform,
 	ScrollView,
 	StyleSheet,
@@ -11,6 +12,7 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+import { ChevronRight, Dna, FlaskConical, GraduationCap, Microscope } from "lucide-react-native";
 import Svg, {
 	Circle,
 	Defs,
@@ -356,39 +358,107 @@ export default function ResultsPreviewScreen() {
 					</View>
 				</View>
 
-				{/* Methodology Card */}
-				<View className="mb-5 rounded-[16px] border border-blue-100 bg-blue-50/50 p-4">
-					<Text className="mb-2 font-bold text-[#28B898] text-xs uppercase tracking-widest">
-						Our Methodology
+				{/* Methodology Options Card */}
+				<View className="mb-5 overflow-hidden rounded-[24px] border border-[#F1F5F9] bg-[#F8FAFC] p-5">
+					<View className="mb-3 flex-row items-center gap-3">
+						<View className="h-10 w-10 items-center justify-center rounded-full bg-emerald-100/50">
+							<FlaskConical color="#10B981" size={20} />
+						</View>
+						<Text className="font-extrabold text-[#1E293B] text-[20px] tracking-tight">
+							Based on Science
+						</Text>
+					</View>
+
+					<Text className="mb-5 text-[#64748B] text-[15px] leading-6 font-medium">
+						Your plan is backed by peer-reviewed research from leading institutions:
 					</Text>
-					<Text className="text-blue-900/70 text-sm leading-6">
-						Our AI health core evaluates over 40 biomarkers including sleep
-						latency, cortisol-related stress signals, and physical activity
-						baselines to forecast your longevity score.
-					</Text>
+
+					{/* Research Links */}
+					<View className="gap-y-3">
+						{/* Harvard */}
+						<TouchableOpacity
+							activeOpacity={0.7}
+							className="flex-row items-center rounded-[16px] border border-[#E2E8F0] bg-white p-4"
+							onPress={() => Linking.openURL("https://sleep.hms.harvard.edu/")}
+						>
+							<View className="mr-4 items-center justify-center">
+								<GraduationCap fill="#DC2626" color="#DC2626" size={24} />
+							</View>
+							<View className="flex-1">
+								<Text className="font-bold text-[#1E293B] text-[15px]">
+									Harvard Sleep Studies
+								</Text>
+								<Text className="mt-0.5 font-medium text-[#94A3B8] text-[13px]">
+									Sleep optimization research
+								</Text>
+							</View>
+							<ChevronRight color="#CBD5E1" size={20} />
+						</TouchableOpacity>
+
+						{/* PubMed */}
+						<TouchableOpacity
+							activeOpacity={0.7}
+							className="flex-row items-center rounded-[16px] border border-[#E2E8F0] bg-white p-4"
+							onPress={() => Linking.openURL("https://pubmed.ncbi.nlm.nih.gov/")}
+						>
+							<View className="mr-4 items-center justify-center">
+								<Microscope strokeWidth={2.5} color="#2563EB" size={24} />
+							</View>
+							<View className="flex-1">
+								<Text className="font-bold text-[#1E293B] text-[15px]">
+									PubMed Information Studies
+								</Text>
+								<Text className="mt-0.5 font-medium text-[#94A3B8] text-[13px]">
+									Anti-inflammatory protocols
+								</Text>
+							</View>
+							<ChevronRight color="#CBD5E1" size={20} />
+						</TouchableOpacity>
+
+						{/* NIH */}
+						<TouchableOpacity
+							activeOpacity={0.7}
+							className="flex-row items-center rounded-[16px] border border-[#E2E8F0] bg-white p-4"
+							onPress={() => Linking.openURL("https://www.niddk.nih.gov/health-information/digestive-diseases")}
+						>
+							<View className="mr-4 items-center justify-center">
+								<Dna strokeWidth={2.5} color="#16A34A" size={24} />
+							</View>
+							<View className="flex-1">
+								<Text className="font-bold text-[#1E293B] text-[15px]">
+									NIH Digestion Research
+								</Text>
+								<Text className="mt-0.5 font-medium text-[#94A3B8] text-[13px]">
+									Gut health optimization
+								</Text>
+							</View>
+							<ChevronRight color="#CBD5E1" size={20} />
+						</TouchableOpacity>
+					</View>
 				</View>
 
 				{/* Fixed Floating CTA */}
 				<TouchableOpacity
-					activeOpacity={0.9}
-					className="mt-6 mb-16 overflow-hidden rounded-[24px] shadow-2xl shadow-[#28B898]/30 mx-2"
+					activeOpacity={0.8}
+					className="mt-2 overflow-hidden rounded-[16px] mx-1"
 					onPress={handleUnlock}
 				>
 					<LinearGradient
-						colors={["#28B898", "#2DE2E2"]}
-						end={{ x: 1, y: 0 }}
-						start={{ x: 0, y: 0 }}
+						colors={["#54C8EA", "#28CDA8"]}
+						end={{ x: 1, y: 0.5 }}
+						start={{ x: 0, y: 0.5 }}
 						style={StyleSheet.absoluteFill}
 					/>
-					<View className="px-8 py-5">
-						<Text className="text-center font-bold text-white text-xl">
-							Unlock Detailed Results
-						</Text>
-						<Text className="mt-1 text-center text-sm text-white/80">
-							Instant access to your 7-day blueprint
+					<View className="h-[60px] items-center justify-center">
+						<Text className="font-bold text-white text-[18px]">
+							Get Started
 						</Text>
 					</View>
 				</TouchableOpacity>
+
+				<Text className="mt-4 mb-20 text-center font-medium text-[#94A3B8] text-[14px]">
+					See full personalized recommendations
+				</Text>
 			</Animated.View>
 		</ScrollView>
 	);

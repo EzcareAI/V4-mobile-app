@@ -38,8 +38,8 @@ export const PerfectPlanScreen = () => {
 	}, []);
 
 	const { state: chartState, isActive } = useChartPressState({
-		x: "Month 1",
-		y: { score: 0 },
+		x: "Month 4",
+		y: { score: 72 },
 	});
 	const [activeScore, setActiveScore] = React.useState<number | null>(null);
 
@@ -57,13 +57,13 @@ export const PerfectPlanScreen = () => {
 
 	React.useEffect(() => {
 		if (!isActive) {
-			setActiveScore(null);
+			setActiveScore(72);
 		}
 	}, [isActive]);
 
 	const tooltipStyle = useAnimatedStyle(() => {
 		return {
-			opacity: withTiming(isActive ? 1 : 0, { duration: 150 }),
+			opacity: 1,
 			transform: [
 				{ translateX: chartState.x.position.value - 24 }, // align center (assumes ~48px width)
 				{ translateY: chartState.y.score.position.value - 45 }, // elevate above pointer
@@ -120,7 +120,7 @@ export const PerfectPlanScreen = () => {
 
 						{/* Healing Score Progress Card */}
 						<View className="mt-8 rounded-[40px] border border-slate-50 bg-white p-8 shadow-2xl shadow-blue-100/50">
-							<View className="mb-8 flex-row items-center justify-between">
+							<View className="mb-8 flex-row items-center justify-start gap-x-4">
 								<View>
 									<Text className="font-bold text-[#29303D] text-lg">
 										Health Recovery
@@ -129,7 +129,7 @@ export const PerfectPlanScreen = () => {
 										4-Month Projection
 									</Text>
 								</View>
-								<View className="flex-shrink rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-2">
+								<View className="rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-2">
 									<Text className="font-black text-emerald-600 text-[13px]" numberOfLines={1} adjustsFontSizeToFit>
 										+{activeScore !== null ? activeScore : 72}% Vitality
 									</Text>
@@ -235,7 +235,7 @@ export const PerfectPlanScreen = () => {
 							</View>
 
 							<View className="mt-4 flex-row justify-between px-6">
-								{["Mo 1", "Mo 2", "Mo 3", "Mo 4"].map((w) => (
+								{["M1", "M2", "M3", "M4"].map((w) => (
 									<Text
 										className="font-bold text-[#73808C] text-[11px] uppercase tracking-tighter"
 										key={w}
@@ -246,24 +246,23 @@ export const PerfectPlanScreen = () => {
 							</View>
 						</View>
 
-						{/* Keep Going Card */}
 						<View className="mt-10 overflow-hidden rounded-[40px] shadow-2xl shadow-blue-200">
 							<LinearGradient
-								className="p-8"
+								className="p-10"
 								colors={["#28B898", "#2DE2E2"]}
 								end={{ x: 1, y: 1 }}
 								start={{ x: 0, y: 0 }}
 							>
-								<View className="mb-6 flex-row items-center gap-4">
-									<View className="h-14 w-14 items-center justify-center rounded-2xl bg-white/20">
-										<Heart color="white" fill="white" size={28} />
+								<View className="mb-8 flex-row items-center gap-4">
+									<View className="h-16 w-16 items-center justify-center rounded-3xl bg-white/20">
+										<Heart color="white" fill="white" size={36} />
 									</View>
-									<Text className="font-black text-2xl text-white tracking-tight">
+									<Text className="font-black text-[30px] text-white tracking-tight">
 										Keep Going!
 									</Text>
 								</View>
-								<View className="mb-6 h-1 w-12 rounded-full bg-white/30" />
-								<Text className="font-semibold text-lg text-white leading-7">
+								<View className="mb-6 h-1.5 w-16 rounded-full bg-white/30" />
+								<Text className="font-semibold text-[22px] text-white leading-8">
 									Your body is responding beautifully. Every small action today
 									creates a massive ripple for your future health.
 								</Text>

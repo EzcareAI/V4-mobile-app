@@ -117,7 +117,7 @@ export function DiscountWheelScreen() {
 			>
 				<View className="flex-1">
 						{/* Header */}
-						<View className="mt-8">
+						<View className="mt-2">
 							<StepHeader
 								align="center"
 								description="An exclusive one-time reward has been unlocked!"
@@ -126,7 +126,7 @@ export function DiscountWheelScreen() {
 						</View>
 
 						{/* Spinning Wheel */}
-						<View className="mt-6 mb-8 items-center justify-center">
+						<View className="mt-4 mb-4 items-center justify-center">
 							{/* Downward Pointer Triangle */}
 							<View className="z-10 -mb-4 items-center drop-shadow-md">
 								<Svg height="30" viewBox="0 0 24 24" width="30">
@@ -194,7 +194,7 @@ export function DiscountWheelScreen() {
 
 						{/* Result Box (Fades in) */}
 						<View
-							className={`mb-6 w-full rounded-[32px] border-4 border-yellow-300 bg-white p-6 shadow-blue-100 shadow-lg transition-opacity duration-1000 ${
+							className={`mb-4 w-full rounded-[32px] border-4 border-yellow-300 bg-white p-6 shadow-blue-100 shadow-lg transition-opacity duration-1000 ${
 								spinning ? "opacity-30" : "opacity-100"
 							}`}
 						>

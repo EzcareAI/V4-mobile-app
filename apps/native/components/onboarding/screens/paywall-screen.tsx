@@ -151,13 +151,13 @@ export default function PaywallScreen() {
 						</View>
 
 						<Text className="mt-3 font-bold text-xl text-white">Annual</Text>
-						<Text className="mt-1 text-xs text-white/80 h-8">Save 60%</Text>
+						<Text className="mt-1 text-xs text-white/80 h-8">Save 80%</Text>
 
 						<View className="mt-3 mb-1">
-							<Text className="font-black text-3xl text-white">€39.99</Text>
+							<Text className="font-black text-3xl text-white">$39.99</Text>
 						</View>
 						<Text className="font-medium text-[10px] text-white/80">
-							€3.33/mo, billed yearly
+							$3.33/mo, billed yearly
 						</Text>
 
 						<View className="mt-6 rounded-2xl bg-white/20 py-3.5">
@@ -178,7 +178,7 @@ export default function PaywallScreen() {
 						<Text className="mt-1 text-[#73808C] text-xs h-8">Zero commitment</Text>
 
 						<View className="mt-3 mb-1">
-							<Text className="font-black text-3xl text-[#29303D]">€11.99</Text>
+							<Text className="font-black text-3xl text-[#29303D]">$11.99</Text>
 						</View>
 						<Text className="font-medium text-[10px] text-[#73808C]">
 							Billed monthly

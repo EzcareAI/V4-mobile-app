@@ -49,6 +49,7 @@ export function DiscountWheelScreen() {
 		useOnboardingStore();
 
 	const spinAnim = useRef(new Animated.Value(0)).current;
+	const pulseAnim = useRef(new Animated.Value(1)).current;
 	const [spinning, setSpinning] = useState(true);
 
 	// Immediately skip if already spun (handled by paywall back interceptor, but safety net)
@@ -69,8 +70,24 @@ export function DiscountWheelScreen() {
 			useNativeDriver: true,
 		}).start(() => {
 			setSpinning(false);
+			
+			// Start pulsing button once spinning stops
+			Animated.loop(
+				Animated.sequence([
+					Animated.timing(pulseAnim, {
+						toValue: 1.05,
+						duration: 800,
+						useNativeDriver: true,
+					}),
+					Animated.timing(pulseAnim, {
+						toValue: 1,
+						duration: 800,
+						useNativeDriver: true,
+					})
+				])
+			).start();
 		});
-	}, [spinAnim]);
+	}, [spinAnim, pulseAnim]);
 
 	const handleClaimDiscount = () => {
 		// We mark that it was definitively handled. (It was already set to true in the Paywall back interceptor, but we'll do it again to be safe).
@@ -135,8 +152,8 @@ export function DiscountWheelScreen() {
 											// Position text inside slice
 											const textAngle = startAngle + SLICE_ANGLE / 2;
 											const rad = (Math.PI * (textAngle - 90)) / 180;
-											const textX = CENTER + RADIUS * 0.65 * Math.cos(rad);
-											const textY = CENTER + RADIUS * 0.65 * Math.sin(rad);
+											const textX = CENTER + RADIUS * 0.70 * Math.cos(rad);
+											const textY = CENTER + RADIUS * 0.70 * Math.sin(rad);
 
 											return (
 												<G key={prize.label}>
@@ -149,7 +166,7 @@ export function DiscountWheelScreen() {
 													<SvgText
 														alignmentBaseline="middle"
 														fill="#FFFFFF"
-														fontSize="16"
+														fontSize="22"
 														fontWeight="bold"
 														textAnchor="middle"
 														transform={`rotate(${textAngle + 90}, ${textX}, ${textY})`}
@@ -208,7 +225,17 @@ export function DiscountWheelScreen() {
 
 			{/* Static Footer CTA */}
 			<View className={`px-6 pb-10 pt-4 bg-[#EBF5F4] border-t border-transparent gap-y-3 ${spinning ? "opacity-0" : "opacity-100"}`}>
-				<ContinueButton label="Claim $10 Off Now" onPress={handleClaimDiscount} />
+				<Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+					<TouchableOpacity
+						activeOpacity={0.8}
+						className="w-full flex-row items-center justify-center rounded-[32px] bg-[#EF4444] py-5 shadow-red-200 shadow-xl"
+						onPress={handleClaimDiscount}
+					>
+						<Text className="font-black text-white text-[22px] tracking-widest uppercase">
+							✨ Claim $10 Off Now
+						</Text>
+					</TouchableOpacity>
+				</Animated.View>
 				<TouchableOpacity
 					activeOpacity={0.7}
 					className="w-full rounded-[28px] border-2 border-slate-200 bg-transparent py-4 shadow-sm"

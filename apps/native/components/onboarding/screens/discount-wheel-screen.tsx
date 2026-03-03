@@ -231,8 +231,8 @@ export function DiscountWheelScreen() {
 						className="w-full flex-row items-center justify-center rounded-[32px] bg-[#FACC15] py-5 shadow-yellow-200 shadow-xl"
 						onPress={handleClaimDiscount}
 					>
-						<Text className="font-black text-[#422006] text-[22px] tracking-widest uppercase">
-							✨ Claim $10 Off Now
+						<Text className="font-black text-[#422006] text-[18px] tracking-widest uppercase">
+							✨ Get Yearly For $29.99
 						</Text>
 					</TouchableOpacity>
 				</Animated.View>

@@ -135,7 +135,7 @@ export default function PaywallScreen() {
 					{/* Annual — Primary Card */}
 					<TouchableOpacity
 						activeOpacity={0.9}
-						className="relative flex-1 overflow-hidden rounded-[28px] p-5 shadow-2xl shadow-blue-200"
+						className={`relative flex-1 overflow-hidden rounded-[28px] p-5 shadow-2xl shadow-blue-200 transition-opacity duration-300 ${isProcessing ? "opacity-50" : "opacity-100"}`}
 						disabled={isProcessing}
 						onPress={() => handlePayment("annual")}
 					>
@@ -168,7 +168,7 @@ export default function PaywallScreen() {
 
 						<View className="mt-4 rounded-2xl bg-white py-3.5 shadow-sm">
 							<Text className="text-center font-black text-sm text-[#28B898] uppercase tracking-wider">
-								{isProcessing ? "Wait..." : "Unlock Now"}
+								Unlock Now
 							</Text>
 						</View>
 					</TouchableOpacity>
@@ -176,7 +176,7 @@ export default function PaywallScreen() {
 					{/* Monthly — Secondary Card */}
 					<TouchableOpacity
 						activeOpacity={0.9}
-						className="flex-1 rounded-[28px] border-2 border-slate-100 bg-slate-50 p-5"
+						className={`flex-1 rounded-[28px] border-2 border-slate-100 bg-slate-50 p-5 transition-opacity duration-300 ${isProcessing ? "opacity-50" : "opacity-100"}`}
 						disabled={isProcessing}
 						onPress={() => handlePayment("monthly")}
 					>

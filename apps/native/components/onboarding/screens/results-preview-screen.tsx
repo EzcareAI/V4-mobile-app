@@ -209,22 +209,22 @@ export default function ResultsPreviewScreen() {
 	const getProbableCauses = () => {
 		if (score < 50) {
 			return [
-				{ icon: <HeartPulse color="#EF4444" size={20} />, text: "High stress levels detected" },
-				{ icon: <Moon color="#EF4444" size={20} />, text: "Poor sleep quality metrics" },
-				{ icon: <Dumbbell color="#EF4444" size={20} />, text: "Limited physical activity" },
+				{ icon: <HeartPulse color="#EF4444" size={20} />, iconBg: "bg-red-50", text: "High stress levels detected" },
+				{ icon: <Moon color="#8B5CF6" size={20} />, iconBg: "bg-purple-50", text: "Poor sleep quality metrics" },
+				{ icon: <Dumbbell color="#F59E0B" size={20} />, iconBg: "bg-amber-50", text: "Limited physical activity" },
 			];
 		}
 		if (score < 70) {
 			return [
-				{ icon: <HeartPulse color="#F59E0B" size={20} />, text: "Moderate stress indicators" },
-				{ icon: <Moon color="#F59E0B" size={20} />, text: "Variable sleep patterns" },
-				{ icon: <Activity color="#F59E0B" size={20} />, text: "Inconsistent lifestyle habits" },
+				{ icon: <HeartPulse color="#EF4444" size={20} />, iconBg: "bg-red-50", text: "Moderate stress indicators" },
+				{ icon: <Moon color="#8B5CF6" size={20} />, iconBg: "bg-purple-50", text: "Variable sleep patterns" },
+				{ icon: <Activity color="#3B82F6" size={20} />, iconBg: "bg-blue-50", text: "Inconsistent lifestyle habits" },
 			];
 		}
 		return [
-			{ icon: <Activity color="#10B981" size={20} />, text: "Good lifestyle balance" },
-			{ icon: <Brain color="#10B981" size={20} />, text: "Consistent wellness routines" },
-			{ icon: <HeartPulse color="#10B981" size={20} />, text: "Active health mindset" },
+			{ icon: <Activity color="#10B981" size={20} />, iconBg: "bg-emerald-50", text: "Good lifestyle balance" },
+			{ icon: <Brain color="#10B981" size={20} />, iconBg: "bg-emerald-50", text: "Consistent wellness routines" },
+			{ icon: <HeartPulse color="#10B981" size={20} />, iconBg: "bg-emerald-50", text: "Active health mindset" },
 		];
 	};
 
@@ -392,7 +392,7 @@ export default function ResultsPreviewScreen() {
 							className="mb-2 flex-row items-center rounded-2xl bg-white p-3 shadow-sm"
 							key={cause.text}
 						>
-							<View className="mr-4 h-10 w-10 items-center justify-center rounded-xl bg-slate-50">
+							<View className={`mr-4 h-10 w-10 items-center justify-center rounded-xl ${cause.iconBg || 'bg-slate-50'}`}>
 								{cause.icon}
 							</View>
 							<Text className="font-medium text-[#29303D]">{cause.text}</Text>

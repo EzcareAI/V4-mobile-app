@@ -1,10 +1,12 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { ShieldCheck } from "lucide-react-native";
+import { Lock, ShieldCheck } from "lucide-react-native";
 import { useState } from "react";
+import Svg, { Path } from "react-native-svg";
 import {
 	ActivityIndicator,
+	KeyboardAvoidingView,
 	Platform,
 	ScrollView,
 	StyleSheet,
@@ -150,10 +152,13 @@ export function AccountCreationScreen() {
 					{/* Apple Button */}
 					<TouchableOpacity
 						activeOpacity={0.8}
-						className="flex-row items-center justify-center rounded-[24px] bg-[#000000] py-4 shadow-sm"
+						className="flex-row items-center justify-center gap-x-2 rounded-[24px] bg-[#000000] py-4 shadow-sm"
 					>
+						<Svg height="22" viewBox="0 0 384 512" width="18">
+							<Path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" fill="white" />
+						</Svg>
 						<Text className="font-bold text-[17px] text-white tracking-wide">
-							 Continue with Apple
+							Continue with Apple
 						</Text>
 					</TouchableOpacity>
 
@@ -169,7 +174,7 @@ export function AccountCreationScreen() {
 				</View>
 
 				{/* Benefits Guarantee */}
-				<View className="mb-12 rounded-[32px] border border-emerald-100 bg-emerald-50/50 p-8">
+				<View className="mb-6 rounded-[32px] border border-emerald-100 bg-emerald-50/50 p-8">
 					<View className="mb-3 flex-row items-center">
 						<ShieldCheck color="#10B981" size={24} />
 						<Text className="ml-3 font-bold text-emerald-900 text-lg tracking-tight">
@@ -183,7 +188,7 @@ export function AccountCreationScreen() {
 				</View>
 
 				{/* Privacy Notice */}
-				<Text className="mb-10 px-4 text-center font-medium text-[#73808C] text-[13px] leading-5">
+				<Text className="mb-4 px-4 text-center font-medium text-[#73808C] text-[13px] leading-5">
 					By creating an account, you agree to our{"\n"}
 					<Text className="font-bold text-[#73808C]">Terms of Service</Text> and{" "}
 					<Text className="font-bold text-[#73808C]">Privacy Policy</Text>.

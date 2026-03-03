@@ -1,77 +1,31 @@
-import {
-	Circle as SkiaCircle,
-	Line as SkiaLine,
-	vec,
-} from "@shopify/react-native-skia";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Heart, TrendingUp, Zap } from "lucide-react-native";
 import React from "react";
 import { Platform, ScrollView, Text, View } from "react-native";
-import { runOnJS, useAnimatedReaction, useAnimatedStyle, withSpring, withTiming } from "react-native-reanimated";
+import { useSharedValue, withTiming, useAnimatedStyle } from "react-native-reanimated";
 import Animated from "react-native-reanimated";
-import { CartesianChart, Line, useChartPressState } from "victory-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
 
-const CHART_DATA = [
-	{ month: "Month 1", score: 18, id: "m1" },
-	{ month: "Month 2", score: 32, id: "m2" },
-	{ month: "Month 3", score: 50, id: "m3" },
-	{ month: "Month 4", score: 72, id: "m4" },
-];
-
 export const PerfectPlanScreen = () => {
 	const router = useRouter();
-
-	const [chartData, setChartData] = React.useState(
-		CHART_DATA.map((d) => ({ ...d, score: 0 }))
-	);
-
-	React.useEffect(() => {
-		const timer = setTimeout(() => {
-			setChartData(CHART_DATA);
-		}, 300);
-		return () => clearTimeout(timer);
-	}, []);
-
-	const { state: chartState, isActive } = useChartPressState({
-		x: "Month 4",
-		y: { score: 72 },
-	});
-	const [activeScore, setActiveScore] = React.useState<number | null>(null);
-
-	useAnimatedReaction(
-		() => {
-			return chartState.y.score.value.value;
-		},
-		(score) => {
-			if (typeof score === "number" && !isNaN(score)) {
-				runOnJS(setActiveScore)(Math.round(score));
-			}
-		},
-		[chartState]
-	);
-
-	React.useEffect(() => {
-		if (!isActive) {
-			setActiveScore(72);
-		}
-	}, [isActive]);
-
-	const tooltipStyle = useAnimatedStyle(() => {
-		return {
-			opacity: 1,
-			transform: [
-				{ translateX: chartState.x.position.value - 24 }, // align center (assumes ~48px width)
-				{ translateY: chartState.y.score.position.value - 45 }, // elevate above pointer
-			],
-		};
-	});
-
 	const { nextStep, currentStep } = useOnboardingStore();
+
+	const barAnim = useSharedValue(0);
+
+	React.useEffect(() => {
+		barAnim.value = withTiming(1, { duration: 1500 });
+	}, [barAnim]);
+
+	const withRefStyle = useAnimatedStyle(() => ({
+		height: `${Math.max(barAnim.value * 89, 5)}%`,
+	}));
+	const withoutRefStyle = useAnimatedStyle(() => ({
+		height: `${Math.max(barAnim.value * 20, 5)}%`,
+	}));
 
 	const handleContinue = async () => {
 		if (Platform.OS === "ios") {
@@ -129,120 +83,29 @@ export const PerfectPlanScreen = () => {
 										4-Month Projection
 									</Text>
 								</View>
-								<View className="rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-2">
-									<Text className="font-black text-emerald-600 text-[13px]" numberOfLines={1} adjustsFontSizeToFit>
-										+{activeScore !== null ? activeScore : 72}% Vitality
-									</Text>
-								</View>
 							</View>
 
 							{/* Graph Section */}
-							<View className="h-56 flex-row">
-								<View className="items-end justify-between py-2 pr-2">
-									{["100", "80", "60", "40", "20", "0"].map((v) => (
-										<Text
-											className="font-bold text-[10px] text-slate-300"
-											key={v}
-										>
-											{v}
-										</Text>
-									))}
+							<View className="h-56 mt-4 flex-row items-end justify-around border-b-2 border-slate-100 pb-4 px-8 mb-4">
+								{/* Without EZCare Bar */}
+								<View className="items-center flex-1">
+									<Text className="mb-2 font-black text-slate-400 text-lg">20%</Text>
+									<View className="w-16 h-32 bg-slate-50 rounded-t-xl overflow-hidden justify-end">
+										<Animated.View className="w-full bg-slate-200 rounded-t-xl" style={withoutRefStyle} />
+									</View>
+									<Text className="mt-4 font-bold text-slate-400 text-xs text-center leading-4">Without{"\n"}EZCare</Text>
 								</View>
 
-								<View className="relative flex-1">
-									<CartesianChart
-										chartPressState={chartState}
-										data={chartData}
-										domain={{ y: [0, 100] }}
-										domainPadding={{ left: 24, right: 24, top: 10, bottom: 10 }}
-										padding={0}
-										xKey="month"
-										yKeys={["score"]}
-									>
-										{({ points, chartBounds }) => (
-											<>
-												{[0, 20, 40, 60, 80, 100].map((v) => {
-													const y =
-														chartBounds.bottom -
-														(v / 100) * (chartBounds.bottom - chartBounds.top);
-													return (
-														<SkiaLine
-															color="#f8fafc"
-															key={v}
-															p1={vec(chartBounds.left, y)}
-															p2={vec(chartBounds.right, y)}
-															strokeWidth={1.5}
-														/>
-													);
-												})}
-
-												<Line
-													animate={{ type: "timing", duration: 1000 }}
-													color="#28B898"
-													curveType="monotoneX"
-													points={points.score}
-													strokeWidth={4}
-												/>
-												{points.score.map((p, i) => {
-													const isSolid = i >= 2;
-													const pointX = p.x;
-													const pointY = p.y;
-													if (
-														typeof pointX !== "number" ||
-														typeof pointY !== "number"
-													) {
-														return null;
-													}
-
-													return (
-														<React.Fragment key={CHART_DATA[i].id}>
-															<SkiaCircle
-																color="white"
-																cx={pointX}
-																cy={pointY}
-																r={isSolid ? 8 : 6}
-															/>
-															<SkiaCircle
-																color="#28B898"
-																cx={pointX}
-																cy={pointY}
-																r={isSolid ? 8 : 6}
-																strokeWidth={2.5}
-																style={isSolid ? "fill" : "stroke"}
-															/>
-														</React.Fragment>
-													);
-												})}
-											</>
-										)}
-									</CartesianChart>
-
-									{/* Dynamic Animated Tooltip */}
-									<Animated.View 
-										style={[
-											{ position: "absolute", top: 0, left: 0 },
-											tooltipStyle,
-										]}
-										className="pointer-events-none z-50 items-center justify-center shadow-lg"
-									>
-										<View className="rounded-xl bg-slate-900 px-3 py-1.5">
-											<Text className="font-black text-[14px] text-white">
-												{activeScore !== null ? activeScore : 72}%
-											</Text>
-										</View>
-									</Animated.View>
+								{/* With EZCare Bar */}
+								<View className="items-center flex-1">
+									<Text className="mb-2 font-black text-[#28B898] text-2xl">89%</Text>
+									<View className="w-16 h-32 bg-emerald-50 rounded-t-xl overflow-hidden justify-end">
+										<Animated.View className="w-full rounded-t-xl overflow-hidden" style={withRefStyle}>
+											<LinearGradient colors={["#2DE2E2", "#28B898"]} style={{ flex: 1 }} />
+										</Animated.View>
+									</View>
+									<Text className="mt-4 font-bold text-[#29303D] text-xs text-center leading-4">With{"\n"}EZCare</Text>
 								</View>
-							</View>
-
-							<View className="mt-4 flex-row justify-between px-6">
-								{["M1", "M2", "M3", "M4"].map((w) => (
-									<Text
-										className="font-bold text-[#73808C] text-[11px] uppercase tracking-tighter"
-										key={w}
-									>
-										{w}
-									</Text>
-								))}
 							</View>
 						</View>
 
@@ -253,11 +116,11 @@ export const PerfectPlanScreen = () => {
 								end={{ x: 1, y: 1 }}
 								start={{ x: 0, y: 0 }}
 							>
-								<View className="mb-8 flex-row items-center gap-4">
-									<View className="h-16 w-16 items-center justify-center rounded-3xl bg-white/20">
-										<Heart color="white" fill="white" size={36} />
+								<View className="mb-8 flex-row items-center gap-3">
+									<View className="h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20">
+										<Heart color="white" fill="white" size={28} />
 									</View>
-									<Text className="font-black text-[30px] text-white tracking-tight">
+									<Text className="flex-1 font-black text-2xl text-white tracking-tight" numberOfLines={1} adjustsFontSizeToFit>
 										Keep Going!
 									</Text>
 								</View>

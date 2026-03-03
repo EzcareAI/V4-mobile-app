@@ -92,7 +92,7 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 					<Text className="text-center font-bold text-[#1A2138] text-[32px] leading-tight">
 						{isReinforcement
 							? "Great start."
-							: "We're building your Health Core."}
+							: "Your path to recovery."}
 					</Text>
 
 					<Text className="mt-4 text-center font-medium text-[#60708F] text-lg leading-6">
@@ -105,7 +105,7 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 					<View className="mt-8 w-full overflow-hidden rounded-[32px] bg-white p-6 shadow-black/5 shadow-xl">
 						<View className="mb-4 flex-row items-center justify-between">
 							<Text className="font-bold text-[#1A2138] text-base">
-								{isReinforcement ? "Projected Energy" : "Core Construction"}
+								{isReinforcement ? "Projected Energy" : "Expected Progress"}
 							</Text>
 							<View className="flex-row items-center rounded-full bg-teal-50 px-2 py-1">
 								<TrendingUp color="#3EC9B5" size={14} />
@@ -149,8 +149,8 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 								<AnimatedPath
 									d={
 										isReinforcement
-											? "M 0 120 C 100 120, 200 125, 300 128"
-											: "M 0 120 C 100 120, 200 128, 300 135"
+											? "M 0 120 Q 30 95, 60 105 T 120 85 T 180 120 T 240 100 T 300 135"
+											: "M 0 120 Q 30 90, 60 110 T 120 80 T 180 130 T 240 105 T 300 140"
 									}
 									fill="none"
 									stroke="#CBD5E1"

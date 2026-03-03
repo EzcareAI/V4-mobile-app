@@ -364,16 +364,16 @@ export default function ResultsPreviewScreen() {
 			>
 				{/* Focus Area Card */}
 				{intentType === "zone" && primaryZoneName && (
-					<View className="mb-4 overflow-hidden rounded-[24px] border border-blue-50 bg-white p-4 shadow-blue-50/50 shadow-xl">
+					<View className="mb-8 overflow-hidden rounded-[24px] border border-red-500 bg-red-500 p-4 shadow-red-500/30 shadow-xl">
 						<View className="flex-row items-center gap-4">
-							<View className="h-12 w-12 items-center justify-center rounded-2xl bg-blue-50">
+							<View className="h-12 w-12 items-center justify-center rounded-2xl bg-white/20">
 								<Text className="text-2xl">📍</Text>
 							</View>
 							<View>
-								<Text className="font-medium text-ezcare-slate text-xs uppercase tracking-wider">
+								<Text className="font-medium text-slate-200 text-xs uppercase tracking-wider">
 									Area of Primary Focus
 								</Text>
-								<Text className="font-bold text-ezcare-navy text-xl">
+								<Text className="font-bold text-white text-xl">
 									{primaryZoneName}
 									{extraZones}
 								</Text>

@@ -9,17 +9,18 @@ import { useRouter } from "expo-router";
 import { Heart, TrendingUp, Zap } from "lucide-react-native";
 import React from "react";
 import { Platform, ScrollView, Text, View } from "react-native";
-import { runOnJS, useAnimatedReaction } from "react-native-reanimated";
+import { runOnJS, useAnimatedReaction, useAnimatedStyle, withSpring, withTiming } from "react-native-reanimated";
+import Animated from "react-native-reanimated";
 import { CartesianChart, Line, useChartPressState } from "victory-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
 
 const CHART_DATA = [
-	{ week: "Week 1", score: 18, id: "w1" },
-	{ week: "Week 2", score: 32, id: "w2" },
-	{ week: "Week 3", score: 50, id: "w3" },
-	{ week: "Week 4", score: 72, id: "w4" },
+	{ month: "Month 1", score: 18, id: "m1" },
+	{ month: "Month 2", score: 32, id: "m2" },
+	{ month: "Month 3", score: 50, id: "m3" },
+	{ month: "Month 4", score: 72, id: "m4" },
 ];
 
 export const PerfectPlanScreen = () => {
@@ -37,7 +38,7 @@ export const PerfectPlanScreen = () => {
 	}, []);
 
 	const { state: chartState, isActive } = useChartPressState({
-		x: "Week 1",
+		x: "Month 1",
 		y: { score: 0 },
 	});
 	const [activeScore, setActiveScore] = React.useState<number | null>(null);
@@ -59,6 +60,16 @@ export const PerfectPlanScreen = () => {
 			setActiveScore(null);
 		}
 	}, [isActive]);
+
+	const tooltipStyle = useAnimatedStyle(() => {
+		return {
+			opacity: withTiming(isActive ? 1 : 0, { duration: 150 }),
+			transform: [
+				{ translateX: chartState.x.position.value - 24 }, // align center (assumes ~48px width)
+				{ translateY: chartState.y.score.position.value - 45 }, // elevate above pointer
+			],
+		};
+	});
 
 	const { nextStep, currentStep } = useOnboardingStore();
 
@@ -115,12 +126,12 @@ export const PerfectPlanScreen = () => {
 										Health Recovery
 									</Text>
 									<Text className="mt-0.5 font-bold text-[#73808C] text-xs uppercase tracking-widest">
-										4-Week Projection
+										4-Month Projection
 									</Text>
 								</View>
-								<View className="rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-2">
-									<Text className="font-black text-emerald-600 text-sm">
-										+68% Vitality
+								<View className="flex-shrink rounded-2xl border border-emerald-100 bg-emerald-50 px-3 py-2">
+									<Text className="font-black text-emerald-600 text-[13px]" numberOfLines={1} adjustsFontSizeToFit>
+										+{activeScore !== null ? activeScore : 72}% Vitality
 									</Text>
 								</View>
 							</View>
@@ -145,7 +156,7 @@ export const PerfectPlanScreen = () => {
 										domain={{ y: [0, 100] }}
 										domainPadding={{ left: 24, right: 24, top: 10, bottom: 10 }}
 										padding={0}
-										xKey="week"
+										xKey="month"
 										yKeys={["score"]}
 									>
 										{({ points, chartBounds }) => (
@@ -206,19 +217,25 @@ export const PerfectPlanScreen = () => {
 										)}
 									</CartesianChart>
 
-									{/* Projected Target Box */}
-									<View className="absolute top-0 right-0 items-center">
-										<View className="rounded-xl bg-slate-900 px-3 py-1.5 shadow-lg">
+									{/* Dynamic Animated Tooltip */}
+									<Animated.View 
+										style={[
+											{ position: "absolute", top: 0, left: 0 },
+											tooltipStyle,
+										]}
+										className="pointer-events-none z-50 items-center justify-center shadow-lg"
+									>
+										<View className="rounded-xl bg-slate-900 px-3 py-1.5">
 											<Text className="font-black text-[14px] text-white">
 												{activeScore !== null ? activeScore : 72}%
 											</Text>
 										</View>
-									</View>
+									</Animated.View>
 								</View>
 							</View>
 
 							<View className="mt-4 flex-row justify-between px-6">
-								{["Wk 1", "Wk 2", "Wk 3", "Wk 4"].map((w) => (
+								{["Mo 1", "Mo 2", "Mo 3", "Mo 4"].map((w) => (
 									<Text
 										className="font-bold text-[#73808C] text-[11px] uppercase tracking-tighter"
 										key={w}

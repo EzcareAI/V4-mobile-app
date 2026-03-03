@@ -392,10 +392,10 @@ export default function ResultsPreviewScreen() {
 							className="mb-2 flex-row items-center rounded-2xl bg-white p-3 shadow-sm"
 							key={cause.text}
 						>
-							<View className={`mr-4 h-10 w-10 items-center justify-center rounded-xl ${cause.iconBg || 'bg-slate-50'}`}>
+							<View className={`mr-4 h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cause.iconBg || 'bg-slate-50'}`}>
 								{cause.icon}
 							</View>
-							<Text className="font-medium text-[#29303D]">{cause.text}</Text>
+							<Text className="flex-1 font-medium text-[#29303D]">{cause.text}</Text>
 						</View>
 					))}
 				</View>

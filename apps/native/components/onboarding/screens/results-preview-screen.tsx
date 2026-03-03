@@ -85,9 +85,9 @@ const PulseRing = ({ delay = 0, color = "#10B981" }) => {
 		<Animated.View
 			style={{
 				position: "absolute",
-				width: 140,
-				height: 140,
-				borderRadius: 70,
+				width: 220,
+				height: 220,
+				borderRadius: 110,
 				borderWidth: 2,
 				borderColor: color,
 				transform: [{ scale }],
@@ -283,12 +283,12 @@ export default function ResultsPreviewScreen() {
 					<TwinkleStar delay={1200} size={28} color="#10B981" bottom={40} right={20} />
 					<TwinkleStar delay={1600} size={20} color="#60A5FA" top={80} left={-5} />
 
-					<View className="relative h-[160px] w-[160px] items-center justify-center">
+					<View className="relative h-[220px] w-[220px] items-center justify-center">
 						<PulseRing delay={0} color={scoreInfo.gradient[0]} />
 						<PulseRing delay={800} color={scoreInfo.gradient[1]} />
 						<PulseRing delay={1600} color={scoreInfo.gradient[0]} />
 						
-						<Svg height={160} viewBox="0 0 160 160" width={160}>
+						<Svg height={220} viewBox="0 0 220 220" width={220}>
 							<Defs>
 								<SvgGradient
 									id="scoreGradient"
@@ -301,33 +301,49 @@ export default function ResultsPreviewScreen() {
 									<Stop offset="100%" stopColor={scoreInfo.gradient[1]} />
 								</SvgGradient>
 							</Defs>
-							{/* Background Track */}
+							
+							{/* Outer Decorative Tech Track */}
 							<Circle
-								cx="80"
-								cy="80"
+								cx="110"
+								cy="110"
 								fill="none"
-								r="70"
+								r="102"
 								stroke="#E2E8F0"
-								strokeWidth="10"
+								strokeDasharray="2 10"
+								strokeWidth="3"
 							/>
+							
+							{/* Background Main Track */}
+							<Circle
+								cx="110"
+								cy="110"
+								fill="none"
+								r="84"
+								stroke="#F1F5F9"
+								strokeWidth="16"
+							/>
+							
 							{/* Progress Bar (Animated) */}
 							<Circle
-								cx="80"
-								cy="80"
+								cx="110"
+								cy="110"
 								fill="none"
-								r="70"
+								r="84"
 								stroke="url(#scoreGradient)"
-								strokeDasharray={`${(displayScore / 100) * 440} 440`}
+								strokeDasharray={`${(displayScore / 100) * 527.7} 527.7`}
 								strokeLinecap="round"
-								strokeWidth="12"
-								transform="rotate(-90 80 80)"
+								strokeWidth="16"
+								transform="rotate(-90 110 110)"
 							/>
 						</Svg>
-						<View className="absolute items-center justify-center">
-							<Text className="font-bold text-5xl text-ezcare-navy">
+						<View className="absolute items-center justify-center mt-2">
+							<Text 
+								className="text-center font-black" 
+								style={{ fontSize: 72, color: scoreInfo.gradient[0], letterSpacing: -3, lineHeight: 74 }}
+							>
 								{displayScore}
 							</Text>
-							<Text className="font-medium text-ezcare-slate text-sm">
+							<Text className="font-extrabold text-[#94A3B8] text-[13px] uppercase tracking-[0.2em] mt-1">
 								/ 100
 							</Text>
 						</View>

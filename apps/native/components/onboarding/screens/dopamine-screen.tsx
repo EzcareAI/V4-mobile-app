@@ -3,7 +3,7 @@ import { useRouter } from "expo-router";
 import { Activity, Sparkles, Zap, TrendingUp } from "lucide-react-native";
 import { useEffect, useRef } from "react";
 import { Animated, Text, View } from "react-native";
-import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop } from "react-native-svg";
+import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop, Text as SvgText } from "react-native-svg";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 
@@ -107,16 +107,10 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 							<Text className="font-bold text-[#1A2138] text-base">
 								{isReinforcement ? "Projected Energy" : "Expected Progress"}
 							</Text>
-							<View className="flex-row items-center rounded-full bg-teal-50 px-2 py-1">
-								<TrendingUp color="#3EC9B5" size={14} />
-								<Text className="ml-1 font-bold text-[#3EC9B5] text-xs">
-									{isReinforcement ? "+42%" : "+85%"}
-								</Text>
-							</View>
 						</View>
 
 						<View className="h-[140px] w-full">
-							<Svg width="100%" height="100%" viewBox="0 0 300 140" preserveAspectRatio="none">
+							<Svg width="100%" height="100%" viewBox="0 0 310 150" preserveAspectRatio="none">
 								<Defs>
 									<SvgGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
 										<Stop offset="0" stopColor="#3EC9B5" stopOpacity="0.2" />
@@ -130,30 +124,30 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 								</Defs>
 								
 								{/* Grid Lines */}
-								<Path d="M 0 35 L 300 35" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4,4" />
-								<Path d="M 0 70 L 300 70" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4,4" />
-								<Path d="M 0 105 L 300 105" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4,4" />
+								<Path d="M 0 35 L 310 35" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4,4" />
+								<Path d="M 0 70 L 310 70" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4,4" />
+								<Path d="M 0 105 L 310 105" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4,4" />
 
 								{/* Animated Fill (With EZCare) */}
 								<AnimatedPath
 									d={
 										isReinforcement
-											? "M 0 120 C 80 110, 140 80, 200 60 S 260 40, 300 30 L 300 140 L 0 140 Z"
-											: "M 0 120 C 60 100, 100 40, 160 30 S 240 10, 300 5 L 300 140 L 0 140 Z"
+											? "M 0 120 C 80 110, 140 80, 190 60 S 240 40, 270 30 L 270 140 L 0 140 Z"
+											: "M 0 120 C 60 100, 100 40, 150 30 S 220 10, 270 5 L 270 140 L 0 140 Z"
 									}
 									fill="url(#fillGrad)"
 									opacity={fillOpacityAnim}
 								/>
 								
-								{/* Without EZCare Baseline Curve */}
+								{/* Without EZCare Baseline Curve (Crashing Trend to 0%) */}
 								<AnimatedPath
 									d={
 										isReinforcement
-											? "M 0 120 Q 30 95, 60 105 T 120 85 T 180 120 T 240 100 T 300 135"
-											: "M 0 120 Q 30 90, 60 110 T 120 80 T 180 130 T 240 105 T 300 140"
+											? "M 0 120 Q 45 105, 90 110 S 180 138, 270 138"
+											: "M 0 120 Q 65 100, 135 110 L 190 138 L 270 138"
 									}
 									fill="none"
-									stroke="#CBD5E1"
+									stroke="#EF4444"
 									strokeWidth="3"
 									strokeLinecap="round"
 									strokeDasharray="400"
@@ -164,8 +158,8 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 								<AnimatedPath
 									d={
 										isReinforcement
-											? "M 0 120 C 80 110, 140 80, 200 60 S 260 40, 300 30"
-											: "M 0 120 C 60 100, 100 40, 160 30 S 240 10, 300 5"
+											? "M 0 120 C 80 110, 140 80, 190 60 S 240 40, 270 30"
+											: "M 0 120 C 60 100, 100 40, 150 30 S 220 10, 270 5"
 									}
 									fill="none"
 									stroke="url(#lineGrad)"
@@ -174,6 +168,15 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 									strokeDasharray="400"
 									strokeDashoffset={pathAnim}
 								/>
+
+								{/* Terminal End Labels */}
+								<SvgText x={278} y={isReinforcement ? 34 : 9} fill="#3EC9B5" fontSize="13" fontWeight="900">
+									{isReinforcement ? "+42%" : "+85%"}
+								</SvgText>
+
+								<SvgText x={278} y={142} fill="#EF4444" fontSize="12" fontWeight="bold">
+									0%
+								</SvgText>
 							</Svg>
 						</View>
 
@@ -194,8 +197,8 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 								<Text className="font-medium text-[#60708F] text-xs">With EZCare</Text>
 							</View>
 							<View className="flex-row items-center gap-2">
-								<View className="h-2.5 w-2.5 rounded-full bg-[#CBD5E1]" />
-								<Text className="font-medium text-[#60708F] text-xs">Without</Text>
+								<View className="h-2.5 w-2.5 rounded-full bg-[#EF4444]" />
+								<Text className="font-medium text-[#EF4444] text-xs">Without</Text>
 							</View>
 						</View>
 					</View>

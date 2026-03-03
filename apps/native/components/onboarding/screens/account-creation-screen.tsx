@@ -38,6 +38,17 @@ export function AccountCreationScreen() {
 			return;
 		}
 
+		const hasMinLength = password.length >= 8;
+		const hasUpperCase = /[A-Z]/.test(password);
+		const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>\-_]/.test(password);
+
+		if (!hasMinLength || !hasUpperCase || !hasSpecialChar) {
+			setErrorMsg(
+				"Password must be at least 8 characters, include a capital letter, and a special character."
+			);
+			return;
+		}
+
 		setLoading(true);
 		setErrorMsg("");
 
@@ -116,6 +127,9 @@ export function AccountCreationScreen() {
 							value={password}
 						/>
 					</View>
+					<Text className="mt-2 px-4 font-medium text-[#73808C] text-[12px] leading-5">
+						Minimum 8 characters, 1 capital letter, and 1 special character.
+					</Text>
 
 					{errorMsg ? (
 						<Text className="mt-3 px-4 font-medium text-red-500 text-sm">

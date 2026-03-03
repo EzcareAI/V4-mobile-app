@@ -1,6 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, View, Animated, StyleSheet } from "react-native";
+import { useEffect, useRef } from "react";
 import { THEME } from "@/lib/theme";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
@@ -35,6 +36,72 @@ const BADGES = [
 	{ emoji: "🔒", label: "Your Data\nProtected" },
 ];
 
+const FireworkParticle = ({ delay, angle, distance, color }: { delay: number, angle: number, distance: number, color: string }) => {
+	const progress = useRef(new Animated.Value(0)).current;
+	
+	useEffect(() => {
+		Animated.sequence([
+			Animated.delay(delay),
+			Animated.spring(progress, {
+				toValue: 1,
+				friction: 6,
+				tension: 40,
+				useNativeDriver: true,
+			})
+		]).start();
+	}, []);
+
+	const translateX = progress.interpolate({
+		inputRange: [0, 1],
+		outputRange: [0, Math.cos(angle) * distance]
+	});
+	const translateY = progress.interpolate({
+		inputRange: [0, 1],
+		outputRange: [0, Math.sin(angle) * distance]
+	});
+	const opacity = progress.interpolate({
+		inputRange: [0, 0.7, 1],
+		outputRange: [1, 1, 0]
+	});
+	const scale = progress.interpolate({
+		inputRange: [0, 0.2, 1],
+		outputRange: [0, 1.5, 0]
+	});
+
+	return (
+		<Animated.View
+			style={{
+				position: 'absolute',
+				width: 10,
+				height: 10,
+				borderRadius: 5,
+				backgroundColor: color,
+				transform: [{ translateX }, { translateY }, { scale }],
+				opacity,
+				zIndex: 100
+			}}
+		/>
+	);
+}
+
+const Fireworks = () => {
+	const particles = Array.from({ length: 45 }).map((_, i) => ({
+		id: i,
+		angle: (Math.PI * 2 * i) / 20 + (Math.random() * 0.8),
+		distance: 80 + Math.random() * 120, // shoot out pretty far
+		delay: Math.random() * 400,
+		color: ['#F59E0B', '#10B981', '#3EC9B5', '#EC4899', '#8B5CF6', '#38BDF8'][Math.floor(Math.random() * 6)]
+	}));
+
+	return (
+		<View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center', zIndex: 50 }]} pointerEvents="none">
+			{particles.map(p => (
+				<FireworkParticle key={p.id} {...p} />
+			))}
+		</View>
+	);
+}
+
 export function ConfidenceMomentScreen() {
 	const router = useRouter();
 	const { nextStep, currentStep } = useOnboardingStore();
@@ -54,8 +121,9 @@ export function ConfidenceMomentScreen() {
 				>
 					<View className="px-1">
 						{/* Mascot Header */}
-						<View className="mt-8 items-center">
+						<View className="mt-2 items-center">
 							<View className="relative">
+								<Fireworks />
 								<LinearGradient
 									colors={THEME.accentGradient}
 									start={{ x: 0, y: 0 }}
@@ -74,26 +142,12 @@ export function ConfidenceMomentScreen() {
 								>
 									<Text style={{ fontSize: 56 }}>🎉</Text>
 								</LinearGradient>
-								{/* Badge */}
-								<View
-									className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white"
-									style={{
-										backgroundColor: THEME.accentLight,
-										shadowColor: "#000",
-										shadowOffset: { width: 0, height: 4 },
-										shadowOpacity: 0.1,
-										shadowRadius: 5,
-										elevation: 5,
-									}}
-								>
-									<Text style={{ fontSize: 14 }}>⭐</Text>
-								</View>
 							</View>
 						</View>
 
 						<StepHeader
 							align="center"
-							className="mt-6"
+							className="mt-0"
 							description="You've given us exactly what we need to build your personalized health plan."
 							title="Great job!"
 						/>

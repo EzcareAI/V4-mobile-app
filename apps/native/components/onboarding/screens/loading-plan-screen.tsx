@@ -14,6 +14,73 @@ import { Animated, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 
+const FireworkParticle = ({ delay, angle, distance, color }: { delay: number, angle: number, distance: number, color: string }) => {
+	const progress = useRef(new Animated.Value(0)).current;
+	
+	useEffect(() => {
+		Animated.sequence([
+			Animated.delay(delay),
+			Animated.spring(progress, {
+				toValue: 1,
+				friction: 6,
+				tension: 40,
+				useNativeDriver: true,
+			})
+		]).start();
+	}, []);
+
+	const translateX = progress.interpolate({
+		inputRange: [0, 1],
+		outputRange: [0, Math.cos(angle) * distance]
+	});
+	const translateY = progress.interpolate({
+		inputRange: [0, 1],
+		outputRange: [0, Math.sin(angle) * distance]
+	});
+	const opacity = progress.interpolate({
+		inputRange: [0, 0.7, 1],
+		outputRange: [1, 1, 0]
+	});
+	const scale = progress.interpolate({
+		inputRange: [0, 0.2, 1],
+		outputRange: [0, 1.5, 0]
+	});
+
+	return (
+		<Animated.View
+			style={{
+				position: 'absolute',
+				width: 10,
+				height: 10,
+				borderRadius: 5,
+				backgroundColor: color,
+				transform: [{ translateX }, { translateY }, { scale }],
+				opacity,
+				zIndex: 100
+			}}
+		/>
+	);
+}
+
+const Fireworks = () => {
+	// Generate random particles spanning 360 degrees
+	const particles = Array.from({ length: 45 }).map((_, i) => ({
+		id: i,
+		angle: (Math.PI * 2 * i) / 20 + (Math.random() * 0.8),
+		distance: 80 + Math.random() * 120, // shoot out pretty far
+		delay: Math.random() * 400,
+		color: ['#F59E0B', '#10B981', '#3EC9B5', '#EC4899', '#8B5CF6', '#38BDF8'][Math.floor(Math.random() * 6)]
+	}));
+
+	return (
+		<View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center', zIndex: 50 }]} pointerEvents="none">
+			{particles.map(p => (
+				<FireworkParticle key={p.id} {...p} />
+			))}
+		</View>
+	);
+}
+
 const STAGES = [
 	{
 		id: "energy",
@@ -200,8 +267,10 @@ export const LoadingPlanScreen = () => {
 
 							{/* Final Ready State */}
 							{progress >= 100 && (
-								<View className="mt-6 rounded-[32px] border border-emerald-100 bg-emerald-50 p-8 shadow-emerald-50 shadow-md">
-									<View className="flex-row items-center">
+								<View className="mt-6 rounded-[32px] border border-emerald-100 bg-emerald-50 p-8 shadow-emerald-50 shadow-md relative">
+									{/* Interactive Fireworks overlay bounded to the completion card */}
+									<Fireworks />
+									<View className="flex-row items-center z-10">
 										<View className="mr-5 h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500 shadow-emerald-200 shadow-lg">
 											<CheckCircle2 color="white" size={32} />
 										</View>

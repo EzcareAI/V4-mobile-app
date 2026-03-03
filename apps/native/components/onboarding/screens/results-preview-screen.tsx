@@ -311,52 +311,7 @@ export default function ResultsPreviewScreen() {
 					))}
 				</View>
 
-				{/* Premium Plan Preview Section */}
-				<View className="mb-4">
-					<Text className="mb-3 font-bold text-ezcare-navy text-xl">
-						Your Customized Protocol
-					</Text>
 
-					<View className="relative overflow-hidden rounded-[32px] border border-blue-50 bg-white p-6 shadow-2xl">
-						{/* Faded/Skeleton Content Backdrop */}
-						<View className="opacity-20 gap-y-4">
-							<View className="flex-row items-center gap-4">
-								<View className="h-12 w-12 rounded-full bg-blue-200" />
-								<View className="flex-1 gap-y-2">
-									<View className="h-3.5 w-3/4 rounded-full bg-slate-300" />
-									<View className="h-2.5 w-1/2 rounded-full bg-slate-200" />
-								</View>
-							</View>
-							<View className="flex-row items-center gap-4">
-								<View className="h-12 w-12 rounded-full bg-emerald-200" />
-								<View className="flex-1 gap-y-2">
-									<View className="h-3.5 w-5/6 rounded-full bg-slate-300" />
-									<View className="h-2.5 w-2/3 rounded-full bg-slate-200" />
-								</View>
-							</View>
-							<View className="flex-row items-center gap-4">
-								<View className="h-12 w-12 rounded-full bg-rose-200" />
-								<View className="flex-1 gap-y-2">
-									<View className="h-3.5 w-2/3 rounded-full bg-slate-300" />
-									<View className="h-2.5 w-1/3 rounded-full bg-slate-200" />
-								</View>
-							</View>
-						</View>
-
-						{/* Premium Unlock Frosted Overlay */}
-						<View className="absolute inset-0 items-center justify-center bg-white/75">
-							<View className="items-center rounded-3xl border border-blue-100 bg-blue-50/90 px-8 py-5 shadow-sm">
-								<Text className="mb-2 text-3xl">🧩</Text>
-								<Text className="font-bold text-lg text-ezcare-navy text-center tracking-tight">
-									Hidden AI Intelligence
-								</Text>
-								<Text className="mt-1 font-medium text-center text-xs text-ezcare-slate">
-									Unlock to reveal your exact daily tasks
-								</Text>
-							</View>
-						</View>
-					</View>
-				</View>
 
 				{/* Methodology Options Card */}
 				<View className="mb-5 overflow-hidden rounded-[24px] border border-[#F1F5F9] bg-[#F8FAFC] p-5">

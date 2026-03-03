@@ -166,20 +166,20 @@ export default function PaywallScreen() {
 						/>
 
 						{/* Best Value Badge */}
-						<View className="absolute top-0 left-0 right-0 items-center bg-yellow-400 py-1.5 shadow-sm">
-							<Text className="font-black text-[#29303D] text-[10px] uppercase tracking-[0.2em]">
-								★★ MOST POPULAR ★★
+						<View className="absolute top-0 left-0 right-0 items-center bg-yellow-400 py-1 shadow-sm">
+							<Text className="text-center font-black text-[#29303D] text-[9px] uppercase tracking-widest leading-3">
+								MOST{"\n"}POPULAR
 							</Text>
 						</View>
 
-						<Text className="mt-6 font-bold text-xl text-white">Annual</Text>
-						<View className="mt-1.5 self-start rounded-full bg-yellow-400 px-2.5 py-1 shadow-sm">
-							<Text className="font-black text-[11px] text-[#1A2138] uppercase tracking-wider">Save 80%</Text>
+						<Text className="mt-7 font-bold text-xl text-white">Annual</Text>
+						<View className="mt-1.5 self-start rounded-full bg-yellow-400 px-2 py-1 shadow-sm">
+							<Text className="font-black text-[10px] text-[#1A2138] uppercase tracking-wider">Save 80%</Text>
 						</View>
 
-						<View className="mt-3 mb-1 flex-row items-baseline gap-1">
-							<Text className="font-black text-4xl text-white">$3.33</Text>
-							<Text className="font-bold text-white/80 text-sm">/mo</Text>
+						<View className="mt-3 mb-1">
+							<Text className="font-black text-3xl text-white tracking-tighter">$3.33</Text>
+							<Text className="font-bold text-white/80 text-xs mt-0.5">/ month</Text>
 						</View>
 						<Text className="font-medium text-[11px] text-white/90">
 							Billed $39.99 yearly
@@ -202,9 +202,9 @@ export default function PaywallScreen() {
 						<Text className="mt-6 font-bold text-[#29303D] text-lg">Monthly</Text>
 						<Text className="mt-1 text-[#73808C] text-[11px] h-6">Zero commitment</Text>
 
-						<View className="mt-3 mb-1 flex-row items-baseline gap-1">
-							<Text className="font-black text-2xl text-[#29303D]">$11.99</Text>
-							<Text className="font-bold text-[#73808C] text-xs">/mo</Text>
+						<View className="mt-3 mb-1">
+							<Text className="font-black text-2xl text-[#29303D] tracking-tighter">$11.99</Text>
+							<Text className="font-bold text-[#73808C] text-xs mt-0.5">/ month</Text>
 						</View>
 						<Text className="font-medium text-[11px] text-[#73808C]">
 							Billed monthly

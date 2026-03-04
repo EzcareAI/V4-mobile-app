@@ -30,7 +30,7 @@ function StackLayout() {
 
 		// Expo Router strips group names from pathnames
 		// /(onboarding)/1 becomes /1, /(onboarding)/ becomes /
-		// /(drawer)/home becomes /home
+		// /(dashboard)/home becomes /home
 		const isOnboardingSplash = pathname === "/";
 		const isOnboardingStep = ONBOARDING_STEP_PATTERN.test(pathname);
 		const inOnboarding = isOnboardingSplash || isOnboardingStep;
@@ -41,19 +41,18 @@ function StackLayout() {
 			pathname.includes("privacy-policy") ||
 			pathname.includes("terms-of-service");
 
-		// If onboarding is not completed (step < 20), redirect to onboarding
 		if (currentStep < 20 && !inOnboarding && !inAuth) {
 			router.replace("/(onboarding)");
 		} else if (currentStep >= 20 && isOnboardingSplash) {
 			// Only redirect from the splash screen — not from step screens
 			// (users should be able to navigate steps even after completing onboarding)
-			router.replace("/(drawer)");
+			router.replace("/(dashboard)");
 		}
 	}, [isPending, currentStep, pathname, router]);
 
 	return (
 		<Stack screenOptions={{ headerShown: false }}>
-			<Stack.Screen name="(drawer)" />
+			<Stack.Screen name="(dashboard)" />
 			<Stack.Screen name="(onboarding)" />
 			<Stack.Screen name="(auth)" />
 			<Stack.Screen

@@ -1,0 +1,161 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+
+const CHECKIN_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours
+const STREAK_RESET_MS = 36 * 60 * 60 * 1000; // 36 hours grace window
+
+export type CheckInMetrics = {
+	sleep: number; // 1-5
+	energy: number; // 1-5
+	stress: number; // 1-5
+	digestion: number; // 1-5
+};
+
+export type Mission = {
+	id: string;
+	title: string;
+	icon: string;
+	xp: number;
+	completed: boolean;
+};
+
+const DAILY_MISSIONS: Omit<Mission, "completed">[] = [
+	{ id: "breathing", title: "Deep Breathing Focus", icon: "😮‍💨", xp: 50 },
+	{ id: "meal", title: "Log First Meal", icon: "🥗", xp: 20 },
+	{ id: "walk", title: "10 Min Walk", icon: "👟", xp: 30 },
+	{ id: "hydrate", title: "Drink 2L of Water", icon: "💧", xp: 25 },
+	{ id: "stretch", title: "Morning Stretch", icon: "🧘", xp: 40 },
+];
+
+const XP_PER_LEVEL = 500;
+
+export interface DashboardState {
+	// Check-in
+	lastCheckInAt: string | null; // ISO timestamp
+	lastCheckInValues: CheckInMetrics | null;
+	streak: number;
+	lastStreakUpdateDate: string | null; // Date string YYYY-MM-DD
+
+	// XP / Gamification
+	totalXp: number;
+
+	// Missions
+	missions: Mission[];
+	missionsResetDate: string | null; // YYYY-MM-DD
+
+	// Computed helpers (not persisted, derived)
+	getLevel: () => number;
+	getLevelProgress: () => number; // 0-1
+	getXpInCurrentLevel: () => number;
+	canCheckIn: () => boolean;
+	getNextCheckInMs: () => number;
+	saveCheckIn: (metrics: CheckInMetrics) => void;
+	completeMission: (id: string) => void;
+	resetDailyMissions: () => void;
+}
+
+export const useDashboardStore = create<DashboardState>()(
+	persist(
+		(set, get) => ({
+			lastCheckInAt: null,
+			lastCheckInValues: null,
+			streak: 0,
+			lastStreakUpdateDate: null,
+			totalXp: 0,
+			missions: DAILY_MISSIONS.map((m) => ({ ...m, completed: false })),
+			missionsResetDate: null,
+
+			getLevel: () => {
+				const { totalXp } = get();
+				return Math.floor(totalXp / XP_PER_LEVEL) + 1;
+			},
+
+			getLevelProgress: () => {
+				const { totalXp } = get();
+				const xpInLevel = totalXp % XP_PER_LEVEL;
+				return xpInLevel / XP_PER_LEVEL;
+			},
+
+			getXpInCurrentLevel: () => {
+				const { totalXp } = get();
+				return totalXp % XP_PER_LEVEL;
+			},
+
+			canCheckIn: () => {
+				const { lastCheckInAt } = get();
+				if (!lastCheckInAt) return true;
+				const elapsed = Date.now() - new Date(lastCheckInAt).getTime();
+				return elapsed >= CHECKIN_COOLDOWN_MS;
+			},
+
+			getNextCheckInMs: () => {
+				const { lastCheckInAt } = get();
+				if (!lastCheckInAt) return 0;
+				const elapsed = Date.now() - new Date(lastCheckInAt).getTime();
+				return Math.max(0, CHECKIN_COOLDOWN_MS - elapsed);
+			},
+
+			saveCheckIn: (metrics) => {
+				const now = new Date();
+				const todayStr = now.toISOString().split("T")[0];
+				const { lastStreakUpdateDate, streak } = get();
+
+				let newStreak = streak;
+				if (lastStreakUpdateDate !== todayStr) {
+					const yesterday = new Date(now);
+					yesterday.setDate(yesterday.getDate() - 1);
+					const yesterdayStr = yesterday.toISOString().split("T")[0];
+
+					const lastDate = lastStreakUpdateDate
+						? new Date(lastStreakUpdateDate).getTime()
+						: 0;
+					const sinceLastUpdate = Date.now() - lastDate;
+
+					if (lastStreakUpdateDate === yesterdayStr || sinceLastUpdate < STREAK_RESET_MS) {
+						newStreak = streak + 1;
+					} else {
+						// Missed a day — reset
+						newStreak = 1;
+					}
+				}
+
+				set({
+					lastCheckInAt: now.toISOString(),
+					lastCheckInValues: metrics,
+					streak: newStreak,
+					lastStreakUpdateDate: todayStr,
+				});
+			},
+
+			completeMission: (id) => {
+				const { missions, totalXp } = get();
+				const mission = missions.find((m) => m.id === id);
+				if (!mission || mission.completed) return;
+
+				const updatedMissions = missions.map((m) =>
+					m.id === id ? { ...m, completed: true } : m
+				);
+				set({
+					missions: updatedMissions,
+					totalXp: totalXp + mission.xp,
+				});
+			},
+
+			resetDailyMissions: () => {
+				const todayStr = new Date().toISOString().split("T")[0];
+				const { missionsResetDate } = get();
+				if (missionsResetDate === todayStr) return;
+
+				set({
+					missions: DAILY_MISSIONS.map((m) => ({ ...m, completed: false })),
+					missionsResetDate: todayStr,
+				});
+			},
+		}),
+		{
+			name: "dashboard-storage",
+			storage: createJSONStorage(() => AsyncStorage),
+		}
+	)
+);

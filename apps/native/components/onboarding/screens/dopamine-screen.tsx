@@ -121,6 +121,10 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 										<Stop offset="0" stopColor="#3EC9B5" stopOpacity="0.25" />
 										<Stop offset="1" stopColor="#3EC9B5" stopOpacity="0" />
 									</SvgGradient>
+									<SvgGradient id="fillRedGrad" x1="0" y1="0" x2="0" y2="1">
+										<Stop offset="0" stopColor="#EF4444" stopOpacity="0.18" />
+										<Stop offset="1" stopColor="#EF4444" stopOpacity="0" />
+									</SvgGradient>
 								</Defs>
 								
 								{/* Grid Lines */}
@@ -139,6 +143,17 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 									opacity={fillOpacityAnim}
 								/>
 								
+								{/* Without EZCare Red Fill */}
+								<AnimatedPath
+									d={
+										isReinforcement
+											? "M 0 120 Q 45 105, 90 110 S 180 138, 270 138 L 270 140 L 0 140 Z"
+											: "M 0 120 Q 65 100, 135 110 L 190 138 L 270 138 L 270 140 L 0 140 Z"
+									}
+									fill="url(#fillRedGrad)"
+									opacity={fillOpacityAnim}
+								/>
+
 								{/* Without EZCare Baseline Curve (Crashing Trend to 0%) */}
 								<AnimatedPath
 									d={

@@ -86,7 +86,7 @@ export const PerfectPlanScreen = () => {
 							</View>
 
 							{/* Graph Section */}
-							<View className="h-56 mt-4 flex-row items-end justify-around border-b-2 border-slate-100 pb-4 px-4 mb-4">
+							<View className="h-56 mt-4 flex-row items-end justify-center gap-[4px] border-b-2 border-slate-100 pb-4 mb-4">
 								{/* Without EZCare Bar */}
 								<View className="items-center flex-1">
 									<Text className="mb-2 font-black text-red-500 text-lg">20%</Text>

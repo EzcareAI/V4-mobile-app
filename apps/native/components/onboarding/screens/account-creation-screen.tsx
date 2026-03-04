@@ -1,6 +1,8 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
+import { makeRedirectUri } from "expo-auth-session";
 import { Lock, ShieldCheck } from "lucide-react-native";
 import { useState } from "react";
 import Svg, { Path } from "react-native-svg";
@@ -18,12 +20,16 @@ import {
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
+// Required for expo-auth-session to properly close the browser
+WebBrowser.maybeCompleteAuthSession();
+
 export function AccountCreationScreen() {
 	const router = useRouter();
 	const { setAnswer, nextStep, currentStep, firstName } = useOnboardingStore();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [loading, setLoading] = useState(false);
+	const [googleLoading, setGoogleLoading] = useState(false);
 	const [errorMsg, setErrorMsg] = useState("");
 
 	const handleSignUp = async () => {
@@ -79,6 +85,68 @@ export function AccountCreationScreen() {
 		setAnswer("authMethod", "email");
 		nextStep();
 		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+	};
+
+	const handleGoogleSignIn = async () => {
+		if (Platform.OS === "ios") {
+			try { await impactAsync(ImpactFeedbackStyle.Medium); } catch { /* ignore */ }
+		}
+
+		setGoogleLoading(true);
+		setErrorMsg("");
+		try {
+			const redirectTo = makeRedirectUri({ scheme: "ezcare", path: "auth/callback" });
+			const { data, error } = await supabase.auth.signInWithOAuth({
+				provider: "google",
+				options: {
+					redirectTo,
+					skipBrowserRedirect: true, // we manually open the browser
+				},
+			});
+
+			if (error || !data.url) {
+				setErrorMsg(error?.message ?? "Could not start Google sign-in.");
+				setGoogleLoading(false);
+				return;
+			}
+
+			// Open the Google login in the native browser
+			const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+
+			if (result.type === "success") {
+				// Extract session tokens from the callback URL
+				const url = result.url;
+				const paramsStr = url.split("#")[1] || url.split("?")[1] || "";
+				const params = Object.fromEntries(new URLSearchParams(paramsStr));
+
+				if (params.access_token && params.refresh_token) {
+					const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+						access_token: params.access_token,
+						refresh_token: params.refresh_token,
+					});
+
+					if (sessionError) {
+						setErrorMsg(sessionError.message);
+						setGoogleLoading(false);
+						return;
+					}
+
+					if (sessionData.user) {
+						setAnswer("userId", sessionData.user.id);
+						const userEmail = sessionData.user.email ?? email;
+						setAnswer("email", userEmail);
+						setAnswer("authMethod", "google");
+						nextStep();
+						router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+					}
+				}
+			}
+		} catch (err) {
+			console.error("Google sign-in error:", err);
+			setErrorMsg("Something went wrong with Google sign-in. Please try again.");
+		} finally {
+			setGoogleLoading(false);
+		}
 	};
 
 	return (
@@ -165,11 +233,17 @@ export function AccountCreationScreen() {
 					{/* Google Button */}
 					<TouchableOpacity
 						activeOpacity={0.8}
-						className="flex-row items-center justify-center rounded-[24px] border border-slate-200 bg-white py-4 shadow-sm"
+						className="flex-row items-center justify-center gap-x-2 rounded-[24px] border border-slate-200 bg-white py-4 shadow-sm"
+						onPress={handleGoogleSignIn}
+						disabled={googleLoading}
 					>
-						<Text className="font-bold text-[17px] text-[#29303D] tracking-wide">
-							<Text className="text-xl">G</Text>  Continue with Google
-						</Text>
+						{googleLoading ? (
+							<ActivityIndicator color="#4285F4" />
+						) : (
+							<Text className="font-bold text-[17px] text-[#29303D] tracking-wide">
+								<Text className="text-xl">G</Text>  Continue with Google
+							</Text>
+						)}
 					</TouchableOpacity>
 				</View>
 

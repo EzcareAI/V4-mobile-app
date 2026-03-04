@@ -98,13 +98,13 @@ export const PerfectPlanScreen = () => {
 
 								{/* With EZCare Bar */}
 								<View className="items-center flex-1">
-									<Text className="mb-2 font-black text-[#28B898] text-2xl">89%</Text>
-									<View className="w-16 h-32 bg-emerald-50 rounded-t-xl overflow-hidden justify-end">
-										<Animated.View className="w-full rounded-t-xl overflow-hidden" style={withRefStyle}>
+									<Text className="mb-2 font-black text-[#28B898] text-3xl">89%</Text>
+									<View className="w-24 h-40 bg-emerald-50 rounded-t-2xl overflow-hidden justify-end">
+										<Animated.View className="w-full rounded-t-2xl overflow-hidden" style={withRefStyle}>
 											<LinearGradient colors={["#2DE2E2", "#28B898"]} style={{ flex: 1 }} />
 										</Animated.View>
 									</View>
-									<Text className="mt-4 font-bold text-[#29303D] text-xs text-center leading-4">With{"\n"}EZCare</Text>
+									<Text className="mt-4 font-bold text-[#29303D] text-[13px] text-center leading-4">With{"\n"}EZCare</Text>
 								</View>
 							</View>
 						</View>

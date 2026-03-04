@@ -125,12 +125,6 @@ export default function PaywallScreen() {
 		}, 2000);
 	};
 
-	const handleDecline = () => {
-		// Route to Discount Wheel (Downsell)
-		nextStep();
-		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
-	};
-
 
 
 	return (
@@ -294,18 +288,6 @@ export default function PaywallScreen() {
 					Privacy Policy. Renewals are automatic. Manage in Apple/Google Play
 					settings.
 				</Text>
-
-				{/* Skip / Downsell Trigger */}
-				<TouchableOpacity
-					activeOpacity={0.6}
-					className="mt-6 mb-4 items-center"
-					disabled={isProcessing}
-					onPress={handleDecline}
-				>
-					<Text className="font-semibold text-[#94A3B8] text-sm">
-						No thanks, I'll pass
-					</Text>
-				</TouchableOpacity>
 			</ScrollView>
 
 		</View>

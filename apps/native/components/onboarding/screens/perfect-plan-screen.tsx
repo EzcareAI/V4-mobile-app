@@ -53,14 +53,14 @@ export const PerfectPlanScreen = () => {
 						<View className="mb-6 items-center">
 							<View className="relative h-32 w-32 items-center justify-center">
 								<LinearGradient
-									className="h-28 w-28 items-center justify-center rounded-[32px] shadow-blue-200 shadow-lg"
+									className="h-28 w-28 items-center justify-center rounded-[36px] shadow-blue-200 shadow-lg"
 									colors={["#28B898", "#2DE2E2"]}
 									start={{ x: 0, y: 0 }}
 								>
 									<TrendingUp color="white" size={48} strokeWidth={2.5} />
 								</LinearGradient>
 
-								<View className="absolute -right-2 -bottom-2 h-12 w-12 items-center justify-center rounded-2xl border-4 border-white bg-amber-400 shadow-md">
+								<View className="absolute -right-2 -bottom-2 h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-amber-400 shadow-md">
 									<Zap color="white" fill="white" size={20} />
 								</View>
 							</View>
@@ -86,14 +86,14 @@ export const PerfectPlanScreen = () => {
 							</View>
 
 							{/* Graph Section */}
-							<View className="h-56 mt-4 flex-row items-end justify-around border-b-2 border-slate-100 pb-4 px-8 mb-4">
+							<View className="h-56 mt-4 flex-row items-end justify-around border-b-2 border-slate-100 pb-4 px-4 mb-4">
 								{/* Without EZCare Bar */}
 								<View className="items-center flex-1">
-									<Text className="mb-2 font-black text-slate-400 text-lg">20%</Text>
-									<View className="w-16 h-32 bg-slate-50 rounded-t-xl overflow-hidden justify-end">
-										<Animated.View className="w-full bg-slate-200 rounded-t-xl" style={withoutRefStyle} />
+									<Text className="mb-2 font-black text-red-500 text-lg">20%</Text>
+									<View className="w-20 h-40 bg-red-50 rounded-t-2xl overflow-hidden justify-end">
+										<Animated.View className="w-full bg-red-300 rounded-t-2xl" style={withoutRefStyle} />
 									</View>
-									<Text className="mt-4 font-bold text-slate-400 text-xs text-center leading-4">Without{"\n"}EZCare</Text>
+									<Text className="mt-4 font-bold text-red-400 text-xs text-center leading-4">Without{"\n"}EZCare</Text>
 								</View>
 
 								{/* With EZCare Bar */}
@@ -117,7 +117,7 @@ export const PerfectPlanScreen = () => {
 								start={{ x: 0, y: 0 }}
 							>
 								<View className="mb-8 flex-row items-center gap-3">
-									<View className="h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20">
+									<View className="h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/20">
 										<Heart color="white" fill="white" size={28} />
 									</View>
 									<Text className="flex-1 font-black text-2xl text-white tracking-tight" numberOfLines={1} adjustsFontSizeToFit>

@@ -49,9 +49,9 @@ export const ProgressHeader = () => {
 		if (displayStep === 20) {
 			const state = useOnboardingStore.getState();
 			if (!state.discountWheelShown) {
-				state.setAnswer("discountWheelShown", true);
-				state.nextStep();
-				router.push("/(onboarding)/21");
+				// Don't mark it shown here so if they back out of the wheel, they aren't trapped
+				// The wheel screen sets this itself when they skip/claim
+				router.replace("/(onboarding)/21");
 				return;
 			}
 		}

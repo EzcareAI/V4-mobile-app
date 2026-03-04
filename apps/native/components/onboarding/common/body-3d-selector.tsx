@@ -143,6 +143,15 @@ function BodyModel({
 	// (cloning often breaks SkinnedMeshes causing them to be invisible)
 	const { scale, centerOffset } = useMemo(() => {
 		try {
+			// CRITICAL: Since `useGLTF` caches the scene, remounts will have the old
+			// transforms (scale and position). We must reset them locally before
+			// using `Box3.setFromObject(scene)` which evaluates world bounds.
+			scene.parent = null;
+			scene.position.set(0, 0, 0);
+			scene.rotation.set(0, 0, 0);
+			scene.scale.set(1, 1, 1);
+			scene.updateMatrixWorld(true);
+
 			const box = new Box3().setFromObject(scene);
 			const size = new Vector3();
 			box.getSize(size);
@@ -181,7 +190,7 @@ function BodyModel({
 			console.error(`[Body3D] Scene parse error: ${err}`);
 			return { scale: 1, centerOffset: new Vector3(0, 0, 0) };
 		}
-	}, [scene]);
+	}, [scene, HIDDEN_MESHES]);
 
 	// Update emissive highlight each render pass for selected zones
 	useMemo(() => {
@@ -201,11 +210,9 @@ function BodyModel({
 
 	return (
 		<group ref={modelRef} scale={scale}>
-			<primitive
-				object={scene}
-				onPointerDown={toggleRegion}
-				position={[centerOffset.x, centerOffset.y, centerOffset.z]}
-			/>
+			<group position={[centerOffset.x, centerOffset.y, centerOffset.z]}>
+				<primitive object={scene} onPointerDown={toggleRegion} />
+			</group>
 		</group>
 	);
 }

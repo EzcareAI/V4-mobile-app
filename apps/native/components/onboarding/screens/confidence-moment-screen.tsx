@@ -89,7 +89,7 @@ const Fireworks = () => {
 		id: i,
 		angle: (Math.PI * 2 * i) / 20 + (Math.random() * 0.8),
 		distance: 80 + Math.random() * 120, // shoot out pretty far
-		delay: Math.random() * 400,
+		delay: Math.random() * 2000, // random delays up to 2 seconds for a 2-3s effect
 		color: ['#F59E0B', '#10B981', '#3EC9B5', '#EC4899', '#8B5CF6', '#38BDF8'][Math.floor(Math.random() * 6)]
 	}));
 
@@ -121,7 +121,7 @@ export function ConfidenceMomentScreen() {
 				>
 					<View className="px-1">
 						{/* Mascot Header */}
-						<View className="mt-2 items-center">
+						<View className="mt-8 mb-4 items-center">
 							<View className="relative">
 								<Fireworks />
 								<LinearGradient
@@ -147,14 +147,14 @@ export function ConfidenceMomentScreen() {
 
 						<StepHeader
 							align="center"
-							className="mt-3"
+							className="mt-6"
 							description="You've given us exactly what we need to build your personalized health plan."
 							title="Great job!"
 							hideIcon={true}
 						/>
 
 						{/* Benefits Card */}
-						<View className="mt-4 rounded-[32px] border border-white/50 bg-white/80 p-6 shadow-xl">
+						<View className="mt-8 rounded-[32px] border border-white/50 bg-white/80 p-6 shadow-xl">
 							<Text className="mb-4 font-bold text-[#0d2137] text-base">
 								✨ Your Plan Includes:
 							</Text>

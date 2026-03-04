@@ -51,9 +51,7 @@ export default function PaywallScreen() {
 			const onBackPress = () => {
 				const state = useOnboardingStore.getState();
 				if (!state.discountWheelShown) {
-					state.setAnswer("discountWheelShown", true);
-					state.nextStep();
-					router.push("/(onboarding)/21");
+					router.replace("/(onboarding)/21");
 					return true;
 				}
 				return false;

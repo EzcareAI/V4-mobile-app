@@ -1,6 +1,6 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { CheckCircle2 } from "lucide-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { type CheckInMetrics, useDashboardStore } from "@/stores/dashboard-store";
 
@@ -28,6 +28,15 @@ export function DailyCheckIn() {
 		digestion: 0,
 	});
 	const [saved, setSaved] = useState(false);
+	const [nextMs, setNextMs] = useState(getNextCheckInMs());
+
+	// Update the countdown ticker every 30 seconds
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setNextMs(getNextCheckInMs());
+		}, 30000);
+		return () => clearInterval(interval);
+	}, [getNextCheckInMs]);
 
 	const allFilled = Object.values(values).every((v) => v > 0);
 	const available = canCheckIn();
@@ -54,7 +63,6 @@ export function DailyCheckIn() {
 
 	// Already checked in — show completion card
 	if (!available || saved) {
-		const nextMs = getNextCheckInMs();
 		return (
 			<View style={styles.completedCard}>
 				<View style={styles.completedIcon}>

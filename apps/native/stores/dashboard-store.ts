@@ -1,6 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { supabase } from "@/lib/supabase";
+import { useOnboardingStore } from "@/stores/onboarding-store";
 
 const CHECKIN_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours
 const STREAK_RESET_MS = 36 * 60 * 60 * 1000; // 36 hours grace window
@@ -53,6 +55,7 @@ export interface DashboardState {
 	saveCheckIn: (metrics: CheckInMetrics) => void;
 	completeMission: (id: string) => void;
 	resetDailyMissions: () => void;
+	syncToSupabase: () => Promise<void>;
 }
 
 export const useDashboardStore = create<DashboardState>()(
@@ -126,6 +129,9 @@ export const useDashboardStore = create<DashboardState>()(
 					streak: newStreak,
 					lastStreakUpdateDate: todayStr,
 				});
+
+				// Background sync to DB
+				get().syncToSupabase();
 			},
 
 			completeMission: (id) => {
@@ -140,6 +146,9 @@ export const useDashboardStore = create<DashboardState>()(
 					missions: updatedMissions,
 					totalXp: totalXp + mission.xp,
 				});
+
+				// Background sync to DB
+				get().syncToSupabase();
 			},
 
 			resetDailyMissions: () => {
@@ -151,6 +160,39 @@ export const useDashboardStore = create<DashboardState>()(
 					missions: DAILY_MISSIONS.map((m) => ({ ...m, completed: false })),
 					missionsResetDate: todayStr,
 				});
+			},
+
+			syncToSupabase: async () => {
+				const state = get();
+				const recordId = useOnboardingStore.getState().onboardingRecordId;
+				
+				if (!recordId) {
+					console.log("No onboarding record ID found; skipping dashboard sync.");
+					return;
+				}
+
+				const payload = {
+					dashboard_streak: state.streak,
+					dashboard_xp: state.totalXp,
+					dashboard_level: state.getLevel(),
+					updated_at: new Date().toISOString(),
+				};
+
+				try {
+					console.log("Syncing dashboard progress to Supabase for record:", recordId);
+					const { error } = await supabase
+						.from("onboarding_profiles")
+						.update(payload)
+						.eq("id", recordId);
+
+					if (error) {
+						console.error("❌ SUPABASE DASHBOARD SYNC ERROR:", error);
+					} else {
+						console.log("✅ SUPABASE DASHBOARD SYNC SUCCESSFUL");
+					}
+				} catch (err) {
+					console.error("❌ SUPABASE DASHBOARD SYNC CRITICAL EXCEPTION:", err);
+				}
 			},
 		}),
 		{

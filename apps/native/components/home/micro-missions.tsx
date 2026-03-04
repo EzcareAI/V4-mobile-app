@@ -1,7 +1,9 @@
+import React, { useState } from "react";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { ChevronRight, Zap } from "lucide-react-native";
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useDashboardStore } from "@/stores/dashboard-store";
+import { ConfettiBurst } from "@/components/home/confetti-burst";
 
 export function MicroMissions() {
 	const { missions, completeMission, getLevel, getXpInCurrentLevel } =
@@ -12,6 +14,9 @@ export function MicroMissions() {
 	const xpForLevel = 500;
 	const progressPct = Math.min(1, xpInLevel / xpForLevel);
 
+	// Local state to trigger confetti animation uniquely per card
+	const [activeConfettiId, setActiveConfettiId] = useState<string | null>(null);
+
 	const handleMission = async (id: string) => {
 		if (Platform.OS === "ios") {
 			try {
@@ -20,7 +25,15 @@ export function MicroMissions() {
 				/* ignore */
 			}
 		}
+
+		// Trigger burst instantly
+		setActiveConfettiId(id);
 		completeMission(id);
+
+		// Hide burst after animation timeframe
+		setTimeout(() => {
+			setActiveConfettiId(null);
+		}, 1000);
 	};
 
 	return (
@@ -54,6 +67,9 @@ export function MicroMissions() {
 							mission.completed && styles.iconWrapperDone,
 						]}
 					>
+						{/* Reanimated Confetti overlay locked directly atop the icon */}
+						<ConfettiBurst isActive={activeConfettiId === mission.id} count={12} />
+
 						{mission.completed ? (
 							<Text style={styles.checkMark}>✓</Text>
 						) : (

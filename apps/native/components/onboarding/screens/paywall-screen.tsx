@@ -113,8 +113,11 @@ export default function PaywallScreen() {
 			setIsProcessing(false);
 			
 			if (planType === "annual") {
+				// Skip Wheel (already bought)
+				setAnswer("discountWheelShown", true);
 				nextStep();
-				router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+				nextStep();
+				router.push(`/(onboarding)/${(currentStep || 0) + 2}`);
 			} else {
 				// Skip Wheel
 				setAnswer("discountWheelShown", true);
@@ -123,6 +126,12 @@ export default function PaywallScreen() {
 				router.push(`/(onboarding)/${(currentStep || 0) + 2}`);
 			}
 		}, 2000);
+	};
+
+	const handleDecline = () => {
+		// Route to Discount Wheel (Downsell)
+		nextStep();
+		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
 
@@ -288,6 +297,18 @@ export default function PaywallScreen() {
 					Privacy Policy. Renewals are automatic. Manage in Apple/Google Play
 					settings.
 				</Text>
+
+				{/* Skip / Downsell Trigger */}
+				<TouchableOpacity
+					activeOpacity={0.6}
+					className="mt-6 mb-4 items-center"
+					disabled={isProcessing}
+					onPress={handleDecline}
+				>
+					<Text className="font-semibold text-[#94A3B8] text-sm">
+						No thanks, I'll pass
+					</Text>
+				</TouchableOpacity>
 			</ScrollView>
 
 		</View>

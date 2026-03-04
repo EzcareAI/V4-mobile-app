@@ -61,6 +61,8 @@ export interface OnboardingState {
 
 	// Misc
 	notificationsEnabled?: boolean;
+	morningCheckInTime?: string; // e.g. "08:00 AM"
+	eveningCheckInTime?: string; // e.g. "08:00 PM"
 	pushToken?: string;
 	appliedDiscount?: number; // Discount amount from the wheel spin
 
@@ -103,6 +105,8 @@ export const useOnboardingStore = create<OnboardingState>()(
 			totalSteps: 26,
 			unitPreference: "imperial",
 			notificationsEnabled: true,
+			morningCheckInTime: "8:00 AM",
+			eveningCheckInTime: "8:00 PM",
 			discountWheelShown: false,
 			paymentAttempted: false,
 			onboardingComplete: false,

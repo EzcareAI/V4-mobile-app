@@ -14,6 +14,11 @@ export type CheckInMetrics = {
 	digestion: number; // 1-5
 };
 
+export type CheckInRecord = {
+	date: string; // ISO timestamp
+	metrics: CheckInMetrics;
+};
+
 export type Mission = {
 	id: string;
 	title: string;
@@ -36,6 +41,7 @@ export interface DashboardState {
 	// Check-in
 	lastCheckInAt: string | null; // ISO timestamp
 	lastCheckInValues: CheckInMetrics | null;
+	checkInHistory: CheckInRecord[];
 	streak: number;
 	lastStreakUpdateDate: string | null; // Date string YYYY-MM-DD
 
@@ -63,6 +69,7 @@ export const useDashboardStore = create<DashboardState>()(
 		(set, get) => ({
 			lastCheckInAt: null,
 			lastCheckInValues: null,
+			checkInHistory: [],
 			streak: 0,
 			lastStreakUpdateDate: null,
 			totalXp: 0,
@@ -123,11 +130,20 @@ export const useDashboardStore = create<DashboardState>()(
 					}
 				}
 
-				set({
-					lastCheckInAt: now.toISOString(),
-					lastCheckInValues: metrics,
-					streak: newStreak,
-					lastStreakUpdateDate: todayStr,
+				set((state) => {
+					// Append to history and keep last 90 days to prevent bloat
+					const newHistory = [
+						...state.checkInHistory,
+						{ date: now.toISOString(), metrics },
+					].slice(-90);
+
+					return {
+						lastCheckInAt: now.toISOString(),
+						lastCheckInValues: metrics,
+						checkInHistory: newHistory,
+						streak: newStreak,
+						lastStreakUpdateDate: todayStr,
+					};
 				});
 
 				// Background sync to DB

@@ -27,39 +27,36 @@ const CHART_H = 140;
 
 type TimeRange = "Day" | "Week" | "12 Months";
 
-// ── Mock chart data keyed by range ──────────────────
-const CHART_DATA: Record<TimeRange, { label: string; value: number }[]> = {
-	Day: [
-		{ label: "Mon", value: 0 }, { label: "Tue", value: 0 },
-		{ label: "Wed", value: 0 }, { label: "Thu", value: 5 },
-		{ label: "Fri", value: 0 }, { label: "Sat", value: 0 }, { label: "Sun", value: 0 },
-	],
-	Week: [
-		{ label: "Week 1", value: 0 }, { label: "Week 2", value: 2 },
-		{ label: "Week 3", value: 6.2 }, { label: "Week 4", value: 4.7 },
-	],
-	"12 Months": [
-		{ label: "Apr", value: 0 }, { label: "May", value: 0 }, { label: "Jun", value: 0 },
-		{ label: "Jul", value: 0 }, { label: "Aug", value: 0 }, { label: "Sep", value: 0 },
-		{ label: "Oct", value: 0 }, { label: "Nov", value: 0 }, { label: "Dec", value: 0 },
-		{ label: "Jan", value: 0 }, { label: "Feb", value: 0 }, { label: "Mar", value: 5.9 },
-	],
-};
+// ── Dynamic text mappers ────────────────────────────
+function getSymptomText(key: string, val: number): string {
+	if (val === 0) return "No data yet";
+	switch (key) {
+		case "sleep":
+			if (val <= 2) return "Poor sleep quality";
+			if (val === 3) return "Moderate sleep quality";
+			return "Excellent sleep";
+		case "energy":
+			if (val <= 2) return "Low energy levels";
+			if (val === 3) return "Moderate energy levels";
+			return "High energy levels";
+		case "digestion":
+			if (val <= 2) return "Frequent digestive issues";
+			if (val === 3) return "Some digestive issues";
+			return "Great digestion";
+		case "stress":
+			if (val <= 2) return "Feeling very calm"; // Stress is inverse
+			if (val === 3) return "Moderate stress";
+			return "High stress levels";
+		default:
+			return "Moderate";
+	}
+}
 
-// ── Symptom entries (derived from last check-in) ────
-const SYMPTOMS = [
-	{ key: "sleep", label: "Sleep Quality", desc: "Moderate sleep quality", icon: "🌙", daysTracked: 3 },
-	{ key: "energy", label: "Energy Levels", desc: "Moderate energy levels", icon: "⚡", daysTracked: 3 },
-	{ key: "digestion", label: "Digestive Health", desc: "Some digestive issues", icon: "🍏", daysTracked: 3 },
-	{ key: "stress", label: "Stress Management", desc: "Moderate stress", icon: "💗", daysTracked: 3 },
-];
-
-type TrendType = "Worsening" | "Improving";
-function getTrend(key: string, lastMetrics: Record<string, number> | null): TrendType {
-	if (!lastMetrics) return "Worsening";
-	const val = lastMetrics[key] ?? 3;
-	if (key === "stress") return val <= 2 ? "Improving" : "Worsening";
-	return val >= 4 ? "Improving" : "Worsening";
+type TrendType = "Worsening" | "Improving" | "Stable";
+function getTrend(key: string, val: number | undefined): TrendType {
+	if (!val || val === 0) return "Stable";
+	if (key === "stress") return val <= 2 ? "Improving" : val >= 4 ? "Worsening" : "Stable";
+	return val >= 4 ? "Improving" : val <= 2 ? "Worsening" : "Stable";
 }
 
 // ── Mini line chart ─────────────────────────────────
@@ -104,7 +101,7 @@ function LineChart({ data }: { data: { label: string; value: number }[] }) {
 
 export default function ProgressScreen() {
 	const { healthScore, computeHealthScore } = useOnboardingStore();
-	const { streak, totalXp, lastCheckInValues } = useDashboardStore();
+	const { streak, totalXp, lastCheckInValues, checkInHistory } = useDashboardStore();
 	const [range, setRange] = useState<TimeRange>("Day");
 
 	const score = healthScore ?? computeHealthScore();
@@ -112,6 +109,75 @@ export default function ProgressScreen() {
 		score < 4 ? "Let's build on your foundation!" :
 		score < 7 ? "Good foundation. Let's optimize further!" :
 		"Great progress! Keep it up!";
+
+	// ── Dynamic Chart Aggregation ──
+	const buildChartData = () => {
+		if (range === "Day") {
+			// Last 7 days
+			const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+			const res = Array.from({ length: 7 }).map((_, i) => {
+				const d = new Date();
+				d.setDate(d.getDate() - (6 - i));
+				return { label: days[d.getDay()], value: 0, dateStr: d.toISOString().split("T")[0] };
+			});
+			checkInHistory.forEach((rec) => {
+				const dStr = rec.date.split("T")[0];
+				const match = res.find((r) => r.dateStr === dStr);
+				if (match) {
+					// Use average of metrics as daily score approximation (out of 10)
+					const m = rec.metrics;
+					// stress is inverse (1=good, 5=bad), others are 1=bad, 5=good
+					const normalizedStress = 6 - (m.stress || 3);
+					const avg = ((m.sleep || 3) + (m.energy || 3) + (m.digestion || 3) + normalizedStress) / 4;
+					match.value = avg * 2; // Map 1-5 scale up to 1-10 scale
+				}
+			});
+			return res.map(r => ({ label: r.label, value: r.value }));
+		}
+		
+		if (range === "Week") {
+			// Mocked weeks until more history
+			return [
+				{ label: "Week 1", value: score > 0 ? Math.max(0, score - 2) : 0 },
+				{ label: "Week 2", value: score > 0 ? Math.max(0, score - 1) : 0 },
+				{ label: "Week 3", value: score > 0 ? score + 0.5 : 0 },
+				{ label: "Week 4", value: score },
+			];
+		}
+		
+		// 12 Months
+		const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+		const mIdx = new Date().getMonth();
+		const res = [];
+		for (let i = 11; i >= 0; i--) {
+			const idx = (mIdx - i + 12) % 12;
+			res.push({ label: months[idx], value: i === 0 ? score : 0 }); // Put current score in current month
+		}
+		return res;
+	};
+
+	const chartData = buildChartData();
+
+	// ── Dynamic Symptoms ──
+	const mkSymptom = (key: string, label: string, icon: string) => {
+		const val = lastCheckInValues?.[key as keyof typeof lastCheckInValues] || 0;
+		return {
+			key,
+			label,
+			icon,
+			desc: getSymptomText(key, val),
+			trend: getTrend(key, val),
+			isImproving: getTrend(key, val) === "Improving",
+			daysTracked: streak,
+		};
+	};
+
+	const activeSymptoms = [
+		mkSymptom("sleep", "Sleep Quality", "🌙"),
+		mkSymptom("energy", "Energy Levels", "⚡"),
+		mkSymptom("digestion", "Digestive Health", "🍏"),
+		mkSymptom("stress", "Stress Management", "💗"),
+	];
 
 	return (
 		<SafeAreaView style={styles.safe} edges={["top"]}>
@@ -186,18 +252,23 @@ export default function ProgressScreen() {
 						))}
 					</View>
 					<View style={{ paddingLeft: 20, marginTop: 8 }}>
-						<LineChart data={CHART_DATA[range]} />
+						<LineChart data={chartData} />
 					</View>
 				</View>
 
 				{/* Symptom Tracker */}
 				<View style={styles.card}>
 					<Text style={styles.cardTitle}>Symptom Tracker</Text>
-					{SYMPTOMS.map((s) => {
-						const trend = getTrend(s.key, lastCheckInValues);
-						const isImproving = trend === "Improving";
+					{activeSymptoms.map((s) => {
+						// Stable state visual styling
+						const isStable = s.trend === "Stable";
+						const bColor = s.isImproving ? "#F0FFF4" : isStable ? "#F8FAFC" : "#FFF5F5";
+						const borderColor = s.isImproving ? "#86EFAC" : isStable ? "#E2E8F0" : "#FECACA";
+						const txtColor = s.isImproving ? "#22C55E" : isStable ? "#94A3B8" : "#EF4444";
+						const iconName = s.isImproving ? "arrow-up" : isStable ? "remove" : "arrow-down";
+
 						return (
-							<View key={s.key} style={[styles.symptomRow, { backgroundColor: isImproving ? "#F0FFF4" : "#FFF5F5", borderColor: isImproving ? "#86EFAC" : "#FECACA" }]}>
+							<View key={s.key} style={[styles.symptomRow, { backgroundColor: bColor, borderColor }]}>
 								<View style={[styles.symptomIcon, { backgroundColor: "#FFFFFF" }]}>
 									<Text style={{ fontSize: 20 }}>{s.icon}</Text>
 								</View>
@@ -207,8 +278,8 @@ export default function ProgressScreen() {
 									<Text style={styles.symptomDays}>{s.daysTracked} days tracked</Text>
 								</View>
 								<View style={styles.trendBadge}>
-									<Ionicons name={isImproving ? "arrow-up" : "arrow-down"} size={12} color={isImproving ? "#22C55E" : "#EF4444"} />
-									<Text style={[styles.trendText, { color: isImproving ? "#22C55E" : "#EF4444" }]}>{trend}</Text>
+									<Ionicons name={iconName} size={12} color={txtColor} />
+									<Text style={[styles.trendText, { color: txtColor }]}>{s.trend}</Text>
 								</View>
 							</View>
 						);

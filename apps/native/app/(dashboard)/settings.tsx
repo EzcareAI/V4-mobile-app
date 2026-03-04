@@ -28,12 +28,15 @@ export default function SettingsScreen() {
 		firstName,
 		email,
 		notificationsEnabled,
+		morningCheckInTime,
+		eveningCheckInTime,
 		setAnswer,
 		getOrGenerateReferralCode,
 	} = useOnboardingStore();
 
 	const [referralCode, setReferralCode] = useState("");
 	const [copied, setCopied] = useState(false);
+	// In a real app, this would be `useQuery` from Supabase counting rows in `referrals` matched to this code
 	const [referralCount] = useState(0);
 
 	useEffect(() => {
@@ -142,16 +145,22 @@ export default function SettingsScreen() {
 							<Ionicons name="time-outline" size={22} color={TEAL} />
 							<Text style={[styles.listText, { flex: 1 }]}>Daily Health Check-In Time</Text>
 						</View>
-						<TouchableOpacity style={styles.timeRow}>
+						<TouchableOpacity 
+							style={styles.timeRow}
+							onPress={() => Alert.alert("Time Picker", "In a real app, this opens the native iOS/Android time picker.")}
+						>
 							<Ionicons name="sunny-outline" size={16} color="#F97316" />
 							<Text style={styles.timeLabel}>Morning</Text>
-							<Text style={styles.timeValue}>8:00 AM</Text>
+							<Text style={styles.timeValue}>{morningCheckInTime}</Text>
 							<Ionicons name="chevron-forward" size={16} color={GREY} />
 						</TouchableOpacity>
-						<TouchableOpacity style={styles.timeRow}>
+						<TouchableOpacity 
+							style={styles.timeRow}
+							onPress={() => Alert.alert("Time Picker", "In a real app, this opens the native iOS/Android time picker.")}
+						>
 							<Ionicons name="moon-outline" size={16} color="#6366F1" />
 							<Text style={styles.timeLabel}>Evening</Text>
-							<Text style={styles.timeValue}>8:00 PM</Text>
+							<Text style={styles.timeValue}>{eveningCheckInTime}</Text>
 							<Ionicons name="chevron-forward" size={16} color={GREY} />
 						</TouchableOpacity>
 					</View>

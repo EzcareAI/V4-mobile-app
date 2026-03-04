@@ -20,8 +20,10 @@ import { useOnboardingStore } from "@/stores/onboarding-store";
 
 // Note: In an Expo native app, making client-side Anthropic calls requires `dangerouslyAllowBrowser: true`.
 // Ideally, this should run through a safe backend proxy (e.g. Next.js API or Supabase Edge Function).
+const apiKey = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
+
 const anthropic = new Anthropic({
-	apiKey: process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY || "dummy", // Require user to set this in .env
+	apiKey: apiKey || "dummy_key_to_prevent_sdk_crash", 
 	dangerouslyAllowBrowser: true, 
 });
 
@@ -57,6 +59,21 @@ export default function ChatScreen() {
 			try {
 				await impactAsync(ImpactFeedbackStyle.Light);
 			} catch {}
+		}
+
+		// Prevent sending if key isn't configured
+		if (!apiKey || apiKey === "dummy_key_to_prevent_sdk_crash") {
+			setMessages([
+				...messages,
+				{ id: Date.now().toString(), role: "user", content: userText },
+				{
+					id: Date.now().toString() + "-err",
+					role: "assistant",
+					content:
+						"⚠️ API Key Missing: Please ensure your EXPO_PUBLIC_ANTHROPIC_API_KEY is correctly set in apps/native/.env and rebuild the app to start chatting.",
+				},
+			]);
+			return;
 		}
 
 		const newMessages: Message[] = [

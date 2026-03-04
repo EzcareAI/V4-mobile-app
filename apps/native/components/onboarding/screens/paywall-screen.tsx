@@ -113,11 +113,8 @@ export default function PaywallScreen() {
 			setIsProcessing(false);
 			
 			if (planType === "annual") {
-				// Skip Wheel (already bought)
-				setAnswer("discountWheelShown", true);
 				nextStep();
-				nextStep();
-				router.push(`/(onboarding)/${(currentStep || 0) + 2}`);
+				router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 			} else {
 				// Skip Wheel
 				setAnswer("discountWheelShown", true);

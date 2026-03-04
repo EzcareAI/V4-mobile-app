@@ -3,6 +3,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { makeRedirectUri } from "expo-auth-session";
+import * as AppleAuthentication from "expo-apple-authentication";
 import { Lock, ShieldCheck } from "lucide-react-native";
 import { useState } from "react";
 import Svg, { Path } from "react-native-svg";
@@ -30,6 +31,7 @@ export function AccountCreationScreen() {
 	const [password, setPassword] = useState("");
 	const [loading, setLoading] = useState(false);
 	const [googleLoading, setGoogleLoading] = useState(false);
+	const [appleLoading, setAppleLoading] = useState(false);
 	const [errorMsg, setErrorMsg] = useState("");
 
 	const handleSignUp = async () => {
@@ -87,6 +89,58 @@ export function AccountCreationScreen() {
 		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
+	const handleAppleSignIn = async () => {
+		if (Platform.OS !== "ios") return; // Apple Sign-In is iOS only
+		try { await impactAsync(ImpactFeedbackStyle.Medium); } catch { /* ignore */ }
+
+		setAppleLoading(true);
+		setErrorMsg("");
+		try {
+			const credential = await AppleAuthentication.signInAsync({
+				requestedScopes: [
+					AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+					AppleAuthentication.AppleAuthenticationScope.EMAIL,
+				],
+			});
+
+			if (!credential.identityToken) {
+				setErrorMsg("Apple Sign-In failed — no identity token received.");
+				return;
+			}
+
+			const { data, error } = await supabase.auth.signInWithIdToken({
+				provider: "apple",
+				token: credential.identityToken,
+			});
+
+			if (error) {
+				setErrorMsg(error.message);
+				return;
+			}
+
+			if (data.user) {
+				setAnswer("userId", data.user.id);
+				const userEmail = data.user.email 
+					?? credential.email 
+					?? email;
+				setAnswer("email", userEmail);
+				// Prefer Apple-provided name if user doesn't have one yet
+				if (!firstName && credential.fullName?.givenName) {
+					setAnswer("firstName", credential.fullName.givenName);
+				}
+				setAnswer("authMethod", "apple");
+				nextStep();
+				router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+			}
+		} catch (err: unknown) {
+			const appleErr = err as { code?: string };
+			if (appleErr.code === "ERR_REQUEST_CANCELED") return; // User dismissed — not an error
+			console.error("Apple sign-in error:", err);
+			setErrorMsg("Something went wrong with Apple sign-in. Please try again.");
+		} finally {
+			setAppleLoading(false);
+		}
+	};
 	const handleGoogleSignIn = async () => {
 		if (Platform.OS === "ios") {
 			try { await impactAsync(ImpactFeedbackStyle.Medium); } catch { /* ignore */ }
@@ -218,17 +272,27 @@ export function AccountCreationScreen() {
 
 				<View className="mb-8 gap-y-3">
 					{/* Apple Button */}
-					<TouchableOpacity
-						activeOpacity={0.8}
-						className="flex-row items-center justify-center gap-x-2 rounded-[24px] bg-[#000000] py-4 shadow-sm"
-					>
-						<Svg height="22" viewBox="0 0 384 512" width="18">
-							<Path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" fill="white" />
-						</Svg>
-						<Text className="font-bold text-[17px] text-white tracking-wide">
-							Continue with Apple
-						</Text>
-					</TouchableOpacity>
+					{Platform.OS === "ios" && (
+						<TouchableOpacity
+							activeOpacity={0.8}
+							className="flex-row items-center justify-center gap-x-2 rounded-[24px] bg-[#000000] py-4 shadow-sm"
+							onPress={handleAppleSignIn}
+							disabled={appleLoading}
+						>
+							{appleLoading ? (
+								<ActivityIndicator color="white" />
+							) : (
+								<>
+									<Svg height="22" viewBox="0 0 384 512" width="18">
+										<Path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" fill="white" />
+									</Svg>
+									<Text className="font-bold text-[17px] text-white tracking-wide">
+										Continue with Apple
+									</Text>
+								</>
+							)}
+						</TouchableOpacity>
+					)}
 
 					{/* Google Button */}
 					<TouchableOpacity

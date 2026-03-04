@@ -9,7 +9,10 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "BUN_INSTALL_ARGS": "--no-frozen-lockfile"
+      }
     },
     "production": {
       "autoIncrement": true

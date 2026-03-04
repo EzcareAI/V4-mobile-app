@@ -19,7 +19,7 @@ export const ReferralScreen = () => {
 		// Mark onboarding as complete and formally route the user into the protected dashboard
 		setAnswer("onboardingComplete", true);
 		nextStep();
-		router.replace("/(drawer)");
+		router.replace("/(dashboard)");
 	};
 
 	const handleSubmitCode = async () => {

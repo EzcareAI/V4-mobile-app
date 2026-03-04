@@ -150,6 +150,7 @@ export function ConfidenceMomentScreen() {
 							className="mt-0"
 							description="You've given us exactly what we need to build your personalized health plan."
 							title="Great job!"
+							hideIcon={true}
 						/>
 
 						{/* Benefits Card */}

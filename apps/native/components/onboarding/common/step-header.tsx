@@ -5,6 +5,7 @@ interface StepHeaderProps {
 	description?: string | React.ReactNode;
 	className?: string;
 	align?: "start" | "center" | "end";
+	hideIcon?: boolean;
 }
 
 export const StepHeader = ({
@@ -12,6 +13,7 @@ export const StepHeader = ({
 	description,
 	className,
 	align = "start",
+	hideIcon = false,
 }: StepHeaderProps) => {
 	const alignmentClasses = {
 		start: "items-start",
@@ -28,7 +30,7 @@ export const StepHeader = ({
 	return (
 		<View className={`${alignmentClasses[align]} ${className}`}>
 			{/* SaaS Center Icon Wrap */}
-			{align === "center" && (
+			{align === "center" && !hideIcon && (
 				<View className="mt-8 mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#EAF3F1]">
 					{/* Placeholder for when actual SVG icons are passed up from the screens */}
 					<Text className="text-3xl">✦</Text>

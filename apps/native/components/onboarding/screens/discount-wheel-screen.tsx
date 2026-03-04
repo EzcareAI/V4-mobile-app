@@ -15,7 +15,7 @@ import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
 
 const PRIZES = [
-	{ label: "🎁", color: "#FBBF24" }, // Winner (Index 0)
+	{ label: "80%", color: "#FBBF24" }, // Winner (Index 0)
 	{ label: "1 Mo", color: "#34D399" },
 	{ label: "10%", color: "#F87171" },
 	{ label: "$5", color: "#60A5FA" },
@@ -268,10 +268,10 @@ export function DiscountWheelScreen() {
 						>
 							<View className="mb-4 items-center">
 								<Text className="mb-2 font-black text-5xl text-yellow-500">
-									{spinning ? "???" : "$10 OFF"}
+									{spinning ? "???" : "80% OFF"}
 								</Text>
 								<Text className="mb-2 text-center font-bold text-[#29303D] text-xl">
-									{spinning ? "Spinning..." : "Save $10 on Annual Plan"}
+									{spinning ? "Spinning..." : "$2.49/month"}
 								</Text>
 								{!spinning && (
 									<Text className="text-center font-medium text-[#73808C] text-sm">

@@ -154,7 +154,7 @@ export default function PaywallScreen() {
 					{/* Annual — Primary Card */}
 					<TouchableOpacity
 						activeOpacity={0.9}
-						className={`relative flex-1 overflow-hidden rounded-[28px] p-5 shadow-2xl shadow-blue-200 transition-opacity duration-300 ${isProcessing ? "opacity-50" : "opacity-100"}`}
+						className={`relative flex-1 overflow-hidden rounded-[28px] px-3.5 py-5 shadow-2xl shadow-blue-200 transition-opacity duration-300 ${isProcessing ? "opacity-50" : "opacity-100"}`}
 						disabled={isProcessing}
 						onPress={() => handlePayment("annual")}
 					>
@@ -185,8 +185,8 @@ export default function PaywallScreen() {
 							Billed $39.99 yearly
 						</Text>
 
-						<View className="mt-4 rounded-2xl bg-white py-3.5 shadow-sm">
-							<Text className="text-center font-black text-sm text-[#28B898] uppercase tracking-wider">
+						<View className="mt-4 rounded-[14px] bg-white py-3.5 shadow-sm">
+							<Text className="text-center font-black text-[13px] text-[#28B898] uppercase tracking-wide">
 								Unlock Now
 							</Text>
 						</View>
@@ -195,7 +195,7 @@ export default function PaywallScreen() {
 					{/* Monthly — Secondary Card */}
 					<TouchableOpacity
 						activeOpacity={0.9}
-						className={`flex-1 rounded-[28px] border-2 border-slate-100 bg-slate-50 p-5 transition-opacity duration-300 ${isProcessing ? "opacity-50" : "opacity-100"}`}
+						className={`flex-1 rounded-[28px] border-2 border-slate-100 bg-slate-50 px-3.5 py-5 transition-opacity duration-300 ${isProcessing ? "opacity-50" : "opacity-100"}`}
 						disabled={isProcessing}
 						onPress={() => handlePayment("monthly")}
 					>
@@ -210,8 +210,8 @@ export default function PaywallScreen() {
 							Billed monthly
 						</Text>
 
-						<View className="mt-4 rounded-2xl border border-slate-200 bg-white py-3.5 shadow-sm">
-							<Text className="text-center font-bold text-[#73808C] text-sm">
+						<View className="mt-4 rounded-[14px] border border-slate-200 bg-white py-3.5 shadow-sm">
+							<Text className="text-center font-bold text-[#73808C] text-[13px]">
 								Select
 							</Text>
 						</View>

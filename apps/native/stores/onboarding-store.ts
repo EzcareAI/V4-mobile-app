@@ -225,6 +225,8 @@ export const useOnboardingStore = create<OnboardingState>()(
 					user_id: state.userId,
 					email: state.email,
 					first_name: state.firstName,
+					referral_code: state.myReferralCode,
+					referred_by_code: state.referralCode,
 					updated_at: new Date().toISOString(),
 				};
 

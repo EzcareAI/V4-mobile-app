@@ -14,6 +14,7 @@ import {
 	View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 // ── Design tokens ──────────────────────────────────
@@ -36,11 +37,26 @@ export default function SettingsScreen() {
 
 	const [referralCode, setReferralCode] = useState("");
 	const [copied, setCopied] = useState(false);
-	// In a real app, this would be `useQuery` from Supabase counting rows in `referrals` matched to this code
-	const [referralCount] = useState(0);
+	const [referralCount, setReferralCount] = useState(0);
 
 	useEffect(() => {
-		setReferralCode(getOrGenerateReferralCode());
+		const code = getOrGenerateReferralCode();
+		setReferralCode(code);
+
+		// Fetch true referral count from Supabase
+		const fetchReferrals = async () => {
+			try {
+				const { data, error } = await supabase.rpc("get_referral_count", {
+					my_code: code,
+				});
+				if (!error && data !== null) {
+					setReferralCount(data as number);
+				}
+			} catch (err) {
+				console.error("Failed to fetch referral count", err);
+			}
+		};
+		fetchReferrals();
 	}, [getOrGenerateReferralCode]);
 
 	const handleCopy = async () => {

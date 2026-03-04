@@ -136,24 +136,51 @@ export default function ProgressScreen() {
 		}
 		
 		if (range === "Week") {
-			// Mocked weeks until more history
-			return [
-				{ label: "Week 1", value: score > 0 ? Math.max(0, score - 2) : 0 },
-				{ label: "Week 2", value: score > 0 ? Math.max(0, score - 1) : 0 },
-				{ label: "Week 3", value: score > 0 ? score + 0.5 : 0 },
-				{ label: "Week 4", value: score },
-			];
+			// Last 4 weeks dynamically from history
+			const res = Array.from({ length: 4 }).map((_, i) => ({
+				label: `W${4 - i}`,
+				value: 0,
+				count: 0
+			}));
+			const now = Date.now();
+			checkInHistory.forEach((rec) => {
+				const diffDays = (now - new Date(rec.date).getTime()) / (1000 * 3600 * 24);
+				if (diffDays <= 28) {
+					const weekIdx = 3 - Math.floor(diffDays / 7);
+					if (weekIdx >= 0 && weekIdx < 4) {
+						const m = rec.metrics;
+						const normalizedStress = 6 - (m.stress || 3);
+						const avg = ((m.sleep || 3) + (m.energy || 3) + (m.digestion || 3) + normalizedStress) / 4;
+						res[weekIdx].value += avg * 2;
+						res[weekIdx].count += 1;
+					}
+				}
+			});
+			return res.map(r => ({ label: r.label, value: r.count > 0 ? r.value / r.count : 0 }));
 		}
 		
-		// 12 Months
+		// 12 Months mapping dynamically (up to 90 days of local history, rest will be 0)
 		const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 		const mIdx = new Date().getMonth();
-		const res = [];
-		for (let i = 11; i >= 0; i--) {
+		const res = Array.from({ length: 12 }).map((_, i) => {
 			const idx = (mIdx - i + 12) % 12;
-			res.push({ label: months[idx], value: i === 0 ? score : 0 }); // Put current score in current month
-		}
-		return res;
+			return { label: months[idx], value: 0, count: 0, monthNum: idx };
+		}).reverse();
+
+		checkInHistory.forEach((rec) => {
+			const d = new Date(rec.date);
+			const idx = d.getMonth();
+			const match = res.find(r => r.monthNum === idx);
+			if (match) {
+				const m = rec.metrics;
+				const normalizedStress = 6 - (m.stress || 3);
+				const avg = ((m.sleep || 3) + (m.energy || 3) + (m.digestion || 3) + normalizedStress) / 4;
+				match.value += avg * 2;
+				match.count += 1;
+			}
+		});
+
+		return res.map(r => ({ label: r.label, value: r.count > 0 ? r.value / r.count : 0 }));
 	};
 
 	const chartData = buildChartData();

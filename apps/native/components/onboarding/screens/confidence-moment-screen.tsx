@@ -147,7 +147,7 @@ export function ConfidenceMomentScreen() {
 
 						<StepHeader
 							align="center"
-							className="mt-0"
+							className="-mt-4"
 							description="You've given us exactly what we need to build your personalized health plan."
 							title="Great job!"
 							hideIcon={true}

@@ -72,6 +72,7 @@ export interface OnboardingState {
 
 	// Completion
 	onboardingComplete?: boolean;
+	myReferralCode?: string; // Auto-generated unique code for this user
 	dietType?: "classic" | "keto" | "paleo" | "vegan" | "carnivore";
 	goals: string[];
 	obstacles: string[];
@@ -92,6 +93,7 @@ export interface OnboardingState {
 	reset: () => void;
 	computeHealthScore: () => number;
 	syncToSupabase: () => Promise<void>;
+	getOrGenerateReferralCode: () => string;
 }
 
 export const useOnboardingStore = create<OnboardingState>()(
@@ -113,6 +115,21 @@ export const useOnboardingStore = create<OnboardingState>()(
 
 			setAnswer: (key, value) => {
 				set((state) => ({ ...state, [key]: value }));
+			},
+
+			getOrGenerateReferralCode: () => {
+				const existing = get().myReferralCode;
+				if (existing) return existing;
+
+				// Generate a reproducible code: EZCARE-XXXXXX (6 uppercase alphanumeric chars)
+				const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+				let suffix = "";
+				for (let i = 0; i < 6; i++) {
+					suffix += chars[Math.floor(Math.random() * chars.length)];
+				}
+				const code = `EZCARE-${suffix}`;
+				set({ myReferralCode: code });
+				return code;
 			},
 
 			nextStep: () => {

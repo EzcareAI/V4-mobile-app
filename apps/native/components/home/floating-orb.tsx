@@ -1,7 +1,7 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { Activity, History, MessageCircle, Pill, X } from "lucide-react-native";
+import { Activity, History, MessageCircle, Pill, Settings, X } from "lucide-react-native";
 import { useState } from "react";
 import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -55,6 +55,15 @@ export function FloatingOrb() {
 			onPress: () => {
 				setExpanded(false);
 				router.push("/scan/body-scan");
+			},
+		},
+		{
+			id: "settings",
+			label: "Settings",
+			icon: <Settings size={18} color="#3EC9B5" />,
+			onPress: () => {
+				setExpanded(false);
+				router.push("/settings");
 			},
 		},
 	];

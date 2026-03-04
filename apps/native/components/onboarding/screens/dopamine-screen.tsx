@@ -132,7 +132,7 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 								<AnimatedPath
 									d={
 										isReinforcement
-											? "M 0 120 C 80 110, 140 80, 190 60 S 240 40, 270 30 L 270 140 L 0 140 Z"
+											? "M 0 120 C 100 120, 100 32, 190 32 S 240 30, 270 30 L 270 140 L 0 140 Z"
 											: "M 0 120 C 60 100, 100 40, 150 30 S 220 10, 270 5 L 270 140 L 0 140 Z"
 									}
 									fill="url(#fillGrad)"

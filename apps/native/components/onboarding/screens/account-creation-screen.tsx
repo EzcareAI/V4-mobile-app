@@ -86,8 +86,8 @@ export function AccountCreationScreen() {
 			className="flex-1 bg-[#EBF5F4]"
 			showsVerticalScrollIndicator={false}
 		>
-			<View className="px-8 pt-12 pb-12">
-				<View className="mb-10">
+			<View className="px-8 pt-6 pb-6">
+				<View className="mb-6">
 					<Text className="font-black text-[#29303D] text-[34px] leading-10 tracking-tight">
 						Almost There!
 					</Text>
@@ -98,7 +98,7 @@ export function AccountCreationScreen() {
 				</View>
 
 				{/* Email & Password Input */}
-				<View className="mb-8">
+				<View className="mb-6">
 					<Text className="mb-2 px-2 font-bold text-[#29303D] text-[15px] uppercase tracking-widest">
 						Email Address
 					</Text>
@@ -148,7 +148,7 @@ export function AccountCreationScreen() {
 					<View className="h-[1px] flex-1 bg-slate-200" />
 				</View>
 
-				<View className="mb-12 gap-y-3">
+				<View className="mb-8 gap-y-3">
 					{/* Apple Button */}
 					<TouchableOpacity
 						activeOpacity={0.8}

@@ -95,7 +95,6 @@ export interface OnboardingState {
 	reset: () => void;
 	computeHealthScore: () => number;
 	syncToSupabase: () => Promise<void>;
-	getOrGenerateReferralCode: () => string;
 }
 
 export const useOnboardingStore = create<OnboardingState>()(
@@ -119,21 +118,6 @@ export const useOnboardingStore = create<OnboardingState>()(
 
 			setAnswer: (key, value) => {
 				set((state) => ({ ...state, [key]: value }));
-			},
-
-			getOrGenerateReferralCode: () => {
-				const existing = get().myReferralCode;
-				if (existing) return existing;
-
-				// Generate a reproducible code: EZCARE-XXXXXX (6 uppercase alphanumeric chars)
-				const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-				let suffix = "";
-				for (let i = 0; i < 6; i++) {
-					suffix += chars[Math.floor(Math.random() * chars.length)];
-				}
-				const code = `EZCARE-${suffix}`;
-				set({ myReferralCode: code });
-				return code;
 			},
 
 			nextStep: () => {
@@ -239,15 +223,20 @@ export const useOnboardingStore = create<OnboardingState>()(
 					console.log("Payload:", JSON.stringify(payload, null, 2));
 
 					if (state.onboardingRecordId) {
-						const { error } = await supabase
+						const { data, error } = await supabase
 							.from("onboarding_profiles")
 							.update(payload)
-							.eq("id", state.onboardingRecordId);
+							.eq("id", state.onboardingRecordId)
+							.select()
+							.single();
 
 						if (error) {
 							console.error("❌ SUPABASE UPDATE ERROR:", error);
 						} else {
 							console.log("✅ SUPABASE UPDATE SUCCESSFUL");
+							if (data?.referral_code && !state.myReferralCode) {
+								set({ myReferralCode: data.referral_code });
+							}
 						}
 					} else {
 						// Create new draft
@@ -261,7 +250,11 @@ export const useOnboardingStore = create<OnboardingState>()(
 							console.error("❌ SUPABASE INSERT ERROR:", error);
 						} else if (data?.id) {
 							console.log("✅ SUPABASE INSERT SUCCESSFUL. New ID:", data.id);
-							set({ onboardingRecordId: data.id });
+							// Save the newly generated row ID and the Postgres-generated referral_code
+							set({ 
+								onboardingRecordId: data.id,
+								myReferralCode: data.referral_code || undefined
+							});
 						}
 					}
 				} catch (err) {

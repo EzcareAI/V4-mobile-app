@@ -32,22 +32,19 @@ export default function SettingsScreen() {
 		morningCheckInTime,
 		eveningCheckInTime,
 		setAnswer,
-		getOrGenerateReferralCode,
+		myReferralCode,
 	} = useOnboardingStore();
 
-	const [referralCode, setReferralCode] = useState("");
 	const [copied, setCopied] = useState(false);
 	const [referralCount, setReferralCount] = useState(0);
 
 	useEffect(() => {
-		const code = getOrGenerateReferralCode();
-		setReferralCode(code);
-
-		// Fetch true referral count from Supabase
+		// Fetch true referral count from Supabase only if we have our referral code
 		const fetchReferrals = async () => {
+			if (!myReferralCode) return;
 			try {
 				const { data, error } = await supabase.rpc("get_referral_count", {
-					my_code: code,
+					my_code: myReferralCode,
 				});
 				if (!error && data !== null) {
 					setReferralCount(data as number);
@@ -57,10 +54,11 @@ export default function SettingsScreen() {
 			}
 		};
 		fetchReferrals();
-	}, [getOrGenerateReferralCode]);
+	}, [myReferralCode]);
 
 	const handleCopy = async () => {
-		Clipboard.setString(referralCode);
+		if (!myReferralCode) return;
+		Clipboard.setString(myReferralCode);
 		if (Platform.OS === "ios") {
 			try { await impactAsync(ImpactFeedbackStyle.Light); } catch {}
 		}
@@ -69,9 +67,10 @@ export default function SettingsScreen() {
 	};
 
 	const handleShare = async () => {
+		if (!myReferralCode) return;
 		try {
 			await Share.share({
-				message: `🌿 I'm using EZCare AI to track my health naturally. Join me and use my referral code: ${referralCode}\n\nDownload the app today!`,
+				message: `🌿 I'm using EZCare AI to track my health naturally. Join me and use my referral code: ${myReferralCode}\n\nDownload the app today!`,
 			});
 		} catch {}
 	};
@@ -93,7 +92,7 @@ export default function SettingsScreen() {
 						<Text style={styles.cardTitle}>Your Referral Code</Text>
 					</View>
 					<View style={styles.codeBox}>
-						<Text style={styles.codeText}>{referralCode || "Loading..."}</Text>
+						<Text style={styles.codeText}>{myReferralCode || "Syncing..."}</Text>
 					</View>
 					<View style={styles.countRow}>
 						<Ionicons name="people-outline" size={14} color={GREY} />

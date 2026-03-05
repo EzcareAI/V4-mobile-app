@@ -11,3 +11,27 @@ temp
 *.tgz
 *.zip
 *.log
+# Large dev-only directories
+node_portable
+.agents
+.agent
+.bin
+docs
+skills
+# Large markdown docs
+*.md
+DELIVERY_COMPLETE.md
+FILE_INVENTORY.md
+IMPLEMENTATION_PROGRESS.md
+QUICK_START.md
+README_IMPLEMENTATION.md
+# Git metadata
+.git
+.github
+.vscode
+# SQL migrations (not needed to build)
+*.sql
+# JS helper scripts not part of app
+fix-colors.js
+fix-layout.js
+eas-bypass.js

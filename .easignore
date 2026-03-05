@@ -21,6 +21,8 @@ skills
 .vscode
 .bun
 .antigravity
+.git
+.github
 # Specific heavy files
 DELIVERY_COMPLETE.md
 FILE_INVENTORY.md

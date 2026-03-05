@@ -1,11 +1,12 @@
-const fs = require("fs");
-const path = require("path");
-const dir = path.join(process.cwd(), "components/onboarding/screens");
-const files = fs.readdirSync(dir).filter((f) => f.endsWith(".tsx"));
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+
+const dir = join(process.cwd(), "components/onboarding/screens");
+const files = readdirSync(dir).filter((f) => f.endsWith(".tsx"));
 
 for (const file of files) {
-	const filePath = path.join(dir, file);
-	let content = fs.readFileSync(filePath, "utf8");
+	const filePath = join(dir, file);
+	let content = readFileSync(filePath, "utf8");
 
 	// Remove <SafeAreaView edges={['bottom']} ...> wrapping the whole block
 	content = content.replace(
@@ -16,12 +17,12 @@ for (const file of files) {
 	// Remove pb-8 from the main container
 	content = content.replace(
 		/className="([^"]*)pb-8([^"]*)"/g,
-		(match, p1, p2) => {
-			return 'className="' + (p1 + p2).replace(/\s+/g, " ").trim() + '"';
+		(_match, p1, p2) => {
+			return `className="${(p1 + p2).replace(/\s+/g, " ").trim()}"`;
 		}
 	);
 
-	// Remove the <View className=\"pt-4\"> wrapper around ContinueButton (since ContinueButton now has pt-16)
+	// Remove the <View className="pt-4"> wrapper around ContinueButton
 	content = content.replace(
 		/<View className="pt-4">\s*(<ContinueButton[\s\S]*?\/>)\s*<\/View>/g,
 		"$1"
@@ -35,6 +36,6 @@ for (const file of files) {
 		);
 	}
 
-	fs.writeFileSync(filePath, content, "utf8");
+	writeFileSync(filePath, content, "utf8");
 }
-console.log("Processed " + files.length + " files");
+console.log(`Processed ${files.length} files`);

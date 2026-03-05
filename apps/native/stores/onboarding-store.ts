@@ -95,6 +95,7 @@ export interface OnboardingState {
 	reset: () => void;
 	computeHealthScore: () => number;
 	syncToSupabase: () => Promise<void>;
+	getOrGenerateReferralCode: () => string;
 }
 
 export const useOnboardingStore = create<OnboardingState>()(
@@ -260,6 +261,19 @@ export const useOnboardingStore = create<OnboardingState>()(
 				} catch (err) {
 					console.error("❌ SUPABASE CRITICAL EXCEPTION:", err);
 				}
+			},
+
+			getOrGenerateReferralCode: () => {
+				const state = get();
+				if (state.myReferralCode) return state.myReferralCode;
+				
+				const newCode = Array.from({ length: 7 }, () => 
+					"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".charAt(Math.floor(Math.random() * 36))
+				).join("");
+				
+				set({ myReferralCode: newCode });
+				get().syncToSupabase();
+				return newCode;
 			},
 
 			computeHealthScore: () => {

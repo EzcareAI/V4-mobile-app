@@ -1,9 +1,15 @@
-import React, { useState } from "react";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { ChevronRight, Zap } from "lucide-react-native";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useDashboardStore } from "@/stores/dashboard-store";
+import { useState } from "react";
+import {
+	Platform,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+} from "react-native";
 import { ConfettiBurst } from "@/components/home/confetti-burst";
+import { useDashboardStore } from "@/stores/dashboard-store";
 
 export function MicroMissions() {
 	const { missions, completeMission, getLevel, getXpInCurrentLevel } =
@@ -40,7 +46,7 @@ export function MicroMissions() {
 		<View style={styles.container}>
 			{/* Section Header */}
 			<View style={styles.sectionHeader}>
-				<View>
+				<View style={styles.sectionHeaderText}>
 					<Text style={styles.sectionTitle}>Micro Missions</Text>
 					<Text style={styles.levelText}>
 						Level {level} · {xpInLevel} / {xpForLevel} XP
@@ -48,15 +54,17 @@ export function MicroMissions() {
 				</View>
 				{/* Level Progress Bar */}
 				<View style={styles.progressTrack}>
-					<View style={[styles.progressFill, { width: `${progressPct * 100}%` }]} />
+					<View
+						style={[styles.progressFill, { width: `${progressPct * 100}%` }]}
+					/>
 				</View>
 			</View>
 
 			{/* Mission Cards */}
 			{missions.map((mission) => (
 				<TouchableOpacity
-					key={mission.id}
 					activeOpacity={mission.completed ? 1 : 0.75}
+					key={mission.id}
 					onPress={() => !mission.completed && handleMission(mission.id)}
 					style={[styles.card, mission.completed && styles.cardCompleted]}
 				>
@@ -68,7 +76,10 @@ export function MicroMissions() {
 						]}
 					>
 						{/* Reanimated Confetti overlay locked directly atop the icon */}
-						<ConfettiBurst isActive={activeConfettiId === mission.id} count={12} />
+						<ConfettiBurst
+							count={12}
+							isActive={activeConfettiId === mission.id}
+						/>
 
 						{mission.completed ? (
 							<Text style={styles.checkMark}>✓</Text>
@@ -88,12 +99,12 @@ export function MicroMissions() {
 							{mission.title}
 						</Text>
 						<View style={styles.xpRow}>
-							<Zap size={11} color={mission.completed ? "#94A3B8" : "#3EC9B5"} />
+							<Zap
+								color={mission.completed ? "#94A3B8" : "#3EC9B5"}
+								size={11}
+							/>
 							<Text
-								style={[
-									styles.xpText,
-									mission.completed && styles.xpTextDone,
-								]}
+								style={[styles.xpText, mission.completed && styles.xpTextDone]}
 							>
 								+{mission.xp} XP
 							</Text>
@@ -103,7 +114,7 @@ export function MicroMissions() {
 					{/* Chevron */}
 					{!mission.completed && (
 						<View style={styles.chevronWrapper}>
-							<ChevronRight size={16} color="#94A3B8" />
+							<ChevronRight color="#94A3B8" size={16} />
 						</View>
 					)}
 				</TouchableOpacity>
@@ -122,9 +133,14 @@ const styles = StyleSheet.create({
 		alignItems: "flex-end",
 		justifyContent: "space-between",
 		marginBottom: 20,
+		flexWrap: "wrap",
+		gap: 12,
+	},
+	sectionHeaderText: {
+		flex: 1,
 	},
 	sectionTitle: {
-		color: "#FFFFFF",
+		color: "#1E293B",
 		fontSize: 17,
 		fontWeight: "800",
 	},
@@ -136,6 +152,7 @@ const styles = StyleSheet.create({
 	progressTrack: {
 		width: 80,
 		height: 6,
+		flexShrink: 0,
 		backgroundColor: "rgba(255,255,255,0.08)",
 		borderRadius: 999,
 		overflow: "hidden",
@@ -148,12 +165,17 @@ const styles = StyleSheet.create({
 	card: {
 		flexDirection: "row",
 		alignItems: "center",
-		backgroundColor: "#1A2138",
+		backgroundColor: "#FFFFFF",
 		borderRadius: 20,
 		padding: 16,
 		marginBottom: 12,
 		borderWidth: 1,
-		borderColor: "rgba(255,255,255,0.05)",
+		borderColor: "rgba(0,0,0,0.05)",
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.04,
+		shadowRadius: 8,
+		elevation: 2,
 	},
 	cardCompleted: {
 		opacity: 0.55,
@@ -182,7 +204,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	missionTitle: {
-		color: "#FFFFFF",
+		color: "#1E293B",
 		fontSize: 15,
 		fontWeight: "700",
 		marginBottom: 4,

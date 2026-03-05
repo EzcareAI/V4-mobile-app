@@ -1,15 +1,13 @@
+import * as AppleAuthentication from "expo-apple-authentication";
+import { makeRedirectUri } from "expo-auth-session";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { makeRedirectUri } from "expo-auth-session";
-import * as AppleAuthentication from "expo-apple-authentication";
-import { Lock, ShieldCheck } from "lucide-react-native";
+import { ShieldCheck } from "lucide-react-native";
 import { useState } from "react";
-import Svg, { Path } from "react-native-svg";
 import {
 	ActivityIndicator,
-	KeyboardAvoidingView,
 	Platform,
 	ScrollView,
 	StyleSheet,
@@ -18,6 +16,7 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+import Svg, { Path } from "react-native-svg";
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
@@ -52,7 +51,7 @@ export function AccountCreationScreen() {
 		const hasUpperCase = /[A-Z]/.test(password);
 		const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>\-_]/.test(password);
 
-		if (!hasMinLength || !hasUpperCase || !hasSpecialChar) {
+		if (!(hasMinLength && hasUpperCase && hasSpecialChar)) {
 			setErrorMsg(
 				"Password must be at least 8 characters, include a capital letter, and a special character."
 			);
@@ -89,67 +88,171 @@ export function AccountCreationScreen() {
 		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
-	const handleAppleSignIn = async () => {
-		if (Platform.OS !== "ios") return; // Apple Sign-In is iOS only
-		try { await impactAsync(ImpactFeedbackStyle.Medium); } catch { /* ignore */ }
+	const handleOAuthResult = async (
+		result: WebBrowser.WebBrowserAuthSessionResult,
+		provider: "google" | "apple"
+	) => {
+		if (result.type !== "success") return;
 
-		setAppleLoading(true);
-		setErrorMsg("");
-		try {
-			const credential = await AppleAuthentication.signInAsync({
-				requestedScopes: [
-					AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-					AppleAuthentication.AppleAuthenticationScope.EMAIL,
-				],
-			});
+		const url = result.url;
+		const hashIndex = url.indexOf("#");
+		const queryIndex = url.indexOf("?");
 
-			if (!credential.identityToken) {
-				setErrorMsg("Apple Sign-In failed — no identity token received.");
+		let paramsStr = "";
+		if (hashIndex !== -1) {
+			paramsStr = url.substring(hashIndex + 1);
+		} else if (queryIndex !== -1) {
+			paramsStr = url.substring(queryIndex + 1);
+		}
+
+		// Robust parameter parsing
+		const params = paramsStr.split("&").reduce(
+			(acc, pair) => {
+				const [k, v] = pair.split("=");
+				if (k && v) acc[k] = decodeURIComponent(v);
+				return acc;
+			},
+			{} as Record<string, string>
+		);
+
+		if (params.access_token && params.refresh_token) {
+			const { data: sessionData, error: sessionError } =
+				await supabase.auth.setSession({
+					access_token: params.access_token,
+					refresh_token: params.refresh_token,
+				});
+
+			if (sessionError) {
+				setErrorMsg(sessionError.message);
 				return;
 			}
 
-			const { data, error } = await supabase.auth.signInWithIdToken({
-				provider: "apple",
-				token: credential.identityToken,
-			});
-
-			if (error) {
-				setErrorMsg(error.message);
-				return;
-			}
-
-			if (data.user) {
-				setAnswer("userId", data.user.id);
-				const userEmail = data.user.email 
-					?? credential.email 
-					?? email;
-				setAnswer("email", userEmail);
-				// Prefer Apple-provided name if user doesn't have one yet
-				if (!firstName && credential.fullName?.givenName) {
-					setAnswer("firstName", credential.fullName.givenName);
-				}
-				setAnswer("authMethod", "apple");
+			if (sessionData.user) {
+				setAnswer("userId", sessionData.user.id);
+				const userEmail = sessionData.user.email ?? email;
+				if (userEmail) setAnswer("email", userEmail);
+				setAnswer("authMethod", provider);
 				nextStep();
 				router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 			}
-		} catch (err: unknown) {
-			const appleErr = err as { code?: string };
-			if (appleErr.code === "ERR_REQUEST_CANCELED") return; // User dismissed — not an error
-			console.error("Apple sign-in error:", err);
-			setErrorMsg("Something went wrong with Apple sign-in. Please try again.");
-		} finally {
-			setAppleLoading(false);
+		} else if (params.error_description) {
+			setErrorMsg(params.error_description.replace(/\+/g, " "));
+		} else {
+			setErrorMsg("Authentication failed or was cancelled.");
+		}
+	};
+
+	const handleAppleSignIn = async () => {
+		try {
+			await impactAsync(ImpactFeedbackStyle.Medium);
+		} catch {
+			/* ignore */
+		}
+
+		setAppleLoading(true);
+		setErrorMsg("");
+
+		if (Platform.OS === "ios") {
+			try {
+				const credential = await AppleAuthentication.signInAsync({
+					requestedScopes: [
+						AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+						AppleAuthentication.AppleAuthenticationScope.EMAIL,
+					],
+				});
+
+				if (!credential.identityToken) {
+					setErrorMsg("Apple Sign-In failed — no identity token received.");
+					return;
+				}
+
+				const { data, error } = await supabase.auth.signInWithIdToken({
+					provider: "apple",
+					token: credential.identityToken,
+				});
+
+				if (error) {
+					setErrorMsg(error.message);
+					return;
+				}
+
+				if (data.user) {
+					setAnswer("userId", data.user.id);
+					const userEmail = data.user.email ?? credential.email ?? email;
+					setAnswer("email", userEmail);
+					// Prefer Apple-provided name if user doesn't have one yet
+					if (!firstName && credential.fullName?.givenName) {
+						setAnswer("firstName", credential.fullName.givenName);
+					}
+					setAnswer("authMethod", "apple");
+					nextStep();
+					router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+				}
+			} catch (err: unknown) {
+				const appleErr = err as { code?: string };
+				if (appleErr.code === "ERR_REQUEST_CANCELED") {
+					setAppleLoading(false);
+					return; // User dismissed — not an error
+				}
+				console.error("Apple sign-in error:", err);
+				setErrorMsg(
+					"Something went wrong with Apple sign-in. Please try again."
+				);
+			} finally {
+				setAppleLoading(false);
+			}
+		} else {
+			// Web or Android Apple Sign-In via OAuth
+			try {
+				const redirectTo = makeRedirectUri({
+					scheme: "ezcare",
+					path: "auth/callback",
+				});
+				const { data, error } = await supabase.auth.signInWithOAuth({
+					provider: "apple",
+					options: {
+						redirectTo,
+						skipBrowserRedirect: true,
+					},
+				});
+
+				if (error || !data.url) {
+					setErrorMsg(error?.message ?? "Could not start Apple sign-in.");
+					setAppleLoading(false);
+					return;
+				}
+
+				const result = await WebBrowser.openAuthSessionAsync(
+					data.url,
+					redirectTo
+				);
+				await handleOAuthResult(result, "apple");
+			} catch (err) {
+				console.error("Apple web sign-in error:", err);
+				setErrorMsg(
+					"Something went wrong with Apple sign-in. Please try again."
+				);
+			} finally {
+				setAppleLoading(false);
+			}
 		}
 	};
 	const handleGoogleSignIn = async () => {
 		if (Platform.OS === "ios") {
-			try { await impactAsync(ImpactFeedbackStyle.Medium); } catch { /* ignore */ }
+			try {
+				await impactAsync(ImpactFeedbackStyle.Medium);
+			} catch {
+				/* ignore */
+			}
 		}
 
 		setGoogleLoading(true);
 		setErrorMsg("");
 		try {
-			const redirectTo = makeRedirectUri({ scheme: "ezcare", path: "auth/callback" });
+			const redirectTo = makeRedirectUri({
+				scheme: "ezcare",
+				path: "auth/callback",
+			});
 			const { data, error } = await supabase.auth.signInWithOAuth({
 				provider: "google",
 				options: {
@@ -165,39 +268,16 @@ export function AccountCreationScreen() {
 			}
 
 			// Open the Google login in the native browser
-			const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
-
-			if (result.type === "success") {
-				// Extract session tokens from the callback URL
-				const url = result.url;
-				const paramsStr = url.split("#")[1] || url.split("?")[1] || "";
-				const params = Object.fromEntries(new URLSearchParams(paramsStr));
-
-				if (params.access_token && params.refresh_token) {
-					const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
-						access_token: params.access_token,
-						refresh_token: params.refresh_token,
-					});
-
-					if (sessionError) {
-						setErrorMsg(sessionError.message);
-						setGoogleLoading(false);
-						return;
-					}
-
-					if (sessionData.user) {
-						setAnswer("userId", sessionData.user.id);
-						const userEmail = sessionData.user.email ?? email;
-						setAnswer("email", userEmail);
-						setAnswer("authMethod", "google");
-						nextStep();
-						router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
-					}
-				}
-			}
+			const result = await WebBrowser.openAuthSessionAsync(
+				data.url,
+				redirectTo
+			);
+			await handleOAuthResult(result, "google");
 		} catch (err) {
 			console.error("Google sign-in error:", err);
-			setErrorMsg("Something went wrong with Google sign-in. Please try again.");
+			setErrorMsg(
+				"Something went wrong with Google sign-in. Please try again."
+			);
 		} finally {
 			setGoogleLoading(false);
 		}
@@ -271,41 +351,42 @@ export function AccountCreationScreen() {
 				</View>
 
 				<View className="mb-8 gap-y-3">
-					{/* Apple Button */}
-					{Platform.OS === "ios" && (
-						<TouchableOpacity
-							activeOpacity={0.8}
-							className="flex-row items-center justify-center gap-x-2 rounded-[24px] bg-[#000000] py-4 shadow-sm"
-							onPress={handleAppleSignIn}
-							disabled={appleLoading}
-						>
-							{appleLoading ? (
-								<ActivityIndicator color="white" />
-							) : (
-								<>
-									<Svg height="22" viewBox="0 0 384 512" width="18">
-										<Path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" fill="white" />
-									</Svg>
-									<Text className="font-bold text-[17px] text-white tracking-wide">
-										Continue with Apple
-									</Text>
-								</>
-							)}
-						</TouchableOpacity>
-					)}
+					{/* Apple Button - Universal now */}
+					<TouchableOpacity
+						activeOpacity={0.8}
+						className="flex-row items-center justify-center gap-x-2 rounded-[24px] bg-[#000000] py-4 shadow-sm"
+						disabled={appleLoading}
+						onPress={handleAppleSignIn}
+					>
+						{appleLoading ? (
+							<ActivityIndicator color="white" />
+						) : (
+							<>
+								<Svg height="22" viewBox="0 0 384 512" width="18">
+									<Path
+										d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"
+										fill="white"
+									/>
+								</Svg>
+								<Text className="font-bold text-[17px] text-white tracking-wide">
+									Continue with Apple
+								</Text>
+							</>
+						)}
+					</TouchableOpacity>
 
 					{/* Google Button */}
 					<TouchableOpacity
 						activeOpacity={0.8}
 						className="flex-row items-center justify-center gap-x-2 rounded-[24px] border border-slate-200 bg-white py-4 shadow-sm"
-						onPress={handleGoogleSignIn}
 						disabled={googleLoading}
+						onPress={handleGoogleSignIn}
 					>
 						{googleLoading ? (
 							<ActivityIndicator color="#4285F4" />
 						) : (
-							<Text className="font-bold text-[17px] text-[#29303D] tracking-wide">
-								<Text className="text-xl">G</Text>  Continue with Google
+							<Text className="font-bold text-[#29303D] text-[17px] tracking-wide">
+								<Text className="text-xl">G</Text> Continue with Google
 							</Text>
 						)}
 					</TouchableOpacity>

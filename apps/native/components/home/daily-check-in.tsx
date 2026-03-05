@@ -1,8 +1,17 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { CheckCircle2 } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { type CheckInMetrics, useDashboardStore } from "@/stores/dashboard-store";
+import {
+	Platform,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+} from "react-native";
+import {
+	type CheckInMetrics,
+	useDashboardStore,
+} from "@/stores/dashboard-store";
 
 const METRICS: { key: keyof CheckInMetrics; label: string }[] = [
 	{ key: "sleep", label: "Sleep" },
@@ -12,7 +21,9 @@ const METRICS: { key: keyof CheckInMetrics; label: string }[] = [
 ];
 
 function formatCountdown(ms: number): string {
-	if (ms <= 0) return "now";
+	if (ms <= 0) {
+		return "now";
+	}
 	const totalSeconds = Math.floor(ms / 1000);
 	const hours = Math.floor(totalSeconds / 3600);
 	const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -34,29 +45,28 @@ export function DailyCheckIn() {
 	useEffect(() => {
 		const interval = setInterval(() => {
 			setNextMs(getNextCheckInMs());
-		}, 30000);
+		}, 30_000);
 		return () => clearInterval(interval);
 	}, [getNextCheckInMs]);
 
 	const allFilled = Object.values(values).every((v) => v > 0);
 	const available = canCheckIn();
 
-	const handleBubble = async (
-		key: keyof CheckInMetrics,
-		val: number
-	) => {
+	const handleBubble = async (key: keyof CheckInMetrics, val: number) => {
 		if (Platform.OS === "ios") {
 			try {
 				await impactAsync(ImpactFeedbackStyle.Light);
-			} catch {
-				/* ignore */
+			} catch (error) {
+				console.error("Failed to run haptic feedback", error);
 			}
 		}
 		setValues((prev) => ({ ...prev, [key]: val }));
 	};
 
 	const handleSave = async () => {
-		if (!allFilled) return;
+		if (!allFilled) {
+			return;
+		}
 		saveCheckIn(values);
 		setSaved(true);
 	};
@@ -66,7 +76,7 @@ export function DailyCheckIn() {
 		return (
 			<View style={styles.completedCard}>
 				<View style={styles.completedIcon}>
-					<CheckCircle2 size={22} color="#3EC9B5" />
+					<CheckCircle2 color="#3EC9B5" size={22} />
 				</View>
 				<View>
 					<Text style={styles.completedTitle}>Morning complete ✔</Text>
@@ -93,10 +103,10 @@ export function DailyCheckIn() {
 							const isSelected = values[key] === val;
 							return (
 								<TouchableOpacity
+									hitSlop={4}
 									key={val}
 									onPress={() => handleBubble(key, val)}
 									style={[styles.bubble, isSelected && styles.bubbleActive]}
-									hitSlop={4}
 								>
 									<Text
 										style={[
@@ -114,12 +124,14 @@ export function DailyCheckIn() {
 			))}
 
 			<TouchableOpacity
-				onPress={handleSave}
-				disabled={!allFilled}
-				style={[styles.saveBtn, allFilled && styles.saveBtnActive]}
 				activeOpacity={0.85}
+				disabled={!allFilled}
+				onPress={handleSave}
+				style={[styles.saveBtn, allFilled && styles.saveBtnActive]}
 			>
-				<Text style={[styles.saveBtnText, allFilled && styles.saveBtnTextActive]}>
+				<Text
+					style={[styles.saveBtnText, allFilled && styles.saveBtnTextActive]}
+				>
 					Save Check-in
 				</Text>
 			</TouchableOpacity>
@@ -131,11 +143,16 @@ const styles = StyleSheet.create({
 	card: {
 		marginHorizontal: 24,
 		marginBottom: 32,
-		backgroundColor: "#1A2138",
+		backgroundColor: "#FFFFFF",
 		borderRadius: 28,
 		padding: 24,
 		borderWidth: 1,
-		borderColor: "rgba(255,255,255,0.05)",
+		borderColor: "rgba(0,0,0,0.05)",
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.05,
+		shadowRadius: 12,
+		elevation: 3,
 	},
 	cardHeader: {
 		flexDirection: "row",
@@ -144,28 +161,31 @@ const styles = StyleSheet.create({
 		marginBottom: 20,
 	},
 	cardTitle: {
-		color: "#FFFFFF",
+		color: "#1E293B",
 		fontSize: 17,
 		fontWeight: "800",
 	},
 	cardHint: {
-		color: "#94A3B8",
+		color: "#64748B",
 		fontSize: 12,
 	},
 	metricRow: {
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "space-between",
+		flexWrap: "wrap",
+		gap: 12,
 		marginBottom: 16,
 	},
 	metricLabel: {
-		color: "#FFFFFF",
+		color: "#1E293B",
 		fontSize: 14,
 		fontWeight: "600",
-		width: 56,
+		width: 64, // slightly more to prevent edge clipping
 	},
 	bubbleRow: {
 		flexDirection: "row",
+		flexWrap: "wrap",
 		gap: 8,
 	},
 	bubble: {
@@ -205,36 +225,41 @@ const styles = StyleSheet.create({
 		letterSpacing: 0.5,
 	},
 	saveBtnTextActive: {
-		color: "#0B0E17",
+		color: "#FFFFFF",
 	},
 	// Completed state
 	completedCard: {
 		marginHorizontal: 24,
 		marginBottom: 32,
-		backgroundColor: "#1A2138",
+		backgroundColor: "#FFFFFF",
 		borderRadius: 24,
 		padding: 20,
 		flexDirection: "row",
 		alignItems: "center",
 		gap: 16,
 		borderWidth: 1,
-		borderColor: "rgba(255,255,255,0.05)",
+		borderColor: "rgba(0,0,0,0.05)",
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.05,
+		shadowRadius: 12,
+		elevation: 3,
 	},
 	completedIcon: {
 		width: 44,
 		height: 44,
 		borderRadius: 22,
-		backgroundColor: "rgba(62,201,181,0.15)",
+		backgroundColor: "rgba(62,201,181,0.1)",
 		alignItems: "center",
 		justifyContent: "center",
 	},
 	completedTitle: {
-		color: "#FFFFFF",
+		color: "#1E293B",
 		fontSize: 15,
 		fontWeight: "700",
 	},
 	completedSub: {
-		color: "#94A3B8",
+		color: "#64748B",
 		fontSize: 13,
 		marginTop: 2,
 	},

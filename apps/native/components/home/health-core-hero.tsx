@@ -2,12 +2,18 @@ import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { Flame, Heart } from "lucide-react-native";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+	Platform,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+} from "react-native";
 import Svg, {
 	Circle,
 	Defs,
-	LinearGradient as SvgLinearGradient,
 	Stop,
+	LinearGradient as SvgLinearGradient,
 } from "react-native-svg";
 import { Body3DSelector } from "@/components/onboarding/common/body-3d-selector";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -18,24 +24,25 @@ const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 const RING_SIZE = 220;
 const CENTER = RING_SIZE / 2;
 
-type Props = {
+interface HealthCoreHeroProps {
 	streak: number;
 	score: number;
-};
+}
 
-export function HealthCoreHero({ streak, score }: Props) {
+export function HealthCoreHero({ streak, score }: HealthCoreHeroProps) {
 	const { firstName, bodyZoneSelected, setAnswer } = useOnboardingStore();
 
 	// Score is 30–95 range; map it to ring progress 0.3–1.0 for visual appeal
 	const normalizedProgress = Math.max(0.05, Math.min(1, score / 100));
-	const strokeDashoffset = RING_CIRCUMFERENCE - normalizedProgress * RING_CIRCUMFERENCE;
+	const strokeDashoffset =
+		RING_CIRCUMFERENCE - normalizedProgress * RING_CIRCUMFERENCE;
 
 	const handleScan = async () => {
 		if (Platform.OS === "ios") {
 			try {
 				await impactAsync(ImpactFeedbackStyle.Medium);
-			} catch {
-				/* ignore */
+			} catch (error) {
+				console.error("Failed to run haptic feedback", error);
 			}
 		}
 		setAnswer("scanMode", "home");
@@ -47,23 +54,25 @@ export function HealthCoreHero({ streak, score }: Props) {
 	};
 
 	const greetingHour = new Date().getHours();
-	const greeting =
-		greetingHour < 12
-			? "Good morning"
-			: greetingHour < 17
-				? "Good afternoon"
-				: "Good evening";
+	let greeting = "Good evening";
+	if (greetingHour < 12) {
+		greeting = "Good morning";
+	} else if (greetingHour < 17) {
+		greeting = "Good afternoon";
+	}
 
 	return (
 		<View style={styles.container}>
 			{/* Header Row */}
 			<View style={styles.headerRow}>
-				<View>
+				<View style={styles.headerTextContainer}>
 					<Text style={styles.greeting}>{greeting} 👋</Text>
-					<Text style={styles.name}>{firstName ?? "there"}</Text>
+					<Text numberOfLines={1} style={styles.name}>
+						{firstName ?? "there"}
+					</Text>
 				</View>
 				<View style={styles.streakPill}>
-					<Flame color="#FF4F6E" size={14} fill="#FF4F6E" />
+					<Flame color="#FF4F6E" fill="#FF4F6E" size={14} />
 					<Text style={styles.streakText}>{streak} day streak</Text>
 				</View>
 			</View>
@@ -71,13 +80,13 @@ export function HealthCoreHero({ streak, score }: Props) {
 			{/* Health Core Ring */}
 			<View style={styles.ringWrapper}>
 				<Svg
-					width={RING_SIZE}
 					height={RING_SIZE}
-					viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}
 					style={StyleSheet.absoluteFillObject}
+					viewBox={`0 0 ${RING_SIZE} ${RING_SIZE}`}
+					width={RING_SIZE}
 				>
 					<Defs>
-						<SvgLinearGradient id="healthGrad" x1="0" y1="0" x2="1" y2="1">
+						<SvgLinearGradient id="healthGrad" x1="0" x2="1" y1="0" y2="1">
 							<Stop offset="0" stopColor="#28B898" stopOpacity="1" />
 							<Stop offset="1" stopColor="#3EC9B5" stopOpacity="1" />
 						</SvgLinearGradient>
@@ -86,22 +95,22 @@ export function HealthCoreHero({ streak, score }: Props) {
 					<Circle
 						cx={CENTER}
 						cy={CENTER}
+						fill="none"
 						r={RING_RADIUS}
 						stroke="rgba(255,255,255,0.06)"
 						strokeWidth={RING_STROKE}
-						fill="none"
 					/>
 					{/* Progress ring */}
 					<Circle
 						cx={CENTER}
 						cy={CENTER}
+						fill="none"
 						r={RING_RADIUS}
 						stroke="url(#healthGrad)"
-						strokeWidth={RING_STROKE}
-						fill="none"
 						strokeDasharray={RING_CIRCUMFERENCE}
 						strokeDashoffset={strokeDashoffset}
 						strokeLinecap="round"
+						strokeWidth={RING_STROKE}
 						transform={`rotate(-90 ${CENTER} ${CENTER})`}
 					/>
 				</Svg>
@@ -129,20 +138,22 @@ export function HealthCoreHero({ streak, score }: Props) {
 
 			{/* Heart pulse indicator */}
 			<View style={styles.vitalRow}>
-				<Heart color="#FF4F6E" size={14} fill="#FF4F6E" />
-				<Text style={styles.vitalText}>Scan your body to refresh your score</Text>
+				<Heart color="#FF4F6E" fill="#FF4F6E" size={14} />
+				<Text style={styles.vitalText}>
+					Scan your body to refresh your score
+				</Text>
 			</View>
 
 			{/* CTA Button */}
 			<TouchableOpacity
 				activeOpacity={0.9}
-				style={styles.ctaButton}
 				onPress={handleScan}
+				style={styles.ctaButton}
 			>
 				<LinearGradient
 					colors={["#28B898", "#3EC9B5"]}
-					start={{ x: 0, y: 0.5 }}
 					end={{ x: 1, y: 0.5 }}
+					start={{ x: 0, y: 0.5 }}
 					style={StyleSheet.absoluteFill}
 				/>
 				<Text style={styles.ctaText}>Scan My Body</Text>
@@ -164,31 +175,41 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "space-between",
 		marginBottom: 32,
+		gap: 16,
+	},
+	headerTextContainer: {
+		flex: 1,
 	},
 	greeting: {
-		color: "#94A3B8",
+		color: "#64748B",
 		fontSize: 13,
 		fontWeight: "500",
 	},
 	name: {
-		color: "#FFFFFF",
+		color: "#1E293B",
 		fontSize: 22,
 		fontWeight: "800",
 		marginTop: 2,
 	},
 	streakPill: {
+		flexShrink: 0,
 		flexDirection: "row",
 		alignItems: "center",
-		backgroundColor: "#1A2138",
+		backgroundColor: "#FFFFFF",
 		borderRadius: 999,
 		borderWidth: 1,
-		borderColor: "rgba(255,255,255,0.07)",
+		borderColor: "rgba(0,0,0,0.06)",
 		paddingHorizontal: 14,
 		paddingVertical: 8,
 		gap: 6,
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.05,
+		shadowRadius: 4,
+		elevation: 2,
 	},
 	streakText: {
-		color: "#FFFFFF",
+		color: "#1E293B",
 		fontSize: 13,
 		fontWeight: "700",
 	},
@@ -204,7 +225,7 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 	},
 	scoreLabel: {
-		color: "#94A3B8",
+		color: "#64748B",
 		fontSize: 10,
 		fontWeight: "800",
 		letterSpacing: 1.5,
@@ -212,14 +233,14 @@ const styles = StyleSheet.create({
 		marginBottom: 2,
 	},
 	scoreValue: {
-		color: "#FFFFFF",
+		color: "#1E293B",
 		fontSize: 44,
 		fontWeight: "900",
 		letterSpacing: -2,
 		lineHeight: 50,
 	},
 	scoreMax: {
-		color: "#94A3B8",
+		color: "#64748B",
 		fontSize: 12,
 		fontWeight: "600",
 	},
@@ -238,7 +259,7 @@ const styles = StyleSheet.create({
 		marginBottom: 20,
 	},
 	vitalText: {
-		color: "#94A3B8",
+		color: "#64748B",
 		fontSize: 12,
 	},
 	ctaButton: {

@@ -1,16 +1,29 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { Activity, History, MessageCircle, Pill, Settings, X } from "lucide-react-native";
+import {
+	Activity,
+	History,
+	MessageCircle,
+	Pill,
+	Settings,
+	X,
+} from "lucide-react-native";
 import { useState } from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+	Platform,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+} from "react-native";
 
-type OrbAction = {
+interface OrbAction {
 	id: string;
 	label: string;
 	icon: React.ReactNode;
 	onPress: () => void;
-};
+}
 
 export function FloatingOrb() {
 	const [expanded, setExpanded] = useState(false);
@@ -30,7 +43,7 @@ export function FloatingOrb() {
 		{
 			id: "chat",
 			label: "Chat with EZBuddy",
-			icon: <MessageCircle size={18} color="#3EC9B5" />,
+			icon: <MessageCircle color="#3EC9B5" size={18} />,
 			onPress: () => {
 				setExpanded(false);
 				router.push("/chat");
@@ -39,19 +52,19 @@ export function FloatingOrb() {
 		{
 			id: "history",
 			label: "My History",
-			icon: <History size={18} color="#3EC9B5" />,
+			icon: <History color="#3EC9B5" size={18} />,
 			onPress: () => setExpanded(false),
 		},
 		{
 			id: "supplements",
 			label: "My Supplements",
-			icon: <Pill size={18} color="#3EC9B5" />,
+			icon: <Pill color="#3EC9B5" size={18} />,
 			onPress: () => setExpanded(false),
 		},
 		{
 			id: "scan",
 			label: "Scan Symptom",
-			icon: <Activity size={18} color="#3EC9B5" />,
+			icon: <Activity color="#3EC9B5" size={18} />,
 			onPress: () => {
 				setExpanded(false);
 				router.push("/scan/body-scan");
@@ -60,7 +73,7 @@ export function FloatingOrb() {
 		{
 			id: "settings",
 			label: "Settings",
-			icon: <Settings size={18} color="#3EC9B5" />,
+			icon: <Settings color="#3EC9B5" size={18} />,
 			onPress: () => {
 				setExpanded(false);
 				router.push("/settings");
@@ -69,15 +82,15 @@ export function FloatingOrb() {
 	];
 
 	return (
-		<View style={styles.wrapper} pointerEvents="box-none">
+		<View pointerEvents="box-none" style={styles.wrapper}>
 			{/* Action menu — rendered above orb */}
 			{expanded && (
 				<View style={styles.menu}>
 					{actions.map((action) => (
 						<TouchableOpacity
+							activeOpacity={0.85}
 							key={action.id}
 							onPress={action.onPress}
-							activeOpacity={0.85}
 							style={styles.menuItem}
 						>
 							<Text style={styles.menuLabel}>{action.label}</Text>
@@ -89,22 +102,24 @@ export function FloatingOrb() {
 
 			{/* Main orb button */}
 			<TouchableOpacity
-				onPress={toggleOrb}
-				activeOpacity={0.9}
-				style={styles.orb}
-				accessibilityLabel={expanded ? "Close AI menu" : "Open AI assistant menu"}
+				accessibilityLabel={
+					expanded ? "Close AI menu" : "Open AI assistant menu"
+				}
 				accessibilityRole="button"
+				activeOpacity={0.9}
+				onPress={toggleOrb}
+				style={styles.orb}
 			>
 				<LinearGradient
 					colors={["#28B898", "#3EC9B5"]}
-					start={{ x: 0, y: 0 }}
 					end={{ x: 1, y: 1 }}
+					start={{ x: 0, y: 0 }}
 					style={StyleSheet.absoluteFill}
 				/>
 				{expanded ? (
-					<X size={26} color="#0B0E17" strokeWidth={2.5} />
+					<X color="#0B0E17" size={26} strokeWidth={2.5} />
 				) : (
-					<MessageCircle size={26} color="#0B0E17" strokeWidth={2} />
+					<MessageCircle color="#0B0E17" size={26} strokeWidth={2} />
 				)}
 			</TouchableOpacity>
 		</View>
@@ -140,21 +155,21 @@ const styles = StyleSheet.create({
 	menuItem: {
 		flexDirection: "row",
 		alignItems: "center",
-		backgroundColor: "#1A2138",
+		backgroundColor: "#FFFFFF",
 		borderRadius: 999,
 		paddingHorizontal: 16,
 		paddingVertical: 12,
 		borderWidth: 1,
-		borderColor: "rgba(255,255,255,0.08)",
+		borderColor: "rgba(0,0,0,0.06)",
 		shadowColor: "#000",
 		shadowOffset: { width: 0, height: 4 },
-		shadowOpacity: 0.3,
+		shadowOpacity: 0.1,
 		shadowRadius: 10,
 		elevation: 6,
 		gap: 12,
 	},
 	menuLabel: {
-		color: "#FFFFFF",
+		color: "#1E293B",
 		fontSize: 14,
 		fontWeight: "600",
 	},
@@ -162,7 +177,7 @@ const styles = StyleSheet.create({
 		width: 34,
 		height: 34,
 		borderRadius: 17,
-		backgroundColor: "rgba(62,201,181,0.15)",
+		backgroundColor: "rgba(62,201,181,0.1)",
 		alignItems: "center",
 		justifyContent: "center",
 	},

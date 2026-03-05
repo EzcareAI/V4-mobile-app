@@ -1,7 +1,11 @@
+import { isDevice } from "expo-device";
 import { LinearGradient } from "expo-linear-gradient";
+import {
+	getExpoPushTokenAsync,
+	getPermissionsAsync,
+	requestPermissionsAsync,
+} from "expo-notifications";
 import { useRouter } from "expo-router";
-import * as Device from "expo-device";
-import * as Notifications from "expo-notifications";
 import { Bell, BellOff, Bot } from "lucide-react-native";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -21,7 +25,7 @@ export const NotificationsScreen = () => {
 	};
 
 	const handleRequestPermissions = async () => {
-		if (!Device.isDevice) {
+		if (!isDevice) {
 			// Simulators do not fully support push
 			handleToggle(true);
 			handleContinue();
@@ -29,27 +33,26 @@ export const NotificationsScreen = () => {
 		}
 
 		try {
-			const { status: existingStatus } = await Notifications.getPermissionsAsync();
+			const { status: existingStatus } = await getPermissionsAsync();
 			let finalStatus = existingStatus;
 
 			if (existingStatus !== "granted") {
-				const { status } = await Notifications.requestPermissionsAsync();
+				const { status } = await requestPermissionsAsync();
 				finalStatus = status;
 			}
 
 			handleToggle(finalStatus === "granted");
 
-			// Fetch push token 
+			// Fetch push token
 			if (finalStatus === "granted") {
 				try {
-					const tokenData = await Notifications.getExpoPushTokenAsync();
+					const tokenData = await getExpoPushTokenAsync();
 					setAnswer("pushToken", tokenData.data);
-				} catch (err) {
-					console.log("Failed to get Expo Push Token:", err);
+				} catch {
+					// ignore push token error silently
 				}
 			}
-		} catch (error) {
-			console.log("Error requesting notifications permissions:", error);
+		} catch {
 			handleToggle(false);
 		} finally {
 			handleContinue();
@@ -175,9 +178,7 @@ export const NotificationsScreen = () => {
 				{/* Fixed Footer Actions */}
 				<View className="pt-4">
 					<View className="mb-4 gap-y-4">
-						<Pressable
-							onPress={handleRequestPermissions}
-						>
+						<Pressable onPress={handleRequestPermissions}>
 							<LinearGradient
 								colors={["#2DE2E2", "#28B898"]}
 								end={{ x: 1, y: 1 }}

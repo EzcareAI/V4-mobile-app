@@ -252,9 +252,9 @@ export const useOnboardingStore = create<OnboardingState>()(
 						} else if (data?.id) {
 							console.log("✅ SUPABASE INSERT SUCCESSFUL. New ID:", data.id);
 							// Save the newly generated row ID and the Postgres-generated referral_code
-							set({ 
+							set({
 								onboardingRecordId: data.id,
-								myReferralCode: data.referral_code || undefined
+								myReferralCode: data.referral_code || undefined,
 							});
 						}
 					}
@@ -265,12 +265,16 @@ export const useOnboardingStore = create<OnboardingState>()(
 
 			getOrGenerateReferralCode: () => {
 				const state = get();
-				if (state.myReferralCode) return state.myReferralCode;
-				
-				const newCode = Array.from({ length: 7 }, () => 
-					"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".charAt(Math.floor(Math.random() * 36))
+				if (state.myReferralCode) {
+					return state.myReferralCode;
+				}
+
+				const newCode = Array.from({ length: 7 }, () =>
+					"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".charAt(
+						Math.floor(Math.random() * 36)
+					)
 				).join("");
-				
+
 				set({ myReferralCode: newCode });
 				get().syncToSupabase();
 				return newCode;

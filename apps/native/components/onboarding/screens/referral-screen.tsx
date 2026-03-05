@@ -1,8 +1,8 @@
 import { useRouter } from "expo-router";
 import { Button, TextField } from "heroui-native";
 import { Bot, Crown, Gift, Sparkles, Users } from "lucide-react-native";
-import { ScrollView, Text, View } from "react-native";
 import React from "react";
+import { ScrollView, Text, View } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
@@ -23,8 +23,10 @@ export const ReferralScreen = () => {
 	};
 
 	const handleSubmitCode = async () => {
-		if (!referralCode || referralCode.trim().length === 0) return;
-		
+		if (!referralCode || referralCode.trim().length === 0) {
+			return;
+		}
+
 		setIsValidating(true);
 		setErrorMsg("");
 
@@ -43,7 +45,7 @@ export const ReferralScreen = () => {
 
 			// Valid code found
 			handleFinish();
-		} catch (err) {
+		} catch {
 			setErrorMsg("This referral code is not correct or available.");
 		} finally {
 			setIsValidating(false);
@@ -149,7 +151,7 @@ export const ReferralScreen = () => {
 								/>
 							</TextField>
 							{errorMsg ? (
-								<Text className="mt-2 ml-2 font-medium text-red-500 text-[13px]">
+								<Text className="mt-2 ml-2 font-medium text-[13px] text-red-500">
 									{errorMsg}
 								</Text>
 							) : null}
@@ -161,7 +163,9 @@ export const ReferralScreen = () => {
 				<View className="pt-4">
 					{/* Submit Button */}
 					<ContinueButton
-						isDisabled={!referralCode || referralCode.trim().length === 0 || isValidating}
+						isDisabled={
+							!referralCode || referralCode.trim().length === 0 || isValidating
+						}
 						label={
 							<View className="flex-row items-center">
 								<Text className="mr-2 text-2xl text-white">✓</Text>

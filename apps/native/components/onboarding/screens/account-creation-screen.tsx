@@ -149,7 +149,9 @@ export function AccountCreationScreen() {
 					if (tokenSession.user) {
 						setAnswer("userId", tokenSession.user.id);
 						const userEmail = tokenSession.user.email ?? email;
-						if (userEmail) setAnswer("email", userEmail);
+						if (userEmail) {
+							setAnswer("email", userEmail);
+						}
 						setAnswer("authMethod", provider);
 						nextStep();
 						router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
@@ -163,7 +165,9 @@ export function AccountCreationScreen() {
 			if (sessionData.user) {
 				setAnswer("userId", sessionData.user.id);
 				const userEmail = sessionData.user.email ?? email;
-				if (userEmail) setAnswer("email", userEmail);
+				if (userEmail) {
+					setAnswer("email", userEmail);
+				}
 				setAnswer("authMethod", provider);
 				nextStep();
 				router.push(`/(onboarding)/${(currentStep || 0) + 1}`);

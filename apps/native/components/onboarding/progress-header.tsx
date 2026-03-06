@@ -2,9 +2,9 @@ import { selectionAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { usePathname, useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
+import { useEffect } from "react";
 import { Platform, Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useEffect } from "react";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 // Regex for matching onboarding step routes (/1, /2, etc.)

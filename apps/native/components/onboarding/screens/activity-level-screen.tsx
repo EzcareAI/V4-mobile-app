@@ -52,7 +52,8 @@ const ACTIVITY_OPTIONS: SingleSelectOption[] = [
 
 export const ActivityLevelScreen = () => {
 	const router = useRouter();
-	const { activityLevel, setAnswer, nextStep, currentStep } = useOnboardingStore();
+	const { activityLevel, setAnswer, nextStep, currentStep } =
+		useOnboardingStore();
 
 	const selectedId = activityLevel ? String(activityLevel) : null;
 

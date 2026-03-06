@@ -7,25 +7,25 @@ import { useOnboardingStore } from "@/stores/onboarding-store";
 const CHECKIN_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours
 const STREAK_RESET_MS = 36 * 60 * 60 * 1000; // 36 hours grace window
 
-export type CheckInMetrics = {
+export interface CheckInMetrics {
 	sleep: number; // 1-5
 	energy: number; // 1-5
 	stress: number; // 1-5
 	digestion: number; // 1-5
-};
+}
 
-export type CheckInRecord = {
+export interface CheckInRecord {
 	date: string; // ISO timestamp
 	metrics: CheckInMetrics;
-};
+}
 
-export type Mission = {
+export interface Mission {
 	id: string;
 	title: string;
 	icon: string;
 	xp: number;
 	completed: boolean;
-};
+}
 
 const DAILY_MISSIONS: Omit<Mission, "completed">[] = [
 	{ id: "breathing", title: "Deep Breathing Focus", icon: "😮‍💨", xp: 50 },
@@ -94,14 +94,18 @@ export const useDashboardStore = create<DashboardState>()(
 
 			canCheckIn: () => {
 				const { lastCheckInAt } = get();
-				if (!lastCheckInAt) return true;
+				if (!lastCheckInAt) {
+					return true;
+				}
 				const elapsed = Date.now() - new Date(lastCheckInAt).getTime();
 				return elapsed >= CHECKIN_COOLDOWN_MS;
 			},
 
 			getNextCheckInMs: () => {
 				const { lastCheckInAt } = get();
-				if (!lastCheckInAt) return 0;
+				if (!lastCheckInAt) {
+					return 0;
+				}
 				const elapsed = Date.now() - new Date(lastCheckInAt).getTime();
 				return Math.max(0, CHECKIN_COOLDOWN_MS - elapsed);
 			},
@@ -163,7 +167,9 @@ export const useDashboardStore = create<DashboardState>()(
 			completeMission: (id) => {
 				const { missions, totalXp } = get();
 				const mission = missions.find((m) => m.id === id);
-				if (!mission || mission.completed) return;
+				if (!mission || mission.completed) {
+					return;
+				}
 
 				const updatedMissions = missions.map((m) =>
 					m.id === id ? { ...m, completed: true } : m
@@ -180,7 +186,9 @@ export const useDashboardStore = create<DashboardState>()(
 			resetDailyMissions: () => {
 				const todayStr = new Date().toISOString().split("T")[0];
 				const { missionsResetDate } = get();
-				if (missionsResetDate === todayStr) return;
+				if (missionsResetDate === todayStr) {
+					return;
+				}
 
 				set({
 					missions: DAILY_MISSIONS.map((m) => ({ ...m, completed: false })),

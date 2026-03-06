@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -71,16 +71,22 @@ export default function BodyScanScreen() {
 		return (
 			<SafeAreaView style={styles.container}>
 				<View style={styles.permissionBox}>
-					<Ionicons name="camera-outline" size={64} color="#3EC9B5" />
+					<Ionicons color="#3EC9B5" name="camera-outline" size={64} />
 					<Text style={styles.permissionTitle}>Camera Access Required</Text>
 					<Text style={styles.permissionSub}>
 						EZCare AI needs camera access to perform an augmented reality body
 						analysis.
 					</Text>
-					<TouchableOpacity style={styles.primaryBtn} onPress={requestPermission}>
+					<TouchableOpacity
+						onPress={requestPermission}
+						style={styles.primaryBtn}
+					>
 						<Text style={styles.primaryBtnText}>Allow Camera</Text>
 					</TouchableOpacity>
-					<TouchableOpacity style={styles.ghostBtn} onPress={() => router.back()}>
+					<TouchableOpacity
+						onPress={() => router.back()}
+						style={styles.ghostBtn}
+					>
 						<Text style={styles.ghostBtnText}>Cancel</Text>
 					</TouchableOpacity>
 				</View>
@@ -97,10 +103,10 @@ export default function BodyScanScreen() {
 
 		if (!isScanning && cameraRef.current) {
 			setIsScanning(true);
-			
+
 			// 1. Actually trigger the camera hardware to take a hi-res snapshot
 			try {
-				const photo = await cameraRef.current.takePictureAsync({
+				const _photo = await cameraRef.current.takePictureAsync({
 					quality: 0.8,
 					base64: true,
 				});
@@ -115,7 +121,7 @@ export default function BodyScanScreen() {
 				setIsAnalyzing(true);
 
 				// 2. Here we would normally send `photo.base64` to an AI model.
-				// For now, since this runs entirely on device, we compute the health score 
+				// For now, since this runs entirely on device, we compute the health score
 				// triggered by the actual hardware capture resolution time.
 				computeHealthScore();
 
@@ -124,7 +130,7 @@ export default function BodyScanScreen() {
 						await impactAsync(ImpactFeedbackStyle.Light);
 					} catch {}
 				}
-				
+
 				router.dismissAll();
 				router.replace("/(dashboard)");
 			} catch (error) {
@@ -137,7 +143,11 @@ export default function BodyScanScreen() {
 	return (
 		<View style={styles.wrapper}>
 			{/* live camera feed */}
-			<CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" />
+			<CameraView
+				facing="back"
+				ref={cameraRef}
+				style={StyleSheet.absoluteFill}
+			/>
 
 			{/* overlay dark gradients */}
 			<LinearGradient
@@ -149,18 +159,18 @@ export default function BodyScanScreen() {
 				style={styles.bottomGradient}
 			/>
 
-			<SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+			<SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
 				{/* Top Nav */}
 				<View style={styles.header}>
 					<TouchableOpacity
-						onPress={() => router.back()}
 						hitSlop={8}
+						onPress={() => router.back()}
 						style={styles.backBtn}
 					>
-						<Ionicons name="close" size={24} color="#FFFFFF" />
+						<Ionicons color="#FFFFFF" name="close" size={24} />
 					</TouchableOpacity>
 					<View style={styles.headerPill}>
-						<Ionicons name="scan-outline" size={14} color="#3EC9B5" />
+						<Ionicons color="#3EC9B5" name="scan-outline" size={14} />
 						<Text style={styles.headerPillText}>AR Body Scanner</Text>
 					</View>
 					<View style={styles.spacer} />
@@ -180,8 +190,10 @@ export default function BodyScanScreen() {
 
 						{isAnalyzing && (
 							<View style={styles.analyzingOverlay}>
-								<ActivityIndicator size="large" color="#3EC9B5" />
-								<Text style={styles.analyzingText}>Syncing biometric metrics...</Text>
+								<ActivityIndicator color="#3EC9B5" size="large" />
+								<Text style={styles.analyzingText}>
+									Syncing biometric metrics...
+								</Text>
 							</View>
 						)}
 					</View>
@@ -189,25 +201,27 @@ export default function BodyScanScreen() {
 
 				{/* Bottom Controls */}
 				<View style={styles.bottomSection}>
-					{!isScanning && !isAnalyzing && (
+					{!(isScanning || isAnalyzing) && (
 						<Text style={styles.instruction}>
 							Position full body inside the frame
 						</Text>
 					)}
 					{isScanning && (
-						<Text style={styles.instructionActive}>Analyzing posture & structure...</Text>
+						<Text style={styles.instructionActive}>
+							Analyzing posture & structure...
+						</Text>
 					)}
 
 					<TouchableOpacity
-						style={styles.shutterBtn}
-						onPress={handleAction}
-						disabled={isScanning || isAnalyzing}
 						activeOpacity={0.8}
+						disabled={isScanning || isAnalyzing}
+						onPress={handleAction}
+						style={styles.shutterBtn}
 					>
 						{isScanning ? (
 							<View style={styles.shutterScanning} />
 						) : isAnalyzing ? (
-							<Ionicons name="checkmark" size={32} color="#0B0E17" />
+							<Ionicons color="#0B0E17" name="checkmark" size={32} />
 						) : (
 							<View style={styles.shutterIdle} />
 						)}
@@ -299,10 +313,34 @@ const styles = StyleSheet.create({
 		height: 40,
 		borderColor: "#3EC9B5",
 	},
-	tl: { top: 0, left: 0, borderTopWidth: 4, borderLeftWidth: 4, borderTopLeftRadius: 16 },
-	tr: { top: 0, right: 0, borderTopWidth: 4, borderRightWidth: 4, borderTopRightRadius: 16 },
-	bl: { bottom: 0, left: 0, borderBottomWidth: 4, borderLeftWidth: 4, borderBottomLeftRadius: 16 },
-	br: { bottom: 0, right: 0, borderBottomWidth: 4, borderRightWidth: 4, borderBottomRightRadius: 16 },
+	tl: {
+		top: 0,
+		left: 0,
+		borderTopWidth: 4,
+		borderLeftWidth: 4,
+		borderTopLeftRadius: 16,
+	},
+	tr: {
+		top: 0,
+		right: 0,
+		borderTopWidth: 4,
+		borderRightWidth: 4,
+		borderTopRightRadius: 16,
+	},
+	bl: {
+		bottom: 0,
+		left: 0,
+		borderBottomWidth: 4,
+		borderLeftWidth: 4,
+		borderBottomLeftRadius: 16,
+	},
+	br: {
+		bottom: 0,
+		right: 0,
+		borderBottomWidth: 4,
+		borderRightWidth: 4,
+		borderBottomRightRadius: 16,
+	},
 	laserLine: {
 		position: "absolute",
 		top: 0,

@@ -36,7 +36,9 @@ export default function OnboardingIndex() {
 			start={{ x: 0.5, y: 0 }}
 			style={styles.gradient}
 		>
-			<SafeAreaView style={styles.safeArea}>				{/* Logo Section */}
+			<SafeAreaView style={styles.safeArea}>
+				{" "}
+				{/* Logo Section */}
 				<View style={styles.logoSection}>
 					<View style={styles.logoCard}>
 						<Image
@@ -46,7 +48,6 @@ export default function OnboardingIndex() {
 						/>
 					</View>
 				</View>
-
 				{/* Branding */}
 				<View style={styles.brandSection}>
 					<Text style={styles.headline}>Welcome to</Text>
@@ -62,7 +63,6 @@ export default function OnboardingIndex() {
 						Your Natural Healing Companion.
 					</Text>
 				</View>
-
 				{/* Footer */}
 				<View style={styles.footer}>
 					{/* Get Started Button */}

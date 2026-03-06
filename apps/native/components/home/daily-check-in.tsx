@@ -1,8 +1,17 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { CheckCircle2 } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { type CheckInMetrics, useDashboardStore } from "@/stores/dashboard-store";
+import {
+	Platform,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+} from "react-native";
+import {
+	type CheckInMetrics,
+	useDashboardStore,
+} from "@/stores/dashboard-store";
 
 const METRICS: { key: keyof CheckInMetrics; label: string }[] = [
 	{ key: "sleep", label: "Sleep" },
@@ -12,7 +21,9 @@ const METRICS: { key: keyof CheckInMetrics; label: string }[] = [
 ];
 
 function formatCountdown(ms: number): string {
-	if (ms <= 0) return "now";
+	if (ms <= 0) {
+		return "now";
+	}
 	const totalSeconds = Math.floor(ms / 1000);
 	const hours = Math.floor(totalSeconds / 3600);
 	const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -34,17 +45,14 @@ export function DailyCheckIn() {
 	useEffect(() => {
 		const interval = setInterval(() => {
 			setNextMs(getNextCheckInMs());
-		}, 30000);
+		}, 30_000);
 		return () => clearInterval(interval);
 	}, [getNextCheckInMs]);
 
 	const allFilled = Object.values(values).every((v) => v > 0);
 	const available = canCheckIn();
 
-	const handleBubble = async (
-		key: keyof CheckInMetrics,
-		val: number
-	) => {
+	const handleBubble = async (key: keyof CheckInMetrics, val: number) => {
 		if (Platform.OS === "ios") {
 			try {
 				await impactAsync(ImpactFeedbackStyle.Light);
@@ -56,7 +64,9 @@ export function DailyCheckIn() {
 	};
 
 	const handleSave = async () => {
-		if (!allFilled) return;
+		if (!allFilled) {
+			return;
+		}
 		saveCheckIn(values);
 		setSaved(true);
 	};
@@ -66,7 +76,7 @@ export function DailyCheckIn() {
 		return (
 			<View style={styles.completedCard}>
 				<View style={styles.completedIcon}>
-					<CheckCircle2 size={22} color="#3EC9B5" />
+					<CheckCircle2 color="#3EC9B5" size={22} />
 				</View>
 				<View>
 					<Text style={styles.completedTitle}>Morning complete ✔</Text>
@@ -93,10 +103,10 @@ export function DailyCheckIn() {
 							const isSelected = values[key] === val;
 							return (
 								<TouchableOpacity
+									hitSlop={4}
 									key={val}
 									onPress={() => handleBubble(key, val)}
 									style={[styles.bubble, isSelected && styles.bubbleActive]}
-									hitSlop={4}
 								>
 									<Text
 										style={[
@@ -114,12 +124,14 @@ export function DailyCheckIn() {
 			))}
 
 			<TouchableOpacity
-				onPress={handleSave}
-				disabled={!allFilled}
-				style={[styles.saveBtn, allFilled && styles.saveBtnActive]}
 				activeOpacity={0.85}
+				disabled={!allFilled}
+				onPress={handleSave}
+				style={[styles.saveBtn, allFilled && styles.saveBtnActive]}
 			>
-				<Text style={[styles.saveBtnText, allFilled && styles.saveBtnTextActive]}>
+				<Text
+					style={[styles.saveBtnText, allFilled && styles.saveBtnTextActive]}
+				>
 					Save Check-in
 				</Text>
 			</TouchableOpacity>

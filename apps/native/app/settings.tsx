@@ -1,9 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
-import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-	Alert,
 	Clipboard,
 	Platform,
 	ScrollView,
@@ -37,19 +35,27 @@ export default function SettingsScreen() {
 	}, [getOrGenerateReferralCode]);
 
 	const handleCopy = async () => {
-		if (!referralCode) return;
+		if (!referralCode) {
+			return;
+		}
 		Clipboard.setString(referralCode);
 		if (Platform.OS === "ios") {
-			try { await impactAsync(ImpactFeedbackStyle.Light); } catch {}
+			try {
+				await impactAsync(ImpactFeedbackStyle.Light);
+			} catch {}
 		}
 		setCopied(true);
 		setTimeout(() => setCopied(false), 2500);
 	};
 
 	const handleShare = async () => {
-		if (!referralCode) return;
+		if (!referralCode) {
+			return;
+		}
 		if (Platform.OS === "ios") {
-			try { await impactAsync(ImpactFeedbackStyle.Medium); } catch {}
+			try {
+				await impactAsync(ImpactFeedbackStyle.Medium);
+			} catch {}
 		}
 		try {
 			await Share.share({
@@ -65,12 +71,14 @@ export default function SettingsScreen() {
 	};
 
 	return (
-		<SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
-			<ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+		<SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
+			<ScrollView showsVerticalScrollIndicator={false} style={styles.scroll}>
 				{/* Header */}
 				<View style={styles.header}>
 					<Text style={styles.headerTitle}>Settings ⚙️</Text>
-					<Text style={styles.headerSub}>Manage your account and preferences</Text>
+					<Text style={styles.headerSub}>
+						Manage your account and preferences
+					</Text>
 				</View>
 
 				{/* ─── REFER & EARN ─── */}
@@ -88,12 +96,14 @@ export default function SettingsScreen() {
 
 					{/* The Code Box */}
 					<View style={styles.codeBox}>
-						<Text style={styles.codeText}>{referralCode || "Generating..."}</Text>
+						<Text style={styles.codeText}>
+							{referralCode || "Generating..."}
+						</Text>
 					</View>
 
 					{/* Count */}
 					<View style={styles.countRow}>
-						<Ionicons name="people-outline" size={16} color="#94A3B8" />
+						<Ionicons color="#94A3B8" name="people-outline" size={16} />
 						<Text style={styles.countText}>
 							{referralCount === 0
 								? "0 people have joined using your code"
@@ -103,20 +113,22 @@ export default function SettingsScreen() {
 
 					{/* Action Buttons */}
 					<View style={styles.actionRow}>
-						<TouchableOpacity style={styles.shareBtn} onPress={handleShare}>
-							<Ionicons name="share-social-outline" size={16} color="#0B0E17" />
+						<TouchableOpacity onPress={handleShare} style={styles.shareBtn}>
+							<Ionicons color="#0B0E17" name="share-social-outline" size={16} />
 							<Text style={styles.shareBtnText}>Share</Text>
 						</TouchableOpacity>
 						<TouchableOpacity
-							style={[styles.copyBtn, copied && styles.copyBtnActive]}
 							onPress={handleCopy}
+							style={[styles.copyBtn, copied && styles.copyBtnActive]}
 						>
 							<Ionicons
+								color={copied ? "#0B0E17" : "#3EC9B5"}
 								name={copied ? "checkmark" : "copy-outline"}
 								size={16}
-								color={copied ? "#0B0E17" : "#3EC9B5"}
 							/>
-							<Text style={[styles.copyBtnText, copied && styles.copyBtnTextActive]}>
+							<Text
+								style={[styles.copyBtnText, copied && styles.copyBtnTextActive]}
+							>
 								{copied ? "Copied!" : "Copy Code"}
 							</Text>
 						</TouchableOpacity>
@@ -129,9 +141,13 @@ export default function SettingsScreen() {
 				</View>
 
 				<View style={styles.card}>
-					<TouchableOpacity style={styles.row} activeOpacity={0.7}>
+					<TouchableOpacity activeOpacity={0.7} style={styles.row}>
 						<View style={styles.rowIcon}>
-							<Ionicons name="person-circle-outline" size={20} color="#3EC9B5" />
+							<Ionicons
+								color="#3EC9B5"
+								name="person-circle-outline"
+								size={20}
+							/>
 						</View>
 						<View style={styles.rowContent}>
 							<Text style={styles.rowTitle}>Personal Information</Text>
@@ -139,7 +155,7 @@ export default function SettingsScreen() {
 								<Text style={styles.rowSub}>{firstName ?? email}</Text>
 							) : null}
 						</View>
-						<Ionicons name="chevron-forward" size={18} color="#94A3B8" />
+						<Ionicons color="#94A3B8" name="chevron-forward" size={18} />
 					</TouchableOpacity>
 				</View>
 
@@ -149,26 +165,26 @@ export default function SettingsScreen() {
 				</View>
 
 				<View style={styles.card}>
-					<TouchableOpacity style={styles.row} activeOpacity={0.7}>
+					<TouchableOpacity activeOpacity={0.7} style={styles.row}>
 						<View style={styles.rowIcon}>
-							<Ionicons name="card-outline" size={20} color="#3EC9B5" />
+							<Ionicons color="#3EC9B5" name="card-outline" size={20} />
 						</View>
 						<View style={styles.rowContent}>
 							<Text style={styles.rowTitle}>Manage Subscription</Text>
 						</View>
-						<Ionicons name="chevron-forward" size={18} color="#94A3B8" />
+						<Ionicons color="#94A3B8" name="chevron-forward" size={18} />
 					</TouchableOpacity>
 
 					<View style={styles.divider} />
 
-					<TouchableOpacity style={styles.row} activeOpacity={0.7}>
+					<TouchableOpacity activeOpacity={0.7} style={styles.row}>
 						<View style={styles.rowIcon}>
-							<Ionicons name="receipt-outline" size={20} color="#3EC9B5" />
+							<Ionicons color="#3EC9B5" name="receipt-outline" size={20} />
 						</View>
 						<View style={styles.rowContent}>
 							<Text style={styles.rowTitle}>Billing & Usage</Text>
 						</View>
-						<Ionicons name="chevron-forward" size={18} color="#94A3B8" />
+						<Ionicons color="#94A3B8" name="chevron-forward" size={18} />
 					</TouchableOpacity>
 				</View>
 
@@ -180,16 +196,20 @@ export default function SettingsScreen() {
 				<View style={styles.card}>
 					<View style={styles.row}>
 						<View style={styles.rowIcon}>
-							<Ionicons name="notifications-outline" size={20} color="#3EC9B5" />
+							<Ionicons
+								color="#3EC9B5"
+								name="notifications-outline"
+								size={20}
+							/>
 						</View>
 						<View style={styles.rowContent}>
 							<Text style={styles.rowTitle}>Push Notifications</Text>
 						</View>
 						<Switch
-							value={notificationsEnabled ?? true}
 							onValueChange={handleToggleNotifications}
-							trackColor={{ false: "rgba(255,255,255,0.1)", true: "#3EC9B5" }}
 							thumbColor="#FFFFFF"
+							trackColor={{ false: "rgba(255,255,255,0.1)", true: "#3EC9B5" }}
+							value={notificationsEnabled ?? true}
 						/>
 					</View>
 				</View>
@@ -200,26 +220,34 @@ export default function SettingsScreen() {
 				</View>
 
 				<View style={styles.card}>
-					<TouchableOpacity style={styles.row} activeOpacity={0.7}>
+					<TouchableOpacity activeOpacity={0.7} style={styles.row}>
 						<View style={styles.rowIcon}>
-							<Ionicons name="shield-checkmark-outline" size={20} color="#3EC9B5" />
+							<Ionicons
+								color="#3EC9B5"
+								name="shield-checkmark-outline"
+								size={20}
+							/>
 						</View>
 						<View style={styles.rowContent}>
 							<Text style={styles.rowTitle}>Privacy Policy</Text>
 						</View>
-						<Ionicons name="chevron-forward" size={18} color="#94A3B8" />
+						<Ionicons color="#94A3B8" name="chevron-forward" size={18} />
 					</TouchableOpacity>
 
 					<View style={styles.divider} />
 
-					<TouchableOpacity style={styles.row} activeOpacity={0.7}>
+					<TouchableOpacity activeOpacity={0.7} style={styles.row}>
 						<View style={styles.rowIcon}>
-							<Ionicons name="document-text-outline" size={20} color="#3EC9B5" />
+							<Ionicons
+								color="#3EC9B5"
+								name="document-text-outline"
+								size={20}
+							/>
 						</View>
 						<View style={styles.rowContent}>
 							<Text style={styles.rowTitle}>Terms of Service</Text>
 						</View>
-						<Ionicons name="chevron-forward" size={18} color="#94A3B8" />
+						<Ionicons color="#94A3B8" name="chevron-forward" size={18} />
 					</TouchableOpacity>
 				</View>
 

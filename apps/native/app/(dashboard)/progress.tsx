@@ -28,23 +28,41 @@ type TimeRange = "Day" | "Week" | "12 Months";
 
 // ── Dynamic text mappers ────────────────────────────
 function getSymptomText(key: string, val: number): string {
-	if (val === 0) return "No data yet";
+	if (val === 0) {
+		return "No data yet";
+	}
 	switch (key) {
 		case "sleep":
-			if (val <= 2) return "Poor sleep quality";
-			if (val === 3) return "Moderate sleep quality";
+			if (val <= 2) {
+				return "Poor sleep quality";
+			}
+			if (val === 3) {
+				return "Moderate sleep quality";
+			}
 			return "Excellent sleep";
 		case "energy":
-			if (val <= 2) return "Low energy levels";
-			if (val === 3) return "Moderate energy levels";
+			if (val <= 2) {
+				return "Low energy levels";
+			}
+			if (val === 3) {
+				return "Moderate energy levels";
+			}
 			return "High energy levels";
 		case "digestion":
-			if (val <= 2) return "Frequent digestive issues";
-			if (val === 3) return "Some digestive issues";
+			if (val <= 2) {
+				return "Frequent digestive issues";
+			}
+			if (val === 3) {
+				return "Some digestive issues";
+			}
 			return "Great digestion";
 		case "stress":
-			if (val <= 2) return "Feeling very calm"; // Stress is inverse
-			if (val === 3) return "Moderate stress";
+			if (val <= 2) {
+				return "Feeling very calm"; // Stress is inverse
+			}
+			if (val === 3) {
+				return "Moderate stress";
+			}
 			return "High stress levels";
 		default:
 			return "Moderate";
@@ -53,9 +71,12 @@ function getSymptomText(key: string, val: number): string {
 
 type TrendType = "Worsening" | "Improving" | "Stable";
 function getTrend(key: string, val: number | undefined): TrendType {
-	if (!val || val === 0) return "Stable";
-	if (key === "stress")
+	if (!val || val === 0) {
+		return "Stable";
+	}
+	if (key === "stress") {
 		return val <= 2 ? "Improving" : val >= 4 ? "Worsening" : "Stable";
+	}
 	return val >= 4 ? "Improving" : val <= 2 ? "Worsening" : "Stable";
 }
 

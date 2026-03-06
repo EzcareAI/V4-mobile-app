@@ -81,8 +81,14 @@ const UnitToggle = ({
 
 export const HeightWeightScreen = () => {
 	const router = useRouter();
-	const { heightCm, weightKg, unitPreference, setAnswer, nextStep, currentStep } =
-		useOnboardingStore();
+	const {
+		heightCm,
+		weightKg,
+		unitPreference,
+		setAnswer,
+		nextStep,
+		currentStep,
+	} = useOnboardingStore();
 
 	const isImperial = unitPreference === "imperial";
 
@@ -210,11 +216,9 @@ export const HeightWeightScreen = () => {
 					</View>
 				</ScrollView>
 
-				
-					<View className="pt-6">
-						<ContinueButton onPress={handleContinue} />
-					</View>
-				
+				<View className="pt-6">
+					<ContinueButton onPress={handleContinue} />
+				</View>
 			</View>
 		</View>
 	);

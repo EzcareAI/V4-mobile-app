@@ -46,7 +46,8 @@ const SLEEP_OPTIONS: SingleSelectOption[] = [
 
 export const SleepScreen = () => {
 	const router = useRouter();
-	const { sleepQuality, setAnswer, nextStep, currentStep } = useOnboardingStore();
+	const { sleepQuality, setAnswer, nextStep, currentStep } =
+		useOnboardingStore();
 
 	const handleContinue = () => {
 		nextStep();
@@ -119,14 +120,10 @@ export const SleepScreen = () => {
 				</ScrollView>
 
 				{/* ── Docked Continue Button (never scrolls away) ─────────────── */}
-				
-					<View className="pt-6">
-						<ContinueButton
-							isDisabled={!sleepQuality}
-							onPress={handleContinue}
-						/>
-					</View>
-				
+
+				<View className="pt-6">
+					<ContinueButton isDisabled={!sleepQuality} onPress={handleContinue} />
+				</View>
 			</View>
 		</View>
 	);

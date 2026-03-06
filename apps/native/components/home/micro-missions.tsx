@@ -1,9 +1,15 @@
-import React, { useState } from "react";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { ChevronRight, Zap } from "lucide-react-native";
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { useDashboardStore } from "@/stores/dashboard-store";
+import { useState } from "react";
+import {
+	Platform,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+} from "react-native";
 import { ConfettiBurst } from "@/components/home/confetti-burst";
+import { useDashboardStore } from "@/stores/dashboard-store";
 
 export function MicroMissions() {
 	const { missions, completeMission, getLevel, getXpInCurrentLevel } =
@@ -48,15 +54,17 @@ export function MicroMissions() {
 				</View>
 				{/* Level Progress Bar */}
 				<View style={styles.progressTrack}>
-					<View style={[styles.progressFill, { width: `${progressPct * 100}%` }]} />
+					<View
+						style={[styles.progressFill, { width: `${progressPct * 100}%` }]}
+					/>
 				</View>
 			</View>
 
 			{/* Mission Cards */}
 			{missions.map((mission) => (
 				<TouchableOpacity
-					key={mission.id}
 					activeOpacity={mission.completed ? 1 : 0.75}
+					key={mission.id}
 					onPress={() => !mission.completed && handleMission(mission.id)}
 					style={[styles.card, mission.completed && styles.cardCompleted]}
 				>
@@ -68,7 +76,10 @@ export function MicroMissions() {
 						]}
 					>
 						{/* Reanimated Confetti overlay locked directly atop the icon */}
-						<ConfettiBurst isActive={activeConfettiId === mission.id} count={12} />
+						<ConfettiBurst
+							count={12}
+							isActive={activeConfettiId === mission.id}
+						/>
 
 						{mission.completed ? (
 							<Text style={styles.checkMark}>✓</Text>
@@ -88,12 +99,12 @@ export function MicroMissions() {
 							{mission.title}
 						</Text>
 						<View style={styles.xpRow}>
-							<Zap size={11} color={mission.completed ? "#94A3B8" : "#3EC9B5"} />
+							<Zap
+								color={mission.completed ? "#94A3B8" : "#3EC9B5"}
+								size={11}
+							/>
 							<Text
-								style={[
-									styles.xpText,
-									mission.completed && styles.xpTextDone,
-								]}
+								style={[styles.xpText, mission.completed && styles.xpTextDone]}
 							>
 								+{mission.xp} XP
 							</Text>
@@ -103,7 +114,7 @@ export function MicroMissions() {
 					{/* Chevron */}
 					{!mission.completed && (
 						<View style={styles.chevronWrapper}>
-							<ChevronRight size={16} color="#94A3B8" />
+							<ChevronRight color="#94A3B8" size={16} />
 						</View>
 					)}
 				</TouchableOpacity>

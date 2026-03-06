@@ -1,7 +1,7 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { ScrollView, Text, View, Animated, StyleSheet } from "react-native";
 import { useEffect, useRef } from "react";
+import { Animated, ScrollView, StyleSheet, Text, View } from "react-native";
 import { THEME } from "@/lib/theme";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
@@ -36,9 +36,19 @@ const BADGES = [
 	{ emoji: "🔒", label: "Your Data\nProtected" },
 ];
 
-const FireworkParticle = ({ delay, angle, distance, color }: { delay: number, angle: number, distance: number, color: string }) => {
+const FireworkParticle = ({
+	delay,
+	angle,
+	distance,
+	color,
+}: {
+	delay: number;
+	angle: number;
+	distance: number;
+	color: string;
+}) => {
 	const progress = useRef(new Animated.Value(0)).current;
-	
+
 	useEffect(() => {
 		Animated.sequence([
 			Animated.delay(delay),
@@ -47,60 +57,68 @@ const FireworkParticle = ({ delay, angle, distance, color }: { delay: number, an
 				friction: 6,
 				tension: 40,
 				useNativeDriver: true,
-			})
+			}),
 		]).start();
-	}, []);
+	}, [delay, progress]);
 
 	const translateX = progress.interpolate({
 		inputRange: [0, 1],
-		outputRange: [0, Math.cos(angle) * distance]
+		outputRange: [0, Math.cos(angle) * distance],
 	});
 	const translateY = progress.interpolate({
 		inputRange: [0, 1],
-		outputRange: [0, Math.sin(angle) * distance]
+		outputRange: [0, Math.sin(angle) * distance],
 	});
 	const opacity = progress.interpolate({
 		inputRange: [0, 0.7, 1],
-		outputRange: [1, 1, 0]
+		outputRange: [1, 1, 0],
 	});
 	const scale = progress.interpolate({
 		inputRange: [0, 0.2, 1],
-		outputRange: [0, 1.5, 0]
+		outputRange: [0, 1.5, 0],
 	});
 
 	return (
 		<Animated.View
 			style={{
-				position: 'absolute',
+				position: "absolute",
 				width: 10,
 				height: 10,
 				borderRadius: 5,
 				backgroundColor: color,
 				transform: [{ translateX }, { translateY }, { scale }],
 				opacity,
-				zIndex: 100
+				zIndex: 100,
 			}}
 		/>
 	);
-}
+};
 
 const Fireworks = () => {
 	const particles = Array.from({ length: 45 }).map((_, i) => ({
 		id: i,
-		angle: (Math.PI * 2 * i) / 20 + (Math.random() * 0.8),
+		angle: (Math.PI * 2 * i) / 20 + Math.random() * 0.8,
 		distance: 80 + Math.random() * 120, // shoot out pretty far
 		delay: Math.random() * 2000, // random delays up to 2 seconds for a 2-3s effect
-		color: ['#F59E0B', '#10B981', '#3EC9B5', '#EC4899', '#8B5CF6', '#38BDF8'][Math.floor(Math.random() * 6)]
+		color: ["#F59E0B", "#10B981", "#3EC9B5", "#EC4899", "#8B5CF6", "#38BDF8"][
+			Math.floor(Math.random() * 6)
+		],
 	}));
 
 	return (
-		<View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center', zIndex: 50 }]} pointerEvents="none">
-			{particles.map(p => (
+		<View
+			pointerEvents="none"
+			style={[
+				StyleSheet.absoluteFill,
+				{ alignItems: "center", justifyContent: "center", zIndex: 50 },
+			]}
+		>
+			{particles.map((p) => (
 				<FireworkParticle key={p.id} {...p} />
 			))}
 		</View>
 	);
-}
+};
 
 export function ConfidenceMomentScreen() {
 	const router = useRouter();
@@ -149,8 +167,8 @@ export function ConfidenceMomentScreen() {
 							align="center"
 							className="mt-6"
 							description="You've given us exactly what we need to build your personalized health plan."
-							title="Great job!"
 							hideIcon={true}
+							title="Great job!"
 						/>
 
 						{/* Benefits Card */}

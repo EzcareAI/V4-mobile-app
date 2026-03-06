@@ -6,15 +6,7 @@ import {
 	copyAsync,
 	getInfoAsync,
 } from "expo-file-system/legacy";
-import { useFocusEffect } from "expo-router";
-import {
-	Suspense,
-	useCallback,
-	useEffect,
-	useMemo,
-	useRef,
-	useState,
-} from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, PanResponder, Text, View } from "react-native";
 import {
 	Box3,

@@ -18,7 +18,7 @@ function TabBarIcon({
 }) {
 	return (
 		<View style={[styles.iconWrap, focused && styles.iconWrapActive]}>
-			<Icon size={22} color={color} strokeWidth={focused ? 2.5 : 1.8} />
+			<Icon color={color} size={22} strokeWidth={focused ? 2.5 : 1.8} />
 		</View>
 	);
 }
@@ -55,7 +55,7 @@ export default function DashboardLayout() {
 				options={{
 					title: "Home",
 					tabBarIcon: ({ color, focused }) => (
-						<TabBarIcon Icon={Home} color={color} focused={focused} />
+						<TabBarIcon color={color} focused={focused} Icon={Home} />
 					),
 				}}
 			/>
@@ -64,7 +64,7 @@ export default function DashboardLayout() {
 				options={{
 					title: "Progress",
 					tabBarIcon: ({ color, focused }) => (
-						<TabBarIcon Icon={LineChart} color={color} focused={focused} />
+						<TabBarIcon color={color} focused={focused} Icon={LineChart} />
 					),
 				}}
 			/>
@@ -73,7 +73,7 @@ export default function DashboardLayout() {
 				options={{
 					title: "Settings",
 					tabBarIcon: ({ color, focused }) => (
-						<TabBarIcon Icon={Settings} color={color} focused={focused} />
+						<TabBarIcon color={color} focused={focused} Icon={Settings} />
 					),
 				}}
 			/>

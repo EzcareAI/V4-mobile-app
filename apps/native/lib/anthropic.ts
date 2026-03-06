@@ -34,7 +34,9 @@ export const anthropicService = {
 			});
 
 			if (!response.ok) {
-				const errorData = (await response.json()) as { error?: { message?: string } };
+				const errorData = (await response.json()) as {
+					error?: { message?: string };
+				};
 				console.error("Anthropic API Error:", errorData);
 				throw new Error(
 					errorData.error?.message || "Failed to call Anthropic API"

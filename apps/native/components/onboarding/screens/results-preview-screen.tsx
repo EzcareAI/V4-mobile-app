@@ -1,7 +1,20 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useEffect, useState, useRef } from "react";
+import {
+	Activity,
+	Brain,
+	ChevronRight,
+	Dna,
+	Dumbbell,
+	FlaskConical,
+	GraduationCap,
+	HeartPulse,
+	Microscope,
+	Moon,
+	Sparkles,
+} from "lucide-react-native";
+import { useEffect, useRef, useState } from "react";
 import {
 	Animated,
 	Linking,
@@ -12,7 +25,6 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import { ChevronRight, Dna, FlaskConical, GraduationCap, Microscope, Moon, HeartPulse, Dumbbell, Activity, Brain, Sparkles } from "lucide-react-native";
 import Svg, {
 	Circle,
 	Defs,
@@ -97,22 +109,56 @@ const PulseRing = ({ delay = 0, color = "#10B981" }) => {
 	);
 };
 
-const TwinkleStar = ({ delay = 0, size = 20, color = "#FBBF24", top, left, right, bottom }: any) => {
+const TwinkleStar = ({
+	delay = 0,
+	size = 20,
+	color = "#FBBF24",
+	top,
+	left,
+	right,
+	bottom,
+}: any) => {
 	const twinkleAnim = useRef(new Animated.Value(0)).current;
 
 	useEffect(() => {
 		Animated.loop(
 			Animated.sequence([
 				Animated.delay(delay),
-				Animated.timing(twinkleAnim, { toValue: 1, duration: 1000, useNativeDriver: true }),
-				Animated.timing(twinkleAnim, { toValue: 0, duration: 1000, useNativeDriver: true }),
+				Animated.timing(twinkleAnim, {
+					toValue: 1,
+					duration: 1000,
+					useNativeDriver: true,
+				}),
+				Animated.timing(twinkleAnim, {
+					toValue: 0,
+					duration: 1000,
+					useNativeDriver: true,
+				}),
 			])
 		).start();
 	}, [twinkleAnim, delay]);
 
 	return (
-		<Animated.View style={{ position: "absolute", top, left, right, bottom, opacity: twinkleAnim, transform: [{ scale: twinkleAnim.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1.2] }) }], zIndex: 10 }}>
-			<Sparkles color={color} size={size} fill={color} />
+		<Animated.View
+			style={{
+				position: "absolute",
+				top,
+				left,
+				right,
+				bottom,
+				opacity: twinkleAnim,
+				transform: [
+					{
+						scale: twinkleAnim.interpolate({
+							inputRange: [0, 1],
+							outputRange: [0.5, 1.2],
+						}),
+					},
+				],
+				zIndex: 10,
+			}}
+		>
+			<Sparkles color={color} fill={color} size={size} />
 		</Animated.View>
 	);
 };
@@ -177,18 +223,19 @@ export default function ResultsPreviewScreen() {
 		let start = 0;
 		const duration = 1500;
 		const animateScore = (timestamp: number) => {
-			if (!start) start = timestamp;
+			if (!start) {
+				start = timestamp;
+			}
 			const progress = Math.min((timestamp - start) / duration, 1);
 			// Ease-out cubic polynomial
-			const easeOut = 1 - Math.pow(1 - progress, 3);
+			const easeOut = 1 - (1 - progress) ** 3;
 			setDisplayScore(Math.floor(easeOut * computed));
-			
+
 			if (progress < 1) {
 				requestAnimationFrame(animateScore);
 			}
 		};
 		requestAnimationFrame(animateScore);
-
 	}, [computeHealthScore, setAnswer, fadeAnim, slideAnimY, floatAnimY]);
 
 	const scoreInfo = getScoreColor(score);
@@ -209,22 +256,58 @@ export default function ResultsPreviewScreen() {
 	const getProbableCauses = () => {
 		if (score < 50) {
 			return [
-				{ icon: <HeartPulse color="#EF4444" size={20} />, iconBg: "bg-red-50", text: "High stress levels detected" },
-				{ icon: <Moon color="#8B5CF6" size={20} />, iconBg: "bg-purple-50", text: "Poor sleep quality metrics" },
-				{ icon: <Dumbbell color="#F59E0B" size={20} />, iconBg: "bg-amber-50", text: "Limited physical activity" },
+				{
+					icon: <HeartPulse color="#EF4444" size={20} />,
+					iconBg: "bg-red-50",
+					text: "High stress levels detected",
+				},
+				{
+					icon: <Moon color="#8B5CF6" size={20} />,
+					iconBg: "bg-purple-50",
+					text: "Poor sleep quality metrics",
+				},
+				{
+					icon: <Dumbbell color="#F59E0B" size={20} />,
+					iconBg: "bg-amber-50",
+					text: "Limited physical activity",
+				},
 			];
 		}
 		if (score < 70) {
 			return [
-				{ icon: <HeartPulse color="#EF4444" size={20} />, iconBg: "bg-red-50", text: "Moderate stress indicators" },
-				{ icon: <Moon color="#8B5CF6" size={20} />, iconBg: "bg-purple-50", text: "Variable sleep patterns" },
-				{ icon: <Activity color="#3B82F6" size={20} />, iconBg: "bg-blue-50", text: "Inconsistent lifestyle habits" },
+				{
+					icon: <HeartPulse color="#EF4444" size={20} />,
+					iconBg: "bg-red-50",
+					text: "Moderate stress indicators",
+				},
+				{
+					icon: <Moon color="#8B5CF6" size={20} />,
+					iconBg: "bg-purple-50",
+					text: "Variable sleep patterns",
+				},
+				{
+					icon: <Activity color="#3B82F6" size={20} />,
+					iconBg: "bg-blue-50",
+					text: "Inconsistent lifestyle habits",
+				},
 			];
 		}
 		return [
-			{ icon: <Activity color="#10B981" size={20} />, iconBg: "bg-emerald-50", text: "Good lifestyle balance" },
-			{ icon: <Brain color="#10B981" size={20} />, iconBg: "bg-emerald-50", text: "Consistent wellness routines" },
-			{ icon: <HeartPulse color="#10B981" size={20} />, iconBg: "bg-emerald-50", text: "Active health mindset" },
+			{
+				icon: <Activity color="#10B981" size={20} />,
+				iconBg: "bg-emerald-50",
+				text: "Good lifestyle balance",
+			},
+			{
+				icon: <Brain color="#10B981" size={20} />,
+				iconBg: "bg-emerald-50",
+				text: "Consistent wellness routines",
+			},
+			{
+				icon: <HeartPulse color="#10B981" size={20} />,
+				iconBg: "bg-emerald-50",
+				text: "Active health mindset",
+			},
 		];
 	};
 
@@ -259,7 +342,10 @@ export default function ResultsPreviewScreen() {
 			showsVerticalScrollIndicator={false}
 		>
 			{/* Premium Header */}
-			<Animated.View style={{ opacity: fadeAnim }} className="relative px-6 pt-6 pb-6">
+			<Animated.View
+				className="relative px-6 pt-6 pb-6"
+				style={{ opacity: fadeAnim }}
+			>
 				<LinearGradient
 					colors={["#F8FAFC", "#F1F5F9"]}
 					style={StyleSheet.absoluteFill}
@@ -267,27 +353,58 @@ export default function ResultsPreviewScreen() {
 				<Text className="mb-2 text-center font-bold text-[28px] text-ezcare-navy tracking-tight">
 					Your AI Blueprint is Ready 🚀
 				</Text>
-				<Text className="mb-5 text-center text-[15px] text-ezcare-slate leading-6 px-2">
-					We've analyzed 40+ distinct biomarkers to engineer a highly personalized longevity protocol for you.
+				<Text className="mb-5 px-2 text-center text-[15px] text-ezcare-slate leading-6">
+					We've analyzed 40+ distinct biomarkers to engineer a highly
+					personalized longevity protocol for you.
 				</Text>
 
 				{/* Elevated Health Score Display */}
 				<Animated.View
+					className={`${scoreInfo.bg} mb-4 items-center overflow-hidden rounded-[32px] border border-white p-6 shadow-blue-100/50 shadow-xl`}
 					style={{ transform: [{ translateY: floatAnimY }] }}
-					className={`${scoreInfo.bg} mb-4 items-center rounded-[32px] border border-white p-6 shadow-blue-100/50 shadow-xl overflow-hidden`}
 				>
 					{/* Premium Magical Fireworks/Sparkles overlay */}
-					<TwinkleStar delay={100} size={32} color="#FBBF24" top={10} left={10} />
-					<TwinkleStar delay={800} size={24} color="#2DE2E2" top={30} right={15} />
-					<TwinkleStar delay={400} size={36} color="#FACC15" bottom={20} left={25} />
-					<TwinkleStar delay={1200} size={28} color="#10B981" bottom={40} right={20} />
-					<TwinkleStar delay={1600} size={20} color="#60A5FA" top={80} left={-5} />
+					<TwinkleStar
+						color="#FBBF24"
+						delay={100}
+						left={10}
+						size={32}
+						top={10}
+					/>
+					<TwinkleStar
+						color="#2DE2E2"
+						delay={800}
+						right={15}
+						size={24}
+						top={30}
+					/>
+					<TwinkleStar
+						bottom={20}
+						color="#FACC15"
+						delay={400}
+						left={25}
+						size={36}
+					/>
+					<TwinkleStar
+						bottom={40}
+						color="#10B981"
+						delay={1200}
+						right={20}
+						size={28}
+					/>
+					<TwinkleStar
+						color="#60A5FA"
+						delay={1600}
+						left={-5}
+						size={20}
+						top={80}
+					/>
 
 					<View className="relative h-[220px] w-[220px] items-center justify-center">
-						<PulseRing delay={0} color={scoreInfo.gradient[0]} />
-						<PulseRing delay={800} color={scoreInfo.gradient[1]} />
-						<PulseRing delay={1600} color={scoreInfo.gradient[0]} />
-						
+						<PulseRing color={scoreInfo.gradient[0]} delay={0} />
+						<PulseRing color={scoreInfo.gradient[1]} delay={800} />
+						<PulseRing color={scoreInfo.gradient[0]} delay={1600} />
+
 						<Svg height={220} viewBox="0 0 220 220" width={220}>
 							<Defs>
 								<SvgGradient
@@ -301,7 +418,7 @@ export default function ResultsPreviewScreen() {
 									<Stop offset="100%" stopColor={scoreInfo.gradient[1]} />
 								</SvgGradient>
 							</Defs>
-							
+
 							{/* Outer Decorative Tech Track */}
 							<Circle
 								cx="110"
@@ -312,7 +429,7 @@ export default function ResultsPreviewScreen() {
 								strokeDasharray="2 10"
 								strokeWidth="3"
 							/>
-							
+
 							{/* Background Main Track */}
 							<Circle
 								cx="110"
@@ -322,7 +439,7 @@ export default function ResultsPreviewScreen() {
 								stroke="#F1F5F9"
 								strokeWidth="16"
 							/>
-							
+
 							{/* Progress Bar (Animated) */}
 							<Circle
 								cx="110"
@@ -336,14 +453,19 @@ export default function ResultsPreviewScreen() {
 								transform="rotate(-90 110 110)"
 							/>
 						</Svg>
-						<View className="absolute items-center justify-center mt-2">
-							<Text 
-								className="text-center font-black" 
-								style={{ fontSize: 72, color: scoreInfo.gradient[0], letterSpacing: -3, lineHeight: 74 }}
+						<View className="absolute mt-2 items-center justify-center">
+							<Text
+								className="text-center font-black"
+								style={{
+									fontSize: 72,
+									color: scoreInfo.gradient[0],
+									letterSpacing: -3,
+									lineHeight: 74,
+								}}
 							>
 								{displayScore}
 							</Text>
-							<Text className="font-extrabold text-[#94A3B8] text-[13px] uppercase tracking-[0.2em] mt-1">
+							<Text className="mt-1 font-extrabold text-[#94A3B8] text-[13px] uppercase tracking-[0.2em]">
 								/ 100
 							</Text>
 						</View>
@@ -358,9 +480,9 @@ export default function ResultsPreviewScreen() {
 			</Animated.View>
 
 			{/* Main Content Sections */}
-			<Animated.View 
-				style={{ opacity: fadeAnim, transform: [{ translateY: slideAnimY }] }} 
+			<Animated.View
 				className="px-6 py-4"
+				style={{ opacity: fadeAnim, transform: [{ translateY: slideAnimY }] }}
 			>
 				{/* Focus Area Card */}
 				{intentType === "zone" && primaryZoneName && (
@@ -392,15 +514,17 @@ export default function ResultsPreviewScreen() {
 							className="mb-2 flex-row items-center rounded-2xl bg-white p-3 shadow-sm"
 							key={cause.text}
 						>
-							<View className={`mr-4 h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cause.iconBg || 'bg-slate-50'}`}>
+							<View
+								className={`mr-4 h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cause.iconBg || "bg-slate-50"}`}
+							>
 								{cause.icon}
 							</View>
-							<Text className="flex-1 font-medium text-[#29303D]">{cause.text}</Text>
+							<Text className="flex-1 font-medium text-[#29303D]">
+								{cause.text}
+							</Text>
 						</View>
 					))}
 				</View>
-
-
 
 				{/* Methodology Options Card */}
 				<View className="mb-5 overflow-hidden rounded-[24px] border border-[#F1F5F9] bg-[#F8FAFC] p-5">
@@ -413,8 +537,9 @@ export default function ResultsPreviewScreen() {
 						</Text>
 					</View>
 
-					<Text className="mb-5 text-[#64748B] text-[15px] leading-6 font-medium">
-						Your plan is backed by peer-reviewed research from leading institutions:
+					<Text className="mb-5 font-medium text-[#64748B] text-[15px] leading-6">
+						Your plan is backed by peer-reviewed research from leading
+						institutions:
 					</Text>
 
 					{/* Research Links */}
@@ -426,7 +551,7 @@ export default function ResultsPreviewScreen() {
 							onPress={() => Linking.openURL("https://sleep.hms.harvard.edu/")}
 						>
 							<View className="mr-4 items-center justify-center">
-								<GraduationCap fill="#DC2626" color="#DC2626" size={24} />
+								<GraduationCap color="#DC2626" fill="#DC2626" size={24} />
 							</View>
 							<View className="flex-1">
 								<Text className="font-bold text-[#1E293B] text-[15px]">
@@ -443,10 +568,12 @@ export default function ResultsPreviewScreen() {
 						<TouchableOpacity
 							activeOpacity={0.7}
 							className="flex-row items-center rounded-[16px] border border-[#E2E8F0] bg-white p-4"
-							onPress={() => Linking.openURL("https://pubmed.ncbi.nlm.nih.gov/")}
+							onPress={() =>
+								Linking.openURL("https://pubmed.ncbi.nlm.nih.gov/")
+							}
 						>
 							<View className="mr-4 items-center justify-center">
-								<Microscope strokeWidth={2.5} color="#2563EB" size={24} />
+								<Microscope color="#2563EB" size={24} strokeWidth={2.5} />
 							</View>
 							<View className="flex-1">
 								<Text className="font-bold text-[#1E293B] text-[15px]">
@@ -463,10 +590,14 @@ export default function ResultsPreviewScreen() {
 						<TouchableOpacity
 							activeOpacity={0.7}
 							className="flex-row items-center rounded-[16px] border border-[#E2E8F0] bg-white p-4"
-							onPress={() => Linking.openURL("https://www.niddk.nih.gov/health-information/digestive-diseases")}
+							onPress={() =>
+								Linking.openURL(
+									"https://www.niddk.nih.gov/health-information/digestive-diseases"
+								)
+							}
 						>
 							<View className="mr-4 items-center justify-center">
-								<Dna strokeWidth={2.5} color="#16A34A" size={24} />
+								<Dna color="#16A34A" size={24} strokeWidth={2.5} />
 							</View>
 							<View className="flex-1">
 								<Text className="font-bold text-[#1E293B] text-[15px]">
@@ -484,7 +615,7 @@ export default function ResultsPreviewScreen() {
 				{/* Fixed Floating CTA */}
 				<TouchableOpacity
 					activeOpacity={0.9}
-					className="mt-6 mb-16 overflow-hidden rounded-[24px] shadow-2xl shadow-[#28B898]/30 mx-2"
+					className="mx-2 mt-6 mb-16 overflow-hidden rounded-[24px] shadow-2xl shadow-[#28B898]/30"
 					onPress={handleUnlock}
 				>
 					<LinearGradient

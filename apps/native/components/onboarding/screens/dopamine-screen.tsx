@@ -1,9 +1,15 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Activity, Sparkles, Zap, TrendingUp } from "lucide-react-native";
+import { Activity, Zap } from "lucide-react-native";
 import { useEffect, useRef } from "react";
 import { Animated, Text, View } from "react-native";
-import Svg, { Path, Defs, LinearGradient as SvgGradient, Stop, Text as SvgText } from "react-native-svg";
+import Svg, {
+	Defs,
+	Path,
+	Stop,
+	LinearGradient as SvgGradient,
+	Text as SvgText,
+} from "react-native-svg";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 
@@ -90,9 +96,7 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 					</LinearGradient>
 
 					<Text className="text-center font-bold text-[#1A2138] text-[32px] leading-tight">
-						{isReinforcement
-							? "Great start."
-							: "Your path to recovery."}
+						{isReinforcement ? "Great start." : "Your path to recovery."}
 					</Text>
 
 					<Text className="mt-4 text-center font-medium text-[#60708F] text-lg leading-6">
@@ -110,27 +114,47 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 						</View>
 
 						<View className="h-[140px] w-full">
-							<Svg width="100%" height="100%" viewBox="0 0 310 150" preserveAspectRatio="none">
+							<Svg
+								height="100%"
+								preserveAspectRatio="none"
+								viewBox="0 0 310 150"
+								width="100%"
+							>
 								<Defs>
-									<SvgGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+									<SvgGradient id="lineGrad" x1="0" x2="1" y1="0" y2="0">
 										<Stop offset="0" stopColor="#3EC9B5" stopOpacity="0.2" />
 										<Stop offset="0.5" stopColor="#3EC9B5" stopOpacity="0.8" />
 										<Stop offset="1" stopColor="#28B898" stopOpacity="1" />
 									</SvgGradient>
-									<SvgGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
+									<SvgGradient id="fillGrad" x1="0" x2="0" y1="0" y2="1">
 										<Stop offset="0" stopColor="#3EC9B5" stopOpacity="0.25" />
 										<Stop offset="1" stopColor="#3EC9B5" stopOpacity="0" />
 									</SvgGradient>
-									<SvgGradient id="fillRedGrad" x1="0" y1="0" x2="0" y2="1">
+									<SvgGradient id="fillRedGrad" x1="0" x2="0" y1="0" y2="1">
 										<Stop offset="0" stopColor="#EF4444" stopOpacity="0.18" />
 										<Stop offset="1" stopColor="#EF4444" stopOpacity="0" />
 									</SvgGradient>
 								</Defs>
-								
+
 								{/* Grid Lines */}
-								<Path d="M 0 35 L 310 35" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4,4" />
-								<Path d="M 0 70 L 310 70" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4,4" />
-								<Path d="M 0 105 L 310 105" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4,4" />
+								<Path
+									d="M 0 35 L 310 35"
+									stroke="#F1F5F9"
+									strokeDasharray="4,4"
+									strokeWidth="1"
+								/>
+								<Path
+									d="M 0 70 L 310 70"
+									stroke="#F1F5F9"
+									strokeDasharray="4,4"
+									strokeWidth="1"
+								/>
+								<Path
+									d="M 0 105 L 310 105"
+									stroke="#F1F5F9"
+									strokeDasharray="4,4"
+									strokeWidth="1"
+								/>
 
 								{/* Animated Fill (With EZCare) */}
 								<AnimatedPath
@@ -142,7 +166,7 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 									fill="url(#fillGrad)"
 									opacity={fillOpacityAnim}
 								/>
-								
+
 								{/* Without EZCare Red Fill */}
 								<AnimatedPath
 									d={
@@ -163,10 +187,10 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 									}
 									fill="none"
 									stroke="#EF4444"
-									strokeWidth="3"
-									strokeLinecap="round"
 									strokeDasharray="400"
 									strokeDashoffset={pathAnim}
+									strokeLinecap="round"
+									strokeWidth="3"
 								/>
 
 								{/* With EZCare Animated Curve */}
@@ -178,18 +202,30 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 									}
 									fill="none"
 									stroke="url(#lineGrad)"
-									strokeWidth="4"
-									strokeLinecap="round"
 									strokeDasharray="400"
 									strokeDashoffset={pathAnim}
+									strokeLinecap="round"
+									strokeWidth="4"
 								/>
 
 								{/* Terminal End Labels */}
-								<SvgText x={278} y={isReinforcement ? 34 : 9} fill="#3EC9B5" fontSize="13" fontWeight="900">
+								<SvgText
+									fill="#3EC9B5"
+									fontSize="13"
+									fontWeight="900"
+									x={278}
+									y={isReinforcement ? 34 : 9}
+								>
 									{isReinforcement ? "+42%" : "+85%"}
 								</SvgText>
 
-								<SvgText x={278} y={142} fill="#EF4444" fontSize="12" fontWeight="bold">
+								<SvgText
+									fill="#EF4444"
+									fontSize="12"
+									fontWeight="bold"
+									x={278}
+									y={142}
+								>
 									0%
 								</SvgText>
 							</Svg>
@@ -197,7 +233,9 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 
 						{/* Timestamps */}
 						<View className="mt-2 flex-row justify-between px-1">
-							<Text className="font-medium text-[#94A3B8] text-[11px] uppercase tracking-wider">Today</Text>
+							<Text className="font-medium text-[#94A3B8] text-[11px] uppercase tracking-wider">
+								Today
+							</Text>
 							<Text className="font-medium text-[#94A3B8] text-[11px] uppercase tracking-wider">
 								{isReinforcement ? "Week 4" : "Month 3"}
 							</Text>
@@ -205,15 +243,19 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 								{isReinforcement ? "Week 12" : "Month 6"}
 							</Text>
 						</View>
-						
+
 						<View className="mt-4 flex-row justify-center gap-6">
 							<View className="flex-row items-center gap-2">
 								<View className="h-2.5 w-2.5 rounded-full bg-[#3EC9B5]" />
-								<Text className="font-medium text-[#60708F] text-xs">With EZCare</Text>
+								<Text className="font-medium text-[#60708F] text-xs">
+									With EZCare
+								</Text>
 							</View>
 							<View className="flex-row items-center gap-2">
 								<View className="h-2.5 w-2.5 rounded-full bg-[#EF4444]" />
-								<Text className="font-medium text-[#EF4444] text-xs">Without</Text>
+								<Text className="font-medium text-[#EF4444] text-xs">
+									Without
+								</Text>
 							</View>
 						</View>
 					</View>

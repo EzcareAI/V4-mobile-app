@@ -4,8 +4,11 @@ import { useRouter } from "expo-router";
 import { Heart, TrendingUp, Zap } from "lucide-react-native";
 import React from "react";
 import { Platform, ScrollView, Text, View } from "react-native";
-import { useSharedValue, withTiming, useAnimatedStyle } from "react-native-reanimated";
-import Animated from "react-native-reanimated";
+import Animated, {
+	useAnimatedStyle,
+	useSharedValue,
+	withTiming,
+} from "react-native-reanimated";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
@@ -86,25 +89,42 @@ export const PerfectPlanScreen = () => {
 							</View>
 
 							{/* Graph Section */}
-							<View className="h-56 mt-4 flex-row items-end justify-center gap-[4px] border-b-2 border-slate-100 pb-4 mb-4">
+							<View className="mt-4 mb-4 h-56 flex-row items-end justify-center gap-[4px] border-slate-100 border-b-2 pb-4">
 								{/* Without EZCare Bar */}
-								<View className="items-center flex-1">
-									<Text className="mb-2 font-black text-red-500 text-lg">20%</Text>
-									<View className="w-20 h-40 bg-red-50 rounded-t-2xl overflow-hidden justify-end">
-										<Animated.View className="w-full bg-red-300 rounded-t-2xl" style={withoutRefStyle} />
+								<View className="flex-1 items-center">
+									<Text className="mb-2 font-black text-lg text-red-500">
+										20%
+									</Text>
+									<View className="h-40 w-20 justify-end overflow-hidden rounded-t-2xl bg-red-50">
+										<Animated.View
+											className="w-full rounded-t-2xl bg-red-300"
+											style={withoutRefStyle}
+										/>
 									</View>
-									<Text className="mt-4 font-bold text-red-400 text-xs text-center leading-4">Without{"\n"}EZCare</Text>
+									<Text className="mt-4 text-center font-bold text-red-400 text-xs leading-4">
+										Without{"\n"}EZCare
+									</Text>
 								</View>
 
 								{/* With EZCare Bar */}
-								<View className="items-center flex-1">
-									<Text className="mb-2 font-black text-[#28B898] text-3xl">89%</Text>
-									<View className="w-24 h-40 bg-emerald-50 rounded-t-2xl overflow-hidden justify-end">
-										<Animated.View className="w-full rounded-t-2xl overflow-hidden" style={withRefStyle}>
-											<LinearGradient colors={["#2DE2E2", "#28B898"]} style={{ flex: 1 }} />
+								<View className="flex-1 items-center">
+									<Text className="mb-2 font-black text-3xl text-[#28B898]">
+										89%
+									</Text>
+									<View className="h-40 w-24 justify-end overflow-hidden rounded-t-2xl bg-emerald-50">
+										<Animated.View
+											className="w-full overflow-hidden rounded-t-2xl"
+											style={withRefStyle}
+										>
+											<LinearGradient
+												colors={["#2DE2E2", "#28B898"]}
+												style={{ flex: 1 }}
+											/>
 										</Animated.View>
 									</View>
-									<Text className="mt-4 font-bold text-[#29303D] text-[13px] text-center leading-4">With{"\n"}EZCare</Text>
+									<Text className="mt-4 text-center font-bold text-[#29303D] text-[13px] leading-4">
+										With{"\n"}EZCare
+									</Text>
 								</View>
 							</View>
 						</View>
@@ -120,7 +140,11 @@ export const PerfectPlanScreen = () => {
 									<View className="h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/20">
 										<Heart color="white" fill="white" size={28} />
 									</View>
-									<Text className="flex-1 font-black text-2xl text-white tracking-tight" numberOfLines={1} adjustsFontSizeToFit>
+									<Text
+										adjustsFontSizeToFit
+										className="flex-1 font-black text-2xl text-white tracking-tight"
+										numberOfLines={1}
+									>
 										Keep Going!
 									</Text>
 								</View>

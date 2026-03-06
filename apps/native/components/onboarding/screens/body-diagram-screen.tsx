@@ -10,7 +10,8 @@ import { StepHeader } from "../common/step-header";
 
 export default function BodyDiagramScreen() {
 	const router = useRouter();
-	const { nextStep, setAnswer, bodyZoneSelected, currentStep } = useOnboardingStore();
+	const { nextStep, setAnswer, bodyZoneSelected, currentStep } =
+		useOnboardingStore();
 
 	const initialZones = bodyZoneSelected || [];
 	const [selectedZones, setSelectedZones] = useState<string[]>(initialZones);

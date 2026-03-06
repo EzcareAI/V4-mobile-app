@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, {
 	useAnimatedStyle,
@@ -9,11 +9,11 @@ import Animated, {
 	withTiming,
 } from "react-native-reanimated";
 
-type Props = {
+interface Props {
 	isActive: boolean;
 	colors?: string[];
 	count?: number;
-};
+}
 
 const Particle = ({
 	index,
@@ -72,11 +72,7 @@ const Particle = ({
 
 	return (
 		<Animated.View
-			style={[
-				styles.particle,
-				{ backgroundColor: color },
-				animatedStyle,
-			]}
+			style={[styles.particle, { backgroundColor: color }, animatedStyle]}
 		/>
 	);
 };
@@ -86,18 +82,20 @@ export function ConfettiBurst({
 	colors = ["#3EC9B5", "#FF4F6E", "#FCD34D", "#FFFFFF", "#28B898"],
 	count = 12,
 }: Props) {
-	if (!isActive) return null;
+	if (!isActive) {
+		return null;
+	}
 
 	return (
-		<View style={StyleSheet.absoluteFill} pointerEvents="none">
+		<View pointerEvents="none" style={StyleSheet.absoluteFill}>
 			<View style={styles.center}>
 				{Array.from({ length: count }).map((_, i) => (
 					<Particle
-						key={i}
-						index={i}
-						isActive={isActive}
 						colors={colors}
 						count={count}
+						index={i}
+						isActive={isActive}
+						key={i}
 					/>
 				))}
 			</View>

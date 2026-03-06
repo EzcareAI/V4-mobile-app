@@ -1,31 +1,24 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
+	Animated,
 	BackHandler,
-	Modal,
 	Platform,
 	ScrollView,
 	StyleSheet,
 	Text,
 	TouchableOpacity,
 	View,
-	Animated,
 } from "react-native";
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
-
-
 export default function PaywallScreen() {
 	const router = useRouter();
-	const {
-		setAnswer,
-		nextStep,
-		currentStep,
-		onboardingRecordId,
-	} = useOnboardingStore();
+	const { setAnswer, nextStep, currentStep, onboardingRecordId } =
+		useOnboardingStore();
 	const [isProcessing, setIsProcessing] = useState(false);
 	const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -41,7 +34,7 @@ export default function PaywallScreen() {
 					toValue: 1,
 					duration: 800,
 					useNativeDriver: true,
-				})
+				}),
 			])
 		).start();
 	}, [pulseAnim]);
@@ -56,7 +49,10 @@ export default function PaywallScreen() {
 				}
 				return false;
 			};
-			const backSubscription = BackHandler.addEventListener("hardwareBackPress", onBackPress);
+			const backSubscription = BackHandler.addEventListener(
+				"hardwareBackPress",
+				onBackPress
+			);
 			return () => backSubscription.remove();
 		}, [router])
 	);
@@ -109,7 +105,7 @@ export default function PaywallScreen() {
 			]);
 
 			setIsProcessing(false);
-			
+
 			if (planType === "annual") {
 				nextStep();
 				router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
@@ -122,8 +118,6 @@ export default function PaywallScreen() {
 			}
 		}, 2000);
 	};
-
-
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
@@ -164,27 +158,33 @@ export default function PaywallScreen() {
 						/>
 
 						{/* Best Value Badge */}
-						<View className="absolute top-0 left-0 right-0 items-center bg-yellow-400 py-1 shadow-sm">
-							<Text className="text-center font-black text-[#29303D] text-[9px] uppercase tracking-widest leading-3">
+						<View className="absolute top-0 right-0 left-0 items-center bg-yellow-400 py-1 shadow-sm">
+							<Text className="text-center font-black text-[#29303D] text-[9px] uppercase leading-3 tracking-widest">
 								MOST{"\n"}POPULAR
 							</Text>
 						</View>
 
-						<Text className="mt-7 font-bold text-xl text-white">Annual</Text>
+						<Text className="mt-7 font-bold text-white text-xl">Annual</Text>
 						<View className="mt-1.5 self-start rounded-full bg-yellow-400 px-2 py-1 shadow-sm">
-							<Text className="font-black text-[10px] text-[#1A2138] uppercase tracking-wider">Save 80%</Text>
+							<Text className="font-black text-[#1A2138] text-[10px] uppercase tracking-wider">
+								Save 80%
+							</Text>
 						</View>
 
 						<View className="mt-3 mb-1">
-							<Text className="font-black text-3xl text-white tracking-tighter">$3.33</Text>
-							<Text className="font-bold text-white/80 text-xs mt-0.5">/ month</Text>
+							<Text className="font-black text-3xl text-white tracking-tighter">
+								$3.33
+							</Text>
+							<Text className="mt-0.5 font-bold text-white/80 text-xs">
+								/ month
+							</Text>
 						</View>
 						<Text className="font-medium text-[11px] text-white/90">
 							Billed $39.99 yearly
 						</Text>
 
 						<View className="mt-4 rounded-[14px] bg-white py-3.5 shadow-sm">
-							<Text className="text-center font-black text-[13px] text-[#28B898] uppercase tracking-wide">
+							<Text className="text-center font-black text-[#28B898] text-[13px] uppercase tracking-wide">
 								Unlock Now
 							</Text>
 						</View>
@@ -197,14 +197,22 @@ export default function PaywallScreen() {
 						disabled={isProcessing}
 						onPress={() => handlePayment("monthly")}
 					>
-						<Text className="mt-6 font-bold text-[#29303D] text-lg">Monthly</Text>
-						<Text className="mt-1 text-[#73808C] text-[11px] h-6">Zero commitment</Text>
+						<Text className="mt-6 font-bold text-[#29303D] text-lg">
+							Monthly
+						</Text>
+						<Text className="mt-1 h-6 text-[#73808C] text-[11px]">
+							Zero commitment
+						</Text>
 
 						<View className="mt-3 mb-1">
-							<Text className="font-black text-2xl text-[#29303D] tracking-tighter">$11.99</Text>
-							<Text className="font-bold text-[#73808C] text-xs mt-0.5">/ month</Text>
+							<Text className="font-black text-2xl text-[#29303D] tracking-tighter">
+								$11.99
+							</Text>
+							<Text className="mt-0.5 font-bold text-[#73808C] text-xs">
+								/ month
+							</Text>
 						</View>
-						<Text className="font-medium text-[11px] text-[#73808C]">
+						<Text className="font-medium text-[#73808C] text-[11px]">
 							Billed monthly
 						</Text>
 
@@ -221,31 +229,55 @@ export default function PaywallScreen() {
 					<Text className="mb-6 text-center font-bold text-[#29303D] text-lg">
 						Choose Your Best Path
 					</Text>
-					
+
 					{/* Annual Pros/Cons */}
-					<Animated.View style={{ transform: [{ scale: pulseAnim }], zIndex: 10 }}>
-						<View className="mb-6 rounded-2xl border-2 border-yellow-400 bg-yellow-50 p-4 shadow-lg shadow-yellow-200 relative">
-							<View className="absolute -top-3 right-4 bg-yellow-400 px-3 py-1 rounded-full shadow-sm">
-								<Text className="text-[9px] font-black text-[#422006] uppercase tracking-wider">Recommended</Text>
+					<Animated.View
+						style={{ transform: [{ scale: pulseAnim }], zIndex: 10 }}
+					>
+						<View className="relative mb-6 rounded-2xl border-2 border-yellow-400 bg-yellow-50 p-4 shadow-lg shadow-yellow-200">
+							<View className="absolute -top-3 right-4 rounded-full bg-yellow-400 px-3 py-1 shadow-sm">
+								<Text className="font-black text-[#422006] text-[9px] uppercase tracking-wider">
+									Recommended
+								</Text>
 							</View>
-							<Text className="mb-3 font-black text-[#502808] text-base tracking-wide">✨ Annual Plan</Text>
+							<Text className="mb-3 font-black text-[#502808] text-base tracking-wide">
+								✨ Annual Plan
+							</Text>
 							<View className="gap-y-2">
-								<Text className="text-[#422006] font-medium text-[13px] leading-5">✅ Biggest discount (Save 80%)</Text>
-								<Text className="text-[#422006] font-medium text-[13px] leading-5">✅ Full year commitment to results</Text>
-								<Text className="text-[#422006] font-medium text-[13px] leading-5">✅ Lowest monthly cost ($3.33/mo)</Text>
-								<Text className="text-[#422006]/60 text-[13px] leading-5">❌ Paid upfront</Text>
+								<Text className="font-medium text-[#422006] text-[13px] leading-5">
+									✅ Biggest discount (Save 80%)
+								</Text>
+								<Text className="font-medium text-[#422006] text-[13px] leading-5">
+									✅ Full year commitment to results
+								</Text>
+								<Text className="font-medium text-[#422006] text-[13px] leading-5">
+									✅ Lowest monthly cost ($3.33/mo)
+								</Text>
+								<Text className="text-[#422006]/60 text-[13px] leading-5">
+									❌ Paid upfront
+								</Text>
 							</View>
 						</View>
 					</Animated.View>
 
 					{/* Monthly Pros/Cons */}
 					<View className="rounded-2xl bg-slate-50 p-4">
-						<Text className="mb-3 font-bold text-[#73808C] text-base">Monthly Plan</Text>
+						<Text className="mb-3 font-bold text-[#73808C] text-base">
+							Monthly Plan
+						</Text>
 						<View className="gap-y-2">
-							<Text className="text-[#334155] text-[13px] leading-5">✅ Zero long-term commitment</Text>
-							<Text className="text-[#334155] text-[13px] leading-5">✅ Cancel anytime</Text>
-							<Text className="text-[#334155] text-[13px] leading-5">✅ Lowest upfront cost</Text>
-							<Text className="text-[#73808C] text-[13px] leading-5">❌ Nearly 4x more expensive</Text>
+							<Text className="text-[#334155] text-[13px] leading-5">
+								✅ Zero long-term commitment
+							</Text>
+							<Text className="text-[#334155] text-[13px] leading-5">
+								✅ Cancel anytime
+							</Text>
+							<Text className="text-[#334155] text-[13px] leading-5">
+								✅ Lowest upfront cost
+							</Text>
+							<Text className="text-[#73808C] text-[13px] leading-5">
+								❌ Nearly 4x more expensive
+							</Text>
 						</View>
 					</View>
 				</View>
@@ -278,8 +310,6 @@ export default function PaywallScreen() {
 					</View>
 				</View>
 
-
-
 				{/* Fine Print */}
 				<Text className="mx-10 mt-8 text-center text-[#73808C] text-[11px] leading-5">
 					By starting your subscription, you agree to our Terms of Service and
@@ -287,7 +317,6 @@ export default function PaywallScreen() {
 					settings.
 				</Text>
 			</ScrollView>
-
 		</View>
 	);
 }

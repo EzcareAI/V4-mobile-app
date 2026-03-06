@@ -1,9 +1,9 @@
-import { Ionicons } from "@expo/vector-icons";
 import Anthropic from "@anthropic-ai/sdk";
+import { Ionicons } from "@expo/vector-icons";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
 	ActivityIndicator,
 	KeyboardAvoidingView,
@@ -23,15 +23,15 @@ import { useOnboardingStore } from "@/stores/onboarding-store";
 const apiKey = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
 
 const anthropic = new Anthropic({
-	apiKey: apiKey || "dummy_key_to_prevent_sdk_crash", 
-	dangerouslyAllowBrowser: true, 
+	apiKey: apiKey || "dummy_key_to_prevent_sdk_crash",
+	dangerouslyAllowBrowser: true,
 });
 
-type Message = {
+interface Message {
 	id: string;
 	role: "user" | "assistant";
 	content: string;
-};
+}
 
 export default function ChatScreen() {
 	const { firstName, healthScore } = useOnboardingStore();
@@ -51,7 +51,9 @@ export default function ChatScreen() {
 	const scrollRef = useRef<ScrollView>(null);
 
 	const handleSend = async () => {
-		if (!input.trim() || isLoading) return;
+		if (!input.trim() || isLoading) {
+			return;
+		}
 
 		const userText = input.trim();
 		setInput("");
@@ -67,7 +69,7 @@ export default function ChatScreen() {
 				...messages,
 				{ id: Date.now().toString(), role: "user", content: userText },
 				{
-					id: Date.now().toString() + "-err",
+					id: `${Date.now().toString()}-err`,
 					role: "assistant",
 					content:
 						"⚠️ API Key Missing: Please ensure your EXPO_PUBLIC_ANTHROPIC_API_KEY is correctly set in apps/native/.env and rebuild the app to start chatting.",
@@ -110,7 +112,7 @@ export default function ChatScreen() {
 			setMessages((prev) => [
 				...prev,
 				{
-					id: Date.now().toString() + "-ai",
+					id: `${Date.now().toString()}-ai`,
 					role: "assistant",
 					content: assistantReply,
 				},
@@ -120,7 +122,7 @@ export default function ChatScreen() {
 			setMessages((prev) => [
 				...prev,
 				{
-					id: Date.now().toString() + "-err",
+					id: `${Date.now().toString()}-err`,
 					role: "assistant",
 					content:
 						"I'm sorry, I couldn't reach my network connection right now. Please ensure your `EXPO_PUBLIC_ANTHROPIC_API_KEY` is set in the `.env` file.",
@@ -135,22 +137,22 @@ export default function ChatScreen() {
 		setTimeout(() => {
 			scrollRef.current?.scrollToEnd({ animated: true });
 		}, 100);
-	}, [messages]);
+	}, []);
 
 	return (
-		<SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
+		<SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
 			<KeyboardAvoidingView
-				style={styles.container}
 				behavior={Platform.OS === "ios" ? "padding" : undefined}
+				style={styles.container}
 			>
 				{/* HEADER */}
 				<View style={styles.header}>
 					<TouchableOpacity
-						onPress={() => router.back()}
 						hitSlop={8}
+						onPress={() => router.back()}
 						style={styles.backBtn}
 					>
-						<Ionicons name="chevron-back" size={24} color="#FFFFFF" />
+						<Ionicons color="#FFFFFF" name="chevron-back" size={24} />
 					</TouchableOpacity>
 					<View style={styles.headerTitleContainer}>
 						<Text style={styles.headerTitle}>EZBuddy AI</Text>
@@ -164,10 +166,10 @@ export default function ChatScreen() {
 
 				{/* CHAT AREA */}
 				<ScrollView
-					ref={scrollRef}
-					style={styles.chatArea}
 					contentContainerStyle={styles.chatContent}
+					ref={scrollRef}
 					showsVerticalScrollIndicator={false}
+					style={styles.chatArea}
 				>
 					{messages.map((m) => {
 						const isUser = m.role === "user";
@@ -184,7 +186,7 @@ export default function ChatScreen() {
 										colors={["#28B898", "#3EC9B5"]}
 										style={styles.aiAvatar}
 									>
-										<Ionicons name="sparkles" size={14} color="#0B0E17" />
+										<Ionicons color="#0B0E17" name="sparkles" size={14} />
 									</LinearGradient>
 								)}
 								<View
@@ -211,10 +213,10 @@ export default function ChatScreen() {
 								colors={["#28B898", "#3EC9B5"]}
 								style={styles.aiAvatar}
 							>
-								<Ionicons name="sparkles" size={14} color="#0B0E17" />
+								<Ionicons color="#0B0E17" name="sparkles" size={14} />
 							</LinearGradient>
 							<View style={[styles.messageCard, styles.aiCard]}>
-								<ActivityIndicator size="small" color="#3EC9B5" />
+								<ActivityIndicator color="#3EC9B5" size="small" />
 							</View>
 						</View>
 					)}
@@ -224,23 +226,23 @@ export default function ChatScreen() {
 				<View style={styles.inputArea}>
 					<View style={styles.inputWrapper}>
 						<TextInput
-							style={styles.textInput}
+							maxLength={500}
+							multiline
+							onChangeText={setInput}
 							placeholder="Message EZBuddy..."
 							placeholderTextColor="#94A3B8"
+							style={styles.textInput}
 							value={input}
-							onChangeText={setInput}
-							multiline
-							maxLength={500}
 						/>
 						<TouchableOpacity
-							style={[styles.sendBtn, !input.trim() && styles.sendBtnDisabled]}
-							onPress={handleSend}
 							disabled={!input.trim() || isLoading}
+							onPress={handleSend}
+							style={[styles.sendBtn, !input.trim() && styles.sendBtnDisabled]}
 						>
 							<Ionicons
+								color={input.trim() ? "#0B0E17" : "#94A3B8"}
 								name="arrow-up"
 								size={20}
-								color={input.trim() ? "#0B0E17" : "#94A3B8"}
 							/>
 						</TouchableOpacity>
 					</View>

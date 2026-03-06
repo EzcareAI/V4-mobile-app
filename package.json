@@ -37,7 +37,9 @@
   },
   "dependencies": {
     "@ezcare/env": "workspace:*",
+    "@expo/config-plugins": "~8.0.10",
     "dotenv": "^17.2.3",
+    "expo-modules-autolinking": "~1.11.3",
     "zod": "^4.3.5"
   },
   "devDependencies": {

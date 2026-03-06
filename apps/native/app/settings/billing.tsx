@@ -1,6 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
+	ActivityIndicator,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -8,9 +10,59 @@ import {
 	View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { supabase } from "@/lib/supabase";
+import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export default function BillingScreen() {
 	const router = useRouter();
+	const { onboardingRecordId, subscriptionStatus } = useOnboardingStore();
+
+	const [loading, setLoading] = useState(true);
+	const [activePlan, setActivePlan] = useState<string>(
+		subscriptionStatus === "active" ? "pro" : "free"
+	);
+
+	useEffect(() => {
+		async function fetchLiveSubscription() {
+			try {
+				const {
+					data: { user },
+				} = await supabase.auth.getUser();
+
+				let query = supabase
+					.from("onboarding_profiles")
+					.select("paywall_plan_selected");
+
+				if (user?.id) {
+					query = query.eq("user_id", user.id);
+				} else if (onboardingRecordId) {
+					query = query.eq("id", onboardingRecordId);
+				} else {
+					setLoading(false);
+					return;
+				}
+
+				const { data, error } = await query
+					.order("created_at", { ascending: false })
+					.limit(1)
+					.single();
+
+				if (data && !error) {
+					if (data.paywall_plan_selected === "active") {
+						setActivePlan("pro");
+					} else {
+						setActivePlan("free");
+					}
+				}
+			} catch (e) {
+				console.error("Failed to fetch live subscription data", e);
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		fetchLiveSubscription();
+	}, [onboardingRecordId]);
 
 	return (
 		<SafeAreaView edges={["top"]} style={styles.safe}>
@@ -24,23 +76,32 @@ export default function BillingScreen() {
 			</View>
 
 			<ScrollView contentContainerStyle={styles.content} style={styles.scroll}>
-				<View style={styles.emptyState}>
-					<View style={styles.iconCircle}>
-						<Ionicons color="#3EC9B5" name="receipt-outline" size={40} />
-					</View>
-					<Text style={styles.emptyTitle}>No Billing History</Text>
-					<Text style={styles.emptySub}>
-						You do not have any active subscriptions or past invoices. Upgrade
-						to Pro to unlock advanced AI features.
-					</Text>
+				{loading ? (
+					<ActivityIndicator color="#3EC9B5" size="large" />
+				) : (
+					<View style={styles.emptyState}>
+						<View style={styles.iconCircle}>
+							<Ionicons color="#3EC9B5" name="receipt-outline" size={40} />
+						</View>
+						<Text style={styles.emptyTitle}>
+							{activePlan === "pro" ? "No Past Invoices" : "No Billing History"}
+						</Text>
+						<Text style={styles.emptySub}>
+							{activePlan === "pro"
+								? "You are currently subscribed to EZCare Pro. You have no past invoices to display."
+								: "You do not have any active subscriptions or past invoices. Upgrade to Pro to unlock advanced AI features."}
+						</Text>
 
-					<TouchableOpacity
-						onPress={() => router.push("/settings/subscription")}
-						style={styles.ctaBtn}
-					>
-						<Text style={styles.ctaText}>View Plans</Text>
-					</TouchableOpacity>
-				</View>
+						{activePlan === "free" && (
+							<TouchableOpacity
+								onPress={() => router.push("/settings/subscription")}
+								style={styles.ctaBtn}
+							>
+								<Text style={styles.ctaText}>View Plans</Text>
+							</TouchableOpacity>
+						)}
+					</View>
+				)}
 			</ScrollView>
 		</SafeAreaView>
 	);

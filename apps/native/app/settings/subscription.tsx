@@ -1,6 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
+	ActivityIndicator,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -8,9 +10,59 @@ import {
 	View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { supabase } from "@/lib/supabase";
+import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export default function SubscriptionScreen() {
 	const router = useRouter();
+	const { onboardingRecordId, subscriptionStatus } = useOnboardingStore();
+
+	const [loading, setLoading] = useState(true);
+	const [activePlan, setActivePlan] = useState<string>(
+		subscriptionStatus === "active" ? "pro" : "free"
+	);
+
+	useEffect(() => {
+		async function fetchLiveSubscription() {
+			try {
+				const {
+					data: { user },
+				} = await supabase.auth.getUser();
+
+				let query = supabase
+					.from("onboarding_profiles")
+					.select("paywall_plan_selected");
+
+				if (user?.id) {
+					query = query.eq("user_id", user.id);
+				} else if (onboardingRecordId) {
+					query = query.eq("id", onboardingRecordId);
+				} else {
+					setLoading(false);
+					return;
+				}
+
+				const { data, error } = await query
+					.order("created_at", { ascending: false })
+					.limit(1)
+					.single();
+
+				if (data && !error) {
+					if (data.paywall_plan_selected === "active") {
+						setActivePlan("pro");
+					} else {
+						setActivePlan("free");
+					}
+				}
+			} catch (e) {
+				console.error("Failed to fetch live subscription data", e);
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		fetchLiveSubscription();
+	}, [onboardingRecordId]);
 
 	return (
 		<SafeAreaView edges={["top"]} style={styles.safe}>
@@ -24,72 +76,95 @@ export default function SubscriptionScreen() {
 			</View>
 
 			<ScrollView contentContainerStyle={styles.content} style={styles.scroll}>
-				{/* Current Plan Card */}
-				<View style={[styles.card, styles.activeCard]}>
-					<View style={styles.planHeader}>
-						<Text style={styles.planTitle}>Free Plan</Text>
-						<View style={styles.activeBadge}>
-							<Text style={styles.activeBadgeText}>CURRENT</Text>
-						</View>
+				{loading ? (
+					<View style={styles.loadingContainer}>
+						<ActivityIndicator color="#3EC9B5" size="large" />
 					</View>
-					<Text style={styles.planPrice}>
-						$0 <Text style={styles.planPeriod}>/ mo</Text>
-					</Text>
-
-					<View style={styles.featuresList}>
-						<View style={styles.featureRow}>
-							<Ionicons color="#3EC9B5" name="checkmark-circle" size={18} />
-							<Text style={styles.featureText}>Basic Body Scanning</Text>
-						</View>
-						<View style={styles.featureRow}>
-							<Ionicons color="#3EC9B5" name="checkmark-circle" size={18} />
-							<Text style={styles.featureText}>Daily Check-ins</Text>
-						</View>
-						<View style={styles.featureRow}>
-							<Ionicons color="#3EC9B5" name="checkmark-circle" size={18} />
-							<Text style={styles.featureText}>
-								Limited EZBuddy Chats (10/day)
+				) : (
+					<>
+						{/* Current Plan Card */}
+						<View
+							style={[styles.card, activePlan === "free" && styles.activeCard]}
+						>
+							<View style={styles.planHeader}>
+								<Text style={styles.planTitle}>Free Plan</Text>
+								{activePlan === "free" && (
+									<View style={styles.activeBadge}>
+										<Text style={styles.activeBadgeText}>CURRENT</Text>
+									</View>
+								)}
+							</View>
+							<Text style={styles.planPrice}>
+								$0 <Text style={styles.planPeriod}>/ mo</Text>
 							</Text>
-						</View>
-					</View>
-				</View>
 
-				{/* Pro Plan Card */}
-				<View style={styles.card}>
-					<View style={styles.planHeader}>
-						<Text style={styles.planTitle}>EZCare Pro</Text>
-					</View>
-					<Text style={styles.planPrice}>
-						$19.99 <Text style={styles.planPeriod}>/ mo</Text>
-					</Text>
-
-					<View style={styles.featuresList}>
-						<View style={styles.featureRow}>
-							<Ionicons color="#3EC9B5" name="checkmark-circle" size={18} />
-							<Text style={styles.featureText}>Unlimited EZBuddy AI Chats</Text>
+							<View style={styles.featuresList}>
+								<View style={styles.featureRow}>
+									<Ionicons color="#3EC9B5" name="checkmark-circle" size={18} />
+									<Text style={styles.featureText}>Basic Body Scanning</Text>
+								</View>
+								<View style={styles.featureRow}>
+									<Ionicons color="#3EC9B5" name="checkmark-circle" size={18} />
+									<Text style={styles.featureText}>Daily Check-ins</Text>
+								</View>
+								<View style={styles.featureRow}>
+									<Ionicons color="#3EC9B5" name="checkmark-circle" size={18} />
+									<Text style={styles.featureText}>
+										Limited EZBuddy Chats (10/day)
+									</Text>
+								</View>
+							</View>
 						</View>
-						<View style={styles.featureRow}>
-							<Ionicons color="#3EC9B5" name="checkmark-circle" size={18} />
-							<Text style={styles.featureText}>
-								Advanced Multimodal Input (Vision/Voice)
+
+						{/* Pro Plan Card */}
+						<View
+							style={[styles.card, activePlan === "pro" && styles.activeCard]}
+						>
+							<View style={styles.planHeader}>
+								<Text style={styles.planTitle}>EZCare Pro</Text>
+								{activePlan === "pro" && (
+									<View style={styles.activeBadge}>
+										<Text style={styles.activeBadgeText}>CURRENT</Text>
+									</View>
+								)}
+							</View>
+							<Text style={styles.planPrice}>
+								$19.99 <Text style={styles.planPeriod}>/ mo</Text>
 							</Text>
-						</View>
-						<View style={styles.featureRow}>
-							<Ionicons color="#3EC9B5" name="checkmark-circle" size={18} />
-							<Text style={styles.featureText}>
-								Detailed Medical Source Analysis
-							</Text>
-						</View>
-						<View style={styles.featureRow}>
-							<Ionicons color="#3EC9B5" name="checkmark-circle" size={18} />
-							<Text style={styles.featureText}>Priority Support</Text>
-						</View>
-					</View>
 
-					<TouchableOpacity style={styles.upgradeBtn}>
-						<Text style={styles.upgradeBtnText}>Upgrade to Pro</Text>
-					</TouchableOpacity>
-				</View>
+							<View style={styles.featuresList}>
+								<View style={styles.featureRow}>
+									<Ionicons color="#3EC9B5" name="checkmark-circle" size={18} />
+									<Text style={styles.featureText}>
+										Unlimited EZBuddy AI Chats
+									</Text>
+								</View>
+								<View style={styles.featureRow}>
+									<Ionicons color="#3EC9B5" name="checkmark-circle" size={18} />
+									<Text style={styles.featureText}>
+										Advanced Multimodal Input (Vision/Voice)
+									</Text>
+								</View>
+								<View style={styles.featureRow}>
+									<Ionicons color="#3EC9B5" name="checkmark-circle" size={18} />
+									<Text style={styles.featureText}>
+										Detailed Medical Source Analysis
+									</Text>
+								</View>
+								<View style={styles.featureRow}>
+									<Ionicons color="#3EC9B5" name="checkmark-circle" size={18} />
+									<Text style={styles.featureText}>Priority Support</Text>
+								</View>
+							</View>
+
+							{activePlan === "free" && (
+								<TouchableOpacity style={styles.upgradeBtn}>
+									<Text style={styles.upgradeBtnText}>Upgrade to Pro</Text>
+								</TouchableOpacity>
+							)}
+						</View>
+					</>
+				)}
 			</ScrollView>
 		</SafeAreaView>
 	);
@@ -110,7 +185,8 @@ const styles = StyleSheet.create({
 	backBtn: { width: 40, alignItems: "flex-start", paddingVertical: 4 },
 	headerTitle: { fontSize: 18, fontWeight: "800", color: "#1A1A2E" },
 	scroll: { flex: 1 },
-	content: { padding: 24, paddingBottom: 60 },
+	content: { padding: 24, paddingBottom: 60, flexGrow: 1 },
+	loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
 	card: {
 		backgroundColor: "#FFFFFF",
 		borderRadius: 24,

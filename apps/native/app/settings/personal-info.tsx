@@ -1,6 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
+	ActivityIndicator,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -8,11 +10,69 @@ import {
 	View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export default function PersonalInfoScreen() {
 	const router = useRouter();
-	const { firstName, email, bodyZoneSelected } = useOnboardingStore();
+	const {
+		onboardingRecordId,
+		firstName: localFirstName,
+		email: localEmail,
+		bodyZoneSelected: localZones,
+	} = useOnboardingStore();
+
+	const [loading, setLoading] = useState(true);
+	const [profileData, setProfileData] = useState<{
+		first_name?: string;
+		email?: string;
+		body_parts_selected?: string[];
+	}>({});
+
+	useEffect(() => {
+		async function fetchLiveProfile() {
+			try {
+				const {
+					data: { user },
+				} = await supabase.auth.getUser();
+
+				let query = supabase
+					.from("onboarding_profiles")
+					.select("first_name, email, body_parts_selected");
+
+				if (user?.id) {
+					query = query.eq("user_id", user.id);
+				} else if (onboardingRecordId) {
+					query = query.eq("id", onboardingRecordId);
+				} else {
+					setLoading(false);
+					return;
+				}
+
+				const { data, error } = await query
+					.order("created_at", { ascending: false })
+					.limit(1)
+					.single();
+
+				if (data && !error) {
+					setProfileData(data);
+				}
+			} catch (e) {
+				console.error("Failed to fetch live profile data", e);
+			} finally {
+				setLoading(false);
+			}
+		}
+
+		fetchLiveProfile();
+	}, [onboardingRecordId]);
+
+	const displayFirstName =
+		profileData.first_name || localFirstName || "Not provided";
+	const displayEmail = profileData.email || localEmail || "Not provided";
+	const displayZones = profileData.body_parts_selected?.length
+		? profileData.body_parts_selected
+		: localZones || [];
 
 	return (
 		<SafeAreaView edges={["top"]} style={styles.safe}>
@@ -26,37 +86,45 @@ export default function PersonalInfoScreen() {
 			</View>
 
 			<ScrollView contentContainerStyle={styles.content} style={styles.scroll}>
-				<View style={styles.card}>
-					<Text style={styles.sectionLabel}>ACCOUNT DETAILS</Text>
-
-					<View style={styles.row}>
-						<Text style={styles.label}>Name</Text>
-						<Text style={styles.value}>{firstName || "Not provided"}</Text>
+				{loading ? (
+					<View style={styles.loadingContainer}>
+						<ActivityIndicator color="#3EC9B5" size="large" />
 					</View>
-					<View style={styles.divider} />
-					<View style={styles.row}>
-						<Text style={styles.label}>Email</Text>
-						<Text style={styles.value}>{email || "Not provided"}</Text>
-					</View>
-				</View>
+				) : (
+					<>
+						<View style={styles.card}>
+							<Text style={styles.sectionLabel}>ACCOUNT DETAILS</Text>
 
-				<View style={styles.card}>
-					<Text style={styles.sectionLabel}>HEALTH PROFILE</Text>
+							<View style={styles.row}>
+								<Text style={styles.label}>Name</Text>
+								<Text style={styles.value}>{displayFirstName}</Text>
+							</View>
+							<View style={styles.divider} />
+							<View style={styles.row}>
+								<Text style={styles.label}>Email</Text>
+								<Text style={styles.value}>{displayEmail}</Text>
+							</View>
+						</View>
 
-					<View style={styles.row}>
-						<Text style={styles.label}>Target Areas</Text>
-						<Text style={styles.value}>
-							{bodyZoneSelected && bodyZoneSelected.length > 0
-								? bodyZoneSelected.join(", ")
-								: "None selected"}
+						<View style={styles.card}>
+							<Text style={styles.sectionLabel}>HEALTH PROFILE</Text>
+
+							<View style={styles.row}>
+								<Text style={styles.label}>Target Areas</Text>
+								<Text style={styles.value}>
+									{displayZones.length > 0
+										? displayZones.join(", ")
+										: "None selected"}
+								</Text>
+							</View>
+						</View>
+
+						<Text style={styles.footerNote}>
+							To update your email or primary health targets, please contact
+							support.
 						</Text>
-					</View>
-				</View>
-
-				<Text style={styles.footerNote}>
-					To update your email or primary health targets, please contact
-					support.
-				</Text>
+					</>
+				)}
 			</ScrollView>
 		</SafeAreaView>
 	);
@@ -83,7 +151,8 @@ const styles = StyleSheet.create({
 	backBtn: { width: 40, alignItems: "flex-start", paddingVertical: 4 },
 	headerTitle: { fontSize: 18, fontWeight: "800", color: "#1A1A2E" },
 	scroll: { flex: 1 },
-	content: { padding: 24, paddingBottom: 60 },
+	content: { padding: 24, paddingBottom: 60, flexGrow: 1 },
+	loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
 	card: {
 		backgroundColor: "#FFFFFF",
 		borderRadius: 20,

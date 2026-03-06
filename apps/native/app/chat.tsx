@@ -4,10 +4,15 @@ import Voice, {
 	type SpeechErrorEvent,
 	type SpeechResultsEvent,
 } from "@react-native-voice/voice";
-import * as DocumentPicker from "expo-document-picker";
-import * as FileSystem from "expo-file-system";
+import { getDocumentAsync } from "expo-document-picker";
+import { readAsStringAsync } from "expo-file-system";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
-import * as ImagePicker from "expo-image-picker";
+import {
+	launchCameraAsync,
+	launchImageLibraryAsync,
+	requestCameraPermissionsAsync,
+	requestMediaLibraryPermissionsAsync,
+} from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -110,7 +115,7 @@ export default function ChatScreen() {
 				}
 				await Voice.start("en-US");
 				setIsListening(true);
-			} catch (err) {
+			} catch (_err) {
 				Alert.alert(
 					"Microphone Error",
 					"Could not start voice recognition. Please check permissions."
@@ -121,9 +126,8 @@ export default function ChatScreen() {
 
 	// ── Image Picker ───────────────────────────────────────
 	const pickImage = async (source: "camera" | "gallery") => {
-		let result: ImagePicker.ImagePickerResult;
 		if (source === "camera") {
-			const { status } = await ImagePicker.requestCameraPermissionsAsync();
+			const { status } = await requestCameraPermissionsAsync();
 			if (status !== "granted") {
 				Alert.alert(
 					"Permission required",
@@ -131,14 +135,29 @@ export default function ChatScreen() {
 				);
 				return;
 			}
-			result = await ImagePicker.launchCameraAsync({
+			const result = await launchCameraAsync({
 				base64: true,
 				quality: 0.7,
 				mediaTypes: "images",
 			});
+			if (!result.canceled && result.assets[0].base64) {
+				const asset = result.assets[0];
+				const ext = asset.uri.split(".").pop()?.toLowerCase();
+				let mediaType: AttachedImage["mediaType"] = "image/jpeg";
+				if (ext === "png") {
+					mediaType = "image/png";
+				} else if (ext === "webp") {
+					mediaType = "image/webp";
+				}
+				setAttachedImage({
+					uri: asset.uri,
+					base64: asset.base64 ?? "",
+					mediaType,
+				});
+				setAttachedDoc(null);
+			}
 		} else {
-			const { status } =
-				await ImagePicker.requestMediaLibraryPermissionsAsync();
+			const { status } = await requestMediaLibraryPermissionsAsync();
 			if (status !== "granted") {
 				Alert.alert(
 					"Permission required",
@@ -146,36 +165,40 @@ export default function ChatScreen() {
 				);
 				return;
 			}
-			result = await ImagePicker.launchImageLibraryAsync({
+			const result = await launchImageLibraryAsync({
 				base64: true,
 				quality: 0.7,
 				mediaTypes: "images",
 			});
-		}
-		if (!result.canceled && result.assets[0].base64) {
-			const asset = result.assets[0];
-			const ext = asset.uri.split(".").pop()?.toLowerCase();
-			const mediaType: AttachedImage["mediaType"] =
-				ext === "png"
-					? "image/png"
-					: ext === "webp"
-						? "image/webp"
-						: "image/jpeg";
-			setAttachedImage({ uri: asset.uri, base64: asset.base64!, mediaType });
-			setAttachedDoc(null);
+			if (!result.canceled && result.assets[0].base64) {
+				const asset = result.assets[0];
+				const ext = asset.uri.split(".").pop()?.toLowerCase();
+				let mediaType: AttachedImage["mediaType"] = "image/jpeg";
+				if (ext === "png") {
+					mediaType = "image/png";
+				} else if (ext === "webp") {
+					mediaType = "image/webp";
+				}
+				setAttachedImage({
+					uri: asset.uri,
+					base64: asset.base64 ?? "",
+					mediaType,
+				});
+				setAttachedDoc(null);
+			}
 		}
 	};
 
 	// ── Document Picker ────────────────────────────────────
 	const pickDocument = async () => {
-		const result = await DocumentPicker.getDocumentAsync({
+		const result = await getDocumentAsync({
 			type: ["text/plain", "text/csv", "application/json"],
 			copyToCacheDirectory: true,
 		});
 		if (!result.canceled && result.assets[0]) {
 			const asset = result.assets[0];
 			try {
-				const text = await FileSystem.readAsStringAsync(asset.uri);
+				const text = await readAsStringAsync(asset.uri);
 				setAttachedDoc({ name: asset.name, text: text.slice(0, 8000) }); // cap at 8k chars
 				setAttachedImage(null);
 			} catch {
@@ -337,7 +360,7 @@ export default function ChatScreen() {
 				...prev,
 				{ id: `${Date.now()}-ai`, role: "assistant", content: assistantReply },
 			]);
-		} catch (error) {
+		} catch (_error) {
 			setMessages((prev) => [
 				...prev,
 				{

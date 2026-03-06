@@ -23,6 +23,11 @@ function StackLayout() {
 	const onboardingComplete = useOnboardingStore(
 		(state) => state.onboardingComplete
 	);
+	const currentStep = useOnboardingStore((state) => state.currentStep);
+	const totalSteps = useOnboardingStore((state) => state.totalSteps);
+
+	// True if the user has started but not yet completed onboarding
+	const onboardingInProgress = currentStep > 0 && currentStep <= totalSteps;
 
 	useEffect(() => {
 		if (isPending) {
@@ -42,6 +47,12 @@ function StackLayout() {
 			pathname.includes("privacy-policy") ||
 			pathname.includes("terms-of-service");
 
+		// Never redirect a user who is actively going through onboarding steps,
+		// even if they just authenticated (e.g. via Google/Apple/email signup)
+		if (onboardingInProgress) {
+			return;
+		}
+
 		if (!(onboardingComplete || inOnboarding || inAuth)) {
 			router.replace("/(onboarding)");
 		} else if (onboardingComplete && isOnboardingSplash) {
@@ -49,7 +60,7 @@ function StackLayout() {
 			// (users should be able to navigate steps even after completing onboarding)
 			router.replace("/(dashboard)");
 		}
-	}, [isPending, onboardingComplete, pathname, router]);
+	}, [isPending, onboardingComplete, onboardingInProgress, pathname, router]);
 
 	return (
 		<Stack screenOptions={{ headerShown: false }}>

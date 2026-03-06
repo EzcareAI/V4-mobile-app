@@ -30,8 +30,6 @@ const GREY = "#94A3B8";
 export default function SettingsScreen() {
 	const router = useRouter();
 	const {
-		firstName,
-		email,
 		notificationsEnabled,
 		morningCheckInTime,
 		eveningCheckInTime,
@@ -96,7 +94,9 @@ export default function SettingsScreen() {
 		if (Platform.OS === "ios") {
 			try {
 				await impactAsync(ImpactFeedbackStyle.Light);
-			} catch {}
+			} catch {
+				/* ignore */
+			}
 		}
 		setCopied(true);
 		setTimeout(() => setCopied(false), 2500);
@@ -110,7 +110,9 @@ export default function SettingsScreen() {
 			await Share.share({
 				message: `🌿 I'm using EZCare AI to track my health naturally. Join me and use my referral code: ${myReferralCode}\n\nDownload the app today!`,
 			});
-		} catch {}
+		} catch {
+			/* ignore */
+		}
 	};
 
 	return (
@@ -305,17 +307,43 @@ export default function SettingsScreen() {
 					onPress={() =>
 						Alert.alert(
 							"Delete Account",
-							"Are you sure you want to delete your account? This action is irreversible.",
+							"This will permanently delete your account and all your data. This cannot be undone.",
 							[
 								{ text: "Cancel", style: "cancel" },
 								{
-									text: "Confirm Delete",
+									text: "Delete Forever",
 									style: "destructive",
-									onPress: () =>
+									onPress: () => {
 										Alert.alert(
-											"Account Deletion",
-											"Please contact support to completely erase your data."
-										),
+											"Are you absolutely sure?",
+											"Your health data, progress, and subscription will be permanently erased.",
+											[
+												{ text: "Cancel", style: "cancel" },
+												{
+													text: "Yes, Delete My Account",
+													style: "destructive",
+													onPress: async () => {
+														try {
+															// Call the Supabase RPC that deletes the authenticated user
+															const { error: rpcError } =
+																await supabase.rpc("delete_user");
+															if (rpcError) {
+																Alert.alert(
+																	"Error",
+																	`Could not delete account: ${rpcError.message}. Please contact support@ezcare.ai`
+																);
+																return;
+															}
+														} catch {
+															// If the RPC doesn't exist yet, fall through to sign-out
+														}
+														await supabase.auth.signOut();
+														router.replace("/(onboarding)");
+													},
+												},
+											]
+										);
+									},
 								},
 							]
 						)

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import {
 	Alert,
 	Clipboard,
+	Linking,
 	Platform,
 	ScrollView,
 	Share,
@@ -15,6 +16,7 @@ import {
 	View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { TimePickerModal } from "@/components/common/time-picker-modal";
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
@@ -39,6 +41,8 @@ export default function SettingsScreen() {
 
 	const [copied, setCopied] = useState(false);
 	const [referralCount, setReferralCount] = useState(0);
+	const [showMorningPicker, setShowMorningPicker] = useState(false);
+	const [showEveningPicker, setShowEveningPicker] = useState(false);
 
 	useEffect(() => {
 		const fetchReferralData = async () => {
@@ -163,12 +167,7 @@ export default function SettingsScreen() {
 				<Text style={styles.sectionLabel}>ACCOUNT</Text>
 				<View style={styles.card}>
 					<TouchableOpacity
-						onPress={() =>
-							Alert.alert(
-								"Coming Soon",
-								"You will be able to manage your personal info here."
-							)
-						}
+						onPress={() => router.push("/settings/personal-info")}
 						style={styles.listRow}
 					>
 						<Ionicons color={TEAL} name="person-circle-outline" size={22} />
@@ -181,12 +180,7 @@ export default function SettingsScreen() {
 				<Text style={styles.sectionLabel}>SUBSCRIPTION & BILLING</Text>
 				<View style={styles.card}>
 					<TouchableOpacity
-						onPress={() =>
-							Alert.alert(
-								"Coming Soon",
-								"Subscription management will be available shortly."
-							)
-						}
+						onPress={() => router.push("/settings/subscription")}
 						style={styles.listRow}
 					>
 						<Ionicons color={TEAL} name="card-outline" size={22} />
@@ -195,12 +189,7 @@ export default function SettingsScreen() {
 					</TouchableOpacity>
 					<View style={styles.divider} />
 					<TouchableOpacity
-						onPress={() =>
-							Alert.alert(
-								"Coming Soon",
-								"Billing history will be available shortly."
-							)
-						}
+						onPress={() => router.push("/settings/billing")}
 						style={styles.listRow}
 					>
 						<Ionicons color={TEAL} name="receipt-outline" size={22} />
@@ -236,12 +225,7 @@ export default function SettingsScreen() {
 							</Text>
 						</View>
 						<TouchableOpacity
-							onPress={() =>
-								Alert.alert(
-									"Time Picker",
-									"In a real app, this opens the native iOS/Android time picker."
-								)
-							}
+							onPress={() => setShowMorningPicker(true)}
 							style={styles.timeRow}
 						>
 							<Ionicons color="#F97316" name="sunny-outline" size={16} />
@@ -250,12 +234,7 @@ export default function SettingsScreen() {
 							<Ionicons color={GREY} name="chevron-forward" size={16} />
 						</TouchableOpacity>
 						<TouchableOpacity
-							onPress={() =>
-								Alert.alert(
-									"Time Picker",
-									"In a real app, this opens the native iOS/Android time picker."
-								)
-							}
+							onPress={() => setShowEveningPicker(true)}
 							style={styles.timeRow}
 						>
 							<Ionicons color="#6366F1" name="moon-outline" size={16} />
@@ -286,12 +265,17 @@ export default function SettingsScreen() {
 					].map((item, i, arr) => (
 						<View key={item.label}>
 							<TouchableOpacity
-								onPress={() =>
-									Alert.alert(
-										item.label,
-										"This page is currently being updated and will be available soon."
-									)
-								}
+								onPress={() => {
+									if (item.label === "About the App") {
+										router.push("/settings/about");
+									} else if (item.label === "Privacy Policy") {
+										router.push("/(onboarding)/privacy-policy");
+									} else if (item.label === "Terms of Service") {
+										router.push("/(onboarding)/terms-of-service");
+									} else if (item.label === "Medical Sources") {
+										router.push("/settings/medical-sources");
+									}
+								}}
 								style={styles.listRow}
 							>
 								<Ionicons color={TEAL} name={item.icon} size={22} />
@@ -307,12 +291,7 @@ export default function SettingsScreen() {
 				<Text style={styles.sectionLabel}>HELP & SUPPORT</Text>
 				<View style={styles.card}>
 					<TouchableOpacity
-						onPress={() =>
-							Alert.alert(
-								"Contact Support",
-								"Support chat is coming soon. Please email support@ezcare.ai in the meantime."
-							)
-						}
+						onPress={() => Linking.openURL("mailto:support@ezcare.ai")}
 						style={styles.listRow}
 					>
 						<Ionicons color={TEAL} name="help-circle-outline" size={22} />
@@ -369,6 +348,28 @@ export default function SettingsScreen() {
 
 				<Text style={styles.version}>EZCare AI · v1.0.0</Text>
 			</ScrollView>
+
+			<TimePickerModal
+				onCancel={() => setShowMorningPicker(false)}
+				onConfirm={(time) => {
+					setAnswer("morningCheckInTime", time);
+					setShowMorningPicker(false);
+				}}
+				title="Morning Check-In"
+				value={morningCheckInTime || "8:00 AM"}
+				visible={showMorningPicker}
+			/>
+
+			<TimePickerModal
+				onCancel={() => setShowEveningPicker(false)}
+				onConfirm={(time) => {
+					setAnswer("eveningCheckInTime", time);
+					setShowEveningPicker(false);
+				}}
+				title="Evening Check-In"
+				value={eveningCheckInTime || "8:00 PM"}
+				visible={showEveningPicker}
+			/>
 		</SafeAreaView>
 	);
 }

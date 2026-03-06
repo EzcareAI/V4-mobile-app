@@ -67,6 +67,8 @@ interface Body3DSelectorProps {
 	onChange?: (regions: string[]) => void;
 	onInteractionStart?: () => void;
 	onInteractionEnd?: () => void;
+	gender?: "male" | "female";
+	onZoneSelect?: (zoneId: string) => void;
 }
 
 // Global mutable state for current drag delta.

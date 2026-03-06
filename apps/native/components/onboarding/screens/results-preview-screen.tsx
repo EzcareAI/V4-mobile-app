@@ -109,6 +109,16 @@ const PulseRing = ({ delay = 0, color = "#10B981" }) => {
 	);
 };
 
+interface TwinkleStarProps {
+	delay?: number;
+	size?: number;
+	color?: string;
+	top?: number;
+	left?: number;
+	right?: number;
+	bottom?: number;
+}
+
 const TwinkleStar = ({
 	delay = 0,
 	size = 20,
@@ -117,7 +127,7 @@ const TwinkleStar = ({
 	left,
 	right,
 	bottom,
-}: any) => {
+}: TwinkleStarProps) => {
 	const twinkleAnim = useRef(new Animated.Value(0)).current;
 
 	useEffect(() => {

@@ -75,9 +75,21 @@ function getTrend(key: string, val: number | undefined): TrendType {
 		return "Stable";
 	}
 	if (key === "stress") {
-		return val <= 2 ? "Improving" : val >= 4 ? "Worsening" : "Stable";
+		if (val <= 2) {
+			return "Improving";
+		}
+		if (val >= 4) {
+			return "Worsening";
+		}
+		return "Stable";
 	}
-	return val >= 4 ? "Improving" : val <= 2 ? "Worsening" : "Stable";
+	if (val >= 4) {
+		return "Improving";
+	}
+	if (val <= 2) {
+		return "Worsening";
+	}
+	return "Stable";
 }
 
 // ── Mini line chart ─────────────────────────────────
@@ -128,17 +140,17 @@ function LineChart({ data }: { data: { label: string; value: number }[] }) {
 				strokeWidth={2.5}
 			/>
 			{/* area fill – simplified */}
-			{pts.map((p, i) => (
-				<Circle cx={p.x} cy={p.y} fill={TEAL} key={i} r={4} />
+			{pts.map((p) => (
+				<Circle cx={p.x} cy={p.y} fill={TEAL} key={`pt-${p.x}-${p.y}`} r={4} />
 			))}
 			{/* X axis labels */}
-			{data.map((d, i) => (
+			{data.map((d) => (
 				<SvgText
 					fill={GREY}
 					fontSize={8}
-					key={`x${i}`}
+					key={`x-${d.label}`}
 					textAnchor="middle"
-					x={i * spacing}
+					x={pts.find((_, i) => data[i].label === d.label)?.x ?? 0}
 					y={CHART_H + 18}
 				>
 					{d.label}
@@ -150,39 +162,62 @@ function LineChart({ data }: { data: { label: string; value: number }[] }) {
 
 export default function ProgressScreen() {
 	const { healthScore, computeHealthScore } = useOnboardingStore();
-	const { streak, totalXp, lastCheckInValues, checkInHistory } =
-		useDashboardStore();
+	const { streak, lastCheckInValues, checkInHistory } = useDashboardStore();
 	const [range, setRange] = useState<TimeRange>("Day");
 
 	const score = healthScore ?? computeHealthScore();
-	const scoreLabel =
-		score < 50
-			? "Let's build on your foundation!"
-			: score < 75
-				? "Good foundation. Let's optimize further!"
-				: "Great progress! Keep it up!";
+	let scoreLabel = "Great progress! Keep it up!";
+	if (score < 50) {
+		scoreLabel = "Let's build on your foundation!";
+	} else if (score < 75) {
+		scoreLabel = "Good foundation. Let's optimize further!";
+	}
 
 	// ── Dynamic Chart Aggregation ──
-	const buildChartData = () => {
-		if (range === "Day") {
-			// Last 7 days
-			const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-			const res = Array.from({ length: 7 }).map((_, i) => {
-				const d = new Date();
-				d.setDate(d.getDate() - (6 - i));
-				return {
-					label: days[d.getDay()],
-					value: 0,
-					dateStr: d.toISOString().split("T")[0],
-				};
-			});
-			checkInHistory.forEach((rec) => {
-				const dStr = rec.date.split("T")[0];
-				const match = res.find((r) => r.dateStr === dStr);
-				if (match) {
-					// Use average of metrics as daily score approximation (out of 10)
+	// ── Dynamic Chart Aggregation Helpers ──
+	const getDayData = () => {
+		const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+		const res = Array.from({ length: 7 }).map((_, i) => {
+			const d = new Date();
+			d.setDate(d.getDate() - (6 - i));
+			return {
+				label: days[d.getDay()],
+				value: 0,
+				dateStr: d.toISOString().split("T")[0],
+			};
+		});
+		for (const rec of checkInHistory) {
+			const dStr = rec.date.split("T")[0];
+			const match = res.find((r) => r.dateStr === dStr);
+			if (match) {
+				const m = rec.metrics;
+				const normalizedStress = 6 - (m.stress || 3);
+				const avg =
+					((m.sleep || 3) +
+						(m.energy || 3) +
+						(m.digestion || 3) +
+						normalizedStress) /
+					4;
+				match.value = avg * 2;
+			}
+		}
+		return res.map((r) => ({ label: r.label, value: r.value }));
+	};
+
+	const getWeekData = () => {
+		const res = Array.from({ length: 4 }).map((_, i) => ({
+			label: `W${4 - i}`,
+			value: 0,
+			count: 0,
+		}));
+		const now = Date.now();
+		for (const rec of checkInHistory) {
+			const diffDays =
+				(now - new Date(rec.date).getTime()) / (1000 * 3600 * 24);
+			if (diffDays <= 28) {
+				const weekIdx = 3 - Math.floor(diffDays / 7);
+				if (weekIdx >= 0 && weekIdx < 4) {
 					const m = rec.metrics;
-					// stress is inverse (1=good, 5=bad), others are 1=bad, 5=good
 					const normalizedStress = 6 - (m.stress || 3);
 					const avg =
 						((m.sleep || 3) +
@@ -190,46 +225,18 @@ export default function ProgressScreen() {
 							(m.digestion || 3) +
 							normalizedStress) /
 						4;
-					match.value = avg * 2; // Map 1-5 scale up to 1-10 scale
+					res[weekIdx].value += avg * 2;
+					res[weekIdx].count += 1;
 				}
-			});
-			return res.map((r) => ({ label: r.label, value: r.value }));
+			}
 		}
+		return res.map((r) => ({
+			label: r.label,
+			value: r.count > 0 ? r.value / r.count : 0,
+		}));
+	};
 
-		if (range === "Week") {
-			// Last 4 weeks dynamically from history
-			const res = Array.from({ length: 4 }).map((_, i) => ({
-				label: `W${4 - i}`,
-				value: 0,
-				count: 0,
-			}));
-			const now = Date.now();
-			checkInHistory.forEach((rec) => {
-				const diffDays =
-					(now - new Date(rec.date).getTime()) / (1000 * 3600 * 24);
-				if (diffDays <= 28) {
-					const weekIdx = 3 - Math.floor(diffDays / 7);
-					if (weekIdx >= 0 && weekIdx < 4) {
-						const m = rec.metrics;
-						const normalizedStress = 6 - (m.stress || 3);
-						const avg =
-							((m.sleep || 3) +
-								(m.energy || 3) +
-								(m.digestion || 3) +
-								normalizedStress) /
-							4;
-						res[weekIdx].value += avg * 2;
-						res[weekIdx].count += 1;
-					}
-				}
-			});
-			return res.map((r) => ({
-				label: r.label,
-				value: r.count > 0 ? r.value / r.count : 0,
-			}));
-		}
-
-		// 12 Months mapping dynamically (up to 90 days of local history, rest will be 0)
+	const getMonthData = () => {
 		const months = [
 			"Jan",
 			"Feb",
@@ -252,10 +259,10 @@ export default function ProgressScreen() {
 			})
 			.reverse();
 
-		checkInHistory.forEach((rec) => {
+		for (const rec of checkInHistory) {
 			const d = new Date(rec.date);
-			const idx = d.getMonth();
-			const match = res.find((r) => r.monthNum === idx);
+			const monthIdx = d.getMonth();
+			const match = res.find((r) => r.monthNum === monthIdx);
 			if (match) {
 				const m = rec.metrics;
 				const normalizedStress = 6 - (m.stress || 3);
@@ -268,12 +275,17 @@ export default function ProgressScreen() {
 				match.value += avg * 2;
 				match.count += 1;
 			}
-		});
-
+		}
 		return res.map((r) => ({
 			label: r.label,
 			value: r.count > 0 ? r.value / r.count : 0,
 		}));
+	};
+
+	const buildChartData = () => {
+		if (range === "Day") return getDayData();
+		if (range === "Week") return getWeekData();
+		return getMonthData();
 	};
 
 	const chartData = buildChartData();
@@ -339,7 +351,7 @@ export default function ProgressScreen() {
 						<View
 							style={[
 								styles.scoreBarFill,
-								{ width: `${(score / 100) * 100}%` as any },
+								{ width: `${(score / 100) * 100}%` as `${number}%` },
 							]}
 						/>
 					</View>
@@ -398,26 +410,25 @@ export default function ProgressScreen() {
 					{activeSymptoms.map((s) => {
 						// Stable state visual styling
 						const isStable = s.trend === "Stable";
-						const bColor = s.isImproving
-							? "#F0FFF4"
-							: isStable
-								? "#F8FAFC"
-								: "#FFF5F5";
-						const borderColor = s.isImproving
-							? "#86EFAC"
-							: isStable
-								? "#E2E8F0"
-								: "#FECACA";
-						const txtColor = s.isImproving
-							? "#22C55E"
-							: isStable
-								? "#94A3B8"
-								: "#EF4444";
-						const iconName = s.isImproving
-							? "arrow-up"
-							: isStable
-								? "remove"
-								: "arrow-down";
+						let bColor = "#FFF5F5";
+						let borderColor = "#FECACA";
+						let txtColor = "#EF4444";
+						if (s.isImproving) {
+							bColor = "#F0FFF4";
+							borderColor = "#86EFAC";
+							txtColor = "#22C55E";
+						} else if (isStable) {
+							bColor = "#F8FAFC";
+							borderColor = "#E2E8F0";
+							txtColor = "#94A3B8";
+						}
+
+						let iconName: "remove" | "arrow-up" | "arrow-down" = "remove";
+						if (s.isImproving) {
+							iconName = "arrow-up";
+						} else if (!isStable) {
+							iconName = "arrow-down";
+						}
 
 						return (
 							<View
@@ -472,8 +483,8 @@ export default function ProgressScreen() {
 						Your longest streak: {streak} days
 					</Text>
 					<View style={styles.streakFlames}>
-						{Array.from({ length: 7 }).map((_, i) => (
-							<Text key={i} style={{ fontSize: 24 }}>
+						{["f1", "f2", "f3", "f4", "f5", "f6", "f7"].map((k) => (
+							<Text key={k} style={{ fontSize: 24 }}>
 								🔥
 							</Text>
 						))}

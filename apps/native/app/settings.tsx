@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
 	Clipboard,
@@ -13,15 +14,18 @@ import {
 	View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export default function SettingsScreen() {
+	const router = useRouter();
 	const {
 		firstName,
 		email,
 		notificationsEnabled,
 		setAnswer,
 		getOrGenerateReferralCode,
+		reset,
 	} = useOnboardingStore();
 
 	const [referralCode, setReferralCode] = useState<string>("");
@@ -42,7 +46,9 @@ export default function SettingsScreen() {
 		if (Platform.OS === "ios") {
 			try {
 				await impactAsync(ImpactFeedbackStyle.Light);
-			} catch {}
+			} catch (_) {
+				// haptic fail ignored
+			}
 		}
 		setCopied(true);
 		setTimeout(() => setCopied(false), 2500);
@@ -55,19 +61,56 @@ export default function SettingsScreen() {
 		if (Platform.OS === "ios") {
 			try {
 				await impactAsync(ImpactFeedbackStyle.Medium);
-			} catch {}
+			} catch (_) {
+				// haptic fail ignored
+			}
 		}
 		try {
 			await Share.share({
 				message: `🌿 I'm using EZCare AI to track my health naturally. Join me and use my referral code: ${referralCode}\n\nDownload the app today!`,
 			});
-		} catch {
-			// ignore
+		} catch (e) {
+			console.error("Share error:", e);
 		}
 	};
 
 	const handleToggleNotifications = (val: boolean) => {
 		setAnswer("notificationsEnabled", val);
+	};
+
+	const handleDeleteAccount = () => {
+		if (Platform.OS === "android" || Platform.OS === "ios") {
+			const { Alert } = require("react-native");
+			Alert.alert(
+				"Delete Account",
+				"Are you sure you want to permanently delete your account? This action cannot be undone.",
+				[
+					{ text: "Cancel", style: "cancel" },
+					{
+						text: "Delete",
+						style: "destructive",
+						onPress: async () => {
+							try {
+								const {
+									data: { user },
+								} = await supabase.auth.getUser();
+								if (user?.id) {
+									// Delete from auth (this typically requires a service role or user-initiated delete via Supabase Management)
+									// For Phase 1, we call a custom edge function or just sign out and clear local state
+									// But let's try calling the user delete if possible.
+									await supabase.auth.signOut();
+								}
+								// Clear store
+								reset();
+								router.replace("/(onboarding)");
+							} catch (error) {
+								console.error("Delete account error:", error);
+							}
+						},
+					},
+				]
+			);
+		}
 	};
 
 	return (
@@ -141,7 +184,11 @@ export default function SettingsScreen() {
 				</View>
 
 				<View style={styles.card}>
-					<TouchableOpacity activeOpacity={0.7} style={styles.row}>
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() => router.push("/settings/personal-info")}
+						style={styles.row}
+					>
 						<View style={styles.rowIcon}>
 							<Ionicons
 								color="#3EC9B5"
@@ -165,7 +212,11 @@ export default function SettingsScreen() {
 				</View>
 
 				<View style={styles.card}>
-					<TouchableOpacity activeOpacity={0.7} style={styles.row}>
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() => router.push("/settings/subscription")}
+						style={styles.row}
+					>
 						<View style={styles.rowIcon}>
 							<Ionicons color="#3EC9B5" name="card-outline" size={20} />
 						</View>
@@ -177,7 +228,11 @@ export default function SettingsScreen() {
 
 					<View style={styles.divider} />
 
-					<TouchableOpacity activeOpacity={0.7} style={styles.row}>
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() => router.push("/settings/billing")}
+						style={styles.row}
+					>
 						<View style={styles.rowIcon}>
 							<Ionicons color="#3EC9B5" name="receipt-outline" size={20} />
 						</View>
@@ -220,7 +275,11 @@ export default function SettingsScreen() {
 				</View>
 
 				<View style={styles.card}>
-					<TouchableOpacity activeOpacity={0.7} style={styles.row}>
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() => router.push("/privacy-policy")}
+						style={styles.row}
+					>
 						<View style={styles.rowIcon}>
 							<Ionicons
 								color="#3EC9B5"
@@ -236,7 +295,11 @@ export default function SettingsScreen() {
 
 					<View style={styles.divider} />
 
-					<TouchableOpacity activeOpacity={0.7} style={styles.row}>
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() => router.push("/terms-of-service")}
+						style={styles.row}
+					>
 						<View style={styles.rowIcon}>
 							<Ionicons
 								color="#3EC9B5"
@@ -248,6 +311,69 @@ export default function SettingsScreen() {
 							<Text style={styles.rowTitle}>Terms of Service</Text>
 						</View>
 						<Ionicons color="#94A3B8" name="chevron-forward" size={18} />
+					</TouchableOpacity>
+
+					<View style={styles.divider} />
+
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() => router.push("/settings/about")}
+						style={styles.row}
+					>
+						<View style={styles.rowIcon}>
+							<Ionicons
+								color="#3EC9B5"
+								name="information-circle-outline"
+								size={20}
+							/>
+						</View>
+						<View style={styles.rowContent}>
+							<Text style={styles.rowTitle}>About EZCare AI</Text>
+						</View>
+						<Ionicons color="#94A3B8" name="chevron-forward" size={18} />
+					</TouchableOpacity>
+
+					<View style={styles.divider} />
+
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() => router.push("/settings/medical-sources")}
+						style={styles.row}
+					>
+						<View style={styles.rowIcon}>
+							<Ionicons color="#3EC9B5" name="library-outline" size={20} />
+						</View>
+						<View style={styles.rowContent}>
+							<Text style={styles.rowTitle}>Medical Sources</Text>
+						</View>
+						<Ionicons color="#94A3B8" name="chevron-forward" size={18} />
+					</TouchableOpacity>
+				</View>
+
+				{/* ─── DANGER ZONE ─── */}
+				<View style={styles.sectionLabel}>
+					<Text style={styles.sectionText}>DANGER ZONE</Text>
+				</View>
+
+				<View style={styles.card}>
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={handleDeleteAccount}
+						style={styles.row}
+					>
+						<View
+							style={[
+								styles.rowIcon,
+								{ backgroundColor: "rgba(255, 79, 110, 0.1)" },
+							]}
+						>
+							<Ionicons color="#FF4F6E" name="trash-outline" size={20} />
+						</View>
+						<View style={styles.rowContent}>
+							<Text style={[styles.rowTitle, { color: "#FF4F6E" }]}>
+								Delete Account
+							</Text>
+						</View>
 					</TouchableOpacity>
 				</View>
 

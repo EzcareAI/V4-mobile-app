@@ -158,7 +158,10 @@ export default function SubscriptionScreen() {
 							</View>
 
 							{activePlan === "free" && (
-								<TouchableOpacity style={styles.upgradeBtn}>
+								<TouchableOpacity
+									onPress={() => router.push("/(onboarding)/20")}
+									style={styles.upgradeBtn}
+								>
 									<Text style={styles.upgradeBtnText}>Upgrade to Pro</Text>
 								</TouchableOpacity>
 							)}

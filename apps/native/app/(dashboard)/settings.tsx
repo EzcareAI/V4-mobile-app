@@ -39,24 +39,48 @@ export default function SettingsScreen() {
 	const [referralCount, setReferralCount] = useState(0);
 
 	useEffect(() => {
-		// Fetch true referral count from Supabase only if we have our referral code
-		const fetchReferrals = async () => {
-			if (!myReferralCode) {
-				return;
-			}
-			try {
-				const { data, error } = await supabase.rpc("get_referral_count", {
-					my_code: myReferralCode,
-				});
-				if (!error && data !== null) {
-					setReferralCount(data as number);
+		const fetchReferralData = async () => {
+			let currentCode = myReferralCode;
+
+			// 1. If we don't have the code in store, fetch it from the user's profile
+			if (!currentCode) {
+				try {
+					const { data: userData, error: userError } =
+						await supabase.auth.getUser();
+					if (!userError && userData?.user) {
+						const { data, error } = await supabase
+							.from("profiles")
+							.select("referral_code")
+							.eq("id", userData.user.id)
+							.single();
+
+						if (!error && data?.referral_code) {
+							currentCode = data.referral_code;
+							setAnswer("myReferralCode", currentCode);
+						}
+					}
+				} catch (err) {
+					console.error("Failed to fetch referral code from profile", err);
 				}
-			} catch (err) {
-				console.error("Failed to fetch referral count", err);
+			}
+
+			// 2. Once we have the code, fetch the count of people who used it
+			if (currentCode) {
+				try {
+					const { data, error } = await supabase.rpc("get_referral_count", {
+						my_code: currentCode,
+					});
+					if (!error && data !== null) {
+						setReferralCount(data as number);
+					}
+				} catch (err) {
+					console.error("Failed to fetch referral count", err);
+				}
 			}
 		};
-		fetchReferrals();
-	}, [myReferralCode]);
+
+		fetchReferralData();
+	}, [myReferralCode, setAnswer]);
 
 	const handleCopy = async () => {
 		if (!myReferralCode) {

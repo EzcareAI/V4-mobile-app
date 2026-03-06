@@ -20,8 +20,9 @@ function StackLayout() {
 	const { isPending } = authClient.useSession();
 
 	// For Phase 1, we use local state to determine if onboarding is finished
-	// In a real app, this would come from session.user.profile.onboardingCompleted
-	const currentStep = useOnboardingStore((state) => state.currentStep);
+	const onboardingComplete = useOnboardingStore(
+		(state) => state.onboardingComplete
+	);
 
 	useEffect(() => {
 		if (isPending) {
@@ -41,14 +42,14 @@ function StackLayout() {
 			pathname.includes("privacy-policy") ||
 			pathname.includes("terms-of-service");
 
-		if (currentStep < 20 && !inOnboarding && !inAuth) {
+		if (!(onboardingComplete || inOnboarding || inAuth)) {
 			router.replace("/(onboarding)");
-		} else if (currentStep >= 20 && isOnboardingSplash) {
+		} else if (onboardingComplete && isOnboardingSplash) {
 			// Only redirect from the splash screen — not from step screens
 			// (users should be able to navigate steps even after completing onboarding)
 			router.replace("/(dashboard)");
 		}
-	}, [isPending, currentStep, pathname, router]);
+	}, [isPending, onboardingComplete, pathname, router]);
 
 	return (
 		<Stack screenOptions={{ headerShown: false }}>

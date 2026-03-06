@@ -122,7 +122,10 @@ export const useDashboardStore = create<DashboardState>()(
 						: 0;
 					const sinceLastUpdate = Date.now() - lastDate;
 
-					if (lastStreakUpdateDate === yesterdayStr || sinceLastUpdate < STREAK_RESET_MS) {
+					if (
+						lastStreakUpdateDate === yesterdayStr ||
+						sinceLastUpdate < STREAK_RESET_MS
+					) {
 						newStreak = streak + 1;
 					} else {
 						// Missed a day — reset
@@ -137,12 +140,19 @@ export const useDashboardStore = create<DashboardState>()(
 						{ date: now.toISOString(), metrics },
 					].slice(-90);
 
+					// Grant base XP for check-in goal (e.g. 150) plus bonus for streak
+					let earnedXp = 150;
+					if (newStreak > streak) {
+						earnedXp += 100; // Bonus for maintaining a streak
+					}
+
 					return {
 						lastCheckInAt: now.toISOString(),
 						lastCheckInValues: metrics,
 						checkInHistory: newHistory,
 						streak: newStreak,
 						lastStreakUpdateDate: todayStr,
+						totalXp: state.totalXp + earnedXp,
 					};
 				});
 
@@ -181,9 +191,11 @@ export const useDashboardStore = create<DashboardState>()(
 			syncToSupabase: async () => {
 				const state = get();
 				const recordId = useOnboardingStore.getState().onboardingRecordId;
-				
+
 				if (!recordId) {
-					console.log("No onboarding record ID found; skipping dashboard sync.");
+					console.log(
+						"No onboarding record ID found; skipping dashboard sync."
+					);
 					return;
 				}
 
@@ -195,7 +207,10 @@ export const useDashboardStore = create<DashboardState>()(
 				};
 
 				try {
-					console.log("Syncing dashboard progress to Supabase for record:", recordId);
+					console.log(
+						"Syncing dashboard progress to Supabase for record:",
+						recordId
+					);
 					const { error } = await supabase
 						.from("onboarding_profiles")
 						.update(payload)

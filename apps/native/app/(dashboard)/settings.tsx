@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
 	Alert,
@@ -25,6 +26,7 @@ const DARK = "#1A1A2E";
 const GREY = "#94A3B8";
 
 export default function SettingsScreen() {
+	const router = useRouter();
 	const {
 		firstName,
 		email,
@@ -160,7 +162,15 @@ export default function SettingsScreen() {
 				{/* ── ACCOUNT ── */}
 				<Text style={styles.sectionLabel}>ACCOUNT</Text>
 				<View style={styles.card}>
-					<TouchableOpacity style={styles.listRow}>
+					<TouchableOpacity
+						onPress={() =>
+							Alert.alert(
+								"Coming Soon",
+								"You will be able to manage your personal info here."
+							)
+						}
+						style={styles.listRow}
+					>
 						<Ionicons color={TEAL} name="person-circle-outline" size={22} />
 						<Text style={styles.listText}>Personal Information</Text>
 						<Ionicons color={GREY} name="chevron-forward" size={18} />
@@ -170,13 +180,29 @@ export default function SettingsScreen() {
 				{/* ── SUBSCRIPTION ── */}
 				<Text style={styles.sectionLabel}>SUBSCRIPTION & BILLING</Text>
 				<View style={styles.card}>
-					<TouchableOpacity style={styles.listRow}>
+					<TouchableOpacity
+						onPress={() =>
+							Alert.alert(
+								"Coming Soon",
+								"Subscription management will be available shortly."
+							)
+						}
+						style={styles.listRow}
+					>
 						<Ionicons color={TEAL} name="card-outline" size={22} />
 						<Text style={styles.listText}>Manage Subscription</Text>
 						<Ionicons color={GREY} name="chevron-forward" size={18} />
 					</TouchableOpacity>
 					<View style={styles.divider} />
-					<TouchableOpacity style={styles.listRow}>
+					<TouchableOpacity
+						onPress={() =>
+							Alert.alert(
+								"Coming Soon",
+								"Billing history will be available shortly."
+							)
+						}
+						style={styles.listRow}
+					>
 						<Ionicons color={TEAL} name="receipt-outline" size={22} />
 						<Text style={styles.listText}>Billing & Usage</Text>
 						<Ionicons color={GREY} name="chevron-forward" size={18} />
@@ -259,7 +285,15 @@ export default function SettingsScreen() {
 						{ icon: "library-outline" as const, label: "Medical Sources" },
 					].map((item, i, arr) => (
 						<View key={item.label}>
-							<TouchableOpacity style={styles.listRow}>
+							<TouchableOpacity
+								onPress={() =>
+									Alert.alert(
+										item.label,
+										"This page is currently being updated and will be available soon."
+									)
+								}
+								style={styles.listRow}
+							>
 								<Ionicons color={TEAL} name={item.icon} size={22} />
 								<Text style={styles.listText}>{item.label}</Text>
 								<Ionicons color={GREY} name="chevron-forward" size={18} />
@@ -272,7 +306,15 @@ export default function SettingsScreen() {
 				{/* ── HELP ── */}
 				<Text style={styles.sectionLabel}>HELP & SUPPORT</Text>
 				<View style={styles.card}>
-					<TouchableOpacity style={styles.listRow}>
+					<TouchableOpacity
+						onPress={() =>
+							Alert.alert(
+								"Contact Support",
+								"Support chat is coming soon. Please email support@ezcare.ai in the meantime."
+							)
+						}
+						style={styles.listRow}
+					>
 						<Ionicons color={TEAL} name="help-circle-outline" size={22} />
 						<Text style={styles.listText}>Contact Support</Text>
 						<Ionicons color={GREY} name="chevron-forward" size={18} />
@@ -284,10 +326,18 @@ export default function SettingsScreen() {
 					onPress={() =>
 						Alert.alert(
 							"Delete Account",
-							"Are you sure? This action is irreversible.",
+							"Are you sure you want to delete your account? This action is irreversible.",
 							[
 								{ text: "Cancel", style: "cancel" },
-								{ text: "Delete", style: "destructive" },
+								{
+									text: "Confirm Delete",
+									style: "destructive",
+									onPress: () =>
+										Alert.alert(
+											"Account Deletion",
+											"Please contact support to completely erase your data."
+										),
+								},
 							]
 						)
 					}
@@ -297,7 +347,22 @@ export default function SettingsScreen() {
 					<Text style={styles.dangerText}>Delete Account</Text>
 				</TouchableOpacity>
 
-				<TouchableOpacity style={styles.dangerBtn}>
+				<TouchableOpacity
+					onPress={() => {
+						Alert.alert("Sign Out", "Are you sure you want to sign out?", [
+							{ text: "Cancel", style: "cancel" },
+							{
+								text: "Sign Out",
+								style: "destructive",
+								onPress: async () => {
+									await supabase.auth.signOut();
+									router.replace("/(onboarding)");
+								},
+							},
+						]);
+					}}
+					style={styles.dangerBtn}
+				>
 					<Ionicons color="#EF4444" name="log-out-outline" size={18} />
 					<Text style={styles.dangerText}>Sign Out</Text>
 				</TouchableOpacity>

@@ -1,7 +1,7 @@
 import * as AppleAuthentication from "expo-apple-authentication";
-import { makeRedirectUri } from "expo-auth-session";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
+import * as Linking from "expo-linking";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { ShieldCheck } from "lucide-react-native";
@@ -92,38 +92,71 @@ export function AccountCreationScreen() {
 		result: WebBrowser.WebBrowserAuthSessionResult,
 		provider: "google" | "apple"
 	) => {
-		if (result.type !== "success") return;
-
-		const url = result.url;
-		const hashIndex = url.indexOf("#");
-		const queryIndex = url.indexOf("?");
-
-		let paramsStr = "";
-		if (hashIndex !== -1) {
-			paramsStr = url.substring(hashIndex + 1);
-		} else if (queryIndex !== -1) {
-			paramsStr = url.substring(queryIndex + 1);
+		if (result.type !== "success") {
+			if (result.type !== "cancel" && result.type !== "dismiss") {
+				setErrorMsg("Authentication was cancelled or failed.");
+			}
+			return;
 		}
 
-		// Robust parameter parsing
-		const params = paramsStr.split("&").reduce(
-			(acc, pair) => {
-				const [k, v] = pair.split("=");
-				if (k && v) acc[k] = decodeURIComponent(v);
-				return acc;
-			},
-			{} as Record<string, string>
-		);
+		const url = result.url;
 
-		if (params.access_token && params.refresh_token) {
+		// Exchange the auth code (PKCE flow) or parse fragment tokens
+		try {
+			// Try PKCE code exchange first (recommended approach)
 			const { data: sessionData, error: sessionError } =
-				await supabase.auth.setSession({
-					access_token: params.access_token,
-					refresh_token: params.refresh_token,
-				});
+				await supabase.auth.exchangeCodeForSession(url);
 
 			if (sessionError) {
-				setErrorMsg(sessionError.message);
+				// Fallback: try extracting tokens from hash/query string
+				const hashIndex = url.indexOf("#");
+				const queryIndex = url.indexOf("?");
+				let paramsStr = "";
+				if (hashIndex !== -1) {
+					paramsStr = url.substring(hashIndex + 1);
+				} else if (queryIndex !== -1) {
+					paramsStr = url.substring(queryIndex + 1);
+				}
+
+				const params = paramsStr.split("&").reduce(
+					(acc, pair) => {
+						const eqIdx = pair.indexOf("=");
+						if (eqIdx > 0) {
+							const k = pair.substring(0, eqIdx);
+							const v = decodeURIComponent(pair.substring(eqIdx + 1));
+							acc[k] = v;
+						}
+						return acc;
+					},
+					{} as Record<string, string>
+				);
+
+				if (params.error_description) {
+					setErrorMsg(params.error_description.replace(/\+/g, " "));
+					return;
+				}
+
+				if (params.access_token && params.refresh_token) {
+					const { data: tokenSession, error: tokenError } =
+						await supabase.auth.setSession({
+							access_token: params.access_token,
+							refresh_token: params.refresh_token,
+						});
+					if (tokenError) {
+						setErrorMsg(tokenError.message);
+						return;
+					}
+					if (tokenSession.user) {
+						setAnswer("userId", tokenSession.user.id);
+						const userEmail = tokenSession.user.email ?? email;
+						if (userEmail) setAnswer("email", userEmail);
+						setAnswer("authMethod", provider);
+						nextStep();
+						router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+					}
+				} else {
+					setErrorMsg("Authentication failed. Please try again.");
+				}
 				return;
 			}
 
@@ -135,10 +168,8 @@ export function AccountCreationScreen() {
 				nextStep();
 				router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 			}
-		} else if (params.error_description) {
-			setErrorMsg(params.error_description.replace(/\+/g, " "));
-		} else {
-			setErrorMsg("Authentication failed or was cancelled.");
+		} catch {
+			setErrorMsg("Authentication failed. Please try again.");
 		}
 	};
 
@@ -204,10 +235,7 @@ export function AccountCreationScreen() {
 		} else {
 			// Web or Android Apple Sign-In via OAuth
 			try {
-				const redirectTo = makeRedirectUri({
-					scheme: "ezcare",
-					path: "auth/callback",
-				});
+				const redirectTo = Linking.createURL("auth/callback");
 				const { data, error } = await supabase.auth.signInWithOAuth({
 					provider: "apple",
 					options: {
@@ -249,15 +277,15 @@ export function AccountCreationScreen() {
 		setGoogleLoading(true);
 		setErrorMsg("");
 		try {
-			const redirectTo = makeRedirectUri({
-				scheme: "ezcare",
-				path: "auth/callback",
-			});
+			// Use Expo Linking to build the redirect URL using the app's scheme
+			// This creates e.g. "ezcare://auth/callback" that the OS can intercept
+			const redirectTo = Linking.createURL("auth/callback");
+
 			const { data, error } = await supabase.auth.signInWithOAuth({
 				provider: "google",
 				options: {
 					redirectTo,
-					skipBrowserRedirect: true, // we manually open the browser
+					skipBrowserRedirect: true,
 				},
 			});
 
@@ -267,7 +295,8 @@ export function AccountCreationScreen() {
 				return;
 			}
 
-			// Open the Google login in the native browser
+			// openAuthSessionAsync intercepts the redirectTo URL and returns it
+			// instead of opening it in the browser — fixes "site can't be reached"
 			const result = await WebBrowser.openAuthSessionAsync(
 				data.url,
 				redirectTo

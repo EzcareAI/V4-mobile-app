@@ -5,6 +5,10 @@ const config = getDefaultConfig(__dirname);
 
 config.maxWorkers = 1;
 
+// Workaround for "Package subpath './src/lib/TerminalReporter' is not defined by exports"
+// This occurs in newer Metro versions used by @expo/cli where strict exports block deep imports
+config.resolver.unstable_enablePackageExports = false;
+
 // Add 3D model and CSS asset extensions
 config.resolver.assetExts.push("glb", "gltf");
 config.resolver.assetExts = config.resolver.assetExts.filter(

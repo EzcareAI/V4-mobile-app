@@ -23,6 +23,7 @@
     },
     "preview": {
       "extends": "base",
+      "developmentClient": false,
       "distribution": "internal",
       "android": {
         "buildType": "apk"

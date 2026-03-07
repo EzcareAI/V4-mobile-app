@@ -1,0 +1,45 @@
+﻿Starting Metro Bundler
+Android node_modules\.bun\expo-router@5.1.11+fe314adb217e3ff2\node_modules\expo-router\entry.js ÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ  0.0% (0/1)
+Android Bundling failed 3071ms node_modules\.bun\expo-router@5.1.11+fe314adb217e3ff2\node_modules\expo-router\entry.js (2917 modules)
+bun : Error: Unable to resolve module expo-modules-core from 
+C:\Users\33644\V4-mobile-app\node_modules\.bun\expo@53.0.27+60f9e4696a5951e6\node_modules\expo\src\Expo.ts: expo-modules-core could not be found within the 
+project or in these directories:
+Au caractère Ligne:1 : 91
++ ... $env:PATH"; bun expo export:embed --eager --platform android --dev fa ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Error: Unable t...se directories::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  node_modules
+  ..\..\node_modules
+[0m [90m 19 |[39m   registerWebModule[33m,[39m
+ [90m 20 |[39m   reloadAppAsync[33m,[39m
+[31m[1m>[22m[39m[90m 21 |[39m } [36mfrom[39m [32m'expo-modules-core'[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 22 |[39m
+ [90m 23 |[39m [36mexport[39m type {
+ [90m 24 |[39m   [33mSharedRef[39m [36mas[39m [33mSharedRefType[39m[33m,[39m[0m
+Error: Unable to resolve module expo-modules-core from 
+C:\Users\33644\V4-mobile-app\node_modules\.bun\expo@53.0.27+60f9e4696a5951e6\node_modules\expo\src\Expo.ts: expo-modules-core could not be found within the 
+project or in these directories:
+  node_modules
+  ..\..\node_modules
+[0m [90m 19 |[39m   registerWebModule[33m,[39m
+ [90m 20 |[39m   reloadAppAsync[33m,[39m
+[31m[1m>[22m[39m[90m 21 |[39m } [36mfrom[39m [32m'expo-modules-core'[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m 22 |[39m
+ [90m 23 |[39m [36mexport[39m type {
+ [90m 24 |[39m   [33mSharedRef[39m [36mas[39m [33mSharedRefType[39m[33m,[39m[0m
+    at ModuleResolver.resolveDependency 
+(C:\Users\33644\V4-mobile-app\node_modules\.bun\metro@0.82.5\node_modules\metro\src\node-haste\DependencyGraph\ModuleResolution.js:150:15)
+    at DependencyGraph.resolveDependency 
+(C:\Users\33644\V4-mobile-app\node_modules\.bun\metro@0.82.5\node_modules\metro\src\node-haste\DependencyGraph.js:239:43)
+    at C:\Users\33644\V4-mobile-app\node_modules\.bun\metro@0.82.5\node_modules\metro\src\lib\transformHelpers.js:161:21
+    at resolveDependencies (C:\Users\33644\V4-mobile-app\node_modules\.bun\metro@0.82.5\node_modules\metro\src\DeltaBundler\buildSubgraph.js:43:25)
+    at visit (C:\Users\33644\V4-mobile-app\node_modules\.bun\metro@0.82.5\node_modules\metro\src\DeltaBundler\buildSubgraph.js:81:30)
+    at async Promise.all (index 1)
+    at visit (C:\Users\33644\V4-mobile-app\node_modules\.bun\metro@0.82.5\node_modules\metro\src\DeltaBundler\buildSubgraph.js:90:5)
+    at async Promise.all (index 2)
+    at visit (C:\Users\33644\V4-mobile-app\node_modules\.bun\metro@0.82.5\node_modules\metro\src\DeltaBundler\buildSubgraph.js:90:5)
+    at async Promise.all (index 0)

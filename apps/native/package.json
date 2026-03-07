@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
+    "@babel/runtime": "^7.26.0",
     "@better-auth/expo": "catalog:",
     "@expo/metro-runtime": "~4.0.1",
     "@expo/vector-icons": "^14.0.3",
@@ -26,6 +27,7 @@
     "@react-native-picker/picker": "2.11.1",
     "@react-native-voice/voice": "^3.2.4",
     "@react-navigation/elements": "2.9.5",
+    "@react-navigation/native": "^6.1.18",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
     "@shopify/react-native-skia": "2.2.12",
@@ -83,6 +85,7 @@
     "uniwind": "^1.2.5",
     "url-polyfill": "^1.1.14",
     "victory-native": "^41.20.2",
+    "whatwg-fetch": "^3.6.20",
     "zod": "catalog:",
     "zustand": "^5.0.10",
     "zustand-persist": "^0.4.0"
@@ -91,7 +94,7 @@
     "@babel/traverse": "*",
     "@ezcare/config": "workspace:*",
     "@types/node": "^24.10.9",
-    "@types/react": "~19.0.0",
+    "@types/react": "~19.0.14",
     "@types/three": "^0.183.1",
     "babel-preset-expo": "~13.0.0",
     "typescript": "~5.8.3"

@@ -1,11 +1,7 @@
 import { useGLTF } from "@react-three/drei/native";
 import { Canvas } from "@react-three/fiber/native";
 import { Asset } from "expo-asset";
-import {
-	cacheDirectory,
-	copyAsync,
-	getInfoAsync,
-} from "expo-file-system/legacy";
+import { cacheDirectory, copyAsync, getInfoAsync } from "expo-file-system";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { Box3, Vector3 } from "three";

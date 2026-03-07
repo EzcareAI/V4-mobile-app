@@ -1,11 +1,7 @@
 import { useGLTF } from "@react-three/drei/native";
 import { Canvas, type ThreeEvent, useFrame } from "@react-three/fiber/native";
 import { Asset } from "expo-asset";
-import {
-	cacheDirectory,
-	copyAsync,
-	getInfoAsync,
-} from "expo-file-system/legacy";
+import { cacheDirectory, copyAsync, getInfoAsync } from "expo-file-system";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, PanResponder, Text, View } from "react-native";
 import {

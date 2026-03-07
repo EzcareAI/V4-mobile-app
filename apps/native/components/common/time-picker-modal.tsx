@@ -32,8 +32,8 @@ export function TimePickerModal({
 		if (visible) {
 			const match = value.match(/(\d+):(\d+)\s*(AM|PM)/i);
 			if (match) {
-				const hh = Number.parseInt(match[1]);
-				const mm = Number.parseInt(match[2]);
+				const hh = Number.parseInt(match[1], 10);
+				const mm = Number.parseInt(match[2], 10);
 				const pp = match[3].toUpperCase() === "PM" ? 1 : 0;
 				setH(Math.max(0, Math.min(11, hh - 1)));
 				setM(Math.max(0, Math.min(59, mm)));

@@ -133,7 +133,9 @@ const PASTEL_COLORS = [
 ];
 
 function formatCountdown(ms: number): string {
-	if (ms <= 0) return "now";
+	if (ms <= 0) {
+		return "now";
+	}
 	const h = Math.floor(ms / 3_600_000);
 	const m = Math.floor((ms % 3_600_000) / 60_000);
 	return `${h}h ${m}m`;
@@ -334,8 +336,9 @@ export default function HomeScreen() {
 							key={mission.id}
 							onPress={() => {
 								completeMission(mission.id);
-								if (Platform.OS === "ios")
+								if (Platform.OS === "ios") {
 									impactAsync(ImpactFeedbackStyle.Light).catch(() => {});
+								}
 							}}
 							style={[
 								styles.actionCard,

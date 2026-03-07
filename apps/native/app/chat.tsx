@@ -379,7 +379,7 @@ export default function ChatScreen() {
 		setTimeout(() => {
 			scrollRef.current?.scrollToEnd({ animated: true });
 		}, 100);
-	}, [messages, isLoading]);
+	}, []);
 
 	return (
 		<SafeAreaView edges={["top", "bottom"]} style={styles.safe}>

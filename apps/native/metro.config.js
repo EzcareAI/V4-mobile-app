@@ -12,10 +12,13 @@ config.resolver.assetExts = config.resolver.assetExts.filter(
 );
 config.resolver.sourceExts = [...(config.resolver.sourceExts ?? []), "css"];
 
-// Use the Uniwind metro transformer (handles CSS-in-JS processing)
-config.transformerPath = require.resolve(
-	"uniwind/dist/metro/metro-transformer.cjs"
-);
+// Resolve the metro transformer by finding the sibling of the exported 'uniwind/metro' entry.
+// We can't use require.resolve('uniwind/dist/metro/metro-transformer.cjs') directly because
+// it's not listed in the package exports map. Instead, we find the directory of 'uniwind/metro'
+// (which IS exported) and reference the transformer as a sibling file.
+const uniwindMetroDir = path.dirname(require.resolve("uniwind/metro"));
+config.transformerPath = path.join(uniwindMetroDir, "metro-transformer.cjs");
+
 config.transformer = {
 	...config.transformer,
 	uniwind: {

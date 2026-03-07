@@ -59,6 +59,7 @@ node_portable/
 # Extra EAS ignores
 .agents/
 .agent/
+.github/skills/
 .bun/
 .antigravity/
 skills/
@@ -68,3 +69,10 @@ supabase_referrals_migration.sql
 fix-colors.js
 fix-layout.js
 eas-bypass.js
+test.tar.gz
+old.tar.gz
+tar_test_output.txt
+old_tar_test_output.txt
+test_files.txt
+old_files.txt
+temp_extract_test/

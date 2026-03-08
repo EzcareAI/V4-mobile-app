@@ -1,0 +1,37 @@
+import type { AppRouter } from "@ezcare/api/routers/index";
+
+import { env } from "@ezcare/env/native";
+import { QueryClient } from "@tanstack/react-query";
+import { createTRPCClient, httpBatchLink } from "@trpc/client";
+import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
+
+import { authClient } from "@/lib/auth-client";
+
+export const queryClient = new QueryClient();
+
+const trpcClient = createTRPCClient<AppRouter>({
+	links: [
+		httpBatchLink({
+			url: `${env.EXPO_PUBLIC_SERVER_URL}/trpc`,
+			headers() {
+				const headers = new Map<string, string>();
+				try {
+					const cookies = authClient.getCookie();
+					if (cookies) {
+						headers.set("Cookie", cookies);
+					}
+				} catch (error) {
+					console.warn("Failed to get auth cookies:", error);
+				}
+				return Object.fromEntries(headers);
+			},
+		}),
+	],
+});
+
+export const api = trpcClient;
+
+export const trpc = createTRPCOptionsProxy<AppRouter>({
+	client: trpcClient,
+	queryClient,
+});

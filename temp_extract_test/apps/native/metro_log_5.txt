@@ -1,0 +1,53 @@
+﻿Starting Metro Bundler
+Android node_modules\.bun\expo-router@5.1.11+fe314adb217e3ff2\node_modules\expo-router\entry.js ÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ  0.0% (0/1)
+Android node_modules\.bun\expo-router@5.1.11+fe314adb217e3ff2\node_modules\expo-router\entry.js ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæ 91.0% (3813/3997)
+Android Bundling failed 3811ms node_modules\.bun\expo-router@5.1.11+fe314adb217e3ff2\node_modules\expo-router\entry.js (4327 modules)
+bun : Error: Unable to resolve module expo-file-system/legacy from 
+C:\Users\33644\V4-mobile-app\apps\native\components\onboarding\common\body-3d-selector.tsx: expo-file-system/legacy could not be found within the project 
+or in these directories:
+Au caractère Ligne:1 : 91
++ ... $env:PATH"; bun expo export:embed --eager --platform android --dev fa ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Error: Unable t...se directories::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  node_modules
+  ..\..\node_modules
+  node_modules
+  ..\..\node_modules
+[0m [90m  6 |[39m 	copyAsync[33m,[39m
+ [90m  7 |[39m 	getInfoAsync[33m,[39m
+[31m[1m>[22m[39m[90m  8 |[39m } [36mfrom[39m [32m"expo-file-system/legacy"[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m  9 |[39m [36mimport[39m { [33mSuspense[39m[33m,[39m useEffect[33m,[39m useMemo[33m,[39m useRef[33m,[39m useState } [36mfrom[39m 
+[32m"react"[39m[33m;[39m
+ [90m 10 |[39m [36mimport[39m { [33mActivityIndicator[39m[33m,[39m [33mPanResponder[39m[33m,[39m [33mText[39m[33m,[39m [33mView[39m } 
+[36mfrom[39m [32m"react-native"[39m[33m;[39m
+ [90m 11 |[39m [36mimport[39m {[0m
+Error: Unable to resolve module expo-file-system/legacy from C:\Users\33644\V4-mobile-app\apps\native\components\onboarding\common\body-3d-selector.tsx: 
+expo-file-system/legacy could not be found within the project or in these directories:
+  node_modules
+  ..\..\node_modules
+  node_modules
+  ..\..\node_modules
+[0m [90m  6 |[39m 	copyAsync[33m,[39m
+ [90m  7 |[39m 	getInfoAsync[33m,[39m
+[31m[1m>[22m[39m[90m  8 |[39m } [36mfrom[39m [32m"expo-file-system/legacy"[39m[33m;[39m
+ [90m    |[39m         [31m[1m^[22m[39m
+ [90m  9 |[39m [36mimport[39m { [33mSuspense[39m[33m,[39m useEffect[33m,[39m useMemo[33m,[39m useRef[33m,[39m useState } [36mfrom[39m 
+[32m"react"[39m[33m;[39m
+ [90m 10 |[39m [36mimport[39m { [33mActivityIndicator[39m[33m,[39m [33mPanResponder[39m[33m,[39m [33mText[39m[33m,[39m [33mView[39m } 
+[36mfrom[39m [32m"react-native"[39m[33m;[39m
+ [90m 11 |[39m [36mimport[39m {[0m
+    at ModuleResolver.resolveDependency 
+(C:\Users\33644\V4-mobile-app\node_modules\.bun\metro@0.82.5\node_modules\metro\src\node-haste\DependencyGraph\ModuleResolution.js:150:15)
+    at DependencyGraph.resolveDependency 
+(C:\Users\33644\V4-mobile-app\node_modules\.bun\metro@0.82.5\node_modules\metro\src\node-haste\DependencyGraph.js:239:43)
+    at C:\Users\33644\V4-mobile-app\node_modules\.bun\metro@0.82.5\node_modules\metro\src\lib\transformHelpers.js:161:21
+    at resolveDependencies (C:\Users\33644\V4-mobile-app\node_modules\.bun\metro@0.82.5\node_modules\metro\src\DeltaBundler\buildSubgraph.js:43:25)
+    at visit (C:\Users\33644\V4-mobile-app\node_modules\.bun\metro@0.82.5\node_modules\metro\src\DeltaBundler\buildSubgraph.js:81:30)
+    at async Promise.all (index 8)
+    at visit (C:\Users\33644\V4-mobile-app\node_modules\.bun\metro@0.82.5\node_modules\metro\src\DeltaBundler\buildSubgraph.js:90:5)
+    at async Promise.all (index 3)
+    at visit (C:\Users\33644\V4-mobile-app\node_modules\.bun\metro@0.82.5\node_modules\metro\src\DeltaBundler\buildSubgraph.js:90:5)
+    at async Promise.all (index 0)

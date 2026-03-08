@@ -283,12 +283,8 @@ export default function ProgressScreen() {
 	};
 
 	const buildChartData = () => {
-		if (range === "Day") {
-			return getDayData();
-		}
-		if (range === "Week") {
-			return getWeekData();
-		}
+		if (range === "Day") return getDayData();
+		if (range === "Week") return getWeekData();
 		return getMonthData();
 	};
 

@@ -1,0 +1,78 @@
+﻿# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Build outputs
+dist
+build
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env*.local
+
+# IDEs and editors
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Turbo
+.turbo
+
+# Better-T-Stack
+.alchemy
+
+# Testing
+coverage
+.nyc_output
+
+# Expo
+.expo
+node/
+
+# Misc
+*.tgz
+EZCare-Saas-Reference/
+.cache
+tmp
+temp
+.bin/
+node_portable/
+
+# Extra EAS ignores
+.agents/
+.agent/
+.github/skills/
+.bun/
+.antigravity/
+skills/
+docs/
+*.md
+supabase_referrals_migration.sql
+fix-colors.js
+fix-layout.js
+eas-bypass.js
+test.tar.gz
+old.tar.gz
+tar_test_output.txt
+old_tar_test_output.txt
+test_files.txt
+old_files.txt
+temp_extract_test/

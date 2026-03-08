@@ -1,0 +1,116 @@
+/** biome-ignore-all lint/suspicious/noDuplicateCustomProperties: biome bug */
+@layer theme {
+	:root {
+		@variant light {
+			/* Base Colors - Clean Off-White and Deep Navy */
+			--background: #f8fbfc;
+			--foreground: #1a2138;
+
+			/* Surface: Used for non-overlay components (cards, accordions, disclosure groups) */
+			--surface: #ffffff;
+			--surface-foreground: #1a2138;
+
+			/* Overlay: Used for floating/overlay components (dialogs, popovers, modals, menus) */
+			--overlay: #ffffff;
+			--overlay-foreground: #1a2138;
+
+			--muted: #60708f;
+
+			--default: hsl(170, 2%, 94%);
+			--default-foreground: #60708f;
+
+			/* Accent: Vibrant teal */
+			--accent: #00a8a8;
+			--accent-foreground: #ffffff;
+
+			/* Form Field Defaults - Colors */
+			--field-background: hsl(170, 5%, 98%);
+			--field-foreground: hsl(170, 5%, 22%);
+			--field-placeholder: var(--muted);
+			--field-border: transparent;
+
+			/* Status Colors - Natural, organic palette */
+			--success: hsl(155, 15%, 75%);
+			--success-foreground: hsl(155, 8%, 22%);
+
+			--warning: hsl(95, 13%, 80%);
+			--warning-foreground: hsl(95, 8%, 28%);
+
+			--danger: hsl(25, 19%, 66%);
+			--danger-foreground: hsl(25, 1%, 98%);
+
+			/* Component Colors */
+			--segment: hsl(170, 1%, 98%);
+			--segment-foreground: hsl(170, 5%, 22%);
+
+			/* Misc Colors */
+			--border: transparent;
+			--divider: hsl(170, 1.6%, 92%);
+			--link: hsl(175, 15%, 62%);
+
+			/* Shadows */
+			--surface-shadow:
+				0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+				0 0 1px 0 rgba(0, 0, 0, 0.06);
+			/* Overlay shadow */
+			--overlay-shadow:
+				0 4px 16px 0 rgba(24, 24, 27, 0.08), 0 8px 24px 0 rgba(24, 24, 27, 0.09);
+			--field-shadow:
+				0 2px 4px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06),
+				0 0 1px 0 rgba(0, 0, 0, 0.06);
+		}
+
+		@variant dark {
+			/* Base Colors - Deep forest mint */
+			--background: hsl(170, 4.5%, 14%);
+			--foreground: hsl(170, 1%, 95%);
+
+			/* Surface: Used for non-overlay components (cards, accordions, disclosure groups) */
+			--surface: hsl(170, 5%, 19%);
+			--surface-foreground: hsl(170, 1.5%, 91%);
+
+			/* Overlay: Used for floating/overlay components (dialogs, popovers, modals, menus) */
+			--overlay: hsl(170, 4.8%, 22%);
+			--overlay-foreground: hsl(170, 1.5%, 91%);
+
+			--muted: hsl(170, 4.5%, 48%);
+
+			--default: hsl(170, 5.2%, 24%);
+			--default-foreground: hsl(170, 1.8%, 89%);
+
+			/* Accent: Glowing emerald-teal */
+			--accent: hsl(175, 18%, 68%);
+			--accent-foreground: hsl(175, 4.5%, 12%);
+
+			/* Form Field Defaults - Colors */
+			--field-background: var(--default);
+			--field-foreground: var(--foreground);
+			--field-placeholder: var(--muted);
+			--field-border: transparent;
+
+			/* Status Colors - Luminous dark mode palette */
+			--success: hsl(158, 17%, 70%);
+			--success-foreground: hsl(158, 0.8%, 96%);
+
+			--warning: hsl(98, 15%, 76%);
+			--warning-foreground: hsl(98, 4%, 18%);
+
+			--danger: hsl(28, 20%, 64%);
+			--danger-foreground: hsl(28, 0.8%, 96%);
+
+			/* Component Colors */
+			--segment: hsl(170, 4.9%, 21%);
+			--segment-foreground: hsl(170, 1.5%, 91%);
+
+			/* Misc Colors */
+			--border: transparent;
+			--divider: hsl(170, 4.8%, 26%);
+			--link: hsl(175, 16%, 72%);
+
+			/* Shadows */
+			--surface-shadow: 0 0 0 0 transparent inset; /* No shadow on dark mode */
+			--overlay-shadow: 0 0 0 0 transparent inset; /* No shadow on dark mode */
+			--field-shadow: 0 0 0 0 transparent inset; /* Transparent shadow to allow ring utilities to work */
+		}
+	}
+}

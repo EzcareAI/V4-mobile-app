@@ -1,0 +1,202 @@
+import { useRouter } from "expo-router";
+import { Button, TextField } from "heroui-native";
+import { Bot, Crown, Gift, Sparkles, Users } from "lucide-react-native";
+import React from "react";
+import { ScrollView, Text, View } from "react-native";
+import { supabase } from "@/lib/supabase";
+import { useOnboardingStore } from "@/stores/onboarding-store";
+import { ContinueButton } from "../common/continue-button";
+import { StepHeader } from "../common/step-header";
+
+export const ReferralScreen = () => {
+	const router = useRouter();
+	const { referralCode, setAnswer, nextStep } = useOnboardingStore();
+
+	const [isValidating, setIsValidating] = React.useState(false);
+	const [errorMsg, setErrorMsg] = React.useState("");
+
+	const handleFinish = () => {
+		// Mark onboarding as complete and formally route the user into the protected dashboard
+		setAnswer("onboardingComplete", true);
+		nextStep();
+		router.replace("/(dashboard)");
+	};
+
+	const handleSubmitCode = async () => {
+		if (!referralCode || referralCode.trim().length === 0) {
+			return;
+		}
+
+		setIsValidating(true);
+		setErrorMsg("");
+
+		try {
+			const { data, error } = await supabase
+				.from("profiles")
+				.select("id")
+				.eq("referral_code", referralCode.trim().toUpperCase())
+				.limit(1)
+				.single();
+
+			if (error || !data) {
+				setErrorMsg("This referral code is not correct or available.");
+				return;
+			}
+
+			// Valid code found
+			handleFinish();
+		} catch {
+			setErrorMsg("This referral code is not correct or available.");
+		} finally {
+			setIsValidating(false);
+		}
+	};
+
+	return (
+		<View className="flex-1 bg-[#EBF5F4]">
+			<View className="flex-1 justify-between px-6 pb-10">
+				<ScrollView
+					className="flex-1"
+					contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
+					contentInsetAdjustmentBehavior="automatic"
+					showsVerticalScrollIndicator={false}
+				>
+					<View className="flex-1 px-1">
+						{/* Robot Icon with Gift Badge */}
+						<View className="mt-4 mb-6 items-center">
+							<View className="relative">
+								<View className="h-32 w-32 items-center justify-center rounded-full bg-linear-to-br from-cyan-400/30 to-cyan-500/20">
+									<Bot color="#28B898" size={56} strokeWidth={2} />
+								</View>
+								{/* Gift Badge */}
+								<View className="absolute -top-1 -right-1 h-12 w-12 items-center justify-center rounded-full bg-amber-400 shadow-amber-400/30 shadow-lg">
+									<Gift color="white" fill="white" size={24} />
+								</View>
+							</View>
+						</View>
+
+						<StepHeader
+							align="center"
+							description="Unlock exclusive benefits and bonus features with a friend's referral code."
+							title="Got a referral code?"
+						/>
+
+						{/* Benefits Card */}
+						<View className="mb-8 overflow-hidden rounded-[32px] bg-white p-6 shadow-blue-100 shadow-sm">
+							<Text className="mb-6 text-center font-bold text-[#0d2137] text-xl">
+								Referral Benefits
+							</Text>
+
+							<View className="gap-y-5">
+								{/* Benefit 1 */}
+								<View className="flex-row items-start">
+									<View className="mr-4 h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-cyan-400 to-cyan-500">
+										<Crown color="white" fill="white" size={24} />
+									</View>
+									<View className="flex-1">
+										<Text className="mb-1 font-bold text-[#0d2137] text-base">
+											7-day Premium Trial
+										</Text>
+										<Text className="text-[#73808C] text-sm leading-5">
+											Access all advanced features
+										</Text>
+									</View>
+								</View>
+
+								{/* Benefit 2 */}
+								<View className="flex-row items-start">
+									<View className="mr-4 h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-sky-400 to-sky-500">
+										<Sparkles color="white" fill="white" size={24} />
+									</View>
+									<View className="flex-1">
+										<Text className="mb-1 font-bold text-[#0d2137] text-base">
+											AI Personalization+
+										</Text>
+										<Text className="text-[#73808C] text-sm leading-5">
+											Enhanced health insights
+										</Text>
+									</View>
+								</View>
+
+								{/* Benefit 3 */}
+								<View className="flex-row items-start">
+									<View className="mr-4 h-12 w-12 items-center justify-center rounded-2xl bg-linear-to-br from-purple-400 to-purple-500">
+										<Users color="white" fill="white" size={24} />
+									</View>
+									<View className="flex-1">
+										<Text className="mb-1 font-bold text-[#0d2137] text-base">
+											Community Access
+										</Text>
+										<Text className="text-[#73808C] text-sm leading-5">
+											Connect with health enthusiasts
+										</Text>
+									</View>
+								</View>
+							</View>
+						</View>
+
+						{/* Input Section */}
+						<View className="mb-6">
+							<TextField className="bg-transparent">
+								<TextField.Label>Referral Code (Optional)</TextField.Label>
+								<TextField.Input
+									autoCapitalize="characters"
+									onChangeText={(val: string) => {
+										setErrorMsg("");
+										setAnswer("referralCode", val.toUpperCase());
+									}}
+									placeholder="e.g., HEALTH2024"
+									placeholderTextColor="#94a3b8"
+									value={referralCode}
+								/>
+							</TextField>
+							{errorMsg ? (
+								<Text className="mt-2 ml-2 font-medium text-[13px] text-red-500">
+									{errorMsg}
+								</Text>
+							) : null}
+						</View>
+					</View>
+				</ScrollView>
+
+				{/* Fixed Footer Actions */}
+				<View className="pt-4">
+					{/* Submit Button */}
+					<ContinueButton
+						isDisabled={
+							!referralCode || referralCode.trim().length === 0 || isValidating
+						}
+						label={
+							<View className="flex-row items-center">
+								<Text className="mr-2 text-2xl text-white">✓</Text>
+								<Text className="font-semibold text-base text-white">
+									{isValidating ? "Verifying..." : "Submit Code"}
+								</Text>
+							</View>
+						}
+						onPress={handleSubmitCode}
+					/>
+
+					{/* Skip Link */}
+					<Button
+						className="mt-2 h-12 bg-transparent"
+						onPress={handleFinish}
+						variant="ghost"
+					>
+						<Button.Label className="text-[#73808C] text-base underline">
+							Skip for now
+						</Button.Label>
+					</Button>
+
+					{/* Footer Info */}
+					<View className="mt-4 px-4">
+						<Text className="text-center text-[#73808C] text-[13px] leading-5">
+							Don't have a referral code? No worries! You can add one later in
+							your profile settings.
+						</Text>
+					</View>
+				</View>
+			</View>
+		</View>
+	);
+};

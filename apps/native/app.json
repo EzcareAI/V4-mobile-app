@@ -20,6 +20,7 @@
         }
       ],
       "@react-native-voice/voice",
+      "./plugins/withAndroidXExclusion",
       [
         "expo-build-properties",
         {

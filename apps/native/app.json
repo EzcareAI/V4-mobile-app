@@ -19,7 +19,16 @@
           "cameraPermission": "EZCare needs access to your camera for health scans and sharing with EZBuddy."
         }
       ],
-      "@react-native-voice/voice"
+      "@react-native-voice/voice",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableAndroidX": true,
+            "enableJetifier": true
+          }
+        }
+      ]
     ],
     "version": "1.0.0",
     "experiments": {

@@ -22,13 +22,12 @@ allprojects {
         resolutionStrategy {
             force 'androidx.core:core:1.15.0'
             force 'androidx.core:core-ktx:1.15.0'
+            force 'androidx.annotation:annotation:1.9.1'
+            force 'androidx.versionedparcelable:versionedparcelable:1.1.1'
         }
-        exclude group: 'com.android.support', module: 'support-v4'
-        exclude group: 'com.android.support', module: 'support-compat'
-        exclude group: 'com.android.support', module: 'support-media-compat'
-        exclude group: 'com.android.support', module: 'support-core-utils'
-        exclude group: 'com.android.support', module: 'support-core-ui'
-        exclude group: 'com.android.support', module: 'support-fragment'
+        // Exclude all legacy android support libraries
+        exclude group: 'com.android.support'
+        exclude group: 'com.android.support.test'
     }
 }
 `;

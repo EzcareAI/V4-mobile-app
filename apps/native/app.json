@@ -11,6 +11,7 @@
     "plugins": [
       "expo-font",
       "expo-apple-authentication",
+      "@react-native-community/datetimepicker",
       "expo-router",
       [
         "expo-image-picker",
@@ -19,12 +20,7 @@
           "cameraPermission": "EZCare needs access to your camera for health scans and sharing with EZBuddy."
         }
       ],
-      "@react-native-voice/voice",
-      "@react-native-community/datetimepicker",
-      "expo-asset",
-      "expo-secure-store",
-      "expo-sharing",
-      "expo-web-browser"
+      "@react-native-voice/voice"
     ],
     "version": "1.0.0",
     "experiments": {
@@ -42,18 +38,14 @@
     "android": {
       "package": "com.ezcare_ai4.ezcare",
       "versionCode": 1,
-      "permissions": [
-        "android.permission.RECORD_AUDIO",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.CAMERA"
-      ]
+      "permissions": ["RECORD_AUDIO", "READ_EXTERNAL_STORAGE", "CAMERA"]
     },
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "ecf52fa4-ed90-48eb-bc27-bbca8e20a004"
+        "projectId": "2898f7c9-6397-47b7-9ef8-22964a12a5e0"
       }
     },
-    "owner": "ezcare_ai5"
+    "owner": "ezcare_6"
   }
 }

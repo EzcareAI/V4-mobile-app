@@ -2,7 +2,8 @@ import "@/global.css";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack, usePathname, useRouter } from "expo-router";
 import { HeroUINativeProvider } from "heroui-native";
-import { useEffect } from "react";
+import { Component, type ErrorInfo, type ReactNode, useEffect } from "react";
+import { Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
@@ -13,6 +14,53 @@ import { queryClient } from "@/utils/trpc";
 
 // Regex for matching onboarding step routes (/1, /2, etc.)
 const ONBOARDING_STEP_PATTERN = /^\/\d+$/;
+
+interface ErrorBoundaryState {
+	hasError: boolean;
+	error: Error | null;
+}
+
+class AppErrorBoundary extends Component<
+	{ children: ReactNode },
+	ErrorBoundaryState
+> {
+	constructor(props: { children: ReactNode }) {
+		super(props);
+		this.state = { hasError: false, error: null };
+	}
+
+	static getDerivedStateFromError(error: Error): ErrorBoundaryState {
+		return { hasError: true, error };
+	}
+
+	componentDidCatch(error: Error, info: ErrorInfo) {
+		console.error("App ErrorBoundary caught:", error, info);
+	}
+
+	render() {
+		if (this.state.hasError) {
+			return (
+				<View
+					style={{
+						flex: 1,
+						alignItems: "center",
+						justifyContent: "center",
+						padding: 24,
+					}}
+				>
+					<Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 8 }}>
+						Something went wrong
+					</Text>
+					<Text style={{ color: "#666", textAlign: "center" }}>
+						{this.state.error?.message ??
+							"An unexpected error occurred. Please restart the app."}
+					</Text>
+				</View>
+			);
+		}
+		return this.props.children;
+	}
+}
 
 function StackLayout() {
 	const router = useRouter();
@@ -77,17 +125,19 @@ function StackLayout() {
 
 const Layout = () => {
 	return (
-		<QueryClientProvider client={queryClient}>
-			<GestureHandlerRootView style={{ flex: 1 }}>
-				<KeyboardProvider>
-					<AppThemeProvider>
-						<HeroUINativeProvider>
-							<StackLayout />
-						</HeroUINativeProvider>
-					</AppThemeProvider>
-				</KeyboardProvider>
-			</GestureHandlerRootView>
-		</QueryClientProvider>
+		<AppErrorBoundary>
+			<QueryClientProvider client={queryClient}>
+				<GestureHandlerRootView style={{ flex: 1 }}>
+					<KeyboardProvider>
+						<AppThemeProvider>
+							<HeroUINativeProvider>
+								<StackLayout />
+							</HeroUINativeProvider>
+						</AppThemeProvider>
+					</KeyboardProvider>
+				</GestureHandlerRootView>
+			</QueryClientProvider>
+		</AppErrorBoundary>
 	);
 };
 

@@ -11,10 +11,20 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+import { lazy, Suspense } from "react";
+import { ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Body3DSelector } from "@/components/onboarding/common/body-3d-selector";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+
+// Lazy-load so @react-three/fiber/native is NOT evaluated at module load time.
+// Direct imports of this library resolve to `undefined` in production APKs,
+// causing the "Element type is invalid: got undefined" crash on launch.
+const Body3DSelector = lazy(() =>
+	import("@/components/onboarding/common/body-3d-selector").then((m) => ({
+		default: m.Body3DSelector,
+	}))
+);
 
 // ── Design tokens ──────────────────────────────────
 const BG = "#F4F6F8";
@@ -231,18 +241,26 @@ export default function HomeScreen() {
 					</Text>
 
 					<View style={styles.bodyWrapper}>
-						<Body3DSelector
-							gender={(gender as "male" | "female") || "male"}
-							onZoneSelect={(zoneId: string) => {
-								console.log("Selected Zone on Dashboard:", zoneId);
-								// Could route to a detail screen, show a modal, or log a symptom
-								if (Platform.OS === "ios") {
-									impactAsync(ImpactFeedbackStyle.Light).catch(() => {
-										/* ignore */
-									});
-								}
-							}}
-						/>
+						<Suspense
+							fallback={
+								<ActivityIndicator
+									color="#3EC9B5"
+									size="large"
+									style={{ flex: 1 }}
+								/>
+							}
+						>
+							<Body3DSelector
+								gender={(gender as "male" | "female") || "male"}
+								onZoneSelect={(zoneId: string) => {
+									if (Platform.OS === "ios") {
+										impactAsync(ImpactFeedbackStyle.Light).catch(() => {
+											/* ignore */
+										});
+									}
+								}}
+							/>
+						</Suspense>
 					</View>
 				</View>
 

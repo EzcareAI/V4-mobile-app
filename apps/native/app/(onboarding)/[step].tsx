@@ -5,8 +5,11 @@ import { AccountCreationScreen } from "@/components/onboarding/screens/account-c
 import { ActivityLevelScreen } from "@/components/onboarding/screens/activity-level-screen";
 import { AlcoholScreen } from "@/components/onboarding/screens/alcohol-screen";
 import { BirthdayScreen } from "@/components/onboarding/screens/birthday-screen";
-// ===== INTENT SELECTOR (Step 11) =====
-import BodyDiagramScreen from "@/components/onboarding/screens/body-diagram-screen";
+// BodyDiagramScreen uses Body3DSelector (@react-three/fiber/native) — lazy-load
+// to prevent the library from being evaluated at module load time in production APKs.
+const BodyDiagramScreen = lazy(() =>
+	import("@/components/onboarding/screens/body-diagram-screen")
+);
 // ===== SHARED CONVERGENCE SCREENS (Steps 17+) =====
 import { ConfidenceMomentScreen } from "@/components/onboarding/screens/confidence-moment-screen";
 import { DiscountWheelScreen } from "@/components/onboarding/screens/discount-wheel-screen";
@@ -86,7 +89,11 @@ const OnboardingStep = () => {
 			case 11:
 				return <DopamineScreen type="progress" />;
 			case 12:
-				return <BodyDiagramScreen />;
+				return (
+					<Suspense fallback={<LoadingFallback />}>
+						<BodyDiagramScreen />
+					</Suspense>
+				);
 			default:
 				return null;
 		}

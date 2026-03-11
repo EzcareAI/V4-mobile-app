@@ -201,9 +201,6 @@ export const useDashboardStore = create<DashboardState>()(
 				const recordId = useOnboardingStore.getState().onboardingRecordId;
 
 				if (!recordId) {
-					console.log(
-						"No onboarding record ID found; skipping dashboard sync."
-					);
 					return;
 				}
 
@@ -215,10 +212,6 @@ export const useDashboardStore = create<DashboardState>()(
 				};
 
 				try {
-					console.log(
-						"Syncing dashboard progress to Supabase for record:",
-						recordId
-					);
 					const { error } = await supabase
 						.from("onboarding_profiles")
 						.update(payload)
@@ -226,8 +219,6 @@ export const useDashboardStore = create<DashboardState>()(
 
 					if (error) {
 						console.error("❌ SUPABASE DASHBOARD SYNC ERROR:", error);
-					} else {
-						console.log("✅ SUPABASE DASHBOARD SYNC SUCCESSFUL");
 					}
 				} catch (err) {
 					console.error("❌ SUPABASE DASHBOARD SYNC CRITICAL EXCEPTION:", err);

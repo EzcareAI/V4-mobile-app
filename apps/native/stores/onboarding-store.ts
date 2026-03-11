@@ -216,13 +216,6 @@ export const useOnboardingStore = create<OnboardingState>()(
 				};
 
 				try {
-					console.log("\n--- SUPABASE SYNC ---");
-					console.log(
-						"Preparing to sync onboarding draft. Record ID:",
-						state.onboardingRecordId
-					);
-					console.log("Payload:", JSON.stringify(payload, null, 2));
-
 					if (state.onboardingRecordId) {
 						const { data, error } = await supabase
 							.from("onboarding_profiles")
@@ -231,10 +224,9 @@ export const useOnboardingStore = create<OnboardingState>()(
 							.select()
 							.single();
 
-						if (error) {
+					if (error) {
 							console.error("❌ SUPABASE UPDATE ERROR:", error);
 						} else {
-							console.log("✅ SUPABASE UPDATE SUCCESSFUL");
 							if (data?.referral_code && !state.myReferralCode) {
 								set({ myReferralCode: data.referral_code });
 							}
@@ -250,7 +242,6 @@ export const useOnboardingStore = create<OnboardingState>()(
 						if (error) {
 							console.error("❌ SUPABASE INSERT ERROR:", error);
 						} else if (data?.id) {
-							console.log("✅ SUPABASE INSERT SUCCESSFUL. New ID:", data.id);
 							// Save the newly generated row ID and the Postgres-generated referral_code
 							set({
 								onboardingRecordId: data.id,

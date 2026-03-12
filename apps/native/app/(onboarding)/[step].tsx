@@ -40,9 +40,7 @@ import { useOnboardingStore } from "@/stores/onboarding-store";
 // Lazy-load Skia-dependent screens so @shopify/react-native-skia is NOT
 // initialized at module load time (which crashes Android on first step).
 const PerfectPlanScreen = lazy(() =>
-	import("@/components/onboarding/screens/perfect-plan-screen").then((m) => ({
-		default: m.PerfectPlanScreen,
-	}))
+	import("@/components/onboarding/screens/perfect-plan-screen")
 );
 const ResultsPreviewScreen = lazy(
 	() => import("@/components/onboarding/screens/results-preview-screen")

@@ -15,7 +15,7 @@ import Svg, {
 	Stop,
 	LinearGradient as SvgLinearGradient,
 } from "react-native-svg";
-import { Body3DSelector } from "@/components/onboarding/common/body-3d-selector";
+import Body3DSelector from "@/components/onboarding/common/body-3d-selector";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 const RING_RADIUS = 88;

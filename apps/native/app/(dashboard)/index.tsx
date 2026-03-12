@@ -21,9 +21,7 @@ import { useOnboardingStore } from "@/stores/onboarding-store";
 // Direct imports of this library resolve to `undefined` in production APKs,
 // causing the "Element type is invalid: got undefined" crash on launch.
 const Body3DSelector = lazy(() =>
-	import("@/components/onboarding/common/body-3d-selector").then((m) => ({
-		default: m.Body3DSelector,
-	}))
+	import("@/components/onboarding/common/body-3d-selector")
 );
 
 // ── Design tokens ──────────────────────────────────

@@ -238,7 +238,7 @@ async function prepareAsset(): Promise<string> {
 	return physicalPath;
 }
 
-export function Body3DSelector(props: Body3DSelectorProps) {
+export default function Body3DSelector(props: Body3DSelectorProps) {
 	const { value = [], onInteractionStart, onInteractionEnd } = props;
 
 	const panResponder = useMemo(

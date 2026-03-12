@@ -13,7 +13,7 @@ import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
 import { StepHeader } from "../common/step-header";
 
-export const PerfectPlanScreen = () => {
+export default function PerfectPlanScreen() {
 	const router = useRouter();
 	const { nextStep, currentStep } = useOnboardingStore();
 

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { THEME } from "@/lib/theme";
 import { useOnboardingStore } from "@/stores/onboarding-store";
-import { Body3DSelector } from "../common/body-3d-selector";
+import Body3DSelector from "../common/body-3d-selector";
 import { StepHeader } from "../common/step-header";
 
 export default function BodyDiagramScreen() {

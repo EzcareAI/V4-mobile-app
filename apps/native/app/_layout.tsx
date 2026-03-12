@@ -3,7 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack, usePathname, useRouter } from "expo-router";
 import { HeroUINativeProvider } from "heroui-native";
 import { Component, type ErrorInfo, type ReactNode, useEffect } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { AppThemeProvider } from "@/contexts/app-theme-context";
@@ -17,7 +17,6 @@ const ONBOARDING_STEP_PATTERN = /^\/\d+$/;
 interface ErrorBoundaryState {
 	hasError: boolean;
 	error: Error | null;
-	componentStack: string | null;
 }
 
 class AppErrorBoundary extends Component<
@@ -26,45 +25,36 @@ class AppErrorBoundary extends Component<
 > {
 	constructor(props: { children: ReactNode }) {
 		super(props);
-		this.state = { hasError: false, error: null, componentStack: null };
+		this.state = { hasError: false, error: null };
 	}
 
 	static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-		return { hasError: true, error, componentStack: null };
+		return { hasError: true, error };
 	}
 
 	componentDidCatch(error: Error, info: ErrorInfo) {
 		console.error("App ErrorBoundary caught:", error, info);
-		this.setState({ componentStack: info.componentStack ?? null });
 	}
 
 	render() {
 		if (this.state.hasError) {
 			return (
-				<ScrollView
-					contentContainerStyle={{
-						flexGrow: 1,
-						padding: 20,
-						paddingTop: 60,
-						backgroundColor: "#0f172a",
+				<View
+					style={{
+						flex: 1,
+						alignItems: "center",
+						justifyContent: "center",
+						padding: 24,
 					}}
 				>
-					<Text style={{ fontSize: 20, fontWeight: "bold", color: "#f87171", marginBottom: 8 }}>
-						⚠️ Crash Report
+					<Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 8 }}>
+						Something went wrong
 					</Text>
-					<Text style={{ fontSize: 13, color: "#fbbf24", fontWeight: "700", marginBottom: 4 }}>
-						ERROR:
+					<Text style={{ color: "#666", textAlign: "center" }}>
+						{this.state.error?.message ??
+							"An unexpected error occurred. Please restart the app."}
 					</Text>
-					<Text style={{ fontSize: 12, color: "#e2e8f0", fontFamily: "monospace", marginBottom: 16 }}>
-						{this.state.error?.toString() ?? "Unknown error"}
-					</Text>
-					<Text style={{ fontSize: 13, color: "#fbbf24", fontWeight: "700", marginBottom: 4 }}>
-						COMPONENT STACK:
-					</Text>
-					<Text style={{ fontSize: 10, color: "#94a3b8", fontFamily: "monospace" }}>
-						{this.state.componentStack ?? this.state.error?.stack ?? "No stack available"}
-					</Text>
-				</ScrollView>
+				</View>
 			);
 		}
 		return this.props.children;

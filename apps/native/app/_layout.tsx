@@ -5,7 +5,6 @@ import { HeroUINativeProvider } from "heroui-native";
 import { Component, type ErrorInfo, type ReactNode, useEffect } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import { AppThemeProvider } from "@/contexts/app-theme-context";
 import { authClient } from "@/lib/auth-client";
@@ -138,13 +137,11 @@ const Layout = () => {
 		<AppErrorBoundary>
 			<QueryClientProvider client={queryClient}>
 				<GestureHandlerRootView style={{ flex: 1 }}>
-					<KeyboardProvider>
-						<AppThemeProvider>
-							<HeroUINativeProvider>
-								<StackLayout />
-							</HeroUINativeProvider>
-						</AppThemeProvider>
-					</KeyboardProvider>
+					<AppThemeProvider>
+						<HeroUINativeProvider>
+							<StackLayout />
+						</HeroUINativeProvider>
+					</AppThemeProvider>
 				</GestureHandlerRootView>
 			</QueryClientProvider>
 		</AppErrorBoundary>

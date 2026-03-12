@@ -2,7 +2,9 @@ import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { Flame, Heart } from "lucide-react-native";
+import { lazy, Suspense } from "react";
 import {
+	ActivityIndicator,
 	Platform,
 	StyleSheet,
 	Text,
@@ -15,8 +17,13 @@ import Svg, {
 	Stop,
 	LinearGradient as SvgLinearGradient,
 } from "react-native-svg";
-import Body3DSelector from "@/components/onboarding/common/body-3d-selector";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+
+// Lazy-load so @react-three/fiber/native is NOT evaluated at module load time.
+// Direct imports resolve to `undefined` in production APKs, causing the crash.
+const Body3DSelector = lazy(() =>
+	import("@/components/onboarding/common/body-3d-selector")
+);
 
 const RING_RADIUS = 88;
 const RING_STROKE = 12;
@@ -121,15 +128,21 @@ export function HealthCoreHero({ streak, score }: Props) {
 
 					{/* Mini Body Map Preview */}
 					<View style={styles.miniBodyWrapper}>
-						<Body3DSelector
-							onChange={(zones) => {
-								setAnswer("bodyZoneSelected", zones);
-								if (zones.length > 0) {
-									setAnswer("intentType", "zone");
-								}
-							}}
-							value={bodyZoneSelected}
-						/>
+						<Suspense
+							fallback={
+								<ActivityIndicator color="#3EC9B5" size="small" />
+							}
+						>
+							<Body3DSelector
+								onChange={(zones) => {
+									setAnswer("bodyZoneSelected", zones);
+									if (zones.length > 0) {
+										setAnswer("intentType", "zone");
+									}
+								}}
+								value={bodyZoneSelected}
+							/>
+						</Suspense>
 					</View>
 				</View>
 			</View>

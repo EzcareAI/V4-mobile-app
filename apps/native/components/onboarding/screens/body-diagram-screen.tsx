@@ -1,12 +1,17 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { ArrowRight, MapPin, Sparkles } from "lucide-react-native";
-import { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { lazy, Suspense, useState } from "react";
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { THEME } from "@/lib/theme";
 import { useOnboardingStore } from "@/stores/onboarding-store";
-import Body3DSelector from "../common/body-3d-selector";
 import { StepHeader } from "../common/step-header";
+
+// Lazy-load so @react-three/fiber/native is NOT evaluated at module load time.
+// Direct imports resolve to `undefined` in production APKs, causing the crash.
+const Body3DSelector = lazy(() =>
+	import("../common/body-3d-selector")
+);
 
 export default function BodyDiagramScreen() {
 	const router = useRouter();
@@ -78,12 +83,22 @@ export default function BodyDiagramScreen() {
 
 					{/* ── Interactive 3D Body Canvas ── */}
 					<View className="pb-4">
-						<Body3DSelector
-							onChange={setSelectedZones}
-							onInteractionEnd={() => setScrollEnabled(true)}
-							onInteractionStart={() => setScrollEnabled(false)}
-							value={selectedZones}
-						/>
+						<Suspense
+							fallback={
+								<ActivityIndicator
+									color="#3EC9B5"
+									size="large"
+									style={{ flex: 1 }}
+								/>
+							}
+						>
+							<Body3DSelector
+								onChange={setSelectedZones}
+								onInteractionEnd={() => setScrollEnabled(true)}
+								onInteractionStart={() => setScrollEnabled(false)}
+								value={selectedZones}
+							/>
+						</Suspense>
 					</View>
 
 					{/* ── Overall Wellness Option (shown when no zone selected) ── */}

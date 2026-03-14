@@ -86,9 +86,9 @@ export default function BodyScanScreen() {
 					<TouchableOpacity
 						onPress={() => {
 							if (router.canGoBack()) {
-								router.back();
+								router.dismissAll();
 							} else {
-								router.replace("/(dashboard)");
+								router.replace("/");
 							}
 						}}
 						style={styles.ghostBtn}
@@ -172,9 +172,9 @@ export default function BodyScanScreen() {
 						hitSlop={8}
 						onPress={() => {
 							if (router.canGoBack()) {
-								router.back();
+								router.dismissAll();
 							} else {
-								router.replace("/(dashboard)");
+								router.replace("/");
 							}
 						}}
 						style={styles.backBtn}

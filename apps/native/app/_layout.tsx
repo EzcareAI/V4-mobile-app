@@ -115,6 +115,7 @@ function StackLayout() {
 			<Stack.Screen name="(dashboard)" />
 			<Stack.Screen name="(onboarding)" />
 			<Stack.Screen name="(auth)" />
+			<Stack.Screen name="scan" />
 			<Stack.Screen
 				name="modal"
 				options={{ title: "Modal", presentation: "modal" }}

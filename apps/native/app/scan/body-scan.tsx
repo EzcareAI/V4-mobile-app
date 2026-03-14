@@ -158,10 +158,12 @@ export default function BodyScanScreen() {
 			{/* overlay dark gradients */}
 			<LinearGradient
 				colors={["rgba(11,14,23,0.9)", "transparent"]}
+				pointerEvents="none"
 				style={styles.topGradient}
 			/>
 			<LinearGradient
 				colors={["transparent", "rgba(11,14,23,0.9)", "#0B0E17"]}
+				pointerEvents="none"
 				style={styles.bottomGradient}
 			/>
 

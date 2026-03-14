@@ -27,8 +27,33 @@ const MultiSelectItem = ({
 	isSelected: boolean;
 	onPress: () => void;
 }) => {
+	const SafePressableFeedback = ({ children, ...props }: any) => {
+		if (typeof PressableFeedback === "undefined") {
+			return (
+				<View
+					{...props}
+					// @ts-ignore
+					onPointerDown={() => props.onPress?.()}
+					style={[
+						props.style,
+						{
+							borderRadius: 16,
+							borderWidth: 2,
+							padding: 16,
+							flexDirection: "row",
+							alignItems: "center",
+						},
+					]}
+				>
+					{children}
+				</View>
+			);
+		}
+		return <PressableFeedback {...props}>{children}</PressableFeedback>;
+	};
+
 	return (
-		<PressableFeedback
+		<SafePressableFeedback
 			className={`flex-row items-center rounded-2xl border-2 p-4 transition-all duration-300 ${
 				isSelected ? "shadow-lg" : "border-transparent bg-white shadow-sm"
 			}`}
@@ -93,7 +118,7 @@ const MultiSelectItem = ({
 			>
 				{isSelected && <Check color="white" size={14} strokeWidth={4} />}
 			</View>
-		</PressableFeedback>
+		</SafePressableFeedback>
 	);
 };
 

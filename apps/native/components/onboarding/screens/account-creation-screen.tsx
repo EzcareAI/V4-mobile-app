@@ -85,7 +85,7 @@ export function AccountCreationScreen() {
 		setAnswer("email", email);
 		setAnswer("authMethod", "email");
 		nextStep();
-		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+		router.push("/(onboarding)/23");
 	};
 
 	const handleOAuthResult = async (
@@ -154,7 +154,7 @@ export function AccountCreationScreen() {
 						}
 						setAnswer("authMethod", provider);
 						nextStep();
-						router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+						router.push("/(onboarding)/23");
 					}
 				} else {
 					setErrorMsg("Authentication failed. Please try again.");
@@ -170,7 +170,7 @@ export function AccountCreationScreen() {
 				}
 				setAnswer("authMethod", provider);
 				nextStep();
-				router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+				router.push("/(onboarding)/23");
 			}
 		} catch {
 			setErrorMsg("Authentication failed. Please try again.");
@@ -221,7 +221,7 @@ export function AccountCreationScreen() {
 					}
 					setAnswer("authMethod", "apple");
 					nextStep();
-					router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+					router.push("/(onboarding)/23");
 				}
 			} catch (err: unknown) {
 				const appleErr = err as { code?: string };

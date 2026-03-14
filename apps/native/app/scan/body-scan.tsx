@@ -84,7 +84,13 @@ export default function BodyScanScreen() {
 						<Text style={styles.primaryBtnText}>Allow Camera</Text>
 					</TouchableOpacity>
 					<TouchableOpacity
-						onPress={() => router.back()}
+						onPress={() => {
+							if (router.canGoBack()) {
+								router.back();
+							} else {
+								router.replace("/(dashboard)");
+							}
+						}}
 						style={styles.ghostBtn}
 					>
 						<Text style={styles.ghostBtnText}>Cancel</Text>
@@ -164,7 +170,13 @@ export default function BodyScanScreen() {
 				<View style={styles.header}>
 					<TouchableOpacity
 						hitSlop={8}
-						onPress={() => router.back()}
+						onPress={() => {
+							if (router.canGoBack()) {
+								router.back();
+							} else {
+								router.replace("/(dashboard)");
+							}
+						}}
 						style={styles.backBtn}
 					>
 						<Ionicons color="#FFFFFF" name="close" size={24} />

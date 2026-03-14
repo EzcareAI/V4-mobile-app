@@ -5,12 +5,23 @@ import { Text, View } from "react-native";
 import { Container } from "@/components/container";
 
 export default function NotFoundScreen() {
+	// Fallbacks for heroui-native components
+	const SafeSurface = (props: any) => {
+		if (typeof Surface === "undefined") return <View {...props} />;
+		return <Surface {...props} />;
+	};
+
+	const SafeButton = (props: any) => {
+		if (typeof Button === "undefined") return <View {...props} />;
+		return <Button {...props} />;
+	};
+
 	return (
 		<>
 			<Stack.Screen options={{ title: "Not Found" }} />
 			<Container>
 				<View className="flex-1 items-center justify-center p-4">
-					<Surface
+					<SafeSurface
 						className="max-w-sm items-center rounded-lg p-6"
 						variant="secondary"
 					>
@@ -22,9 +33,11 @@ export default function NotFoundScreen() {
 							The page you're looking for doesn't exist.
 						</Text>
 						<Link asChild href="/">
-							<Button size="sm">Go Home</Button>
+							<SafeButton size="sm">
+								<Text>Go Home</Text>
+							</SafeButton>
 						</Link>
-					</Surface>
+					</SafeSurface>
 				</View>
 			</Container>
 		</>

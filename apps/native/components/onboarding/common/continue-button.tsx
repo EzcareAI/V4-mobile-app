@@ -17,6 +17,35 @@ export const ContinueButton = ({
 }: ContinueButtonProps) => {
 	const insets = useSafeAreaInsets();
 
+	const SafeButton = ({ children, ...props }: any) => {
+		if (typeof Button === "undefined") {
+			return (
+				<View
+					{...props}
+					style={[
+						props.style,
+						{
+							height: 56,
+							justifyContent: "center",
+							alignItems: "center",
+							borderRadius: 16,
+						},
+					]}
+				>
+					{children}
+				</View>
+			);
+		}
+		return <Button {...props}>{children}</Button>;
+	};
+
+	const SafeButtonLabel = ({ children, ...props }: any) => {
+		if (typeof Button === "undefined" || typeof Button.Label === "undefined") {
+			return <Text {...props}>{children}</Text>;
+		}
+		return <Button.Label {...props}>{children}</Button.Label>;
+	};
+
 	return (
 		<View
 			style={{
@@ -27,7 +56,7 @@ export const ContinueButton = ({
 				backgroundColor: "transparent", // Ensures it blends with parent
 			}}
 		>
-			<Button
+			<SafeButton
 				className="h-14 w-full self-center rounded-2xl shadow-lg transition-all"
 				isDisabled={isDisabled}
 				onPress={() => {
@@ -51,10 +80,10 @@ export const ContinueButton = ({
 					elevation: 4,
 				}}
 			>
-				<Button.Label className="font-semibold text-base text-white">
+				<SafeButtonLabel className="font-semibold text-base text-white">
 					{label}
-				</Button.Label>
-			</Button>
+				</SafeButtonLabel>
+			</SafeButton>
 		</View>
 	);
 };

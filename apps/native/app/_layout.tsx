@@ -74,7 +74,8 @@ function StackLayout() {
 	const totalSteps = useOnboardingStore((state) => state.totalSteps);
 
 	// True if the user has started but not yet completed onboarding
-	const onboardingInProgress = currentStep > 0 && currentStep <= totalSteps;
+	const onboardingInProgress =
+		currentStep > 0 && currentStep <= totalSteps && !onboardingComplete;
 
 	useEffect(() => {
 		if (isPending) {
@@ -123,14 +124,23 @@ function StackLayout() {
 }
 
 const Layout = () => {
+	// Safety check for HeroUINativeProvider to avoid "undefined component" crash
+	const SafeHeroUINativeProvider = (props: { children: ReactNode }) => {
+		if (typeof HeroUINativeProvider === "undefined") {
+			console.error("HeroUINativeProvider is undefined! Check dependencies.");
+			return <>{props.children}</>;
+		}
+		return <HeroUINativeProvider>{props.children}</HeroUINativeProvider>;
+	};
+
 	return (
 		<AppErrorBoundary>
 			<QueryClientProvider client={queryClient}>
 				<GestureHandlerRootView style={{ flex: 1 }}>
 					<AppThemeProvider>
-						<HeroUINativeProvider>
+						<SafeHeroUINativeProvider>
 							<StackLayout />
-						</HeroUINativeProvider>
+						</SafeHeroUINativeProvider>
 					</AppThemeProvider>
 				</GestureHandlerRootView>
 			</QueryClientProvider>

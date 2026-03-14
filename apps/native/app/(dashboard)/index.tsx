@@ -75,16 +75,25 @@ const METRICS: {
 		highLabel: "Great",
 	},
 ];
+// Maps a 1–5 score to a short descriptive label per metric
+const SCORE_LABELS: Record<MetricKey, string[]> = {
+	sleep: ["Terrible", "Poor", "Fair", "Good", "Excellent"],
+	energy: ["Drained", "Low", "Moderate", "Good", "High"],
+	stress: ["Very Calm", "Calm", "Mild", "Stressed", "Very Stressed"],
+	digestion: ["Very Poor", "Poor", "Fair", "Good", "Great"],
+};
 
 // ── Simple Slider ───────────────────────────────────
 function MetricSlider({
 	value,
 	color,
 	onChange,
+	metricKey,
 }: {
 	value: number;
 	color: string;
 	onChange: (v: number) => void;
+	metricKey: MetricKey;
 }) {
 	const sliderWidth = useRef(0);
 
@@ -106,28 +115,63 @@ function MetricSlider({
 	).current;
 
 	const pct = value > 0 ? ((value - 1) / 4) * 100 : 0;
+	const scoreLabel =
+		value > 0 ? SCORE_LABELS[metricKey][value - 1] : null;
 
 	return (
-		<View
-			onLayout={(e) => {
-				sliderWidth.current = e.nativeEvent.layout.width;
-			}}
-			style={styles.sliderTrack}
-			{...pan.panHandlers}
-		>
+		<View>
+			{/* Slider track */}
 			<View
-				style={[
-					styles.sliderFill,
-					{ width: `${pct}%` as `${number}%`, backgroundColor: color },
-				]}
-			/>
-			{value > 0 && (
+				onLayout={(e) => {
+					sliderWidth.current = e.nativeEvent.layout.width;
+				}}
+				style={styles.sliderTrack}
+				{...pan.panHandlers}
+			>
 				<View
 					style={[
-						styles.sliderThumb,
-						{ left: `${pct}%` as `${number}%`, borderColor: color },
+						styles.sliderFill,
+						{ width: `${pct}%` as `${number}%`, backgroundColor: color },
 					]}
 				/>
+				{value > 0 && (
+					<View
+						style={[
+							styles.sliderThumb,
+							{ left: `${pct}%` as `${number}%`, borderColor: color },
+						]}
+					/>
+				)}
+			</View>
+
+			{/* Numbered tick markers */}
+			<View style={styles.tickRow}>
+				{[1, 2, 3, 4, 5].map((n) => (
+					<TouchableOpacity
+						key={n}
+						onPress={() => onChange(n)}
+						style={[
+							styles.tick,
+							value === n && { backgroundColor: color },
+						]}
+					>
+						<Text
+							style={[
+								styles.tickText,
+								value === n && { color: "#fff", fontWeight: "800" },
+							]}
+						>
+							{n}
+						</Text>
+					</TouchableOpacity>
+				))}
+			</View>
+
+			{/* Score label */}
+			{scoreLabel && (
+				<Text style={[styles.scoreCaption, { color }]}>
+					{value} / 5 — {scoreLabel}
+				</Text>
 			)}
 		</View>
 	);
@@ -282,19 +326,16 @@ export default function HomeScreen() {
 									<Text style={styles.metricLabel}>
 										{m.icon} {m.label}
 									</Text>
-									<Text style={[styles.metricValue, { color: m.color }]}>
-										{values[m.key] > 0 ? values[m.key] : "—"}
-									</Text>
+									{values[m.key] === 0 && (
+										<Text style={styles.metricHint}>Tap 1–5</Text>
+									)}
 								</View>
 								<MetricSlider
 									color={m.color}
+									metricKey={m.key}
 									onChange={(v) => handleMetric(m.key, v)}
 									value={values[m.key]}
 								/>
-								<View style={styles.metricScale}>
-									<Text style={styles.scaleLabel}>{m.lowLabel}</Text>
-									<Text style={styles.scaleLabel}>{m.highLabel}</Text>
-								</View>
 							</View>
 						))}
 
@@ -562,6 +603,7 @@ const styles = StyleSheet.create({
 		marginBottom: 10,
 	},
 	metricLabel: { fontSize: 15, fontWeight: "600", color: DARK },
+	metricHint: { fontSize: 12, color: GREY, fontStyle: "italic" },
 	metricValue: { fontSize: 18, fontWeight: "900" },
 	sliderTrack: {
 		height: 10,
@@ -569,6 +611,33 @@ const styles = StyleSheet.create({
 		borderRadius: 5,
 		position: "relative",
 		justifyContent: "center",
+		marginBottom: 2,
+	},
+	// Numbered tick row
+	tickRow: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		marginTop: 8,
+		marginBottom: 4,
+	},
+	tick: {
+		width: 34,
+		height: 34,
+		borderRadius: 17,
+		alignItems: "center",
+		justifyContent: "center",
+		backgroundColor: "#F0F0F0",
+	},
+	tickText: {
+		fontSize: 14,
+		fontWeight: "600",
+		color: GREY,
+	},
+	scoreCaption: {
+		fontSize: 12,
+		fontWeight: "700",
+		marginTop: 2,
+		marginBottom: 4,
 	},
 	sliderFill: {
 		position: "absolute",

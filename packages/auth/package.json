@@ -11,15 +11,15 @@
   },
   "scripts": {},
   "dependencies": {
-    "@better-auth/expo": "catalog:",
+    "@better-auth/expo": "^1.4.17",
     "@ezcare/db": "workspace:*",
     "@ezcare/env": "workspace:*",
-    "better-auth": "catalog:",
-    "dotenv": "catalog:",
-    "zod": "catalog:"
+    "better-auth": "^1.4.17",
+    "dotenv": "^17.2.3",
+    "zod": "^4.3.5"
   },
   "devDependencies": {
     "@ezcare/config": "workspace:*",
-    "typescript": "catalog:"
+    "typescript": "^5.9.3"
   }
 }

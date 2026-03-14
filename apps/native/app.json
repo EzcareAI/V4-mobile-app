@@ -47,14 +47,18 @@
     "android": {
       "package": "com.ezcare_ai4.ezcare",
       "versionCode": 1,
-      "permissions": ["RECORD_AUDIO", "READ_EXTERNAL_STORAGE", "CAMERA"]
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.CAMERA"
+      ]
     },
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "2898f7c9-6397-47b7-9ef8-22964a12a5e0"
+        "projectId": "fae877bb-a47d-4d90-a5b0-7bf52a28cb84"
       }
     },
-    "owner": "ezcare_6"
+    "owner": "ezcare_01"
   }
 }

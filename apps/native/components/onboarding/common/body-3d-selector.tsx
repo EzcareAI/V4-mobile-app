@@ -71,9 +71,10 @@ interface Body3DSelectorProps {
 	onZoneSelect?: (zoneId: string) => void;
 }
 
-// Global mutable state for current drag delta.
-// We use an external proxy to bypass React renders for pure 60fps rotation.
+// Global mutable state for drag rotation delta (applied per frame, then decayed).
 const globalRotation = { x: 0, y: 0 };
+// Shared camera zoom distance
+const globalZoom = { z: 10 };
 
 /**
  * Inner 3D body mesh component. Receives a resolved `file://` URI string.
@@ -93,21 +94,32 @@ function BodyModel({
 
 	const [selected, setSelected] = useState<string[]>(value);
 
-	useFrame((_, delta) => {
+	useFrame((state, delta) => {
 		if (modelRef.current) {
-			modelRef.current.rotation.y += delta * 0.15;
+			// Gentle auto-spin when not dragging
+			if (globalRotation.y === 0 && globalRotation.x === 0) {
+				modelRef.current.rotation.y += delta * 0.15;
+			}
 
 			if (globalRotation.y !== 0 || globalRotation.x !== 0) {
 				modelRef.current.rotation.y += globalRotation.y;
 				modelRef.current.rotation.x += globalRotation.x;
-				globalRotation.y *= 0.8;
-				globalRotation.x *= 0.8;
-
+				// Decay the rotation so it gradually slows
+				globalRotation.y *= 0.85;
+				globalRotation.x *= 0.85;
+				// Clamp vertical tilt
 				modelRef.current.rotation.x = Math.max(
-					-0.5,
-					Math.min(0.5, modelRef.current.rotation.x)
+					-0.8,
+					Math.min(0.8, modelRef.current.rotation.x)
 				);
+				// Snap to zero when very small to stop jitter
+				if (Math.abs(globalRotation.y) < 0.0001) globalRotation.y = 0;
+				if (Math.abs(globalRotation.x) < 0.0001) globalRotation.x = 0;
 			}
+
+			// Smooth camera zoom
+			state.camera.position.z +=
+				(globalZoom.z - state.camera.position.z) * 0.1;
 		}
 	});
 
@@ -241,23 +253,70 @@ async function prepareAsset(): Promise<string> {
 export default function Body3DSelector(props: Body3DSelectorProps) {
 	const { value = [], onInteractionStart, onInteractionEnd } = props;
 
+	// Track last pan position for delta-based rotation
+	const lastPos = useRef({ x: 0, y: 0 });
+	// Track pinch distance for zoom
+	const lastPinchDist = useRef<number | null>(null);
+
 	const panResponder = useMemo(
 		() =>
 			PanResponder.create({
 				onStartShouldSetPanResponder: () => false,
 				onMoveShouldSetPanResponder: (_, g) =>
-					Math.abs(g.dx) > 5 || Math.abs(g.dy) > 5,
-				onPanResponderGrant: () => {
+					Math.abs(g.dx) > 4 || Math.abs(g.dy) > 4,
+				onPanResponderGrant: (e) => {
+					// Reset rotation impulse and record starting position
 					globalRotation.x = 0;
 					globalRotation.y = 0;
+					const touches = e.nativeEvent.touches;
+					if (touches.length === 1) {
+						lastPos.current = {
+							x: touches[0].pageX,
+							y: touches[0].pageY,
+						};
+					}
 					onInteractionStart?.();
 				},
-				onPanResponderMove: (_, g) => {
-					globalRotation.y = g.vx * 0.05;
-					globalRotation.x = g.vy * 0.05;
+				onPanResponderMove: (e) => {
+					const touches = e.nativeEvent.touches;
+
+					if (touches.length === 2) {
+						// ── Pinch-to-zoom ──────────────────────────────
+						const dx = touches[0].pageX - touches[1].pageX;
+						const dy = touches[0].pageY - touches[1].pageY;
+						const dist = Math.sqrt(dx * dx + dy * dy);
+
+						if (lastPinchDist.current !== null) {
+							const delta = lastPinchDist.current - dist;
+							// Positive delta = fingers closer = zoom out
+							globalZoom.z = Math.max(
+								6,
+								Math.min(20, globalZoom.z + delta * 0.05)
+							);
+						}
+						lastPinchDist.current = dist;
+					} else if (touches.length === 1) {
+						// ── Single-finger rotation ─────────────────────
+						lastPinchDist.current = null;
+						const dx = touches[0].pageX - lastPos.current.x;
+						const dy = touches[0].pageY - lastPos.current.y;
+						// Scale pixels → radians (smaller = less sensitive)
+						globalRotation.y = dx * 0.008;
+						globalRotation.x = dy * 0.008;
+						lastPos.current = {
+							x: touches[0].pageX,
+							y: touches[0].pageY,
+						};
+					}
 				},
-				onPanResponderRelease: () => onInteractionEnd?.(),
-				onPanResponderTerminate: () => onInteractionEnd?.(),
+				onPanResponderRelease: () => {
+					lastPinchDist.current = null;
+					onInteractionEnd?.();
+				},
+				onPanResponderTerminate: () => {
+					lastPinchDist.current = null;
+					onInteractionEnd?.();
+				},
 			}),
 		[onInteractionStart, onInteractionEnd]
 	);

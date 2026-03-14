@@ -21,6 +21,7 @@ import {
 	ActivityIndicator,
 	Alert,
 	Image,
+	Keyboard,
 	KeyboardAvoidingView,
 	Platform,
 	ScrollView,
@@ -381,10 +382,20 @@ export default function ChatScreen() {
 		}, 100);
 	}, []);
 
+	// Scroll to bottom when keyboard opens so the input is never hidden
+	useEffect(() => {
+		const sub = Keyboard.addListener("keyboardDidShow", () => {
+			setTimeout(() => {
+				scrollRef.current?.scrollToEnd({ animated: true });
+			}, 100);
+		});
+		return () => sub.remove();
+	}, []);
+
 	return (
-		<SafeAreaView edges={["top", "bottom"]} style={styles.safe}>
+		<SafeAreaView edges={["top"]} style={styles.safe}>
 			<KeyboardAvoidingView
-				behavior={Platform.OS === "ios" ? "padding" : undefined}
+				behavior={Platform.OS === "ios" ? "padding" : "height"}
 				keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
 				style={styles.container}
 			>

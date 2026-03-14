@@ -35,6 +35,8 @@ export default function SettingsScreen() {
 		eveningCheckInTime,
 		setAnswer,
 		myReferralCode,
+		onboardingRecordId,
+		getOrGenerateReferralCode,
 	} = useOnboardingStore();
 
 	const [copied, setCopied] = useState(false);
@@ -46,29 +48,31 @@ export default function SettingsScreen() {
 		const fetchReferralData = async () => {
 			let currentCode = myReferralCode;
 
-			// 1. If we don't have the code in store, fetch it from the user's profile
-			if (!currentCode) {
+			// 1. If not in store, try fetching from onboarding_profiles (where the trigger writes it)
+			if (!currentCode && onboardingRecordId) {
 				try {
-					const { data: userData, error: userError } =
-						await supabase.auth.getUser();
-					if (!userError && userData?.user) {
-						const { data, error } = await supabase
-							.from("profiles")
-							.select("referral_code")
-							.eq("id", userData.user.id)
-							.single();
+					const { data, error } = await supabase
+						.from("onboarding_profiles")
+						.select("referral_code")
+						.eq("id", onboardingRecordId)
+						.single();
 
-						if (!error && data?.referral_code) {
-							currentCode = data.referral_code;
-							setAnswer("myReferralCode", currentCode);
-						}
+					if (!error && data?.referral_code) {
+						currentCode = data.referral_code;
+						setAnswer("myReferralCode", currentCode);
 					}
 				} catch (err) {
-					console.error("Failed to fetch referral code from profile", err);
+					console.error("Failed to fetch referral code from onboarding_profiles", err);
 				}
 			}
 
-			// 2. Once we have the code, fetch the count of people who used it
+			// 2. If still no code (e.g. user skipped onboarding or old account),
+			//    generate one locally and sync it to Supabase
+			if (!currentCode) {
+				currentCode = getOrGenerateReferralCode();
+			}
+
+			// 3. Fetch how many users used this code
 			if (currentCode) {
 				try {
 					const { data, error } = await supabase.rpc("get_referral_count", {
@@ -84,7 +88,7 @@ export default function SettingsScreen() {
 		};
 
 		fetchReferralData();
-	}, [myReferralCode, setAnswer]);
+	}, [myReferralCode, onboardingRecordId, setAnswer, getOrGenerateReferralCode]);
 
 	const handleCopy = async () => {
 		if (!myReferralCode) {
@@ -271,9 +275,9 @@ export default function SettingsScreen() {
 									if (item.label === "About the App") {
 										router.push("/settings/about");
 									} else if (item.label === "Privacy Policy") {
-										router.push("/(onboarding)/privacy-policy");
+										router.push("/privacy-policy");
 									} else if (item.label === "Terms of Service") {
-										router.push("/(onboarding)/terms-of-service");
+										router.push("/terms-of-service");
 									} else if (item.label === "Medical Sources") {
 										router.push("/settings/medical-sources");
 									}

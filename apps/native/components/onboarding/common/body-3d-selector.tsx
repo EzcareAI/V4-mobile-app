@@ -146,31 +146,16 @@ function BodyModel({
 	};
 
 	// Calculate bounds and compute a perfect scale factor without cloning
-	// (cloning often breaks SkinnedMeshes causing them to be invisible)
 	const { scale, centerOffset } = useMemo(() => {
 		try {
-			// CRITICAL: Since `useGLTF` caches the scene, remounts will have the old
-			// transforms (scale and position). We must reset them locally before
-			// using `Box3.setFromObject(scene)` which evaluates world bounds.
+			// Reset transformations
 			scene.parent = null;
 			scene.position.set(0, 0, 0);
 			scene.rotation.set(0, 0, 0);
 			scene.scale.set(1, 1, 1);
 			scene.updateMatrixWorld(true);
 
-			const box = new Box3().setFromObject(scene);
-			const size = new Vector3();
-			box.getSize(size);
-			const center = new Vector3();
-			box.getCenter(center);
-
-			const maxDim = Math.max(size.x, size.y, size.z);
-			let calculatedScale = 1;
-			// If maxDim is extremely huge or tiny, auto-scale to 8 units
-			if (maxDim > 0 && maxDim !== Number.POSITIVE_INFINITY) {
-				calculatedScale = 8 / maxDim;
-			}
-
+			// Hide hidden meshes FIRST so they don't affect bounding calculations
 			scene.traverse((node: unknown) => {
 				if (node instanceof Mesh && !node.userData.hasCustomMaterial) {
 					const isHidden = HIDDEN_MESHES.has(node.name);
@@ -188,9 +173,44 @@ function BodyModel({
 				}
 			});
 
+			// Update matrices after setting visibility
+			scene.updateMatrixWorld(true);
+
+			// Manually compute bounding box of ONLY visible meshes
+			const box = new Box3();
+			box.makeEmpty();
+			scene.traverse((child: unknown) => {
+				if (child instanceof Mesh && child.visible) {
+					if (!child.geometry.boundingBox) {
+						child.geometry.computeBoundingBox();
+					}
+					// Only include if geometry actually has bounds
+					if (child.geometry.boundingBox) {
+						const childBox = child.geometry.boundingBox.clone();
+						childBox.applyMatrix4(child.matrixWorld);
+						box.union(childBox);
+					}
+				}
+			});
+
+			const size = new Vector3();
+			box.getSize(size);
+			const center = new Vector3();
+			box.getCenter(center);
+
+			// Shift Y slightly down to counteract top-heavy meshes and allow headroom
+			center.y += size.y * 0.05;
+
+			const maxDim = Math.max(size.x, size.y, size.z);
+			let calculatedScale = 1;
+			// 7.5 units fits comfortably nicely inside the standard FOV of 45 at distance 10
+			if (maxDim > 0 && maxDim !== Number.POSITIVE_INFINITY) {
+				calculatedScale = 7.5 / maxDim;
+			}
+
 			return {
 				scale: calculatedScale,
-				centerOffset: center.multiplyScalar(-1),
+				centerOffset: new Vector3(-center.x, -center.y, -center.z),
 			};
 		} catch (err) {
 			console.error(`[Body3D] Scene parse error: ${err}`);
@@ -253,34 +273,33 @@ async function prepareAsset(): Promise<string> {
 export default function Body3DSelector(props: Body3DSelectorProps) {
 	const { value = [], onInteractionStart, onInteractionEnd } = props;
 
-	// Track last pan position for delta-based rotation
-	const lastPos = useRef({ x: 0, y: 0 });
-	// Track pinch distance for zoom
+	// Track precise gestures manually
+	const lastPan = useRef({ x: 0, y: 0 });
 	const lastPinchDist = useRef<number | null>(null);
+
+	// Reset camera tracking on component mount
+	useEffect(() => {
+		globalRotation.x = 0;
+		globalRotation.y = 0;
+		globalZoom.z = 10;
+	}, []);
 
 	const panResponder = useMemo(
 		() =>
 			PanResponder.create({
 				onStartShouldSetPanResponder: () => false,
 				onMoveShouldSetPanResponder: (_, g) =>
-					Math.abs(g.dx) > 4 || Math.abs(g.dy) > 4,
-				onPanResponderGrant: (e) => {
-					// Reset rotation impulse and record starting position
+					Math.abs(g.dx) > 6 || Math.abs(g.dy) > 6,
+				onPanResponderGrant: () => {
 					globalRotation.x = 0;
 					globalRotation.y = 0;
-					const touches = e.nativeEvent.touches;
-					if (touches.length === 1) {
-						lastPos.current = {
-							x: touches[0].pageX,
-							y: touches[0].pageY,
-						};
-					}
+					lastPan.current = { x: 0, y: 0 };
+					lastPinchDist.current = null;
 					onInteractionStart?.();
 				},
-				onPanResponderMove: (e) => {
+				onPanResponderMove: (e, g) => {
 					const touches = e.nativeEvent.touches;
-
-					if (touches.length === 2) {
+					if (touches && touches.length === 2) {
 						// ── Pinch-to-zoom ──────────────────────────────
 						const dx = touches[0].pageX - touches[1].pageX;
 						const dy = touches[0].pageY - touches[1].pageY;
@@ -288,25 +307,20 @@ export default function Body3DSelector(props: Body3DSelectorProps) {
 
 						if (lastPinchDist.current !== null) {
 							const delta = lastPinchDist.current - dist;
-							// Positive delta = fingers closer = zoom out
 							globalZoom.z = Math.max(
-								6,
-								Math.min(20, globalZoom.z + delta * 0.05)
+								5,
+								Math.min(18, globalZoom.z + delta * 0.08)
 							);
 						}
 						lastPinchDist.current = dist;
-					} else if (touches.length === 1) {
+					} else {
 						// ── Single-finger rotation ─────────────────────
 						lastPinchDist.current = null;
-						const dx = touches[0].pageX - lastPos.current.x;
-						const dy = touches[0].pageY - lastPos.current.y;
-						// Scale pixels → radians (smaller = less sensitive)
+						const dx = g.dx - lastPan.current.x;
+						const dy = g.dy - lastPan.current.y;
 						globalRotation.y = dx * 0.008;
 						globalRotation.x = dy * 0.008;
-						lastPos.current = {
-							x: touches[0].pageX,
-							y: touches[0].pageY,
-						};
+						lastPan.current = { x: g.dx, y: g.dy };
 					}
 				},
 				onPanResponderRelease: () => {

@@ -124,16 +124,16 @@ function StackLayout() {
 	);
 }
 
-const Layout = () => {
-	// Safety check for HeroUINativeProvider to avoid "undefined component" crash
-	const SafeHeroUINativeProvider = (props: { children: ReactNode }) => {
-		if (typeof HeroUINativeProvider === "undefined") {
-			console.error("HeroUINativeProvider is undefined! Check dependencies.");
-			return <>{props.children}</>;
-		}
-		return <HeroUINativeProvider>{props.children}</HeroUINativeProvider>;
-	};
+// Safety check for HeroUINativeProvider to avoid "undefined component" crash
+const SafeHeroUINativeProvider = (props: { children: ReactNode }) => {
+	if (typeof HeroUINativeProvider === "undefined") {
+		console.error("HeroUINativeProvider is undefined! Check dependencies.");
+		return <>{props.children}</>;
+	}
+	return <HeroUINativeProvider>{props.children}</HeroUINativeProvider>;
+};
 
+const Layout = () => {
 	return (
 		<AppErrorBoundary>
 			<QueryClientProvider client={queryClient}>

@@ -120,7 +120,9 @@ function BodyModel({
 				// After release: apply decaying momentum spin
 				modelRef.current.rotation.y += globalVelocity.y;
 				globalVelocity.y *= 0.88;
-				if (Math.abs(globalVelocity.y) < 0.0001) globalVelocity.y = 0;
+				if (Math.abs(globalVelocity.y) < 0.0001) {
+					globalVelocity.y = 0;
+				}
 				modelRef.current.rotation.x *= 0.9;
 			} else {
 				// Auto-spin gently when no interaction
@@ -129,8 +131,7 @@ function BodyModel({
 			}
 
 			// Smooth camera zoom
-			state.camera.position.z +=
-				(globalZoom.z - state.camera.position.z) * 0.1;
+			state.camera.position.z += (globalZoom.z - state.camera.position.z) * 0.1;
 		}
 	});
 

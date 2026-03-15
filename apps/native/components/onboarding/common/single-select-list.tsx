@@ -68,8 +68,7 @@ const SelectItem = ({
 			>
 				{option.emoji ? (
 					<Text className="text-2xl">{option.emoji}</Text>
-				) : // biome-ignore lint/style/noNestedTernary: biome false positive
-				option.icon ? (
+				) : option.icon ? (
 					<option.icon
 						color={isSelected ? "white" : (option.iconColor ?? "#73808C")}
 						size={24}

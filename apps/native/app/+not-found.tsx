@@ -4,18 +4,22 @@ import { Text, View } from "react-native";
 
 import { Container } from "@/components/container";
 
+// Fallbacks for heroui-native components
+const SafeSurface = (props: Record<string, unknown>) => {
+	if (typeof Surface === "undefined") {
+		return <View {...props} />;
+	}
+	return <Surface {...props} />;
+};
+
+const SafeButton = (props: Record<string, unknown>) => {
+	if (typeof Button === "undefined") {
+		return <View {...props} />;
+	}
+	return <Button {...props} />;
+};
+
 export default function NotFoundScreen() {
-	// Fallbacks for heroui-native components
-	const SafeSurface = (props: any) => {
-		if (typeof Surface === "undefined") return <View {...props} />;
-		return <Surface {...props} />;
-	};
-
-	const SafeButton = (props: any) => {
-		if (typeof Button === "undefined") return <View {...props} />;
-		return <Button {...props} />;
-	};
-
 	return (
 		<>
 			<Stack.Screen options={{ title: "Not Found" }} />

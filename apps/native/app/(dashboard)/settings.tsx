@@ -62,7 +62,10 @@ export default function SettingsScreen() {
 						setAnswer("myReferralCode", currentCode);
 					}
 				} catch (err) {
-					console.error("Failed to fetch referral code from onboarding_profiles", err);
+					console.error(
+						"Failed to fetch referral code from onboarding_profiles",
+						err
+					);
 				}
 			}
 
@@ -88,7 +91,12 @@ export default function SettingsScreen() {
 		};
 
 		fetchReferralData();
-	}, [myReferralCode, onboardingRecordId, setAnswer, getOrGenerateReferralCode]);
+	}, [
+		myReferralCode,
+		onboardingRecordId,
+		setAnswer,
+		getOrGenerateReferralCode,
+	]);
 
 	const handleCopy = async () => {
 		if (!myReferralCode) {

@@ -21,8 +21,8 @@ import { useOnboardingStore } from "@/stores/onboarding-store";
 
 // Lazy-load so @react-three/fiber/native is NOT evaluated at module load time.
 // Direct imports resolve to `undefined` in production APKs, causing the crash.
-const Body3DSelector = lazy(() =>
-	import("@/components/onboarding/common/body-3d-selector")
+const Body3DSelector = lazy(
+	() => import("@/components/onboarding/common/body-3d-selector")
 );
 
 const RING_RADIUS = 88;
@@ -129,9 +129,7 @@ export function HealthCoreHero({ streak, score }: Props) {
 					{/* Mini Body Map Preview */}
 					<View style={styles.miniBodyWrapper}>
 						<Suspense
-							fallback={
-								<ActivityIndicator color="#3EC9B5" size="small" />
-							}
+							fallback={<ActivityIndicator color="#3EC9B5" size="small" />}
 						>
 							<Body3DSelector
 								onChange={(zones) => {

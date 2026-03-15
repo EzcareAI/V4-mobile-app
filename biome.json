@@ -25,7 +25,8 @@
       "!**/.svelte-kit",
       "!**/wrangler.jsonc",
       "!**/.source",
-      "!**/convex/_generated"
+      "!**/convex/_generated",
+      "!**/last_build.json"
     ]
   },
   "formatter": {
@@ -79,5 +80,26 @@
       "tailwindDirectives": true
     }
   },
+  "overrides": [
+    {
+      "includes": ["apps/native/**"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveCognitiveComplexity": "off"
+          },
+          "suspicious": {
+            "noEmptyBlockStatements": "off",
+            "noExplicitAny": "off",
+            "noArrayIndexKey": "off",
+            "useAwait": "off"
+          },
+          "style": { "noNestedTernary": "off" },
+          "performance": { "useTopLevelRegex": "off", "noNamespaceImport": "off" },
+          "correctness": { "noNestedComponentDefinitions": "off" }
+        }
+      }
+    }
+  ],
   "extends": ["ultracite/biome/core", "ultracite/biome/react"]
 }

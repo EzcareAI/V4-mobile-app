@@ -224,12 +224,10 @@ export const useOnboardingStore = create<OnboardingState>()(
 							.select()
 							.single();
 
-					if (error) {
+						if (error) {
 							console.error("❌ SUPABASE UPDATE ERROR:", error);
-						} else {
-							if (data?.referral_code && !state.myReferralCode) {
-								set({ myReferralCode: data.referral_code });
-							}
+						} else if (data?.referral_code && !state.myReferralCode) {
+							set({ myReferralCode: data.referral_code });
 						}
 					} else {
 						// Create new draft

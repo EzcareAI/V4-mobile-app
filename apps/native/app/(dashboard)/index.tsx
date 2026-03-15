@@ -1,8 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
-import { router } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useRouter } from "expo-router";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
+	ActivityIndicator,
 	PanResponder,
 	Platform,
 	ScrollView,
@@ -11,8 +12,6 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import { lazy, Suspense } from "react";
-import { ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -20,8 +19,8 @@ import { useOnboardingStore } from "@/stores/onboarding-store";
 // Lazy-load so @react-three/fiber/native is NOT evaluated at module load time.
 // Direct imports of this library resolve to `undefined` in production APKs,
 // causing the "Element type is invalid: got undefined" crash on launch.
-const Body3DSelector = lazy(() =>
-	import("@/components/onboarding/common/body-3d-selector")
+const Body3DSelector = lazy(
+	() => import("@/components/onboarding/common/body-3d-selector")
 );
 
 // ── Design tokens ──────────────────────────────────
@@ -115,8 +114,7 @@ function MetricSlider({
 	).current;
 
 	const pct = value > 0 ? ((value - 1) / 4) * 100 : 0;
-	const scoreLabel =
-		value > 0 ? SCORE_LABELS[metricKey][value - 1] : null;
+	const scoreLabel = value > 0 ? SCORE_LABELS[metricKey][value - 1] : null;
 
 	return (
 		<View>
@@ -150,10 +148,7 @@ function MetricSlider({
 					<TouchableOpacity
 						key={n}
 						onPress={() => onChange(n)}
-						style={[
-							styles.tick,
-							value === n && { backgroundColor: color },
-						]}
+						style={[styles.tick, value === n && { backgroundColor: color }]}
 					>
 						<Text
 							style={[
@@ -200,7 +195,7 @@ export default function HomeScreen() {
 		canCheckIn,
 		saveCheckIn,
 		getNextCheckInMs,
-		streak,
+
 		resetDailyMissions,
 		missions,
 		completeMission,
@@ -214,6 +209,8 @@ export default function HomeScreen() {
 	});
 	const [saved, setSaved] = useState(false);
 	const [nextMs, setNextMs] = useState(getNextCheckInMs());
+	const [selectedZones, setSelectedZones] = useState<string[]>([]);
+	const router = useRouter();
 
 	// Resets daily missions + live countdown
 	useEffect(() => {
@@ -294,15 +291,41 @@ export default function HomeScreen() {
 						>
 							<Body3DSelector
 								gender={(gender as "male" | "female") || "male"}
-								onZoneSelect={(zoneId: string) => {
+								onChange={setSelectedZones}
+								onZoneSelect={(_zoneId: string) => {
 									if (Platform.OS === "ios") {
 										impactAsync(ImpactFeedbackStyle.Light).catch(() => {
 											/* ignore */
 										});
 									}
 								}}
+								value={selectedZones}
 							/>
 						</Suspense>
+
+						{/* Analyze Symptoms CTA */}
+						{selectedZones.length > 0 && (
+							<TouchableOpacity
+								activeOpacity={0.8}
+								onPress={() => {
+									if (Platform.OS === "ios") {
+										impactAsync(ImpactFeedbackStyle.Medium).catch(() => {});
+									}
+									router.push(
+										`/(dashboard)/analyze-symptoms?zones=${encodeURIComponent(
+											selectedZones.join(",")
+										)}`
+									);
+								}}
+								style={styles.analyzeBtn}
+							>
+								<Ionicons color="#FFF" name="analytics-outline" size={20} />
+								<Text style={styles.analyzeBtnText}>
+									Analyze {selectedZones.length} Symptom
+									{selectedZones.length === 1 ? "" : "s"}
+								</Text>
+							</TouchableOpacity>
+						)}
 					</View>
 				</View>
 
@@ -754,6 +777,29 @@ const styles = StyleSheet.create({
 		paddingVertical: 12,
 	},
 	chatStartText: { fontSize: 15, fontWeight: "700", color: TEAL },
+
+	// Analyze Button
+	analyzeBtn: {
+		backgroundColor: TEAL,
+		borderRadius: 100,
+		paddingVertical: 14,
+		paddingHorizontal: 24,
+		marginTop: 20,
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 8,
+		shadowColor: TEAL,
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.3,
+		shadowRadius: 8,
+		elevation: 4,
+	},
+	analyzeBtnText: {
+		color: "#FFF",
+		fontSize: 16,
+		fontWeight: "700",
+	},
 
 	// Scan CTA
 	scanCard: {

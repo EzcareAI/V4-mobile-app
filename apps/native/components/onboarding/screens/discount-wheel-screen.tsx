@@ -148,8 +148,7 @@ const Fireworks = () => {
 
 export function DiscountWheelScreen() {
 	const router = useRouter();
-	const { setAnswer, nextStep, currentStep, discountWheelShown } =
-		useOnboardingStore();
+	const { setAnswer, nextStep, currentStep } = useOnboardingStore();
 
 	const spinAnim = useRef(new Animated.Value(0)).current;
 	const pulseAnim = useRef(new Animated.Value(1)).current;

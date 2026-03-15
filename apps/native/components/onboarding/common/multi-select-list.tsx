@@ -32,7 +32,7 @@ const MultiSelectItem = ({
 			return (
 				<View
 					{...props}
-					// @ts-ignore
+					// @ts-expect-error
 					onPointerDown={() => props.onPress?.()}
 					style={[
 						props.style,

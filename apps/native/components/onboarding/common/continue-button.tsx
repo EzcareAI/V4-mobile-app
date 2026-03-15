@@ -1,6 +1,6 @@
 import { selectionAsync } from "expo-haptics";
 import { Button } from "heroui-native";
-import { Platform, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { THEME } from "@/lib/theme";
 
@@ -10,41 +10,41 @@ interface ContinueButtonProps {
 	label?: string | React.ReactNode;
 }
 
+const SafeButton = ({ children, ...props }: any) => {
+	if (typeof Button === "undefined") {
+		return (
+			<View
+				{...props}
+				style={[
+					props.style,
+					{
+						height: 56,
+						justifyContent: "center",
+						alignItems: "center",
+						borderRadius: 16,
+					},
+				]}
+			>
+				{children as React.ReactNode}
+			</View>
+		);
+	}
+	return <Button {...props}>{children as React.ReactNode}</Button>;
+};
+
+const SafeButtonLabel = ({ children, ...props }: any) => {
+	if (typeof Button === "undefined" || typeof Button.Label === "undefined") {
+		return <Text {...props}>{children as React.ReactNode}</Text>;
+	}
+	return <Button.Label {...props}>{children as React.ReactNode}</Button.Label>;
+};
+
 export const ContinueButton = ({
 	onPress,
 	isDisabled = false,
 	label = "Continue",
 }: ContinueButtonProps) => {
 	const insets = useSafeAreaInsets();
-
-	const SafeButton = ({ children, ...props }: any) => {
-		if (typeof Button === "undefined") {
-			return (
-				<View
-					{...props}
-					style={[
-						props.style,
-						{
-							height: 56,
-							justifyContent: "center",
-							alignItems: "center",
-							borderRadius: 16,
-						},
-					]}
-				>
-					{children}
-				</View>
-			);
-		}
-		return <Button {...props}>{children}</Button>;
-	};
-
-	const SafeButtonLabel = ({ children, ...props }: any) => {
-		if (typeof Button === "undefined" || typeof Button.Label === "undefined") {
-			return <Text {...props}>{children}</Text>;
-		}
-		return <Button.Label {...props}>{children}</Button.Label>;
-	};
 
 	return (
 		<View

@@ -31,7 +31,6 @@ const EnergyValue = ({
 		const val = value.value ?? 0;
 		return {
 			text: `Energy Level: ${Math.round(val)}%`,
-			// biome-ignore lint/suspicious/noExplicitAny: Victory Native / Reanimated type mismatch
 		} as unknown as any;
 	});
 	return (
@@ -52,7 +51,6 @@ const InflammationValue = ({
 		const val = value.value ?? 0; // Default to 0 if null
 		return {
 			text: `Inflammation: ${Math.round(val)}%`,
-			// biome-ignore lint/suspicious/noExplicitAny: Victory Native / Reanimated type mismatch
 		} as unknown as any;
 	});
 	return (
@@ -73,7 +71,6 @@ const WeekValue = ({
 		const val = value.value ?? 0;
 		return {
 			text: `Week ${Math.round(val)}`,
-			// biome-ignore lint/suspicious/noExplicitAny: Victory Native / Reanimated type mismatch
 		} as unknown as any;
 	});
 	return (
@@ -286,13 +283,9 @@ export const JourneyProgressChart = () => {
 
 			<ToolTip
 				isActive={isActive}
-				// biome-ignore lint/suspicious/noExplicitAny: Library type mismatch
 				x={state.x.position as any}
-				// biome-ignore lint/suspicious/noExplicitAny: Library type mismatch
 				xValue={state.x.value as any}
-				// biome-ignore lint/suspicious/noExplicitAny: Library type mismatch
 				yEnergy={state.y.energy.value as any}
-				// biome-ignore lint/suspicious/noExplicitAny: Library type mismatch
 				yInflammation={state.y.inflammation.value as any}
 			/>
 

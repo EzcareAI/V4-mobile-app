@@ -78,6 +78,14 @@ const dragState = { isDragging: false, pendingY: 0 };
 // Shared camera zoom distance
 const globalZoom = { z: 10 };
 
+// Meshes that exist in the GLB but should not be selectable or highlighted
+const HIDDEN_MESHES = new Set([
+	"Cube",
+	"Object.006",
+	"male_Base_mesh",
+	"male_Base_mesh.007",
+]);
+
 /**
  * Inner 3D body mesh component. Receives a resolved `file://` URI string.
  * useGLTF requires a proper string URL — numeric module IDs are resolved
@@ -96,6 +104,7 @@ function BodyModel({
 
 	const [selected, setSelected] = useState<string[]>(value);
 
+	// Global mutable state for drag rotation delta (applied per frame, then decayed).
 	useFrame((state) => {
 		if (modelRef.current) {
 			if (dragState.isDragging) {
@@ -105,14 +114,13 @@ function BodyModel({
 					globalVelocity.y = dragState.pendingY; // capture for momentum on release
 					dragState.pendingY = 0;
 				}
-				// Gradually restore X tilt back to upright while drag is active
+				// While dragging, smoothly return the X-tilt to 0 (upright)
 				modelRef.current.rotation.x *= 0.85;
 			} else if (Math.abs(globalVelocity.y) > 0.0001) {
 				// After release: apply decaying momentum spin
 				modelRef.current.rotation.y += globalVelocity.y;
 				globalVelocity.y *= 0.88;
 				if (Math.abs(globalVelocity.y) < 0.0001) globalVelocity.y = 0;
-				// Restore X tilt back to upright
 				modelRef.current.rotation.x *= 0.9;
 			} else {
 				// Auto-spin gently when no interaction
@@ -125,14 +133,6 @@ function BodyModel({
 				(globalZoom.z - state.camera.position.z) * 0.1;
 		}
 	});
-
-	// Meshes that exist in the GLB but should not be selectable or highlighted
-	const HIDDEN_MESHES = new Set([
-		"Cube",
-		"Object.006",
-		"male_Base_mesh",
-		"male_Base_mesh.007",
-	]);
 
 	const toggleRegion = (e: ThreeEvent<MouseEvent> & { object: Mesh }) => {
 		e.stopPropagation();
@@ -149,6 +149,7 @@ function BodyModel({
 	};
 
 	// Calculate bounds and compute a perfect scale factor without cloning
+	// We use `scene.uuid` as the dependency to guarantee this ONLY ever runs once per unique loaded scene.
 	const { scale, centerOffset } = useMemo(() => {
 		try {
 			// Reset transformations
@@ -219,7 +220,7 @@ function BodyModel({
 			console.error(`[Body3D] Scene parse error: ${err}`);
 			return { scale: 1, centerOffset: new Vector3(0, 0, 0) };
 		}
-	}, [scene, HIDDEN_MESHES]);
+	}, [scene, scene.uuid]);
 
 	// Update emissive highlight each render pass for selected zones
 	useMemo(() => {
@@ -238,7 +239,7 @@ function BodyModel({
 	}, [scene, selected]);
 
 	return (
-		<group ref={modelRef} scale={scale}>
+		<group ref={modelRef} rotation={[0, 0, 0]} scale={scale}>
 			<group position={[centerOffset.x, centerOffset.y, centerOffset.z]}>
 				<primitive object={scene} onPointerDown={toggleRegion} />
 			</group>

@@ -531,58 +531,62 @@ export default function ChatScreen() {
 				)}
 
 				{/* INPUT AREA */}
-				<View style={styles.inputArea}>
-					<TouchableOpacity
-						activeOpacity={0.7}
-						onPress={openAttachMenu}
-						style={styles.attachBtn}
-					>
-						<Ionicons color="#94A3B8" name="add" size={22} />
-					</TouchableOpacity>
-					<View style={styles.inputWrapper}>
-						<TextInput
-							maxLength={1000}
-							multiline
-							onChangeText={setInput}
-							placeholder={isListening ? "Listening..." : "Message EZBuddy..."}
-							placeholderTextColor={isListening ? "#3EC9B5" : "#94A3B8"}
-							style={styles.textInput}
-							value={input}
-						/>
+				<SafeAreaView edges={["bottom"]} style={{ backgroundColor: "#0B0E17" }}>
+					<View style={styles.inputArea}>
 						<TouchableOpacity
-							hitSlop={4}
-							onPress={toggleListening}
-							style={[styles.micBtn, isListening && styles.micBtnActive]}
+							activeOpacity={0.7}
+							onPress={openAttachMenu}
+							style={styles.attachBtn}
 						>
-							<Ionicons
-								color={isListening ? "#0B0E17" : "#94A3B8"}
-								name={isListening ? "mic" : "mic-outline"}
-								size={18}
-							/>
+							<Ionicons color="#94A3B8" name="add" size={22} />
 						</TouchableOpacity>
-						<TouchableOpacity
-							disabled={
-								!(input.trim() || attachedImage || attachedDoc) || isLoading
-							}
-							onPress={handleSend}
-							style={[
-								styles.sendBtn,
-								!(input.trim() || attachedImage || attachedDoc) &&
-									styles.sendBtnDisabled,
-							]}
-						>
-							<Ionicons
-								color={
-									input.trim() || attachedImage || attachedDoc
-										? "#0B0E17"
-										: "#94A3B8"
+						<View style={styles.inputWrapper}>
+							<TextInput
+								maxLength={1000}
+								multiline
+								onChangeText={setInput}
+								placeholder={
+									isListening ? "Listening..." : "Message EZBuddy..."
 								}
-								name="arrow-up"
-								size={20}
+								placeholderTextColor={isListening ? "#3EC9B5" : "#94A3B8"}
+								style={styles.textInput}
+								value={input}
 							/>
-						</TouchableOpacity>
+							<TouchableOpacity
+								hitSlop={4}
+								onPress={toggleListening}
+								style={[styles.micBtn, isListening && styles.micBtnActive]}
+							>
+								<Ionicons
+									color={isListening ? "#0B0E17" : "#94A3B8"}
+									name={isListening ? "mic" : "mic-outline"}
+									size={18}
+								/>
+							</TouchableOpacity>
+							<TouchableOpacity
+								disabled={
+									!(input.trim() || attachedImage || attachedDoc) || isLoading
+								}
+								onPress={handleSend}
+								style={[
+									styles.sendBtn,
+									!(input.trim() || attachedImage || attachedDoc) &&
+										styles.sendBtnDisabled,
+								]}
+							>
+								<Ionicons
+									color={
+										input.trim() || attachedImage || attachedDoc
+											? "#0B0E17"
+											: "#94A3B8"
+									}
+									name="arrow-up"
+									size={20}
+								/>
+							</TouchableOpacity>
+						</View>
 					</View>
-				</View>
+				</SafeAreaView>
 			</KeyboardAvoidingView>
 		</SafeAreaView>
 	);

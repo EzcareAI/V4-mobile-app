@@ -7,11 +7,15 @@ import {
 	PanResponder,
 	Platform,
 	ScrollView,
-	StyleSheet,
 	Text,
 	TouchableOpacity,
 	View,
 } from "react-native";
+import Animated, {
+	useAnimatedStyle,
+	useSharedValue,
+	withSpring,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -82,7 +86,7 @@ const SCORE_LABELS: Record<MetricKey, string[]> = {
 	digestion: ["Very Poor", "Poor", "Fair", "Good", "Great"],
 };
 
-// ── Simple Slider ───────────────────────────────────
+// ── Smooth Slider ───────────────────────────────────
 function MetricSlider({
 	value,
 	color,
@@ -95,6 +99,14 @@ function MetricSlider({
 	metricKey: MetricKey;
 }) {
 	const sliderWidth = useRef(0);
+	const smoothPct = useSharedValue(value > 0 ? ((value - 1) / 4) * 100 : 0);
+
+	useEffect(() => {
+		smoothPct.value = withSpring(value > 0 ? ((value - 1) / 4) * 100 : 0, {
+			damping: 20,
+			stiffness: 200,
+		});
+	}, [value, smoothPct]);
 
 	const pan = useRef(
 		PanResponder.create({
@@ -102,18 +114,32 @@ function MetricSlider({
 			onMoveShouldSetPanResponder: () => true,
 			onPanResponderGrant: (e) => {
 				const x = e.nativeEvent.locationX;
-				const raw = Math.round((x / sliderWidth.current) * 4 + 1);
-				onChange(Math.min(5, Math.max(1, raw)));
+				const clamped = Math.min(
+					5,
+					Math.max(1, Math.round((x / sliderWidth.current) * 4 + 1))
+				);
+				smoothPct.value = withSpring(((clamped - 1) / 4) * 100);
+				onChange(clamped);
 			},
 			onPanResponderMove: (e) => {
 				const x = e.nativeEvent.locationX;
-				const raw = Math.round((x / sliderWidth.current) * 4 + 1);
-				onChange(Math.min(5, Math.max(1, raw)));
+				const pct = Math.min(100, Math.max(0, (x / sliderWidth.current) * 100));
+				smoothPct.value = pct;
+			},
+			onPanResponderRelease: (e) => {
+				const x = e.nativeEvent.locationX;
+				const clamped = Math.min(
+					5,
+					Math.max(1, Math.round((x / sliderWidth.current) * 4 + 1))
+				);
+				smoothPct.value = withSpring(((clamped - 1) / 4) * 100);
+				onChange(clamped);
 			},
 		})
 	).current;
 
-	const pct = value > 0 ? ((value - 1) / 4) * 100 : 0;
+	const fillStyle = useAnimatedStyle(() => ({ width: `${smoothPct.value}%` }));
+	const thumbStyle = useAnimatedStyle(() => ({ left: `${smoothPct.value}%` }));
 	const scoreLabel = value > 0 ? SCORE_LABELS[metricKey][value - 1] : null;
 
 	return (
@@ -126,18 +152,12 @@ function MetricSlider({
 				style={styles.sliderTrack}
 				{...pan.panHandlers}
 			>
-				<View
-					style={[
-						styles.sliderFill,
-						{ width: `${pct}%` as `${number}%`, backgroundColor: color },
-					]}
+				<Animated.View
+					style={[styles.sliderFill, { backgroundColor: color }, fillStyle]}
 				/>
 				{value > 0 && (
-					<View
-						style={[
-							styles.sliderThumb,
-							{ left: `${pct}%` as `${number}%`, borderColor: color },
-						]}
+					<Animated.View
+						style={[styles.sliderThumb, { borderColor: color }, thumbStyle]}
 					/>
 				)}
 			</View>
@@ -198,14 +218,14 @@ export default function HomeScreen() {
 
 		resetDailyMissions,
 		missions,
-		completeMission,
+		toggleMission,
 	} = useDashboardStore();
 
 	const [values, setValues] = useState({
-		sleep: 0,
-		energy: 0,
-		stress: 0,
-		digestion: 0,
+		sleep: 3,
+		energy: 3,
+		stress: 3,
+		digestion: 3,
 	});
 	const [saved, setSaved] = useState(false);
 	const [nextMs, setNextMs] = useState(getNextCheckInMs());
@@ -302,7 +322,6 @@ export default function HomeScreen() {
 								value={selectedZones}
 							/>
 						</Suspense>
-
 					</View>
 
 					{/* Analyze Symptoms CTA */}
@@ -416,7 +435,7 @@ export default function HomeScreen() {
 							activeOpacity={0.8}
 							key={mission.id}
 							onPress={() => {
-								completeMission(mission.id);
+								toggleMission(mission.id);
 								if (Platform.OS === "ios") {
 									impactAsync(ImpactFeedbackStyle.Light).catch(() => {});
 								}
@@ -424,15 +443,24 @@ export default function HomeScreen() {
 							style={[
 								styles.actionCard,
 								{ backgroundColor: palette.bg, borderColor: palette.border },
+								mission.completed && { opacity: 0.85 },
 							]}
 						>
 							<View
 								style={[
 									styles.actionIconWrap,
-									{ backgroundColor: "rgba(255,255,255,0.7)" },
+									{
+										backgroundColor: mission.completed
+											? TEAL
+											: "rgba(255,255,255,0.7)",
+									},
 								]}
 							>
-								<Text style={styles.actionIcon}>{mission.icon}</Text>
+								{mission.completed ? (
+									<Ionicons color="#FFF" name="checkmark" size={20} />
+								) : (
+									<Text style={styles.actionIcon}>{mission.icon}</Text>
+								)}
 							</View>
 							<View style={styles.actionContent}>
 								<Text
@@ -443,11 +471,13 @@ export default function HomeScreen() {
 								>
 									{mission.title}
 								</Text>
-								<Text style={styles.actionSub}>+{mission.xp} XP</Text>
+								<Text style={styles.actionSub}>
+									+{mission.healthPoints} health pts
+								</Text>
 							</View>
-							{mission.completed && (
-								<Ionicons color={TEAL} name="checkmark-circle" size={22} />
-							)}
+							<Text style={{ fontSize: 11, color: GREY }}>
+								{mission.completed ? "Tap to undo" : "Tap to log"}
+							</Text>
 						</TouchableOpacity>
 					);
 				})}
@@ -480,8 +510,6 @@ export default function HomeScreen() {
 						<Text style={styles.chatStartText}>Start Conversation</Text>
 					</View>
 				</TouchableOpacity>
-
-				{/* Scan Body CTA */}
 				<TouchableOpacity
 					activeOpacity={0.9}
 					onPress={() => router.push("/scan/body-scan")}

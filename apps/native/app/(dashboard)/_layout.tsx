@@ -83,6 +83,7 @@ export default function DashboardLayout() {
 						<TabBarIcon color={color} focused={focused} Icon={Settings} />
 					),
 				}}
+			/>
 			<Tabs.Screen
 				name="analyze-symptoms"
 				options={{

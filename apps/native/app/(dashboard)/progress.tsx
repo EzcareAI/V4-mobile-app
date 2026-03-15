@@ -9,7 +9,7 @@ import {
 	View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Svg, { Circle, Line, Polyline, Text as SvgText } from "react-native-svg";
+import Svg, { Circle, Line, Path, Text as SvgText } from "react-native-svg";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
@@ -94,69 +94,164 @@ function getTrend(key: string, val: number | undefined): TrendType {
 
 // ── Mini line chart ─────────────────────────────────
 function LineChart({ data }: { data: { label: string; value: number }[] }) {
+	const [activeIdx, setActiveIdx] = useState<number | null>(null);
+
 	const n = data.length;
-	const spacing = CHART_W / (n - 1);
+	// Add side padding to keep labels and circles from clipping
+	const sidePad = 24;
+	const innerW = CHART_W - sidePad * 2;
+	const spacing = n > 1 ? innerW / (n - 1) : innerW;
 	const maxVal = 10;
+
 	const pts = data.map((d, i) => ({
-		x: i * spacing,
+		x: sidePad + i * spacing,
 		y: CHART_H - (d.value / maxVal) * CHART_H,
+		val: d.value,
+		lbl: d.label,
 	}));
-	const polyline = pts.map((p) => `${p.x},${p.y}`).join(" ");
+
+	// Calculate smooth bezier path
+	let smoothPath = "";
+	if (pts.length > 0) {
+		smoothPath = `M ${pts[0].x},${pts[0].y} `;
+		for (let i = 0; i < pts.length - 1; i++) {
+			const p0 = pts[i];
+			const p1 = pts[i + 1];
+			// Smooth interpolation using horizontal bezier handles
+			const cp1x = (p0.x + p1.x) / 2;
+			const cp1y = p0.y;
+			const cp2x = (p0.x + p1.x) / 2;
+			const cp2y = p1.y;
+			smoothPath += `C ${cp1x},${cp1y} ${cp2x},${cp2y} ${p1.x},${p1.y} `;
+		}
+	}
 
 	return (
-		<Svg height={CHART_H + 24} width={CHART_W}>
-			{/* Y axis guide lines */}
-			{[0, 2, 4, 6, 8, 10].map((val) => (
-				<Line
-					key={val}
-					stroke="rgba(0,0,0,0.05)"
-					strokeWidth={1}
-					x1={0}
-					x2={CHART_W}
-					y1={CHART_H - (val / 10) * CHART_H}
-					y2={CHART_H - (val / 10) * CHART_H}
+		<View style={{ position: "relative" }}>
+			<Svg height={CHART_H + 28} width={CHART_W}>
+				{/* Y axis guide lines */}
+				{[0, 2, 4, 6, 8, 10].map((val) => (
+					<Line
+						key={val}
+						stroke="rgba(0,0,0,0.05)"
+						strokeWidth={1}
+						x1={sidePad}
+						x2={CHART_W - sidePad}
+						y1={CHART_H - (val / 10) * CHART_H}
+						y2={CHART_H - (val / 10) * CHART_H}
+					/>
+				))}
+				{/* Y axis labels */}
+				{[0, 2, 4, 6, 8, 10].map((val) => (
+					<SvgText
+						fill={GREY}
+						fontSize={9}
+						key={`y${val}`}
+						textAnchor="end"
+						x={sidePad - 6}
+						y={CHART_H - (val / 10) * CHART_H + 4}
+					>
+						{val}
+					</SvgText>
+				))}
+				{/* line */}
+				<Path
+					d={smoothPath}
+					fill="none"
+					stroke={TEAL}
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					strokeWidth={3}
 				/>
-			))}
-			{/* Y axis labels */}
-			{[0, 2, 4, 6, 8, 10].map((val) => (
-				<SvgText
-					fill={GREY}
-					fontSize={9}
-					key={`y${val}`}
-					textAnchor="end"
-					x={-2}
-					y={CHART_H - (val / 10) * CHART_H + 4}
+				{/* interactive connection area - invisible wider circles to make tapping easier */}
+				{pts.map((p, i) => (
+					<Circle
+						cx={p.x}
+						cy={p.y}
+						fill="transparent"
+						key={`t-${i}`}
+						onPress={() => setActiveIdx(i === activeIdx ? null : i)}
+						r={20}
+					/>
+				))}
+				{/* data dots */}
+				{pts.map((p, i) => {
+					const isActive = activeIdx === i;
+					return (
+						<Circle
+							cx={p.x}
+							cy={p.y}
+							fill={isActive ? "#FFFFFF" : TEAL}
+							key={`pt-${i}`}
+							r={isActive ? 6 : 4}
+							stroke={TEAL}
+							strokeWidth={isActive ? 2 : 0}
+						/>
+					);
+				})}
+				{/* X axis labels */}
+				{pts.map((p, i) => (
+					<SvgText
+						fill={activeIdx === i ? DARK : GREY}
+						fontSize={8}
+						fontWeight={activeIdx === i ? "bold" : "normal"}
+						key={`x-${p.lbl}`}
+						textAnchor="middle"
+						x={p.x}
+						y={CHART_H + 18}
+					>
+						{data[i].label}
+					</SvgText>
+				))}
+			</Svg>
+
+			{/* Tooltip Overlay */}
+			{activeIdx !== null && (
+				<View
+					style={{
+						position: "absolute",
+						left: pts[activeIdx].x - 30,
+						top: pts[activeIdx].y - 36,
+						backgroundColor: DARK,
+						paddingHorizontal: 8,
+						paddingVertical: 4,
+						borderRadius: 6,
+						alignItems: "center",
+						justifyContent: "center",
+						// Prevent tooltip from overflowing left or right edges
+						transform: [
+							{
+								translateX:
+									pts[activeIdx].x < 40
+										? 15
+										: pts[activeIdx].x > CHART_W - 40
+											? -15
+											: 0,
+							},
+						],
+					}}
 				>
-					{val}
-				</SvgText>
-			))}
-			{/* line */}
-			<Polyline
-				fill="none"
-				points={polyline}
-				stroke={TEAL}
-				strokeLinecap="round"
-				strokeLinejoin="round"
-				strokeWidth={2.5}
-			/>
-			{/* area fill – simplified */}
-			{pts.map((p) => (
-				<Circle cx={p.x} cy={p.y} fill={TEAL} key={`pt-${p.x}-${p.y}`} r={4} />
-			))}
-			{/* X axis labels */}
-			{data.map((d) => (
-				<SvgText
-					fill={GREY}
-					fontSize={8}
-					key={`x-${d.label}`}
-					textAnchor="middle"
-					x={pts.find((_, i) => data[i].label === d.label)?.x ?? 0}
-					y={CHART_H + 18}
-				>
-					{d.label}
-				</SvgText>
-			))}
-		</Svg>
+					<Text style={{ color: "#FFF", fontSize: 12, fontWeight: "700" }}>
+						{Math.round(pts[activeIdx].val * 10)}
+					</Text>
+					{/* small triangle tail */}
+					<View
+						style={{
+							position: "absolute",
+							bottom: -4,
+							width: 0,
+							height: 0,
+							borderLeftWidth: 4,
+							borderRightWidth: 4,
+							borderTopWidth: 4,
+							borderLeftColor: "transparent",
+							borderRightColor: "transparent",
+							borderTopColor: DARK,
+						}}
+					/>
+				</View>
+			)}
+		</View>
 	);
 }
 

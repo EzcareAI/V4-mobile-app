@@ -303,30 +303,31 @@ export default function HomeScreen() {
 							/>
 						</Suspense>
 
-						{/* Analyze Symptoms CTA */}
-						{selectedZones.length > 0 && (
-							<TouchableOpacity
-								activeOpacity={0.8}
-								onPress={() => {
-									if (Platform.OS === "ios") {
-										impactAsync(ImpactFeedbackStyle.Medium).catch(() => {});
-									}
-									router.push(
-										`/(dashboard)/analyze-symptoms?zones=${encodeURIComponent(
-											selectedZones.join(",")
-										)}`
-									);
-								}}
-								style={styles.analyzeBtn}
-							>
-								<Ionicons color="#FFF" name="analytics-outline" size={20} />
-								<Text style={styles.analyzeBtnText}>
-									Analyze {selectedZones.length} Symptom
-									{selectedZones.length === 1 ? "" : "s"}
-								</Text>
-							</TouchableOpacity>
-						)}
 					</View>
+
+					{/* Analyze Symptoms CTA */}
+					{selectedZones.length > 0 && (
+						<TouchableOpacity
+							activeOpacity={0.8}
+							onPress={() => {
+								if (Platform.OS === "ios") {
+									impactAsync(ImpactFeedbackStyle.Medium).catch(() => {});
+								}
+								router.push(
+									`/(dashboard)/analyze-symptoms?zones=${encodeURIComponent(
+										selectedZones.join(",")
+									)}`
+								);
+							}}
+							style={styles.analyzeBtn}
+						>
+							<Ionicons color="#FFF" name="analytics-outline" size={20} />
+							<Text style={styles.analyzeBtnText}>
+								Analyze {selectedZones.length} Symptom
+								{selectedZones.length === 1 ? "" : "s"}
+							</Text>
+						</TouchableOpacity>
+					)}
 				</View>
 
 				{/* ── Daily Check-In Card ── */}

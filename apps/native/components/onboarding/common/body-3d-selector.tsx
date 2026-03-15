@@ -71,8 +71,10 @@ interface Body3DSelectorProps {
 	onZoneSelect?: (zoneId: string) => void;
 }
 
-// Global mutable state for drag rotation delta (applied per frame, then decayed).
-const globalRotation = { x: 0, y: 0 };
+// globalVelocity.y = current spin velocity (radians) applied each frame, decays after release
+const globalVelocity = { y: 0 };
+// Set to true while user finger is down so we know to apply drag velocity once per event
+const dragState = { isDragging: false, pendingY: 0 };
 // Shared camera zoom distance
 const globalZoom = { z: 10 };
 
@@ -94,27 +96,28 @@ function BodyModel({
 
 	const [selected, setSelected] = useState<string[]>(value);
 
-	useFrame((state, delta) => {
+	useFrame((state) => {
 		if (modelRef.current) {
-			// Gentle auto-spin when not dragging
-			if (globalRotation.y === 0 && globalRotation.x === 0) {
-				modelRef.current.rotation.y += delta * 0.15;
-			}
-
-			if (globalRotation.y !== 0 || globalRotation.x !== 0) {
-				modelRef.current.rotation.y += globalRotation.y;
-				modelRef.current.rotation.x += globalRotation.x;
-				// Decay the rotation so it gradually slows
-				globalRotation.y *= 0.85;
-				globalRotation.x *= 0.85;
-				// Clamp vertical tilt
-				modelRef.current.rotation.x = Math.max(
-					-0.8,
-					Math.min(0.8, modelRef.current.rotation.x)
-				);
-				// Snap to zero when very small to stop jitter
-				if (Math.abs(globalRotation.y) < 0.0001) globalRotation.y = 0;
-				if (Math.abs(globalRotation.x) < 0.0001) globalRotation.x = 0;
+			if (dragState.isDragging) {
+				// Apply pending touch delta ONCE per move event — not every frame
+				if (dragState.pendingY !== 0) {
+					modelRef.current.rotation.y += dragState.pendingY;
+					globalVelocity.y = dragState.pendingY; // capture for momentum on release
+					dragState.pendingY = 0;
+				}
+				// Gradually restore X tilt back to upright while drag is active
+				modelRef.current.rotation.x *= 0.85;
+			} else if (Math.abs(globalVelocity.y) > 0.0001) {
+				// After release: apply decaying momentum spin
+				modelRef.current.rotation.y += globalVelocity.y;
+				globalVelocity.y *= 0.88;
+				if (Math.abs(globalVelocity.y) < 0.0001) globalVelocity.y = 0;
+				// Restore X tilt back to upright
+				modelRef.current.rotation.x *= 0.9;
+			} else {
+				// Auto-spin gently when no interaction
+				modelRef.current.rotation.y += 0.004;
+				modelRef.current.rotation.x *= 0.95;
 			}
 
 			// Smooth camera zoom
@@ -279,8 +282,9 @@ export default function Body3DSelector(props: Body3DSelectorProps) {
 
 	// Reset camera tracking on component mount
 	useEffect(() => {
-		globalRotation.x = 0;
-		globalRotation.y = 0;
+		dragState.isDragging = false;
+		dragState.pendingY = 0;
+		globalVelocity.y = 0;
 		globalZoom.z = 10;
 	}, []);
 
@@ -291,8 +295,9 @@ export default function Body3DSelector(props: Body3DSelectorProps) {
 				onMoveShouldSetPanResponder: (_, g) =>
 					Math.abs(g.dx) > 6 || Math.abs(g.dy) > 6,
 				onPanResponderGrant: () => {
-					globalRotation.x = 0;
-					globalRotation.y = 0;
+					dragState.isDragging = true;
+					dragState.pendingY = 0;
+					globalVelocity.y = 0;
 					lastPan.current = { x: 0, y: 0 };
 					lastPinchDist.current = null;
 					onInteractionStart?.();
@@ -304,7 +309,6 @@ export default function Body3DSelector(props: Body3DSelectorProps) {
 						const dx = touches[0].pageX - touches[1].pageX;
 						const dy = touches[0].pageY - touches[1].pageY;
 						const dist = Math.sqrt(dx * dx + dy * dy);
-
 						if (lastPinchDist.current !== null) {
 							const delta = lastPinchDist.current - dist;
 							globalZoom.z = Math.max(
@@ -314,20 +318,21 @@ export default function Body3DSelector(props: Body3DSelectorProps) {
 						}
 						lastPinchDist.current = dist;
 					} else {
-						// ── Single-finger rotation ─────────────────────
+						// ── Single-finger Y-axis rotation only ──────────────
 						lastPinchDist.current = null;
 						const dx = g.dx - lastPan.current.x;
-						const dy = g.dy - lastPan.current.y;
-						globalRotation.y = dx * 0.008;
-						globalRotation.x = dy * 0.008;
+						// Set pendingY — applied exactly ONCE in the next useFrame call
+						dragState.pendingY = dx * 0.012;
 						lastPan.current = { x: g.dx, y: g.dy };
 					}
 				},
 				onPanResponderRelease: () => {
+					dragState.isDragging = false;
 					lastPinchDist.current = null;
 					onInteractionEnd?.();
 				},
 				onPanResponderTerminate: () => {
+					dragState.isDragging = false;
 					lastPinchDist.current = null;
 					onInteractionEnd?.();
 				},

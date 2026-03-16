@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
 	Dimensions,
 	ScrollView,
@@ -464,13 +464,30 @@ export default function ProgressScreen() {
 
 					<Text style={styles.scoreTagline}>— {scoreLabel}</Text>
 
+					{/* 7-Day Streak Flames */}
+					<View style={styles.streakRow}>
+						<Text style={styles.streakTitle}>Weekly Streak: {streak} Days</Text>
+						<View style={styles.flamesContainer}>
+							{Array.from({ length: 7 }).map((_, i) => {
+								// If streak is 7, 14, 21, etc. we want 7 lit flames. Else streak % 7.
+								const litCount =
+									streak > 0 && streak % 7 === 0 ? 7 : streak % 7;
+								const isLit = i < litCount;
+								return (
+									<Ionicons
+										color={isLit ? "#FF8C00" : "#E2E8F0"}
+										key={`flame-${i}`}
+										name={isLit ? "flame" : "flame-outline"}
+										size={24}
+										style={{ marginHorizontal: 4 }}
+									/>
+								);
+							})}
+						</View>
+					</View>
+
 					{/* Stats row */}
 					<View style={styles.statsRow}>
-						<View style={styles.stat}>
-							<Text style={styles.statVal}>{streak}</Text>
-							<Text style={styles.statLbl}>Days Tracked</Text>
-						</View>
-						<View style={styles.statDivider} />
 						<View style={styles.stat}>
 							<Text style={styles.statVal}>{Math.round(score)}</Text>
 							<Text style={styles.statLbl}>Avg Score</Text>

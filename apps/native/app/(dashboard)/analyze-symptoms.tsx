@@ -4,6 +4,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
 	ActivityIndicator,
+	Alert,
 	Platform,
 	SafeAreaView,
 	ScrollView,
@@ -72,27 +73,35 @@ export default function AnalyzeSymptomsScreen() {
 			return;
 		}
 		setIsSaving(true);
+		setError(null);
+
 		try {
 			const {
 				data: { session },
+				error: authError,
 			} = await supabase.auth.getSession();
+
+			if (authError) {
+				throw new Error(`Authentication error: ${authError.message}`);
+			}
 
 			// If the user isn't logged in, we gracefully skip the cloud save and just close the screen
 			// so that guest users don't get stuck with an error.
 			if (session?.user?.id) {
-				const { error: dbError } = await supabase
-					.from("health_analyses")
-					.insert({
-						user_id: session.user.id,
-						zones,
-						symptoms_description: `Pain level ${painLevel}/10. ${description}`,
-						probable_causes: analysis.probableCauses,
-						action_plan: analysis.actionPlan,
-					});
+				const { error: dbError } = await supabase.from("health_analyses").insert({
+					user_id: session.user.id,
+					zones,
+					symptoms_description: `Pain level ${painLevel}/10. ${description}`,
+					probable_causes: analysis.probableCauses,
+					action_plan: analysis.actionPlan,
+				});
 
 				if (dbError) {
 					console.error("Supabase insert error:", dbError);
-					// We don't throw here — we still want the user to be able to finish and return to the dashboard
+					setError(`Failed to save to history: ${dbError.message}`);
+					Alert.alert("Save Error", "We couldn't save your analysis history. Please check your connection and try again.");
+					setIsSaving(false);
+					return;
 				}
 			}
 
@@ -100,10 +109,10 @@ export default function AnalyzeSymptomsScreen() {
 				impactAsync(ImpactFeedbackStyle.Medium).catch(() => {});
 			}
 			router.replace("/(dashboard)");
-		} catch (err) {
+		} catch (err: any) {
 			console.error("Save history error:", err);
-			// Fallback: still let them leave the screen even if auth check completely failed
-			router.replace("/(dashboard)");
+			setError(`Error: ${err.message || "Unknown error occurred while saving."}`);
+			Alert.alert("Error", "An unexpected error occurred while saving your history.");
 		} finally {
 			setIsSaving(false);
 		}

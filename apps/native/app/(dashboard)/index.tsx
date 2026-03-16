@@ -4,18 +4,15 @@ import { useRouter } from "expo-router";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import {
 	ActivityIndicator,
+	Animated,
 	PanResponder,
 	Platform,
 	ScrollView,
+	StyleSheet,
 	Text,
 	TouchableOpacity,
 	View,
 } from "react-native";
-import Animated, {
-	useAnimatedStyle,
-	useSharedValue,
-	withSpring,
-} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -86,7 +83,7 @@ const SCORE_LABELS: Record<MetricKey, string[]> = {
 	digestion: ["Very Poor", "Poor", "Fair", "Good", "Great"],
 };
 
-// ── Smooth Slider ───────────────────────────────────
+// ── Smooth Slider (uses core Animated — no Reanimated native module) ──────────
 function MetricSlider({
 	value,
 	color,
@@ -99,14 +96,20 @@ function MetricSlider({
 	metricKey: MetricKey;
 }) {
 	const sliderWidth = useRef(0);
-	const smoothPct = useSharedValue(value > 0 ? ((value - 1) / 4) * 100 : 0);
+	// Use core Animated.Value — bundled with RN, no native module crash risk
+	const animPct = useRef(
+		new Animated.Value(value > 0 ? ((value - 1) / 4) * 100 : 50)
+	).current;
 
 	useEffect(() => {
-		smoothPct.value = withSpring(value > 0 ? ((value - 1) / 4) * 100 : 0, {
+		const target = value > 0 ? ((value - 1) / 4) * 100 : 50;
+		Animated.spring(animPct, {
+			toValue: target,
 			damping: 20,
 			stiffness: 200,
-		});
-	}, [value, smoothPct]);
+			useNativeDriver: false,
+		}).start();
+	}, [value, animPct]);
 
 	const pan = useRef(
 		PanResponder.create({
@@ -118,13 +121,16 @@ function MetricSlider({
 					5,
 					Math.max(1, Math.round((x / sliderWidth.current) * 4 + 1))
 				);
-				smoothPct.value = withSpring(((clamped - 1) / 4) * 100);
+				Animated.spring(animPct, {
+					toValue: ((clamped - 1) / 4) * 100,
+					useNativeDriver: false,
+				}).start();
 				onChange(clamped);
 			},
 			onPanResponderMove: (e) => {
 				const x = e.nativeEvent.locationX;
 				const pct = Math.min(100, Math.max(0, (x / sliderWidth.current) * 100));
-				smoothPct.value = pct;
+				animPct.setValue(pct);
 			},
 			onPanResponderRelease: (e) => {
 				const x = e.nativeEvent.locationX;
@@ -132,14 +138,26 @@ function MetricSlider({
 					5,
 					Math.max(1, Math.round((x / sliderWidth.current) * 4 + 1))
 				);
-				smoothPct.value = withSpring(((clamped - 1) / 4) * 100);
+				Animated.spring(animPct, {
+					toValue: ((clamped - 1) / 4) * 100,
+					useNativeDriver: false,
+				}).start();
 				onChange(clamped);
 			},
 		})
 	).current;
 
-	const fillStyle = useAnimatedStyle(() => ({ width: `${smoothPct.value}%` }));
-	const thumbStyle = useAnimatedStyle(() => ({ left: `${smoothPct.value}%` }));
+	// Derive percent string for fill/thumb from animated value
+	const fillWidth = animPct.interpolate({
+		inputRange: [0, 100],
+		outputRange: ["0%", "100%"],
+		extrapolate: "clamp",
+	});
+	const thumbLeft = animPct.interpolate({
+		inputRange: [0, 100],
+		outputRange: ["0%", "100%"],
+		extrapolate: "clamp",
+	});
 	const scoreLabel = value > 0 ? SCORE_LABELS[metricKey][value - 1] : null;
 
 	return (
@@ -153,11 +171,17 @@ function MetricSlider({
 				{...pan.panHandlers}
 			>
 				<Animated.View
-					style={[styles.sliderFill, { backgroundColor: color }, fillStyle]}
+					style={[
+						styles.sliderFill,
+						{ backgroundColor: color, width: fillWidth },
+					]}
 				/>
 				{value > 0 && (
 					<Animated.View
-						style={[styles.sliderThumb, { borderColor: color }, thumbStyle]}
+						style={[
+							styles.sliderThumb,
+							{ borderColor: color, left: thumbLeft },
+						]}
 					/>
 				)}
 			</View>

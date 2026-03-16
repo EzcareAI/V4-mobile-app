@@ -496,7 +496,7 @@ export default function HomeScreen() {
 									{mission.title}
 								</Text>
 								<Text style={styles.actionSub}>
-									+{mission.healthPoints} health pts
+									+{mission.healthPoints} pts to total Health Score
 								</Text>
 							</View>
 							<Text style={{ fontSize: 11, color: GREY }}>

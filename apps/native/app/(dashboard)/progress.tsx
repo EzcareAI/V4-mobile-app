@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
 	Dimensions,
 	ScrollView,
@@ -95,6 +95,11 @@ function getTrend(key: string, val: number | undefined): TrendType {
 // ── Mini line chart ─────────────────────────────────
 function LineChart({ data }: { data: { label: string; value: number }[] }) {
 	const [activeIdx, setActiveIdx] = useState<number | null>(null);
+
+	// Prevent out-of-bounds crashes when switching tabs (e.g. 7 days -> 4 weeks)
+	useEffect(() => {
+		setActiveIdx(null);
+	}, [data]);
 
 	const n = data.length;
 	// Add side padding to keep labels and circles from clipping
@@ -206,7 +211,7 @@ function LineChart({ data }: { data: { label: string; value: number }[] }) {
 			</Svg>
 
 			{/* Tooltip Overlay */}
-			{activeIdx !== null && (
+			{activeIdx !== null && pts[activeIdx] && (
 				<View
 					style={{
 						position: "absolute",
@@ -296,7 +301,7 @@ export default function ProgressScreen() {
 				match.value = avg * 2;
 			}
 		}
-		return res.map((r) => ({ label: r.label, value: r.value }));
+		return res.map((r) => ({ label: r.label, value: r.value })).reverse();
 	};
 
 	const getWeekData = () => {
@@ -325,10 +330,12 @@ export default function ProgressScreen() {
 				}
 			}
 		}
-		return res.map((r) => ({
-			label: r.label,
-			value: r.count > 0 ? r.value / r.count : 0,
-		}));
+		return res
+			.map((r) => ({
+				label: r.label,
+				value: r.count > 0 ? r.value / r.count : 0,
+			}))
+			.reverse();
 	};
 
 	const getMonthData = () => {

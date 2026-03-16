@@ -76,20 +76,24 @@ export default function AnalyzeSymptomsScreen() {
 			const {
 				data: { session },
 			} = await supabase.auth.getSession();
-			if (!session) {
-				throw new Error("You must be logged in to save history.");
-			}
 
-			const { error: dbError } = await supabase.from("health_analyses").insert({
-				user_id: session.user.id,
-				zones,
-				symptoms_description: `Pain level ${painLevel}/10. ${description}`,
-				probable_causes: analysis.probableCauses,
-				action_plan: analysis.actionPlan,
-			});
+			// If the user isn't logged in, we gracefully skip the cloud save and just close the screen
+			// so that guest users don't get stuck with an error.
+			if (session?.user?.id) {
+				const { error: dbError } = await supabase
+					.from("health_analyses")
+					.insert({
+						user_id: session.user.id,
+						zones,
+						symptoms_description: `Pain level ${painLevel}/10. ${description}`,
+						probable_causes: analysis.probableCauses,
+						action_plan: analysis.actionPlan,
+					});
 
-			if (dbError) {
-				throw dbError;
+				if (dbError) {
+					console.error("Supabase insert error:", dbError);
+					// We don't throw here — we still want the user to be able to finish and return to the dashboard
+				}
 			}
 
 			if (Platform.OS === "ios") {
@@ -98,7 +102,9 @@ export default function AnalyzeSymptomsScreen() {
 			router.replace("/(dashboard)");
 		} catch (err) {
 			console.error("Save history error:", err);
-			setError("Failed to save history.");
+			// Fallback: still let them leave the screen even if auth check completely failed
+			router.replace("/(dashboard)");
+		} finally {
 			setIsSaving(false);
 		}
 	};
@@ -206,31 +212,33 @@ export default function AnalyzeSymptomsScreen() {
 							<View key={idx} style={styles.resultCard}>
 								<View style={styles.causeHeader}>
 									<Text style={styles.causeName}>{cause.name}</Text>
-									<View
-										style={[
-											styles.likelihoodBadge,
-											cause.likelihood === "High" && {
-												backgroundColor: "#FED7D7",
-											},
-											cause.likelihood === "Medium" && {
-												backgroundColor: "#FEFCBF",
-											},
-											cause.likelihood === "Low" && {
-												backgroundColor: "#C6F6D5",
-											},
-										]}
-									>
+									<View style={styles.percentWrap}>
 										<Text
 											style={[
-												styles.likelihoodText,
-												cause.likelihood === "High" && { color: "#C53030" },
-												cause.likelihood === "Medium" && { color: "#B7791F" },
-												cause.likelihood === "Low" && { color: "#2F855A" },
+												styles.percentText,
+												cause.likelihood >= 70 && { color: "#C53030" },
+												cause.likelihood >= 40 &&
+													cause.likelihood < 70 && { color: "#B7791F" },
+												cause.likelihood < 40 && { color: "#2F855A" },
 											]}
 										>
-											{cause.likelihood} Match
+											{cause.likelihood}% Match
 										</Text>
 									</View>
+								</View>
+
+								{/* Premium Progress Bar */}
+								<View style={styles.barTrack}>
+									<View
+										style={[
+											styles.barFill,
+											{ width: `${cause.likelihood}%` },
+											cause.likelihood >= 70 && { backgroundColor: "#FC8181" },
+											cause.likelihood >= 40 &&
+												cause.likelihood < 70 && { backgroundColor: "#F6E05E" },
+											cause.likelihood < 40 && { backgroundColor: "#68D391" },
+										]}
+									/>
 								</View>
 								<Text style={styles.causeDesc}>{cause.description}</Text>
 							</View>
@@ -427,13 +435,25 @@ const styles = StyleSheet.create({
 		marginBottom: 8,
 	},
 	causeName: { flex: 1, fontSize: 16, fontWeight: "700", color: DARK },
-	likelihoodBadge: {
+	percentWrap: {
+		backgroundColor: "#F7FAFC",
 		paddingHorizontal: 8,
 		paddingVertical: 4,
 		borderRadius: 6,
 		marginLeft: 12,
 	},
-	likelihoodText: { fontSize: 12, fontWeight: "700" },
+	percentText: { fontSize: 13, fontWeight: "800" },
+	barTrack: {
+		height: 6,
+		backgroundColor: "#EDF2F7",
+		borderRadius: 3,
+		marginBottom: 12,
+		overflow: "hidden",
+	},
+	barFill: {
+		height: "100%",
+		borderRadius: 3,
+	},
 	causeDesc: { fontSize: 14, color: GREY, lineHeight: 20 },
 
 	planCard: {

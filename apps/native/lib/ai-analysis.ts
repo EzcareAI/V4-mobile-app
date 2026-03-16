@@ -27,7 +27,7 @@ export interface AnalysisResponse {
 	probableCauses: Array<{
 		name: string;
 		description: string;
-		likelihood: "High" | "Medium" | "Low";
+		likelihood: number; // Percentage (0 to 100)
 	}>;
 	actionPlan: Array<{
 		day: number;
@@ -53,7 +53,7 @@ You MUST return your entire response as a strictly valid, minified JSON object m
     {
       "name": "String: Name of potential cause (e.g., 'Rotator Cuff Strain')",
       "description": "String: Brief explanation of what this is and why it fits.",
-      "likelihood": "High" | "Medium" | "Low"
+      "likelihood": number // A match percentage from 0 to 100 (e.g., 85)
     }
   ],
   "actionPlan": [
@@ -65,7 +65,7 @@ You MUST return your entire response as a strictly valid, minified JSON object m
   ]
 }
 
-Provide a 3 to 5 day action plan consisting of rest, ice/heat, or gentle mobility exercises appropriate for the reported discomfort.
+Provide a comprehensive 7-day action plan (Days 1 through 7) consisting of rest, ice/heat, or gentle mobility exercises appropriate for the reported discomfort. Each day must have a distinct task.
 `;
 
 export const aiAnalysisService = {

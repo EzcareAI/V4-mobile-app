@@ -129,7 +129,7 @@ export default function SubscriptionScreen() {
 								)}
 							</View>
 							<Text style={styles.planPrice}>
-								$19.99 <Text style={styles.planPeriod}>/ mo</Text>
+								$29.99 <Text style={styles.planPeriod}>/ mo</Text>
 							</Text>
 
 							<View style={styles.featuresList}>

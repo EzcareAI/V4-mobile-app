@@ -97,7 +97,7 @@ export default function AnalyzeSymptomsScreen() {
 			}
 
 			if (Platform.OS === "ios") {
-				impactAsync(ImpactFeedbackStyle.Success).catch(() => {});
+				impactAsync(ImpactFeedbackStyle.Medium).catch(() => {});
 			}
 			router.replace("/(dashboard)");
 		} catch (err) {

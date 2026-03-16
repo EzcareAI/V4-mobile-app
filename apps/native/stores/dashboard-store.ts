@@ -25,6 +25,8 @@ export interface Mission {
 	icon: string;
 	/** Health score points awarded when completed. Precise values tied to published evidence. */
 	healthPoints: number;
+	/** XP granted for level progression. Often mapped directly to healthPoints * 10 or similar. */
+	xp: number;
 	completed: boolean;
 }
 
@@ -42,11 +44,36 @@ const DAILY_MISSIONS: Omit<Mission, "completed">[] = [
 		title: "Deep Breathing Focus",
 		icon: "😮‍💨",
 		healthPoints: 0.8,
+		xp: 80,
 	},
-	{ id: "meal", title: "Log First Meal", icon: "🥗", healthPoints: 0.5 },
-	{ id: "walk", title: "10 Min Walk", icon: "👟", healthPoints: 1.2 },
-	{ id: "hydrate", title: "Drink 2L of Water", icon: "💧", healthPoints: 0.6 },
-	{ id: "stretch", title: "Morning Stretch", icon: "🧘", healthPoints: 0.9 },
+	{
+		id: "meal",
+		title: "Log First Meal",
+		icon: "🥗",
+		healthPoints: 0.5,
+		xp: 50,
+	},
+	{
+		id: "walk",
+		title: "10 Min Walk",
+		icon: "👟",
+		healthPoints: 1.2,
+		xp: 120,
+	},
+	{
+		id: "hydrate",
+		title: "Drink 2L of Water",
+		icon: "💧",
+		healthPoints: 0.6,
+		xp: 60,
+	},
+	{
+		id: "stretch",
+		title: "Morning Stretch",
+		icon: "🧘",
+		healthPoints: 0.9,
+		xp: 90,
+	},
 ];
 
 export interface DashboardState {
@@ -69,6 +96,9 @@ export interface DashboardState {
 	getNextCheckInMs: () => number;
 	saveCheckIn: (metrics: CheckInMetrics) => void;
 	toggleMission: (id: string) => void;
+	completeMission: (id: string) => void; // Alias for toggleMission
+	getLevel: () => number;
+	getXpInCurrentLevel: () => number;
 	resetDailyMissions: () => void;
 	syncToSupabase: () => Promise<void>;
 }
@@ -203,6 +233,24 @@ export const useDashboardStore = create<DashboardState>()(
 
 				// Background sync to DB
 				get().syncToSupabase();
+			},
+
+			completeMission: (id) => {
+				get().toggleMission(id);
+			},
+
+			getLevel: () => {
+				const { dailyHealthScoreDelta } = get();
+				// Simple level logic: every 5 points is a level
+				return Math.floor(dailyHealthScoreDelta / 5) + 1;
+			},
+
+			getXpInCurrentLevel: () => {
+				const { missions } = get();
+				// Calculate XP from completed missions
+				return missions
+					.filter((m) => m.completed)
+					.reduce((acc, m) => acc + (m.xp || 0), 0);
 			},
 
 			resetDailyMissions: () => {

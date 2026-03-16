@@ -474,7 +474,9 @@ export default function ProgressScreen() {
 
 					{/* 7-Day Streak Flames */}
 					<View style={styles.streakRow}>
-						<Text style={styles.streakTitle}>Weekly Streak: {streak} Days</Text>
+						<Text style={styles.weeklyStreakTitle}>
+							Weekly Streak: {streak} Days
+						</Text>
 						<View style={styles.flamesContainer}>
 							{Array.from({ length: 7 }).map((_, i) => {
 								// If streak is 7, 14, 21, etc. we want 7 lit flames. Else streak % 7.
@@ -802,6 +804,24 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		color: "rgba(255,255,255,0.85)",
 		marginBottom: 16,
+	},
+	streakRow: {
+		backgroundColor: "rgba(255,255,255,0.15)",
+		borderRadius: 16,
+		padding: 16,
+		marginBottom: 20,
+		alignItems: "center",
+	},
+	weeklyStreakTitle: {
+		color: "#FFFFFF",
+		fontSize: 14,
+		fontWeight: "700",
+		marginBottom: 10,
+	},
+	flamesContainer: {
+		flexDirection: "row",
+		justifyContent: "center",
+		alignItems: "center",
 	},
 	statsRow: {
 		flexDirection: "row",

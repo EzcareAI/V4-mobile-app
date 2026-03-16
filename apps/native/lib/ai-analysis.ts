@@ -11,7 +11,7 @@ function getClient() {
 		}
 		anthropicClient = new Anthropic({
 			apiKey,
-			dangerousBrowser: true, // required for React Native
+			dangerouslyAllowBrowser: true, // required for React Native
 		});
 	}
 	return anthropicClient;

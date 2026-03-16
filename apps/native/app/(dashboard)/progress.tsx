@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
 	Dimensions,
+	Modal,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -263,7 +265,9 @@ function LineChart({ data }: { data: { label: string; value: number }[] }) {
 export default function ProgressScreen() {
 	const { healthScore, computeHealthScore } = useOnboardingStore();
 	const { streak, lastCheckInValues, checkInHistory } = useDashboardStore();
+	const router = useRouter();
 	const [range, setRange] = useState<TimeRange>("Day");
+	const [showReport, setShowReport] = useState(false);
 
 	const score = healthScore ?? computeHealthScore();
 	let scoreLabel = "Great progress! Keep it up!";
@@ -430,9 +434,13 @@ export default function ProgressScreen() {
 						<Text style={styles.title}>Your Progress 📈</Text>
 						<Text style={styles.sub}>Track your healing journey</Text>
 					</View>
-					<View style={styles.headerIcon}>
+					<TouchableOpacity
+						activeOpacity={0.8}
+						onPress={() => setShowReport(true)}
+						style={styles.headerIcon}
+					>
 						<Ionicons color="#FFFFFF" name="trending-up-outline" size={22} />
-					</View>
+					</TouchableOpacity>
 				</View>
 
 				{/* Healing Score card */}
@@ -528,8 +536,21 @@ export default function ProgressScreen() {
 				</View>
 
 				{/* Symptom Tracker */}
-				<View style={styles.card}>
-					<Text style={styles.cardTitle}>Symptom Tracker</Text>
+				<TouchableOpacity
+					activeOpacity={0.9}
+					onPress={() => router.push("/(dashboard)/analyze-symptoms" as any)}
+					style={[styles.card, { borderColor: TEAL, borderWidth: 1 }]}
+				>
+					<View
+						style={{
+							flexDirection: "row",
+							justifyContent: "space-between",
+							alignItems: "center",
+						}}
+					>
+						<Text style={styles.cardTitle}>Symptom Tracker</Text>
+						<Ionicons color={TEAL} name="arrow-forward" size={20} />
+					</View>
 					{activeSymptoms.map((s) => {
 						// Stable state visual styling
 						const isStable = s.trend === "Stable";
@@ -583,9 +604,9 @@ export default function ProgressScreen() {
 						);
 					})}
 					<Text style={styles.symptomFooter}>
-						Based on your last 30 days of check-ins
+						Based on your last 30 days of check-ins. Tap to run AI analysis.
 					</Text>
-				</View>
+				</TouchableOpacity>
 
 				{/* Streak card */}
 				<View style={[styles.card, { backgroundColor: "#FFF8F0" }]}>
@@ -614,6 +635,94 @@ export default function ProgressScreen() {
 					</View>
 				</View>
 			</ScrollView>
+
+			{/* AI Trend Report Modal */}
+			<Modal
+				animationType="slide"
+				onRequestClose={() => setShowReport(false)}
+				transparent={true}
+				visible={showReport}
+			>
+				<View style={styles.modalBg}>
+					<View style={styles.modalContent}>
+						<View style={styles.modalHeader}>
+							<Text style={styles.modalTitle}>AI Health Report ✨</Text>
+							<TouchableOpacity
+								hitSlop={10}
+								onPress={() => setShowReport(false)}
+							>
+								<Ionicons color={DARK} name="close" size={24} />
+							</TouchableOpacity>
+						</View>
+
+						<View style={styles.modalBody}>
+							<View
+								style={[
+									styles.modalBadge,
+									{
+										backgroundColor:
+											score >= 70
+												? "#DCFCE7"
+												: score >= 50
+													? "#FEF3C7"
+													: "#FEE2E2",
+									},
+								]}
+							>
+								<Text style={{ fontSize: 48, marginBottom: 8 }}>
+									{score >= 70 ? "🏆" : score >= 50 ? "🌱" : "⚠️"}
+								</Text>
+								<Text
+									style={[
+										styles.modalStatusText,
+										{
+											color:
+												score >= 70
+													? "#166534"
+													: score >= 50
+														? "#92400E"
+														: "#991B1B",
+										},
+									]}
+								>
+									{score >= 70
+										? "Thriving"
+										: score >= 50
+											? "Building Habits"
+											: "Needs Attention"}
+								</Text>
+							</View>
+
+							<Text style={styles.modalDesc}>
+								{score >= 70
+									? "Your biomarkers are trending exceptionally well! Your weekly consistency is paying off. Keep your wellness routines steady to maintain this peak state."
+									: score >= 50
+										? "You're making solid progress. Focus on your targeted daily actions and ensure you're getting enough restorative sleep to boost your score further."
+										: "Your body is signaling some high stress. It's highly recommended to prioritize rest, hydration, and light stretching today to begin recovery."}
+							</Text>
+
+							<View style={styles.modalStatsRow}>
+								<View style={styles.modalStatBox}>
+									<Text style={styles.modalStatNum}>{streak}</Text>
+									<Text style={styles.modalStatLbl}>Days Logged</Text>
+								</View>
+								<View style={styles.modalStatBox}>
+									<Text style={styles.modalStatNum}>{Math.round(score)}</Text>
+									<Text style={styles.modalStatLbl}>Avg Score</Text>
+								</View>
+							</View>
+
+							<TouchableOpacity
+								activeOpacity={0.9}
+								onPress={() => setShowReport(false)}
+								style={styles.modalBtn}
+							>
+								<Text style={styles.modalBtnText}>Got It, Thanks!</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</View>
+			</Modal>
 		</SafeAreaView>
 	);
 }
@@ -804,4 +913,92 @@ const styles = StyleSheet.create({
 		marginBottom: 16,
 	},
 	streakFlames: { flexDirection: "row", justifyContent: "center", gap: 4 },
+
+	// Modals
+	modalBg: {
+		flex: 1,
+		backgroundColor: "rgba(0,0,0,0.5)",
+		justifyContent: "flex-end",
+	},
+	modalContent: {
+		backgroundColor: "#FFFFFF",
+		borderTopLeftRadius: 32,
+		borderTopRightRadius: 32,
+		padding: 24,
+		paddingBottom: 40,
+	},
+	modalHeader: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+		marginBottom: 24,
+	},
+	modalTitle: {
+		fontSize: 22,
+		fontWeight: "800",
+		color: DARK,
+	},
+	modalBody: {
+		alignItems: "center",
+	},
+	modalBadge: {
+		alignItems: "center",
+		justifyContent: "center",
+		width: 160,
+		height: 160,
+		borderRadius: 80,
+		marginBottom: 24,
+	},
+	modalStatusText: {
+		fontSize: 18,
+		fontWeight: "800",
+	},
+	modalDesc: {
+		fontSize: 15,
+		lineHeight: 24,
+		color: GREY,
+		textAlign: "center",
+		marginBottom: 24,
+		paddingHorizontal: 8,
+	},
+	modalStatsRow: {
+		flexDirection: "row",
+		gap: 16,
+		marginBottom: 32,
+		width: "100%",
+	},
+	modalStatBox: {
+		flex: 1,
+		backgroundColor: "#F8FAFC",
+		borderRadius: 16,
+		padding: 16,
+		alignItems: "center",
+		borderWidth: 1,
+		borderColor: "#F1F5F9",
+	},
+	modalStatNum: {
+		fontSize: 24,
+		fontWeight: "800",
+		color: TEAL,
+		marginBottom: 4,
+	},
+	modalStatLbl: {
+		fontSize: 12,
+		color: GREY,
+		fontWeight: "600",
+		textTransform: "uppercase",
+		letterSpacing: 0.5,
+	},
+	modalBtn: {
+		backgroundColor: TEAL,
+		width: "100%",
+		paddingVertical: 18,
+		borderRadius: 16,
+		alignItems: "center",
+	},
+	modalBtnText: {
+		color: "#FFFFFF",
+		fontSize: 16,
+		fontWeight: "700",
+	},
 });

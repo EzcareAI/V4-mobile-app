@@ -305,7 +305,7 @@ export default function SettingsScreen() {
 				<Text style={styles.sectionLabel}>HELP & SUPPORT</Text>
 				<View style={styles.card}>
 					<TouchableOpacity
-						onPress={() => Linking.openURL("mailto:support@ezcare.ai")}
+						onPress={() => Linking.openURL("mailto:ezcareai.contact@gmail.com")}
 						style={styles.listRow}
 					>
 						<Ionicons color={TEAL} name="help-circle-outline" size={22} />
@@ -342,7 +342,7 @@ export default function SettingsScreen() {
 															if (rpcError) {
 																Alert.alert(
 																	"Error",
-																	`Could not delete account: ${rpcError.message}. Please contact support@ezcare.ai`
+																	`Could not delete account: ${rpcError.message}. Please contact ezcareai.contact@gmail.com`
 																);
 																return;
 															}

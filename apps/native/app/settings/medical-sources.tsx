@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import {
+	Linking,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -30,19 +31,25 @@ export default function MedicalSourcesScreen() {
 				</Text>
 
 				<View style={styles.card}>
-					<View style={styles.sourceRow}>
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() => Linking.openURL("https://sleep.hms.harvard.edu/")}
+						style={styles.sourceRow}
+					>
 						<Ionicons color="#3EC9B5" name="library-outline" size={24} />
 						<View style={styles.sourceText}>
-							<Text style={styles.sourceTitle}>
-								World Health Organization (WHO)
-							</Text>
+							<Text style={styles.sourceTitle}>Harvard Medical School</Text>
 							<Text style={styles.sourceSub}>
-								Global health guidelines and baselines.
+								Sleep and circadian rhythm research.
 							</Text>
 						</View>
-					</View>
+					</TouchableOpacity>
 					<View style={styles.divider} />
-					<View style={styles.sourceRow}>
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() => Linking.openURL("https://pubmed.ncbi.nlm.nih.gov/")}
+						style={styles.sourceRow}
+					>
 						<Ionicons color="#3EC9B5" name="pulse-outline" size={24} />
 						<View style={styles.sourceText}>
 							<Text style={styles.sourceTitle}>PubMed Central</Text>
@@ -50,9 +57,15 @@ export default function MedicalSourcesScreen() {
 								Peer-reviewed biomedical and life sciences research.
 							</Text>
 						</View>
-					</View>
+					</TouchableOpacity>
 					<View style={styles.divider} />
-					<View style={styles.sourceRow}>
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() =>
+							Linking.openURL("https://www.niddk.nih.gov/health-information")
+						}
+						style={styles.sourceRow}
+					>
 						<Ionicons color="#3EC9B5" name="medkit-outline" size={24} />
 						<View style={styles.sourceText}>
 							<Text style={styles.sourceTitle}>
@@ -62,7 +75,7 @@ export default function MedicalSourcesScreen() {
 								Clinical trials and preventative care guidelines.
 							</Text>
 						</View>
-					</View>
+					</TouchableOpacity>
 				</View>
 			</ScrollView>
 		</SafeAreaView>

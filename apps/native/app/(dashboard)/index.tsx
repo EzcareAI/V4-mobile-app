@@ -111,38 +111,89 @@ function MetricSlider({
 		}).start();
 	}, [value, animPct]);
 
+	const isDragging = useRef(false);
+	const startPct = useRef(0);
+	const currentValue = useRef(value);
+	currentValue.current = value;
+
+	useEffect(() => {
+		if (isDragging.current) {
+			return;
+		}
+		const target = value > 0 ? ((value - 1) / 4) * 100 : 50;
+		Animated.spring(animPct, {
+			toValue: target,
+			damping: 20,
+			stiffness: 200,
+			useNativeDriver: false,
+		}).start();
+	}, [value, animPct]);
+
 	const pan = useRef(
 		PanResponder.create({
 			onStartShouldSetPanResponder: () => true,
 			onMoveShouldSetPanResponder: () => true,
 			onPanResponderGrant: (e) => {
+				isDragging.current = true;
+				// On tap, determine percentage based on tap location relative to the track
 				const x = e.nativeEvent.locationX;
-				const clamped = Math.min(
-					5,
-					Math.max(1, Math.round((x / sliderWidth.current) * 4 + 1))
-				);
-				Animated.spring(animPct, {
-					toValue: ((clamped - 1) / 4) * 100,
+				const currentWidth = sliderWidth.current || 1;
+				const pct = Math.min(100, Math.max(0, (x / currentWidth) * 100));
+
+				startPct.current = pct;
+
+				Animated.timing(animPct, {
+					toValue: pct,
+					duration: 100,
 					useNativeDriver: false,
 				}).start();
-				onChange(clamped);
-			},
-			onPanResponderMove: (e) => {
-				const x = e.nativeEvent.locationX;
-				const pct = Math.min(100, Math.max(0, (x / sliderWidth.current) * 100));
-				animPct.setValue(pct);
-			},
-			onPanResponderRelease: (e) => {
-				const x = e.nativeEvent.locationX;
+
 				const clamped = Math.min(
 					5,
-					Math.max(1, Math.round((x / sliderWidth.current) * 4 + 1))
+					Math.max(1, Math.round((pct / 100) * 4 + 1))
 				);
+				if (clamped !== currentValue.current) {
+					onChange(clamped);
+				}
+			},
+			onPanResponderMove: (_, gestureState) => {
+				const currentWidth = sliderWidth.current || 1;
+				const deltaPct = (gestureState.dx / currentWidth) * 100;
+				const newPct = Math.min(100, Math.max(0, startPct.current + deltaPct));
+
+				animPct.setValue(newPct);
+
+				// Update the numeric tick/score dynamically without strictly snapping the bar
+				const clamped = Math.min(
+					5,
+					Math.max(1, Math.round((newPct / 100) * 4 + 1))
+				);
+				if (clamped !== currentValue.current) {
+					onChange(clamped);
+				}
+			},
+			onPanResponderRelease: (_, gestureState) => {
+				isDragging.current = false;
+				const currentWidth = sliderWidth.current || 1;
+				const deltaPct = (gestureState.dx / currentWidth) * 100;
+				const finalPct = Math.min(
+					100,
+					Math.max(0, startPct.current + deltaPct)
+				);
+
+				const clamped = Math.min(
+					5,
+					Math.max(1, Math.round((finalPct / 100) * 4 + 1))
+				);
+				onChange(clamped);
+
+				// Snap to the exact integer tick
 				Animated.spring(animPct, {
 					toValue: ((clamped - 1) / 4) * 100,
+					damping: 20,
+					stiffness: 250,
 					useNativeDriver: false,
 				}).start();
-				onChange(clamped);
 			},
 		})
 	).current;

@@ -4,7 +4,6 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
-const CHECKIN_COOLDOWN_MS = 6 * 60 * 60 * 1000; // 6 hours
 const STREAK_RESET_MS = 36 * 60 * 60 * 1000; // 36 hours grace window
 
 export interface CheckInMetrics {
@@ -120,8 +119,13 @@ export const useDashboardStore = create<DashboardState>()(
 				if (!lastCheckInAt) {
 					return true;
 				}
-				const elapsed = Date.now() - new Date(lastCheckInAt).getTime();
-				return elapsed >= CHECKIN_COOLDOWN_MS;
+
+				// Get the date string (YYYY-MM-DD) in local time for both now and the last check-in
+				const lastCheckInDateStr = new Date(lastCheckInAt).toLocaleDateString();
+				const todayDateStr = new Date().toLocaleDateString();
+
+				// They can check in if the dates don't match (i.e. it's a new day)
+				return lastCheckInDateStr !== todayDateStr;
 			},
 
 			getNextCheckInMs: () => {
@@ -129,8 +133,27 @@ export const useDashboardStore = create<DashboardState>()(
 				if (!lastCheckInAt) {
 					return 0;
 				}
-				const elapsed = Date.now() - new Date(lastCheckInAt).getTime();
-				return Math.max(0, CHECKIN_COOLDOWN_MS - elapsed);
+
+				// If they haven't checked in today, they can do it now
+				const lastCheckInDateStr = new Date(lastCheckInAt).toLocaleDateString();
+				const todayDateStr = new Date().toLocaleDateString();
+				if (lastCheckInDateStr !== todayDateStr) {
+					return 0;
+				}
+
+				// Otherwise, calculate MS until the next midnight (local time)
+				const now = new Date();
+				const nextMidnight = new Date(
+					now.getFullYear(),
+					now.getMonth(),
+					now.getDate() + 1, // Next day
+					0,
+					0,
+					0,
+					0 // Midnight
+				);
+
+				return Math.max(0, nextMidnight.getTime() - now.getTime());
 			},
 
 			saveCheckIn: (metrics) => {

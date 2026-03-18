@@ -6,7 +6,7 @@ import Purchases, {
 
 // In a real app, these would come from your environment variables
 const REVENUECAT_APPLE_KEY = process.env.EXPO_PUBLIC_REVENUECAT_APPLE_KEY || "";
-// const REVENUECAT_GOOGLE_KEY = process.env.EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY || "";
+const REVENUECAT_GOOGLE_KEY = process.env.EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY || "";
 
 export const ENTITLEMENT_ID = "pro";
 
@@ -34,12 +34,18 @@ class RevenueCatService {
 		try {
 			// Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
 
-			if (Platform.OS === "ios" && REVENUECAT_APPLE_KEY) {
-				Purchases.configure({ apiKey: REVENUECAT_APPLE_KEY });
+			let apiKey = "";
+			if (Platform.OS === "ios") {
+				apiKey = REVENUECAT_APPLE_KEY;
+			} else if (Platform.OS === "android") {
+				apiKey = REVENUECAT_GOOGLE_KEY;
+			}
+
+			if (apiKey) {
+				Purchases.configure({ apiKey });
 				this.initialized = true;
 			} else {
-				// For Android or development without keys, we just skip
-				console.warn("RevenueCat: No API Key provided for this platform.");
+				console.warn(`RevenueCat: No API Key provided for ${Platform.OS}.`);
 			}
 		} catch (error) {
 			console.error("RevenueCat Initialization Error:", error);

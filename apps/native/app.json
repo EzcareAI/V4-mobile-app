@@ -37,6 +37,7 @@
       "reactCompiler": false
     },
     "ios": {
+      "bundleIdentifier": "app.rork.zvfley8yoowwhncate9z5",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "EZCare needs access to your microphone for voice-to-text with EZBuddy.",
         "NSSpeechRecognitionUsageDescription": "EZCare uses speech recognition to transcribe your voice messages.",

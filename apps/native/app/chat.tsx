@@ -1,9 +1,16 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { Ionicons } from "@expo/vector-icons";
+import {
+	BottomSheetBackdrop,
+	BottomSheetModal,
+	BottomSheetModalProvider,
+	BottomSheetView,
+} from "@gorhom/bottom-sheet";
 import Voice, {
 	type SpeechErrorEvent,
 	type SpeechResultsEvent,
 } from "@react-native-voice/voice";
+import * as Audio from "expo-av";
 import { getDocumentAsync } from "expo-document-picker";
 import { readAsStringAsync } from "expo-file-system";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
@@ -17,7 +24,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-	ActionSheetIOS,
 	ActivityIndicator,
 	Alert,
 	Image,
@@ -31,6 +37,7 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+import Markdown from "react-native-markdown-display";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
@@ -59,8 +66,8 @@ interface Message {
 	imageUri?: string;
 }
 
-export default function ChatScreen() {
-	const { firstName, healthScore } = useOnboardingStore();
+function ChatScreen() {
+	const { firstName, healthScore, isPro } = useOnboardingStore();
 	const [messages, setMessages] = useState<Message[]>([
 		{
 			id: "1",
@@ -76,6 +83,8 @@ export default function ChatScreen() {
 	);
 	const [attachedDoc, setAttachedDoc] = useState<AttachedDoc | null>(null);
 	const scrollRef = useRef<ScrollView>(null);
+	const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+	const snapPoints = ["35%"];
 
 	// ── Voice ──────────────────────────────────────────────
 	const onSpeechResults = useCallback((e: SpeechResultsEvent) => {
@@ -107,6 +116,16 @@ export default function ChatScreen() {
 			setIsListening(false);
 		} else {
 			try {
+				// Request permissions for both Android and iOS
+				const { status } = await Audio.Audio.requestPermissionsAsync();
+				if (status !== "granted") {
+					Alert.alert(
+						"Permission required",
+						"Microphone access is needed for voice input."
+					);
+					return;
+				}
+
 				if (Platform.OS === "ios") {
 					try {
 						await impactAsync(ImpactFeedbackStyle.Medium);
@@ -211,41 +230,43 @@ export default function ChatScreen() {
 		}
 	};
 
-	// ── Attachment action sheet ────────────────────────────
+	// ── Attachment action menu ────────────────────────────
 	const openAttachMenu = () => {
-		const options = [
-			"Take Photo",
-			"Choose from Gallery",
-			"Upload Text Document",
-			"Cancel",
-		];
-		if (Platform.OS === "ios") {
-			ActionSheetIOS.showActionSheetWithOptions(
-				{ options, cancelButtonIndex: 3, title: "Attach to message" },
-				(index) => {
-					if (index === 0) {
-						pickImage("camera");
-					} else if (index === 1) {
-						pickImage("gallery");
-					} else if (index === 2) {
-						pickDocument();
-					}
-				}
-			);
-		} else {
-			Alert.alert("Attach to message", undefined, [
-				{ text: "Take Photo", onPress: () => pickImage("camera") },
-				{ text: "Choose from Gallery", onPress: () => pickImage("gallery") },
-				{ text: "Upload Text Document", onPress: pickDocument },
-				{ text: "Cancel", style: "cancel" },
-			]);
-		}
+		bottomSheetModalRef.current?.present();
 	};
+
+	const renderBackdrop = useCallback(
+		(props: any) => (
+			<BottomSheetBackdrop
+				{...props}
+				appearsOnIndex={0}
+				disappearsOnIndex={-1}
+				opacity={0.5}
+			/>
+		),
+		[]
+	);
 
 	// ── Send ───────────────────────────────────────────────
 	const handleSend = async () => {
 		const userText = input.trim();
 		if (!(userText || attachedImage || attachedDoc) || isLoading) {
+			return;
+		}
+
+		// Message throttling for non-Pro users
+		if (!isPro && messages.length >= 7) {
+			Alert.alert(
+				"Chat Limit Reached",
+				"Unlimited EZBuddy chat requires an EZCare Pro subscription.",
+				[
+					{ text: "Cancel", style: "cancel" },
+					{
+						text: "View Plans",
+						onPress: () => router.push("/settings/subscription"),
+					},
+				]
+			);
 			return;
 		}
 
@@ -340,9 +361,9 @@ export default function ChatScreen() {
 
 			const response = await anthropic.messages.create({
 				model: "claude-3-haiku-20240307",
-				max_tokens: 1024,
+				max_tokens: 2048,
 				system:
-					"You are EZBuddy, a premium health and wellness AI assistant. Keep responses empathetic, concise, and highly actionable. If the user shares an image for health analysis, describe what you see and provide relevant wellness guidance.",
+					"You are EZBuddy, a premium health and wellness AI assistant. Provide long, empathetic, context-rich, and highly actionable responses. Always use relevant emojis to make the conversation feel premium and engaging. Use Markdown formatting (bolding important terms, using italics for emphasis) to help the user parse information easily. Focus on holistic wellness, nutrition, and exercise advice.",
 				messages: [...priorApiMessages, { role: "user", content: userContent }],
 			});
 
@@ -468,14 +489,25 @@ export default function ChatScreen() {
 											style={styles.attachedImage}
 										/>
 									)}
-									<Text
-										style={[
-											styles.messageText,
-											isUser ? styles.userText : styles.aiText,
-										]}
-									>
-										{m.content}
-									</Text>
+									{isUser ? (
+										<Text style={[styles.messageText, styles.userText]}>
+											{m.content}
+										</Text>
+									) : (
+										<Markdown
+											style={{
+												body: {
+													color: "#E2E8F0",
+													fontSize: 15,
+													lineHeight: 22,
+												},
+												strong: { fontWeight: "bold", color: "#FFFFFF" },
+												em: { fontStyle: "italic", color: "#3EC9B5" },
+											}}
+										>
+											{m.content}
+										</Markdown>
+									)}
 								</View>
 							</View>
 						);
@@ -493,42 +525,35 @@ export default function ChatScreen() {
 							</View>
 						</View>
 					)}
+					{/* Draft Staging Bubble */}
+					{(attachedImage || (attachedDoc && input.trim())) && (
+						<View style={[styles.messageBubble, styles.userBubble]}>
+							<View
+								style={[
+									styles.messageCard,
+									styles.userCard,
+									{ opacity: 0.7, borderStyle: "dashed" },
+								]}
+							>
+								{attachedImage && (
+									<Image
+										source={{ uri: attachedImage.uri }}
+										style={styles.attachedImage}
+									/>
+								)}
+								{(input.trim() || attachedDoc) && (
+									<Text style={[styles.messageText, styles.userText]}>
+										{attachedDoc ? `📄 ${attachedDoc.name}\n` : ""}
+										{input}
+									</Text>
+								)}
+								<View style={styles.draftBadge}>
+									<Text style={styles.draftBadgeText}>Draft</Text>
+								</View>
+							</View>
+						</View>
+					)}
 				</ScrollView>
-
-				{/* ATTACHMENT PREVIEWS */}
-				{(attachedImage || attachedDoc) && (
-					<View style={styles.previewBar}>
-						{attachedImage && (
-							<View style={styles.previewImageWrapper}>
-								<Image
-									source={{ uri: attachedImage.uri }}
-									style={styles.previewImage}
-								/>
-								<TouchableOpacity
-									hitSlop={6}
-									onPress={() => setAttachedImage(null)}
-									style={styles.removeBtn}
-								>
-									<Ionicons color="#FF4F6E" name="close-circle" size={18} />
-								</TouchableOpacity>
-							</View>
-						)}
-						{attachedDoc && (
-							<View style={styles.previewDoc}>
-								<Ionicons color="#3EC9B5" name="document-text" size={16} />
-								<Text numberOfLines={1} style={styles.previewDocName}>
-									{attachedDoc.name}
-								</Text>
-								<TouchableOpacity
-									hitSlop={6}
-									onPress={() => setAttachedDoc(null)}
-								>
-									<Ionicons color="#FF4F6E" name="close-circle" size={18} />
-								</TouchableOpacity>
-							</View>
-						)}
-					</View>
-				)}
 
 				{/* INPUT AREA */}
 				<SafeAreaView edges={["bottom"]} style={{ backgroundColor: "#0B0E17" }}>
@@ -588,7 +613,83 @@ export default function ChatScreen() {
 					</View>
 				</SafeAreaView>
 			</KeyboardAvoidingView>
+
+			<BottomSheetModal
+				backdropComponent={renderBackdrop}
+				backgroundStyle={{ backgroundColor: "#1A2138" }}
+				handleIndicatorStyle={{ backgroundColor: "#3EC9B5" }}
+				ref={bottomSheetModalRef}
+				snapPoints={snapPoints}
+			>
+				<BottomSheetView style={styles.sheetContent}>
+					<Text style={styles.sheetTitle}>Attach to message</Text>
+					<View style={styles.sheetRow}>
+						<TouchableOpacity
+							onPress={() => {
+								pickImage("camera");
+								bottomSheetModalRef.current?.dismiss();
+							}}
+							style={styles.sheetBtn}
+						>
+							<View
+								style={[
+									styles.sheetIconWrap,
+									{ backgroundColor: "#rgba(255,255,255,0.05)" },
+								]}
+							>
+								<Ionicons color="#3EC9B5" name="camera" size={24} />
+							</View>
+							<Text style={styles.sheetBtnText}>Camera</Text>
+						</TouchableOpacity>
+
+						<TouchableOpacity
+							onPress={() => {
+								pickImage("gallery");
+								bottomSheetModalRef.current?.dismiss();
+							}}
+							style={styles.sheetBtn}
+						>
+							<View
+								style={[
+									styles.sheetIconWrap,
+									{ backgroundColor: "#rgba(255,255,255,0.05)" },
+								]}
+							>
+								<Ionicons color="#3EC9B5" name="images" size={24} />
+							</View>
+							<Text style={styles.sheetBtnText}>Gallery</Text>
+						</TouchableOpacity>
+
+						<TouchableOpacity
+							onPress={() => {
+								pickDocument();
+								bottomSheetModalRef.current?.dismiss();
+							}}
+							style={styles.sheetBtn}
+						>
+							<View
+								style={[
+									styles.sheetIconWrap,
+									{ backgroundColor: "#rgba(255,255,255,0.05)" },
+								]}
+							>
+								<Ionicons color="#3EC9B5" name="document-text" size={24} />
+							</View>
+							<Text style={styles.sheetBtnText}>Document</Text>
+						</TouchableOpacity>
+					</View>
+				</BottomSheetView>
+			</BottomSheetModal>
 		</SafeAreaView>
+	);
+}
+
+// Wrap the screen in providers
+export default function ChatScreenWrapper() {
+	return (
+		<BottomSheetModalProvider>
+			<ChatScreen />
+		</BottomSheetModalProvider>
 	);
 }
 
@@ -761,4 +862,50 @@ const styles = StyleSheet.create({
 		marginBottom: 2,
 	},
 	sendBtnDisabled: { backgroundColor: "rgba(255,255,255,0.05)" },
+	// Bottom Sheet
+	sheetContent: {
+		padding: 24,
+		alignItems: "center",
+	},
+	sheetTitle: {
+		color: "#FFFFFF",
+		fontSize: 18,
+		fontWeight: "800",
+		marginBottom: 24,
+	},
+	sheetRow: {
+		flexDirection: "row",
+		justifyContent: "space-around",
+		width: "100%",
+	},
+	sheetBtn: {
+		alignItems: "center",
+		gap: 8,
+	},
+	sheetIconWrap: {
+		width: 56,
+		height: 56,
+		borderRadius: 28,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	sheetBtnText: {
+		color: "#94A3B8",
+		fontSize: 13,
+		fontWeight: "600",
+	},
+	draftBadge: {
+		position: "absolute",
+		top: -8,
+		left: -8,
+		backgroundColor: "#3EC9B5",
+		paddingHorizontal: 8,
+		paddingVertical: 2,
+		borderRadius: 8,
+	},
+	draftBadgeText: {
+		color: "#0B0E17",
+		fontSize: 10,
+		fontWeight: "800",
+	},
 });

@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { AppThemeProvider } from "@/contexts/app-theme-context";
 import { authClient } from "@/lib/auth-client";
+import { revenueCatService } from "@/lib/revenuecat-service";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { queryClient } from "@/utils/trpc";
 
@@ -134,6 +135,17 @@ const SafeHeroUINativeProvider = (props: { children: ReactNode }) => {
 };
 
 const Layout = () => {
+	const setPro = useOnboardingStore((state) => state.setPro);
+
+	useEffect(() => {
+		const initRevenueCat = async () => {
+			await revenueCatService.initialize();
+			const isPro = await revenueCatService.checkProStatus();
+			setPro(isPro);
+		};
+		initRevenueCat();
+	}, [setPro]);
+
 	return (
 		<AppErrorBoundary>
 			<QueryClientProvider client={queryClient}>

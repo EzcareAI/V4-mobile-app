@@ -1,7 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
-import { useRouter } from "expo-router";
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import { useFocusEffect, useRouter } from "expo-router";
+import {
+	lazy,
+	Suspense,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 import {
 	ActivityIndicator,
 	Animated,
@@ -14,6 +22,7 @@ import {
 	View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { supabase } from "@/lib/supabase";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
@@ -305,7 +314,33 @@ export default function HomeScreen() {
 	const [saved, setSaved] = useState(false);
 	const [nextMs, setNextMs] = useState(getNextCheckInMs());
 	const [selectedZones, setSelectedZones] = useState<string[]>([]);
+	const [recentAnalyses, setRecentAnalyses] = useState<any[]>([]);
 	const router = useRouter();
+
+	useFocusEffect(
+		useCallback(() => {
+			async function loadHistory() {
+				const {
+					data: { session },
+				} = await supabase.auth.getSession();
+				if (!session?.user?.id) {
+					return;
+				}
+
+				const { data, error } = await supabase
+					.from("health_analyses")
+					.select("id, created_at, zones, probable_causes")
+					.eq("user_id", session.user.id)
+					.order("created_at", { ascending: false })
+					.limit(3);
+
+				if (!error && data) {
+					setRecentAnalyses(data);
+				}
+			}
+			loadHistory();
+		}, [])
+	);
 
 	// Resets daily missions + live countdown
 	useEffect(() => {
@@ -316,6 +351,7 @@ export default function HomeScreen() {
 
 	const canSave = canCheckIn();
 	const score = healthScore ?? computeHealthScore();
+	const isPro = useOnboardingStore((state) => state.isPro);
 	const allFilled = Object.values(values).every((v) => v > 0);
 
 	const handleMetric = (key: MetricKey, val: number) => {
@@ -358,6 +394,26 @@ export default function HomeScreen() {
 					</View>
 					<TouchableOpacity style={styles.bellBtn}>
 						<Ionicons color={TEAL} name="notifications-outline" size={22} />
+					</TouchableOpacity>
+					<TouchableOpacity
+						onPress={() => router.push("/settings/subscription")}
+						style={styles.proBtn}
+					>
+						{isPro ? (
+							<LinearGradient
+								colors={["#FFD700", "#FFA500"]}
+								start={{ x: 0, y: 0 }}
+								style={styles.proBadge}
+							>
+								<Ionicons color="#FFF" name="star" size={14} />
+								<Text style={styles.proText}>PRO</Text>
+							</LinearGradient>
+						) : (
+							<View style={styles.upgradeBadge}>
+								<Ionicons color={TEAL} name="sparkles" size={14} />
+								<Text style={styles.upgradeText}>UPGRADE</Text>
+							</View>
+						)}
 					</TouchableOpacity>
 				</View>
 
@@ -557,6 +613,46 @@ export default function HomeScreen() {
 					);
 				})}
 
+				{/* ── Recent Analyses ── */}
+				{recentAnalyses.length > 0 && (
+					<View style={{ marginBottom: 24 }}>
+						<Text style={styles.sectionTitle}>Recent Analyses</Text>
+						<ScrollView
+							contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
+							horizontal
+							showsHorizontalScrollIndicator={false}
+						>
+							{recentAnalyses.map((item) => (
+								<TouchableOpacity
+									activeOpacity={0.8}
+									key={item.id}
+									onPress={() =>
+										router.push(
+											`/(dashboard)/analyze-symptoms?historyId=${item.id}`
+										)
+									}
+									style={styles.historyCard}
+								>
+									<View style={styles.historyIconWrap}>
+										<Ionicons color={TEAL} name="body-outline" size={20} />
+									</View>
+									<Text numberOfLines={1} style={styles.historyZones}>
+										{item.zones.join(", ")}
+									</Text>
+									<Text style={styles.historyDate}>
+										{new Date(item.created_at).toLocaleDateString()}
+									</Text>
+									{item.probable_causes?.[0] && (
+										<Text numberOfLines={1} style={styles.historyTopCause}>
+											{item.probable_causes[0].name}
+										</Text>
+									)}
+								</TouchableOpacity>
+							))}
+						</ScrollView>
+					</View>
+				)}
+
 				{/* ── EZBuddy Chat ── */}
 				<TouchableOpacity
 					activeOpacity={0.9}
@@ -622,6 +718,40 @@ const styles = StyleSheet.create({
 		backgroundColor: "rgba(62,201,181,0.12)",
 		alignItems: "center",
 		justifyContent: "center",
+		marginRight: 10,
+	},
+	proBtn: {
+		height: 32,
+		justifyContent: "center",
+		alignItems: "center",
+	},
+	proBadge: {
+		flexDirection: "row",
+		alignItems: "center",
+		paddingHorizontal: 12,
+		paddingVertical: 6,
+		borderRadius: 16,
+		gap: 4,
+	},
+	proText: {
+		color: "#FFF",
+		fontSize: 10,
+		fontWeight: "900",
+		letterSpacing: 0.5,
+	},
+	upgradeBadge: {
+		flexDirection: "row",
+		alignItems: "center",
+		paddingHorizontal: 10,
+		paddingVertical: 6,
+		borderRadius: 16,
+		backgroundColor: "rgba(62, 201, 181, 0.1)",
+		gap: 4,
+	},
+	upgradeText: {
+		color: TEAL,
+		fontSize: 10,
+		fontWeight: "800",
 	},
 
 	// Card base
@@ -639,6 +769,49 @@ const styles = StyleSheet.create({
 	},
 
 	// Health Score & Body
+	sectionTitle: {
+		fontSize: 20,
+		fontWeight: "800",
+		color: DARK,
+		marginBottom: 16,
+		paddingHorizontal: 20,
+	},
+	historyCard: {
+		backgroundColor: CARD,
+		padding: 16,
+		borderRadius: 16,
+		width: 160,
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.05,
+		shadowRadius: 8,
+		elevation: 2,
+	},
+	historyIconWrap: {
+		width: 36,
+		height: 36,
+		borderRadius: 18,
+		backgroundColor: "rgba(62,201,181,0.1)",
+		alignItems: "center",
+		justifyContent: "center",
+		marginBottom: 12,
+	},
+	historyZones: {
+		fontSize: 15,
+		fontWeight: "700",
+		color: DARK,
+		marginBottom: 4,
+	},
+	historyDate: {
+		fontSize: 12,
+		color: GREY,
+		marginBottom: 8,
+	},
+	historyTopCause: {
+		fontSize: 13,
+		color: TEAL,
+		fontWeight: "600",
+	},
 	scoreRow: {
 		flexDirection: "row",
 		alignItems: "center",
@@ -806,13 +979,8 @@ const styles = StyleSheet.create({
 	saveBtnTextActive: { color: "#FFFFFF" },
 
 	// Section
-	sectionTitle: {
-		fontSize: 20,
-		fontWeight: "800",
-		color: DARK,
-		paddingHorizontal: 24,
-		marginBottom: 12,
-	},
+	// The previous sectionTitle style was removed as it was a duplicate.
+	// This one is kept as it's the first definition in the original document.
 
 	// Action cards
 	actionCard: {

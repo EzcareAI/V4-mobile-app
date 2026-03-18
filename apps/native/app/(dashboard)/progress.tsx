@@ -101,7 +101,7 @@ function LineChart({ data }: { data: { label: string; value: number }[] }) {
 	// Prevent out-of-bounds crashes when switching tabs (e.g. 7 days -> 4 weeks)
 	useEffect(() => {
 		setActiveIdx(null);
-	}, [data]);
+	}, []);
 
 	const n = data.length;
 	// Add side padding to keep labels and circles from clipping
@@ -479,17 +479,16 @@ export default function ProgressScreen() {
 						</Text>
 						<View style={styles.flamesContainer}>
 							{Array.from({ length: 7 }).map((_, i) => {
-								// If streak is 7, 14, 21, etc. we want 7 lit flames. Else streak % 7.
 								const litCount =
 									streak > 0 && streak % 7 === 0 ? 7 : streak % 7;
 								const isLit = i < litCount;
 								return (
 									<Ionicons
-										color={isLit ? "#FF8C00" : "#E2E8F0"}
-										key={`flame-${i}`}
+										color={isLit ? "#FF6D00" : "#CBD5E1"} // Deeper, more premium orange
+										key={`flame-top-${i}`}
 										name={isLit ? "flame" : "flame-outline"}
-										size={24}
-										style={{ marginHorizontal: 4 }}
+										size={22}
+										style={{ marginHorizontal: 2 }}
 									/>
 								);
 							})}
@@ -629,11 +628,19 @@ export default function ProgressScreen() {
 						Your longest streak: {streak} days
 					</Text>
 					<View style={styles.streakFlames}>
-						{["f1", "f2", "f3", "f4", "f5", "f6", "f7"].map((k) => (
-							<Text key={k} style={{ fontSize: 24 }}>
-								🔥
-							</Text>
-						))}
+						{Array.from({ length: 7 }).map((_, i) => {
+							const litCount = streak > 0 && streak % 7 === 0 ? 7 : streak % 7;
+							const isLit = i < litCount;
+							return (
+								<Ionicons
+									color={isLit ? "#FF6D00" : "#E2E8F0"}
+									key={`flame-bottom-${i}`}
+									name={isLit ? "flame" : "flame-outline"}
+									size={24}
+									style={{ marginHorizontal: 2 }}
+								/>
+							);
+						})}
 					</View>
 				</View>
 			</ScrollView>

@@ -58,6 +58,7 @@ export interface OnboardingState {
 	subscriptionStatus?: "active" | "pending" | "failed" | "cancelled";
 	discountWheelShown?: boolean; // Flag to show only once
 	paymentAttempted?: boolean;
+	isPro: boolean;
 
 	// Misc
 	notificationsEnabled?: boolean;
@@ -90,6 +91,7 @@ export interface OnboardingState {
 		key: K,
 		value: OnboardingState[K]
 	) => void;
+	setPro: (status: boolean) => void;
 	nextStep: () => void;
 	prevStep: () => void;
 	reset: () => void;
@@ -116,10 +118,13 @@ export const useOnboardingStore = create<OnboardingState>()(
 			cravings: [],
 			healthConditions: [],
 			bodyZoneSelected: [],
+			isPro: false,
 
 			setAnswer: (key, value) => {
 				set((state) => ({ ...state, [key]: value }));
 			},
+
+			setPro: (status) => set({ isPro: status }),
 
 			nextStep: () => {
 				set((state) => ({

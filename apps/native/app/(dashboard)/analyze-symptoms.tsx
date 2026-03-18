@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	Alert,
@@ -16,6 +16,7 @@ import {
 } from "react-native";
 import { type AnalysisResponse, aiAnalysisService } from "@/lib/ai-analysis";
 import { supabase } from "@/lib/supabase";
+import { useOnboardingStore } from "@/stores/onboarding-store";
 
 const TEAL = "#3EC9B5";
 const DARK = "#0B0E17";
@@ -26,8 +27,9 @@ export default function AnalyzeSymptomsScreen() {
 	const router = useRouter();
 
 	const zonesParam = params.zones as string;
-	const zones = zonesParam ? zonesParam.split(",") : [];
+	const historyId = params.historyId as string;
 
+	const [activeZones, setActiveZones] = useState<string[]>([]);
 	const [phase, setPhase] = useState<"input" | "loading" | "results">("input");
 	const [painLevel, setPainLevel] = useState<number>(5);
 	const [description, setDescription] = useState<string>("");
@@ -35,6 +37,42 @@ export default function AnalyzeSymptomsScreen() {
 	const [analysis, setAnalysis] = useState<AnalysisResponse | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [isSaving, setIsSaving] = useState(false);
+	const [isHistoryView, setIsHistoryView] = useState(false);
+
+	useEffect(() => {
+		if (historyId) {
+			setIsHistoryView(true);
+			setPhase("loading");
+			supabase
+				.from("health_analyses")
+				.select("*")
+				.eq("id", historyId)
+				.single()
+				.then(({ data, error: fetchErr }) => {
+					if (data && !fetchErr) {
+						setActiveZones(data.zones || []);
+						setAnalysis({
+							probableCauses: data.probable_causes,
+							actionPlan: data.action_plan,
+							disclaimer:
+								"This is a past analysis from your history. Remember, this is not a medical diagnosis.",
+						});
+						setPhase("results");
+					} else {
+						setError("Could not load historical analysis.");
+						setPhase("input");
+					}
+				});
+		} else if (zonesParam) {
+			setActiveZones(zonesParam.split(","));
+			setIsHistoryView(false);
+			setPhase("input");
+			setPainLevel(5);
+			setDescription("");
+			setAnalysis(null);
+			setError(null);
+		}
+	}, [historyId, zonesParam]);
 
 	const handleAnalyze = async () => {
 		if (description.trim().length < 5) {
@@ -49,8 +87,28 @@ export default function AnalyzeSymptomsScreen() {
 		}
 
 		try {
+			const { isPro } = useOnboardingStore.getState();
+			if (!isPro) {
+				Alert.alert(
+					"Upgrade to Pro",
+					"Detailed medical insights and deep analysis require an EZCare Pro subscription.",
+					[
+						{
+							text: "Cancel",
+							style: "cancel",
+							onPress: () => setPhase("input"),
+						},
+						{
+							text: "View Plans",
+							onPress: () => router.push("/settings/subscription"),
+						},
+					]
+				);
+				return;
+			}
+
 			const res = await aiAnalysisService.analyzeSymptoms({
-				zones,
+				zones: activeZones,
 				painLevel,
 				symptomsDescription: description,
 			});
@@ -88,18 +146,23 @@ export default function AnalyzeSymptomsScreen() {
 			// If the user isn't logged in, we gracefully skip the cloud save and just close the screen
 			// so that guest users don't get stuck with an error.
 			if (session?.user?.id) {
-				const { error: dbError } = await supabase.from("health_analyses").insert({
-					user_id: session.user.id,
-					zones,
-					symptoms_description: `Pain level ${painLevel}/10. ${description}`,
-					probable_causes: analysis.probableCauses,
-					action_plan: analysis.actionPlan,
-				});
+				const { error: dbError } = await supabase
+					.from("health_analyses")
+					.insert({
+						user_id: session.user.id,
+						zones: activeZones,
+						symptoms_description: `Pain level ${painLevel}/10. ${description}`,
+						probable_causes: analysis.probableCauses,
+						action_plan: analysis.actionPlan,
+					});
 
 				if (dbError) {
 					console.error("Supabase insert error:", dbError);
 					setError(`Failed to save to history: ${dbError.message}`);
-					Alert.alert("Save Error", "We couldn't save your analysis history. Please check your connection and try again.");
+					Alert.alert(
+						"Save Error",
+						"We couldn't save your analysis history. Please check your connection and try again."
+					);
 					setIsSaving(false);
 					return;
 				}
@@ -111,8 +174,13 @@ export default function AnalyzeSymptomsScreen() {
 			router.replace("/(dashboard)");
 		} catch (err: any) {
 			console.error("Save history error:", err);
-			setError(`Error: ${err.message || "Unknown error occurred while saving."}`);
-			Alert.alert("Error", "An unexpected error occurred while saving your history.");
+			setError(
+				`Error: ${err.message || "Unknown error occurred while saving."}`
+			);
+			Alert.alert(
+				"Error",
+				"An unexpected error occurred while saving your history."
+			);
 		} finally {
 			setIsSaving(false);
 		}
@@ -144,7 +212,7 @@ export default function AnalyzeSymptomsScreen() {
 						<Text style={styles.cardSub}>
 							You selected:{" "}
 							<Text style={{ fontWeight: "bold", color: TEAL }}>
-								{zones.join(", ")}
+								{activeZones.join(", ")}
 							</Text>
 						</Text>
 
@@ -203,7 +271,7 @@ export default function AnalyzeSymptomsScreen() {
 						<Text style={styles.loadingTitle}>Analyzing Symptoms...</Text>
 						<Text style={styles.loadingSub}>
 							Consulting holistic physical therapy guidelines to determine
-							probable causes for {zones.join(", ")} discomfort.
+							probable causes for {activeZones.join(", ")} discomfort.
 						</Text>
 					</View>
 				)}
@@ -268,22 +336,24 @@ export default function AnalyzeSymptomsScreen() {
 
 						{error && <Text style={styles.errorText}>{error}</Text>}
 
-						<TouchableOpacity
-							disabled={isSaving}
-							onPress={handleSaveHistory}
-							style={[styles.primaryBtn, { marginTop: 32 }]}
-						>
-							{isSaving ? (
-								<ActivityIndicator color="#FFF" />
-							) : (
-								<>
-									<Text style={styles.primaryBtnText}>
-										Save to History & Finish
-									</Text>
-									<Ionicons color="#FFF" name="checkmark-circle" size={20} />
-								</>
-							)}
-						</TouchableOpacity>
+						{!isHistoryView && (
+							<TouchableOpacity
+								disabled={isSaving}
+								onPress={handleSaveHistory}
+								style={[styles.primaryBtn, { marginTop: 32 }]}
+							>
+								{isSaving ? (
+									<ActivityIndicator color="#FFF" />
+								) : (
+									<>
+										<Text style={styles.primaryBtnText}>
+											Save to History & Finish
+										</Text>
+										<Ionicons color="#FFF" name="checkmark-circle" size={20} />
+									</>
+								)}
+							</TouchableOpacity>
+						)}
 					</View>
 				)}
 			</ScrollView>

@@ -1,7 +1,9 @@
-import { Tabs } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
 import { Home, LineChart, Settings } from "lucide-react-native";
 import { Platform, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { useOnboardingStore } from "@/stores/onboarding-store";
 
 // Design tokens — light theme
 const TEAL = "#3EC9B5";
@@ -26,6 +28,12 @@ function TabBarIcon({
 
 export default function DashboardLayout() {
 	const insets = useSafeAreaInsets();
+	const isPro = useOnboardingStore((state) => state.isPro);
+
+	if (!isPro) {
+		return <Redirect href="/settings/subscription" />;
+	}
+
 	// On Android, add the system bottom inset (gesture nav bar height).
 	// On iOS, use the standard home indicator padding.
 	const bottomPad = Platform.OS === "ios" ? 28 : Math.max(insets.bottom, 8);

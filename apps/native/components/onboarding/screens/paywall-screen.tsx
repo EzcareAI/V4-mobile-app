@@ -3,6 +3,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+	ActivityIndicator,
+	Alert,
 	Animated,
 	BackHandler,
 	Platform,
@@ -12,15 +14,23 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+import type {
+	PurchasesOffering,
+	PurchasesPackage,
+} from "react-native-purchases";
+
+import { revenueCatService } from "@/lib/revenuecat-service";
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 export default function PaywallScreen() {
 	const router = useRouter();
-	const { setAnswer, nextStep, currentStep, onboardingRecordId } =
+	const { setAnswer, nextStep, currentStep, onboardingRecordId, setPro } =
 		useOnboardingStore();
 	const [isProcessing, setIsProcessing] = useState(false);
 	const pulseAnim = useRef(new Animated.Value(1)).current;
+	const [offering, setOffering] = useState<PurchasesOffering | null>(null);
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
 		Animated.loop(
@@ -38,6 +48,20 @@ export default function PaywallScreen() {
 			])
 		).start();
 	}, [pulseAnim]);
+
+	useEffect(() => {
+		async function loadOfferings() {
+			try {
+				const currentOffering = await revenueCatService.getOfferings();
+				setOffering(currentOffering);
+			} catch (err) {
+				console.error("Load Offerings Error:", err);
+			} finally {
+				setLoading(false);
+			}
+		}
+		loadOfferings();
+	}, []);
 
 	useFocusEffect(
 		useCallback(() => {
@@ -71,7 +95,7 @@ export default function PaywallScreen() {
 			.then();
 	}, [onboardingRecordId]);
 
-	const handlePayment = async (planType: "annual" | "monthly") => {
+	const handlePurchase = async (pkg: PurchasesPackage) => {
 		if (Platform.OS === "ios") {
 			try {
 				await impactAsync(ImpactFeedbackStyle.Medium);
@@ -90,33 +114,60 @@ export default function PaywallScreen() {
 			},
 		]);
 
-		// TODO: Integrate with Stripe/RevenueCat
-		setTimeout(async () => {
-			setAnswer("subscriptionStatus", "active");
-			setAnswer("paymentAttempted", true);
+		try {
+			const success = await revenueCatService.purchasePackage(pkg);
+			if (success) {
+				setPro(true);
+				setAnswer("subscriptionStatus", "active");
+				setAnswer("paymentAttempted", true);
 
-			// Log success
-			await supabase.from("events").insert([
-				{
-					event_type: `checkout_success_${planType}`,
-					session_id: onboardingRecordId,
-					timestamp: new Date().toISOString(),
-				},
-			]);
+				// Log success
+				await supabase.from("events").insert([
+					{
+						event_type: `checkout_success_${pkg.packageType}`,
+						session_id: onboardingRecordId,
+						timestamp: new Date().toISOString(),
+					},
+				]);
 
+				if (pkg.packageType === "ANNUAL") {
+					nextStep();
+					router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+				} else {
+					// Skip Wheel
+					setAnswer("discountWheelShown", true);
+					nextStep();
+					nextStep();
+					router.push(`/(onboarding)/${(currentStep || 0) + 2}`);
+				}
+			}
+		} catch (_err) {
+			Alert.alert("Error", "Could not complete purchase. Please try again.");
+		} finally {
 			setIsProcessing(false);
+		}
+	};
 
-			if (planType === "annual") {
+	const handleRestore = async () => {
+		setIsProcessing(true);
+		try {
+			const success = await revenueCatService.restorePurchases();
+			if (success) {
+				setPro(true);
+				setAnswer("subscriptionStatus", "active");
+				setAnswer("paymentAttempted", true);
+				Alert.alert("Success", "Restored your previous purchases.");
 				nextStep();
 				router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 			} else {
-				// Skip Wheel
-				setAnswer("discountWheelShown", true);
-				nextStep();
-				nextStep();
-				router.push(`/(onboarding)/${(currentStep || 0) + 2}`);
+				Alert.alert(
+					"Nothing to Restore",
+					"We couldn't find any active subscriptions."
+				);
 			}
-		}, 2000);
+		} finally {
+			setIsProcessing(false);
+		}
 	};
 
 	return (
@@ -141,87 +192,85 @@ export default function PaywallScreen() {
 					</Text>
 				</View>
 
-				{/* Pricing Cards (Side-by-Side) */}
+				{/* Pricing Cards */}
 				<View className="-mt-4 flex-row gap-x-4 px-6">
-					{/* Annual — Primary Card */}
-					<TouchableOpacity
-						activeOpacity={0.9}
-						className={`relative flex-1 overflow-hidden rounded-[28px] px-3.5 py-5 shadow-2xl shadow-blue-200 transition-opacity duration-300 ${isProcessing ? "opacity-50" : "opacity-100"}`}
-						disabled={isProcessing}
-						onPress={() => handlePayment("annual")}
-					>
-						<LinearGradient
-							colors={["#28B898", "#2DE2E2"]}
-							end={{ x: 1, y: 1 }}
-							start={{ x: 0, y: 0 }}
-							style={StyleSheet.absoluteFill}
-						/>
+					{loading ? (
+						<View className="flex-1 items-center justify-center py-10">
+							<ActivityIndicator color="#3EC9B5" size="large" />
+							<Text className="mt-4 text-[#94A3B8]">Loading plans...</Text>
+						</View>
+					) : offering?.availablePackages ? (
+						offering.availablePackages.map((pkg) => {
+							const isAnnual = pkg.packageType === "ANNUAL";
+							return (
+								<TouchableOpacity
+									activeOpacity={0.9}
+									className={`relative flex-1 overflow-hidden rounded-[28px] px-3.5 py-5 shadow-2xl transition-opacity duration-300 ${isProcessing ? "opacity-50" : "opacity-100"} ${isAnnual ? "shadow-blue-200" : "border-2 border-slate-100 bg-slate-50"}`}
+									disabled={isProcessing}
+									key={pkg.identifier}
+									onPress={() => handlePurchase(pkg)}
+								>
+									{isAnnual && (
+										<LinearGradient
+											colors={["#28B898", "#2DE2E2"]}
+											end={{ x: 1, y: 1 }}
+											start={{ x: 0, y: 0 }}
+											style={StyleSheet.absoluteFill}
+										/>
+									)}
 
-						{/* Best Value Badge */}
-						<View className="absolute top-0 right-0 left-0 items-center bg-yellow-400 py-1 shadow-sm">
-							<Text className="text-center font-black text-[#29303D] text-[9px] uppercase leading-3 tracking-widest">
-								MOST{"\n"}POPULAR
+									{isAnnual && (
+										<View className="absolute top-0 right-0 left-0 items-center bg-yellow-400 py-1 shadow-sm">
+											<Text className="text-center font-black text-[#29303D] text-[9px] uppercase leading-3 tracking-widest">
+												MOST{"\n"}POPULAR
+											</Text>
+										</View>
+									)}
+
+									<Text
+										className={`mt-6 font-bold text-lg ${isAnnual ? "text-white" : "text-[#29303D]"}`}
+									>
+										{isAnnual ? "Annual" : "Monthly"}
+									</Text>
+									
+									<Text
+										className={`mt-1 h-6 text-[11px] ${isAnnual ? "text-white/80" : "text-[#73808C]"}`}
+									>
+										{isAnnual ? "Best value" : "Zero commitment"}
+									</Text>
+
+									<View className="mt-3 mb-1">
+										<Text
+											className={`font-black text-2xl tracking-tighter ${isAnnual ? "text-white" : "text-[#29303D]"}`}
+										>
+											{pkg.product.priceString}
+										</Text>
+										<Text
+											className={`mt-0.5 font-bold text-xs ${isAnnual ? "text-white/80" : "text-[#73808C]"}`}
+										>
+											{isAnnual ? "/ yr" : "/ mo"}
+										</Text>
+									</View>
+
+									<View
+										className={`mt-4 rounded-[14px] py-3.5 shadow-sm ${isAnnual ? "bg-white" : "border border-slate-200 bg-white"}`}
+									>
+										<Text
+											className={`text-center font-bold text-[13px] ${isAnnual ? "text-[#28B898] uppercase tracking-wide" : "text-[#73808C]"}`}
+										>
+											{isAnnual ? "Unlock Now" : "Select"}
+										</Text>
+									</View>
+								</TouchableOpacity>
+							);
+						})
+					) : (
+						<View className="flex-1 items-center justify-center rounded-[20px] border border-dashed border-slate-300 bg-slate-50 py-10">
+							<Text className="text-center text-[#94A3B8] text-sm">
+								Waiting for RevenueCat configuration...
 							</Text>
 						</View>
-
-						<Text className="mt-7 font-bold text-white text-xl">Annual</Text>
-						<View className="mt-1.5 self-start rounded-full bg-yellow-400 px-2 py-1 shadow-sm">
-							<Text className="font-black text-[#1A2138] text-[10px] uppercase tracking-wider">
-								Save 80%
-							</Text>
-						</View>
-
-						<View className="mt-3 mb-1">
-							<Text className="font-black text-3xl text-white tracking-tighter">
-								$3.33
-							</Text>
-							<Text className="mt-0.5 font-bold text-white/80 text-xs">
-								/ month
-							</Text>
-						</View>
-						<Text className="font-medium text-[11px] text-white/90">
-							Billed $39.99 yearly
-						</Text>
-
-						<View className="mt-4 rounded-[14px] bg-white py-3.5 shadow-sm">
-							<Text className="text-center font-black text-[#28B898] text-[13px] uppercase tracking-wide">
-								Unlock Now
-							</Text>
-						</View>
-					</TouchableOpacity>
-
-					{/* Monthly — Secondary Card */}
-					<TouchableOpacity
-						activeOpacity={0.9}
-						className={`flex-1 rounded-[28px] border-2 border-slate-100 bg-slate-50 px-3.5 py-5 transition-opacity duration-300 ${isProcessing ? "opacity-50" : "opacity-100"}`}
-						disabled={isProcessing}
-						onPress={() => handlePayment("monthly")}
-					>
-						<Text className="mt-6 font-bold text-[#29303D] text-lg">
-							Monthly
-						</Text>
-						<Text className="mt-1 h-6 text-[#73808C] text-[11px]">
-							Zero commitment
-						</Text>
-
-						<View className="mt-3 mb-1">
-							<Text className="font-black text-2xl text-[#29303D] tracking-tighter">
-								$11.99
-							</Text>
-							<Text className="mt-0.5 font-bold text-[#73808C] text-xs">
-								/ month
-							</Text>
-						</View>
-						<Text className="font-medium text-[#73808C] text-[11px]">
-							Billed monthly
-						</Text>
-
-						<View className="mt-4 rounded-[14px] border border-slate-200 bg-white py-3.5 shadow-sm">
-							<Text className="text-center font-bold text-[#73808C] text-[13px]">
-								Select
-							</Text>
-						</View>
-					</TouchableOpacity>
+					)}
 				</View>
 
 				{/* Pros & Cons Comparison */}
@@ -251,7 +300,7 @@ export default function PaywallScreen() {
 									✅ Full year commitment to results
 								</Text>
 								<Text className="font-medium text-[#422006] text-[13px] leading-5">
-									✅ Lowest monthly cost ($3.33/mo)
+									✅ Lowest monthly average
 								</Text>
 								<Text className="text-[#422006]/60 text-[13px] leading-5">
 									❌ Paid upfront
@@ -311,12 +360,25 @@ export default function PaywallScreen() {
 				</View>
 
 				{/* Fine Print */}
-				<Text className="mx-10 mt-8 text-center text-[#73808C] text-[11px] leading-5">
+				<TouchableOpacity onPress={handleRestore} className="mt-8 self-center">
+					<Text className="font-semibold text-[#64748B] text-sm">
+						Restore Purchases
+					</Text>
+				</TouchableOpacity>
+
+				<Text className="mx-10 mt-6 text-center text-[#73808C] text-[11px] leading-5">
 					By starting your subscription, you agree to our Terms of Service and
 					Privacy Policy. Renewals are automatic. Manage in Apple/Google Play
 					settings.
 				</Text>
 			</ScrollView>
+
+			{isProcessing && (
+				<View className="absolute inset-0 z-50 items-center justify-center bg-black/60">
+					<ActivityIndicator color="#FFF" size="large" />
+					<Text className="mt-4 font-semibold text-white">Processing...</Text>
+				</View>
+			)}
 		</View>
 	);
 }

@@ -16,7 +16,7 @@ import type {
 	PurchasesPackage,
 } from "react-native-purchases";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import { authClient } from "@/lib/auth-client";
 import { revenueCatService } from "@/lib/revenuecat-service";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
@@ -31,6 +31,12 @@ export default function SubscriptionScreen() {
 	const [offering, setOffering] = useState<PurchasesOffering | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [purchasing, setPurchasing] = useState(false);
+
+	const handleSignOut = async () => {
+		await authClient.signOut();
+		useOnboardingStore.getState().reset();
+		router.replace("/(auth)/sign-in");
+	};
 
 	useEffect(() => {
 		async function loadOfferings() {
@@ -194,6 +200,12 @@ export default function SubscriptionScreen() {
 					the end of the period. You can manage your subscription in your App
 					Store settings.
 				</Text>
+
+				<TouchableOpacity onPress={handleSignOut} style={{ marginTop: 24, alignSelf: "center", padding: 10 }}>
+					<Text style={{ color: "#F43F5E", fontSize: 13, fontWeight: "600" }}>
+						Sign Out
+					</Text>
+				</TouchableOpacity>
 			</ScrollView>
 
 			{purchasing && (

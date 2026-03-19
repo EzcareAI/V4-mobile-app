@@ -27,7 +27,7 @@ const BG = "#F4F6F8";
 
 export default function SubscriptionScreen() {
 	const router = useRouter();
-	const { setPro, appliedDiscount } = useOnboardingStore();
+	const { isPro, setPro, appliedDiscount } = useOnboardingStore();
 	const [offering, setOffering] = useState<PurchasesOffering | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [purchasing, setPurchasing] = useState(false);
@@ -103,12 +103,16 @@ export default function SubscriptionScreen() {
 			<ScrollView contentContainerStyle={styles.scroll}>
 				{/* Header */}
 				<View style={styles.header}>
-					<TouchableOpacity
-						onPress={() => router.back()}
-						style={styles.backBtn}
-					>
-						<Ionicons color={DARK} name="chevron-back" size={24} />
-					</TouchableOpacity>
+					{isPro ? (
+						<TouchableOpacity
+							onPress={() => router.back()}
+							style={styles.backBtn}
+						>
+							<Ionicons color={DARK} name="chevron-back" size={24} />
+						</TouchableOpacity>
+					) : (
+						<View style={{ width: 40 }} />
+					)}
 					<Text style={styles.headerTitle}>Upgrade to Pro</Text>
 					<View style={{ width: 24 }} />
 				</View>

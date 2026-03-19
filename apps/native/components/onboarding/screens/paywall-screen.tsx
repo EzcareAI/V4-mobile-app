@@ -14,9 +14,9 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
-import type {
-	PurchasesOffering,
-	PurchasesPackage,
+import Purchases, {
+	type PurchasesOffering,
+	type PurchasesPackage,
 } from "react-native-purchases";
 
 import { revenueCatService } from "@/lib/revenuecat-service";
@@ -31,6 +31,7 @@ export default function PaywallScreen() {
 	const pulseAnim = useRef(new Animated.Value(1)).current;
 	const [offering, setOffering] = useState<PurchasesOffering | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [rcError, setRcError] = useState<string | null>(null);
 
 	useEffect(() => {
 		Animated.loop(
@@ -52,10 +53,14 @@ export default function PaywallScreen() {
 	useEffect(() => {
 		async function loadOfferings() {
 			try {
-				const currentOffering = await revenueCatService.getOfferings();
-				setOffering(currentOffering);
+				const offerings = await Purchases.getOfferings();
+				if (offerings.current) {
+					setOffering(offerings.current);
+				} else {
+					setRcError("No 'current' offering configured in RC dashboard.");
+				}
 			} catch (err) {
-				console.error("Load Offerings Error:", err);
+				setRcError(String(err));
 			} finally {
 				setLoading(false);
 			}
@@ -265,9 +270,10 @@ export default function PaywallScreen() {
 							);
 						})
 					) : (
-						<View className="flex-1 items-center justify-center rounded-[20px] border border-dashed border-slate-300 bg-slate-50 py-10">
-							<Text className="text-center text-[#94A3B8] text-sm">
-								Waiting for RevenueCat configuration...
+						<View className="flex-1 items-center justify-center rounded-[20px] border border-dashed border-red-300 bg-red-50 py-10 px-4">
+							<Text className="text-center font-bold text-red-500 mb-2">RevenueCat Error details:</Text>
+							<Text className="text-center text-red-500 text-xs">
+								{rcError || "Unknown Error."}
 							</Text>
 						</View>
 					)}

@@ -46,7 +46,7 @@
       }
     },
     "android": {
-      "package": "app.rork.zvfley8yoowwhncate9z5",
+      "package": "com.ezcareaiolder",
       "versionCode": 1,
       "permissions": [
         "android.permission.RECORD_AUDIO",

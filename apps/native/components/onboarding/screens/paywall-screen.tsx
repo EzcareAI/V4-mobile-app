@@ -53,14 +53,22 @@ export default function PaywallScreen() {
 	useEffect(() => {
 		async function loadOfferings() {
 			try {
+				// Initialize just in case it wasn't
+				await revenueCatService.initialize();
+				
 				const offerings = await Purchases.getOfferings();
 				if (offerings.current) {
 					setOffering(offerings.current);
 				} else {
-					setRcError("No 'current' offering configured in RC dashboard.");
+					setRcError(`No 'current' offering. (Has Offerings: ${Object.keys(offerings.all).length})`);
 				}
-			} catch (err) {
-				setRcError(String(err));
+			} catch (err: any) {
+				const errMsg = err.message || "Unknown error";
+				const rcCode = err.readableErrorCode || "";
+				const underlying = err.underlyingErrorMessage || "";
+				const pkg = "app.rork.zvfley8yoowwhncate9z5";
+				
+				setRcError(`Msg: ${errMsg}\nCode: ${rcCode}\nDetail: ${underlying}\nPkg: ${pkg}`);
 			} finally {
 				setLoading(false);
 			}

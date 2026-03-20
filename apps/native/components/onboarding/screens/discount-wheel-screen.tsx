@@ -1,8 +1,11 @@
 import { useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
+	ActivityIndicator,
+	Alert,
 	Animated,
 	Easing,
+	Platform,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -16,6 +19,13 @@ import Svg, {
 	Polygon,
 	Text as SvgText,
 } from "react-native-svg";
+import type {
+	PurchasesOffering,
+	PurchasesPackage,
+} from "react-native-purchases";
+import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
+import { revenueCatService } from "@/lib/revenuecat-service";
+import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { StepHeader } from "../common/step-header";
 
@@ -148,11 +158,27 @@ const Fireworks = () => {
 
 export function DiscountWheelScreen() {
 	const router = useRouter();
-	const { setAnswer, nextStep, currentStep } = useOnboardingStore();
-
 	const spinAnim = useRef(new Animated.Value(0)).current;
 	const pulseAnim = useRef(new Animated.Value(1)).current;
 	const [spinning, setSpinning] = useState(true);
+	const [isProcessing, setIsProcessing] = useState(false);
+	const [offering, setOffering] = useState<PurchasesOffering | null>(null);
+	const [loading, setLoading] = useState(true);
+	const { setAnswer, nextStep, currentStep, onboardingRecordId, setPro } = useOnboardingStore();
+
+	useEffect(() => {
+		async function loadOfferings() {
+			try {
+				const currentOffering = await revenueCatService.getOfferings();
+				setOffering(currentOffering);
+			} catch (err) {
+				console.error("Load Offerings Error [Wheel]:", err);
+			} finally {
+				setLoading(false);
+			}
+		}
+		loadOfferings();
+	}, []);
 
 	// Immediately skip if already spun (handled by paywall back interceptor, but safety net)
 	useEffect(() => {
@@ -191,17 +217,90 @@ export function DiscountWheelScreen() {
 		});
 	}, [spinAnim, pulseAnim]);
 
-	const handleClaimDiscount = () => {
-		// We mark that it was definitively handled. (It was already set to true in the Paywall back interceptor, but we'll do it again to be safe).
-		setAnswer("discountWheelShown", true);
-		nextStep();
-		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+	const handlePurchase = async (priceLabel: string) => {
+		if (!offering?.availablePackages) {
+			Alert.alert("Error", "Pricing information is not available.");
+			return;
+		}
+
+		// Find the package based on the price or type
+		// If $29.99 is requested, we look for a package costing around that (or a specific identifier if known)
+		// For now, we'll try to find an ANNUAL package for "Full Price" and a custom one for "Discount"
+		// If we can't find a specific one, we'll just pick the best match
+		let pkg: PurchasesPackage | undefined;
+		
+		if (priceLabel === "29.99") {
+			// Look for a package that matches 29.99 or is NOT the main annual one
+			pkg = offering.availablePackages.find(p => p.product.price < 35 && p.product.price > 20);
+		} else {
+			// Full Price - Look for the main ANNUAL package
+			pkg = offering.availablePackages.find(p => p.packageType === "ANNUAL" && p.product.price > 35);
+		}
+
+		// Fallback: if nothing found, try to find ANY annual package
+		if (!pkg) {
+			pkg = offering.availablePackages.find(p => p.packageType === "ANNUAL");
+		}
+
+		if (!pkg) {
+			Alert.alert("Error", "The selected plan is not available at the moment.");
+			return;
+		}
+
+		if (Platform.OS === "ios") {
+			try {
+				await impactAsync(ImpactFeedbackStyle.Medium);
+			} catch { /* ignore */ }
+		}
+		
+		setIsProcessing(true);
+
+		// Log checkout attempt
+		await supabase.from("events").insert([
+			{
+				event_type: "checkout_attempted_wheel",
+				session_id: onboardingRecordId,
+				timestamp: new Date().toISOString(),
+			},
+		]);
+
+		try {
+			const success = await revenueCatService.purchasePackage(pkg);
+			if (success) {
+				setPro(true);
+				setAnswer("subscriptionStatus", "active");
+				setAnswer("paymentAttempted", true);
+				setAnswer("discountWheelShown", true);
+
+				// Log success
+				await supabase.from("events").insert([
+					{
+						event_type: `checkout_success_wheel_${pkg.packageType}`,
+						session_id: onboardingRecordId,
+						timestamp: new Date().toISOString(),
+					},
+				]);
+
+				// Go to Account Creation (Step 22)
+				nextStep();
+				const targetStep = 22;
+				setAnswer("currentStep", targetStep);
+				router.push(`/(onboarding)/${targetStep}`);
+			}
+		} catch (err) {
+			console.error("Purchase Error [Wheel]:", err);
+			Alert.alert("Error", "Could not complete purchase. Please try again.");
+		} finally {
+			setIsProcessing(false);
+		}
 	};
 
-	const handleSkip = () => {
-		setAnswer("discountWheelShown", true);
-		nextStep();
-		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+	const handleClaimDiscount = () => {
+		handlePurchase("29.99");
+	};
+
+	const handlePayFullPrice = () => {
+		handlePurchase("39.99");
 	};
 
 	// Spin 5 full rotations ending exactly with the slice's center at the top pointer (1800 - 30 degrees = 1770)
@@ -352,13 +451,26 @@ export function DiscountWheelScreen() {
 				<TouchableOpacity
 					activeOpacity={0.7}
 					className="w-full rounded-[28px] border-2 border-slate-200 bg-transparent py-4 shadow-sm"
-					onPress={handleSkip}
+					onPress={handlePayFullPrice}
 				>
 					<Text className="text-center font-bold text-[#73808C] text-[17px]">
 						I'll Pay Full Price
 					</Text>
 				</TouchableOpacity>
 			</View>
+
+			{isProcessing && (
+				<View className="absolute inset-0 z-50 items-center justify-center bg-black/60">
+					<ActivityIndicator color="#FFF" size="large" />
+					<Text className="mt-4 font-semibold text-white">Processing...</Text>
+				</View>
+			)}
+			{loading && (
+				<View className="absolute inset-0 z-50 items-center justify-center bg-[#EBF5F4]/80">
+					<ActivityIndicator color="#3EC9B5" size="large" />
+					<Text className="mt-4 font-semibold text-[#73808C]">Updating offers...</Text>
+				</View>
+			)}
 		</View>
 	);
 }

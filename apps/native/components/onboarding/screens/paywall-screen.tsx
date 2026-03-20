@@ -130,16 +130,12 @@ export default function PaywallScreen() {
 					},
 				]);
 
-				if (pkg.packageType === "ANNUAL") {
-					nextStep();
-					router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
-				} else {
-					// Skip Wheel
-					setAnswer("discountWheelShown", true);
-					nextStep();
-					nextStep();
-					router.push(`/(onboarding)/${(currentStep || 0) + 2}`);
-				}
+				// Successful payment always leads to Account Creation (Step 22)
+				nextStep();
+				// Ensure we skip to Step 22 specifically
+				const targetStep = 22;
+				setAnswer("currentStep", targetStep);
+				router.push(`/(onboarding)/${targetStep}`);
 			}
 		} catch (_err) {
 			Alert.alert("Error", "Could not complete purchase. Please try again.");

@@ -13,6 +13,7 @@ import {
 import {
 	ActivityIndicator,
 	Animated,
+	Image,
 	PanResponder,
 	Platform,
 	ScrollView,
@@ -329,10 +330,10 @@ export default function HomeScreen() {
 
 				const { data, error } = await supabase
 					.from("health_analyses")
-					.select("id, created_at, zones, probable_causes")
+					.select("id, created_at, zones, probable_causes, image_url")
 					.eq("user_id", session.user.id)
 					.order("created_at", { ascending: false })
-					.limit(3);
+					.limit(5);
 
 				if (!error && data) {
 					setRecentAnalyses(data);
@@ -634,10 +635,17 @@ export default function HomeScreen() {
 									style={styles.historyCard}
 								>
 									<View style={styles.historyIconWrap}>
-										<Ionicons color={TEAL} name="body-outline" size={20} />
+										{item.image_url ? (
+											<Image
+												source={{ uri: item.image_url }}
+												style={styles.historyImage}
+											/>
+										) : (
+											<Ionicons color={TEAL} name="body-outline" size={20} />
+										)}
 									</View>
 									<Text numberOfLines={1} style={styles.historyZones}>
-										{item.zones.join(", ")}
+										{item.zones[0] === "General Body Scan" ? "📸 Body Scan" : item.zones.join(", ")}
 									</Text>
 									<Text style={styles.historyDate}>
 										{new Date(item.created_at).toLocaleDateString()}
@@ -788,30 +796,36 @@ const styles = StyleSheet.create({
 		elevation: 2,
 	},
 	historyIconWrap: {
-		width: 36,
-		height: 36,
-		borderRadius: 18,
+		width: 44,
+		height: 44,
+		borderRadius: 12,
 		backgroundColor: "rgba(62,201,181,0.1)",
 		alignItems: "center",
 		justifyContent: "center",
 		marginBottom: 12,
+		overflow: "hidden",
+	},
+	historyImage: {
+		width: "100%",
+		height: "100%",
 	},
 	historyZones: {
-		fontSize: 15,
+		fontSize: 14,
 		fontWeight: "700",
 		color: DARK,
 		marginBottom: 4,
 	},
 	historyDate: {
-		fontSize: 12,
+		fontSize: 11,
 		color: GREY,
 		marginBottom: 8,
 	},
 	historyTopCause: {
-		fontSize: 13,
+		fontSize: 12,
 		color: TEAL,
 		fontWeight: "600",
 	},
+
 	scoreRow: {
 		flexDirection: "row",
 		alignItems: "center",
@@ -977,10 +991,6 @@ const styles = StyleSheet.create({
 	saveBtnActive: { backgroundColor: TEAL },
 	saveBtnText: { fontSize: 16, fontWeight: "700", color: GREY },
 	saveBtnTextActive: { color: "#FFFFFF" },
-
-	// Section
-	// The previous sectionTitle style was removed as it was a duplicate.
-	// This one is kept as it's the first definition in the original document.
 
 	// Action cards
 	actionCard: {

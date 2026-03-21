@@ -127,8 +127,7 @@ export default function BodyScanScreen() {
 				setIsAnalyzing(true);
 
 				// 2. Here we would normally send `photo.base64` to an AI model.
-				// For now, since this runs entirely on device, we compute the health score
-				// triggered by the actual hardware capture resolution time.
+				// Now we pass it to the analysis screen for a vision-augmented check.
 				computeHealthScore();
 
 				if (Platform.OS === "ios") {
@@ -137,8 +136,11 @@ export default function BodyScanScreen() {
 					} catch {}
 				}
 
-				router.dismissAll();
-				router.replace("/(dashboard)");
+				// Navigate to Analyze Symptoms with the image
+				router.push({
+					pathname: "/(dashboard)/analyze-symptoms",
+					params: { imageBase64: _photo.base64 },
+				});
 			} catch (error) {
 				console.error("Camera capture failed", error);
 				setIsScanning(false);

@@ -21,6 +21,7 @@ export interface AnalysisRequest {
 	zones: string[];
 	symptomsDescription: string;
 	painLevel: number;
+	imageBase64?: string;
 }
 
 export interface AnalysisResponse {
@@ -40,9 +41,13 @@ export interface AnalysisResponse {
 const SYSTEM_PROMPT = `
 You are EZBuddy, an empathetic, cautious AI assistant embedded in a health and physical therapy app.
 A user has selected specific body zones where they are experiencing discomfort and provided details.
+In some cases, the user may also provide an image of the affected area.
 
 **CRITICAL MEDICAL LIABILITY RULE:**
-You are NOT a doctor. You must provide a prominent medical disclaimer at the top of your response. Explain that these are only *possible functional or musculoskeletal causes* based on their inputs and are not a clinical diagnosis. If the symptoms suggest a severe condition (e.g., shooting chest pain, numbness, paralysis), strongly advise immediate medical attention.
+You are NOT a doctor. You must provide a prominent medical disclaimer at the top of your response. Explain that these are only *possible functional or musculoskeletal causes* based on their inputs (and visual evidence if provided) and are not a clinical diagnosis. If the symptoms suggest a severe condition (e.g., shooting chest pain, numbness, paralysis), strongly advise immediate medical attention.
+
+**VISUAL ANALYSIS (IF PROVIDED):**
+If an image is attached, analyze it carefully for visible signs of inflammation, misalignment, or standard musculoskeletal indicators. Use this visual evidence to refine your probable causes.
 
 **OUTPUT FORMAT:**
 You MUST return your entire response as a strictly valid, minified JSON object matching the following structure exactly, with NO markdown formatting, NO markdown code block wrappers (like \`\`\`json), and NO conversational prefixes or suffixes. It must be strictly parseable by JSON.parse().
@@ -72,22 +77,41 @@ export const aiAnalysisService = {
 	async analyzeSymptoms(request: AnalysisRequest): Promise<AnalysisResponse> {
 		const client = getClient();
 
-		const prompt = `
+		const textPrompt = `
 User Data:
-- Selected Body Zones: ${request.zones.join(", ")}
+- Selected Body Zones: ${request.zones.join(", ") || "General Body Scan"}
 - Pain Level: ${request.painLevel}/10
 - Symptoms Description: "${request.symptomsDescription}"
 
-Analyze the above and provide the result strictly in the requested JSON format.
+Analyze the above (taking the provided image into account if present) and provide the result strictly in the requested JSON format.
 `;
 
 		try {
+			// Construct message content (Vision support)
+			const content: any[] = [];
+			
+			if (request.imageBase64) {
+				content.push({
+					type: "image",
+					source: {
+						type: "base64",
+						media_type: "image/jpeg",
+						data: request.imageBase64,
+					},
+				});
+			}
+			
+			content.push({
+				type: "text",
+				text: textPrompt,
+			});
+
 			const response = await client.messages.create({
-				model: "claude-3-haiku-20240307", // Fast and capable for this structural task
+				model: "claude-3-haiku-20240307",
 				max_tokens: 1024,
-				temperature: 0.1, // Low temperature for consistent JSON structure
+				temperature: 0.1,
 				system: SYSTEM_PROMPT,
-				messages: [{ role: "user", content: prompt }],
+				messages: [{ role: "user", content }],
 			});
 
 			const textResponse =

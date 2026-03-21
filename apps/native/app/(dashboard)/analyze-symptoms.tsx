@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	Alert,
+	Image,
 	Platform,
 	SafeAreaView,
 	ScrollView,
@@ -28,6 +29,7 @@ export default function AnalyzeSymptomsScreen() {
 
 	const zonesParam = params.zones as string;
 	const historyId = params.historyId as string;
+	const imageBase64 = params.imageBase64 as string;
 
 	const [activeZones, setActiveZones] = useState<string[]>([]);
 	const [phase, setPhase] = useState<"input" | "loading" | "results">("input");
@@ -108,9 +110,10 @@ export default function AnalyzeSymptomsScreen() {
 			}
 
 			const res = await aiAnalysisService.analyzeSymptoms({
-				zones: activeZones,
+				zones: activeZones.length > 0 ? activeZones : ["General Body Scan"],
 				painLevel,
 				symptomsDescription: description,
+				imageBase64: imageBase64 || undefined,
 			});
 			setAnalysis(res);
 			setPhase("results");
@@ -146,14 +149,37 @@ export default function AnalyzeSymptomsScreen() {
 			// If the user isn't logged in, we gracefully skip the cloud save and just close the screen
 			// so that guest users don't get stuck with an error.
 			if (session?.user?.id) {
+				let uploadedImageUrl = null;
+
+				// Upload image if present
+				if (imageBase64) {
+					const fileName = `${session.user.id}/${Date.now()}.jpg`;
+					const response = await fetch(`data:image/jpeg;base64,${imageBase64}`);
+					const blob = await response.blob();
+					
+					const { data: uploadData, error: uploadError } = await supabase.storage
+						.from("body-scans")
+						.upload(fileName, blob, { contentType: "image/jpeg" });
+					
+					if (uploadError) {
+						console.error("Storage upload error:", uploadError);
+					} else if (uploadData) {
+						const { data: { publicUrl } } = supabase.storage
+							.from("body-scans")
+							.getPublicUrl(fileName);
+						uploadedImageUrl = publicUrl;
+					}
+				}
+
 				const { error: dbError } = await supabase
 					.from("health_analyses")
 					.insert({
 						user_id: session.user.id,
-						zones: activeZones,
+						zones: activeZones.length > 0 ? activeZones : ["General Body Scan"],
 						symptoms_description: `Pain level ${painLevel}/10. ${description}`,
 						probable_causes: analysis.probableCauses,
 						action_plan: analysis.actionPlan,
+						image_url: uploadedImageUrl,
 					});
 
 				if (dbError) {
@@ -212,9 +238,19 @@ export default function AnalyzeSymptomsScreen() {
 						<Text style={styles.cardSub}>
 							You selected:{" "}
 							<Text style={{ fontWeight: "bold", color: TEAL }}>
-								{activeZones.join(", ")}
+								{activeZones.length > 0 ? activeZones.join(", ") : "Manual General Scan"}
 							</Text>
 						</Text>
+
+						{imageBase64 && (
+							<View style={styles.imagePreviewContainer}>
+								<Image
+									source={{ uri: `data:image/jpeg;base64,${imageBase64}` }}
+									style={styles.imagePreview}
+								/>
+								<Text style={styles.imageLabel}>Captured Scan Image</Text>
+							</View>
+						)}
 
 						<Text style={styles.label}>
 							How severe is the discomfort? ({painLevel}/10)
@@ -559,4 +595,25 @@ const styles = StyleSheet.create({
 		marginBottom: 4,
 	},
 	planDuration: { fontSize: 13, color: GREY, fontWeight: "500" },
+	imagePreviewContainer: {
+		alignItems: "center",
+		marginBottom: 20,
+		backgroundColor: "#F7FAFC",
+		borderRadius: 12,
+		padding: 8,
+		borderWidth: 1,
+		borderColor: "#E2E8F0",
+	},
+	imagePreview: {
+		width: "100%",
+		height: 200,
+		borderRadius: 8,
+		backgroundColor: "#E2E8F0",
+	},
+	imageLabel: {
+		marginTop: 8,
+		fontSize: 12,
+		color: GREY,
+		fontWeight: "600",
+	},
 });

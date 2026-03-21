@@ -145,7 +145,6 @@ export default function SubscriptionScreen() {
 						text="Infinite EZBuddy Chat"
 					/>
 					<FeatureItem icon="analytics-outline" text="Advanced Trend Reports" />
-					<FeatureItem icon="notifications-outline" text="Priority Support" />
 				</View>
 
 				{/* Pricing Cards */}
@@ -176,7 +175,7 @@ export default function SubscriptionScreen() {
 								</Text>
 							</View>
 							<View style={styles.priceWrap}>
-								<Text style={styles.price}>{pkg.product.priceString}</Text>
+								<Text style={styles.price}>{pkg.product.currencyCode === "USD" ? pkg.product.priceString : `$${pkg.product.price}`}</Text>
 								<Text style={styles.pricePeriod}>
 									/{pkg.packageType === "ANNUAL" ? "yr" : "mo"}
 								</Text>

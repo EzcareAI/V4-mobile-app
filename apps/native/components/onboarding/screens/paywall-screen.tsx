@@ -239,7 +239,7 @@ export default function PaywallScreen() {
 										<Text
 											className={`font-black text-2xl tracking-tighter ${isAnnual ? "text-white" : "text-[#29303D]"}`}
 										>
-											{pkg.product.priceString}
+											{pkg.product.currencyCode === "USD" ? pkg.product.priceString : `$${pkg.product.price}`}
 										</Text>
 										<Text
 											className={`mt-0.5 font-bold text-xs ${isAnnual ? "text-white/80" : "text-[#73808C]"}`}

@@ -225,21 +225,38 @@ export function DiscountWheelScreen() {
 
 		// Find the package based on the price or type
 		// If $29.99 is requested, we look for a package costing around that (or a specific identifier if known)
-		// For now, we'll try to find an ANNUAL package for "Full Price" and a custom one for "Discount"
-		// If we can't find a specific one, we'll just pick the best match
 		let pkg: PurchasesPackage | undefined;
 		
 		if (priceLabel === "29.99") {
-			// Look for a package that matches 29.99 or is NOT the main annual one
-			pkg = offering.availablePackages.find(p => p.product.price < 35 && p.product.price > 20);
+			// Look for a package that matches 29.99 or has "discount" in its ID
+			pkg = offering.availablePackages.find(p => 
+				(p.product.price < 35 && p.product.price > 20) || 
+				p.identifier.toLowerCase().includes("discount")
+			);
 		} else {
-			// Full Price - Look for the main ANNUAL package
-			pkg = offering.availablePackages.find(p => p.packageType === "ANNUAL" && p.product.price > 35);
+			// Full Price - Look for the main ANNUAL package specifically
+			pkg = offering.availablePackages.find(p => 
+				p.packageType === "ANNUAL" && (p.product.price > 35 || p.identifier.toLowerCase().includes("annual"))
+			);
 		}
 
-		// Fallback: if nothing found, try to find ANY annual package
+		// Fallback: if nothing found for 29.99 specifically, try to find ANY non-standard package
+		if (!pkg && priceLabel === "29.99") {
+			pkg = offering.availablePackages.find(p => p.packageType === "ANNUAL" && p.product.price < 35);
+		}
+
+		// Final Fallback: if STILL nothing found, pick the one that ISN'T the first one?
+		// No, let's just pick the main ANNUAL if full price, or ANY annual if discount
 		if (!pkg) {
-			pkg = offering.availablePackages.find(p => p.packageType === "ANNUAL");
+			// LAST RESORT: Try to find any annual package that is NOT the most expensive one if 29.99 is requested
+			if (priceLabel === "29.99") {
+				const sorted = offering.availablePackages
+					.filter(p => p.packageType === "ANNUAL")
+					.sort((a, b) => a.product.price - b.product.price);
+				pkg = sorted[0]; // Pick cheapest annual
+			} else {
+				pkg = offering.availablePackages.find(p => p.packageType === "ANNUAL");
+			}
 		}
 
 		if (!pkg) {

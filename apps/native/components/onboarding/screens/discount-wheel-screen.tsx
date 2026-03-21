@@ -235,27 +235,28 @@ export function DiscountWheelScreen() {
 		let pkg: PurchasesPackage | undefined;
 		
 		if (priceLabel === "29.99") {
-			// 1. Look for a package with "discount" in the identifier
+			// 1. Look for an ANNUAL package with "discount" in the identifier
 			pkg = offering.availablePackages.find(p => 
-				p.identifier.toLowerCase().includes("discount")
+				p.packageType === "ANNUAL" && p.identifier.toLowerCase().includes("discount")
 			);
 
-			// 2. If not found, look for an ANNUAL package that is cheaper than the others
+			// 2. If not found, look for any ANNUAL package that is cheaper than the full price
 			if (!pkg) {
 				const annuals = offering.availablePackages
 					.filter(p => p.packageType === "ANNUAL")
 					.sort((a, b) => a.product.price - b.product.price);
 				
 				if (annuals.length > 1) {
-					// If we have at least two annuals, pick the cheapest one for the 29.99 offer
+					// We have a cheaper annual (the $29.99 one)
+					pkg = annuals[0];
+				} else if (annuals.length === 1 && annuals[0].product.price < 35) {
+					// We only have one annual but it's already the discounted price
 					pkg = annuals[0];
 				}
 			}
 
-			// 3. Last fallback: any package that has a price lower than the "full price" (~39.99)
-			if (!pkg) {
-				pkg = offering.availablePackages.find(p => p.product.price < 35);
-			}
+			// NO fallback to non-annual packages here. If no discounted annual is found, 
+			// we will fall back to the standard annual below.
 		} else {
 			// Full Price - Look for the main ANNUAL package (most expensive one)
 			const annuals = offering.availablePackages
@@ -264,7 +265,7 @@ export function DiscountWheelScreen() {
 			pkg = annuals[0];
 		}
 
-		// Final fallback for any other case
+		// Final fallback: use the standard Annual package if nothing specific found
 		if (!pkg) {
 			pkg = offering.availablePackages.find(p => p.packageType === "ANNUAL") || offering.availablePackages[0];
 		}

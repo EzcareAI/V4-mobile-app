@@ -196,16 +196,29 @@ export default function PaywallScreen() {
 							<Text className="mt-4 text-[#94A3B8]">Loading plans...</Text>
 						</View>
 					) : offering?.availablePackages ? (
-						offering.availablePackages.map((pkg) => {
-							const isAnnual = pkg.packageType === "ANNUAL";
-							return (
-								<TouchableOpacity
-									activeOpacity={0.9}
-									className={`relative flex-1 overflow-hidden rounded-[28px] px-3.5 py-5 shadow-2xl transition-opacity duration-300 ${isProcessing ? "opacity-50" : "opacity-100"} ${isAnnual ? "shadow-blue-200" : "border-2 border-slate-100 bg-slate-50"}`}
-									disabled={isProcessing}
-									key={pkg.identifier}
-									onPress={() => handlePurchase(pkg)}
-								>
+						offering.availablePackages
+							.filter((pkg) => {
+								// Filter out any packages that look like discounts/alternate annuals
+								if (pkg.packageType === "ANNUAL") {
+									// If there are multiple annuals, only keep the most expensive one (Full Price)
+									const allAnnuals = offering.availablePackages
+										.filter(p => p.packageType === "ANNUAL")
+										.sort((a, b) => b.product.price - a.product.price);
+									return pkg.identifier === allAnnuals[0].identifier;
+								}
+								// Keep MONTHLY and potentially WEEKLY if they exist
+								return pkg.packageType === "MONTHLY" || pkg.packageType === "WEEKLY";
+							})
+							.map((pkg) => {
+								const isAnnual = pkg.packageType === "ANNUAL";
+								return (
+									<TouchableOpacity
+										activeOpacity={0.9}
+										className={`relative flex-1 overflow-hidden rounded-[28px] px-3.5 py-5 shadow-2xl transition-opacity duration-300 ${isProcessing ? "opacity-50" : "opacity-100"} ${isAnnual ? "shadow-blue-200" : "border-2 border-slate-100 bg-slate-50"}`}
+										disabled={isProcessing}
+										key={pkg.identifier}
+										onPress={() => handlePurchase(pkg)}
+									>
 									{isAnnual && (
 										<LinearGradient
 											colors={["#28B898", "#2DE2E2"]}

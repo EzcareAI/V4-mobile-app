@@ -1,7 +1,0 @@
-﻿Starting Metro Bundler
-Android node_modules\.bun\expo-router@5.1.11+fe314adb217e3ff2\node_modules\expo-router\entry.js ÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæÔûæ  0.0% (0/1)
-Android node_modules\.bun\expo-router@5.1.11+fe314adb217e3ff2\node_modules\expo-router\entry.js ÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûôÔûæÔûæ 89.2% (3959/4192)
-Android Bundled 5453ms node_modules\.bun\expo-router@5.1.11+fe314adb217e3ff2\node_modules\expo-router\entry.js (4865 modules)
-Writing bundle output to: C:\Users\33644\AppData\Local\Temp\p1mncrfsb6q\index.js
-Copying 47 asset files
-Done writing bundle output

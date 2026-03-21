@@ -223,41 +223,53 @@ export function DiscountWheelScreen() {
 			return;
 		}
 
+		console.log(`[RevenueCat] Attempting purchase for priceLabel: ${priceLabel}`);
+		console.log(`[RevenueCat] Available packages:`, offering.availablePackages.map(p => ({
+			id: p.identifier,
+			type: p.packageType,
+			price: p.product.price,
+			currency: p.product.currencyCode
+		})));
+
 		// Find the package based on the price or type
-		// If $29.99 is requested, we look for a package costing around that (or a specific identifier if known)
 		let pkg: PurchasesPackage | undefined;
 		
 		if (priceLabel === "29.99") {
-			// Look for a package that matches 29.99 or has "discount" in its ID
+			// 1. Look for a package with "discount" in the identifier
 			pkg = offering.availablePackages.find(p => 
-				(p.product.price < 35 && p.product.price > 20) || 
 				p.identifier.toLowerCase().includes("discount")
 			);
-		} else {
-			// Full Price - Look for the main ANNUAL package specifically
-			pkg = offering.availablePackages.find(p => 
-				p.packageType === "ANNUAL" && (p.product.price > 35 || p.identifier.toLowerCase().includes("annual"))
-			);
-		}
 
-		// Fallback: if nothing found for 29.99 specifically, try to find ANY non-standard package
-		if (!pkg && priceLabel === "29.99") {
-			pkg = offering.availablePackages.find(p => p.packageType === "ANNUAL" && p.product.price < 35);
-		}
-
-		// Final Fallback: if STILL nothing found, pick the one that ISN'T the first one?
-		// No, let's just pick the main ANNUAL if full price, or ANY annual if discount
-		if (!pkg) {
-			// LAST RESORT: Try to find any annual package that is NOT the most expensive one if 29.99 is requested
-			if (priceLabel === "29.99") {
-				const sorted = offering.availablePackages
+			// 2. If not found, look for an ANNUAL package that is cheaper than the others
+			if (!pkg) {
+				const annuals = offering.availablePackages
 					.filter(p => p.packageType === "ANNUAL")
 					.sort((a, b) => a.product.price - b.product.price);
-				pkg = sorted[0]; // Pick cheapest annual
-			} else {
-				pkg = offering.availablePackages.find(p => p.packageType === "ANNUAL");
+				
+				if (annuals.length > 1) {
+					// If we have at least two annuals, pick the cheapest one for the 29.99 offer
+					pkg = annuals[0];
+				}
 			}
+
+			// 3. Last fallback: any package that has a price lower than the "full price" (~39.99)
+			if (!pkg) {
+				pkg = offering.availablePackages.find(p => p.product.price < 35);
+			}
+		} else {
+			// Full Price - Look for the main ANNUAL package (most expensive one)
+			const annuals = offering.availablePackages
+				.filter(p => p.packageType === "ANNUAL")
+				.sort((a, b) => b.product.price - a.product.price);
+			pkg = annuals[0];
 		}
+
+		// Final fallback for any other case
+		if (!pkg) {
+			pkg = offering.availablePackages.find(p => p.packageType === "ANNUAL") || offering.availablePackages[0];
+		}
+
+		console.log(`[RevenueCat] Selected package:`, pkg.identifier);
 
 		if (!pkg) {
 			Alert.alert("Error", "The selected plan is not available at the moment.");

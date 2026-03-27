@@ -87,7 +87,29 @@ class RevenueCatService {
 	async purchasePackage(pkg: PurchasesPackage): Promise<boolean> {
 		try {
 			const { customerInfo } = await Purchases.purchasePackage(pkg);
-			return customerInfo.entitlements.active[ENTITLEMENT_ID] !== undefined;
+			
+			// Primary check: entitlement is active
+			if (customerInfo.entitlements.active[ENTITLEMENT_ID] !== undefined) {
+				return true;
+			}
+
+			// Fallback: a transaction exists for this product (handles sandbox timing
+			// delays and cases where the entitlement isn't attached in RevenueCat yet)
+			const productId = pkg.product.identifier;
+			const hasTransaction = 
+				customerInfo.allPurchasedProductIdentifiers?.includes(productId) ||
+				Object.keys(customerInfo.allExpirationDates || {}).includes(productId) ||
+				Object.keys(customerInfo.allPurchaseDates || {}).includes(productId);
+
+			if (hasTransaction) {
+				console.warn(
+					`[RevenueCat] Purchase succeeded for ${productId} but entitlement '${ENTITLEMENT_ID}' is not active. ` +
+					`Check that this package is linked to the '${ENTITLEMENT_ID}' entitlement in RevenueCat.`
+				);
+				return true;
+			}
+
+			return false;
 		} catch (error) {
 			// @ts-expect-error - error might have userCancelled property
 			if (!error.userCancelled) {

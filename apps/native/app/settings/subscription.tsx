@@ -149,7 +149,25 @@ export default function SubscriptionScreen() {
 
 				{/* Pricing Cards */}
 				<View style={styles.pricingSection}>
-					{offering?.availablePackages.map((pkg) => (
+					{offering?.availablePackages
+					.filter((pkg) => {
+						if (pkg.packageType === "ANNUAL") {
+							// Keep only the most expensive annual (full price)
+							const allAnnuals = offering.availablePackages
+								.filter(p => p.packageType === "ANNUAL")
+								.sort((a, b) => b.product.price - a.product.price);
+							return pkg.identifier === allAnnuals[0].identifier;
+						}
+						if (pkg.packageType === "MONTHLY") {
+							// Keep only the cheapest monthly ($11.99)
+							const allMonthlies = offering.availablePackages
+								.filter(p => p.packageType === "MONTHLY")
+								.sort((a, b) => a.product.price - b.product.price);
+							return pkg.identifier === allMonthlies[0].identifier;
+						}
+						return true;
+					})
+					.map((pkg) => (
 						<TouchableOpacity
 							activeOpacity={0.9}
 							key={pkg.identifier}

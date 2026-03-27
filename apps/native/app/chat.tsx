@@ -557,6 +557,42 @@ function ChatScreen() {
 
 				{/* INPUT AREA */}
 				<SafeAreaView edges={["bottom"]} style={{ backgroundColor: "#0B0E17" }}>
+					{/* Attachment preview strip */}
+					{(attachedImage || attachedDoc) && (
+						<View style={styles.previewBar}>
+							{attachedImage && (
+								<View style={styles.previewImageWrapper}>
+									<Image
+										source={{ uri: attachedImage.uri }}
+										style={styles.previewImage}
+										resizeMode="cover"
+									/>
+									<TouchableOpacity
+										onPress={() => setAttachedImage(null)}
+										style={styles.removeBtn}
+									>
+										<Ionicons name="close-circle" size={20} color="#FF4F6E" />
+									</TouchableOpacity>
+								</View>
+							)}
+							{attachedDoc && (
+								<View style={styles.previewImageWrapper}>
+									<View style={styles.previewDoc}>
+										<Ionicons name="document-text" size={26} color="#3EC9B5" />
+										<Text style={styles.previewDocName} numberOfLines={1}>
+											{attachedDoc.name}
+										</Text>
+									</View>
+									<TouchableOpacity
+										onPress={() => setAttachedDoc(null)}
+										style={styles.removeBtn}
+									>
+										<Ionicons name="close-circle" size={20} color="#FF4F6E" />
+									</TouchableOpacity>
+								</View>
+							)}
+						</View>
+					)}
 					<View style={styles.inputArea}>
 						<TouchableOpacity
 							activeOpacity={0.7}
@@ -787,20 +823,21 @@ const styles = StyleSheet.create({
 	previewImage: { width: 56, height: 56, borderRadius: 10 },
 	removeBtn: { position: "absolute", top: -6, right: -6 },
 	previewDoc: {
-		flexDirection: "row",
-		alignItems: "center",
+		width: 56,
+		height: 56,
+		borderRadius: 10,
 		backgroundColor: "#1A2138",
-		borderRadius: 12,
-		paddingHorizontal: 12,
-		paddingVertical: 6,
-		gap: 6,
-		flex: 1,
+		alignItems: "center",
+		justifyContent: "center",
+		paddingHorizontal: 4,
+		borderWidth: 1,
+		borderColor: "rgba(62,201,181,0.3)",
 	},
 	previewDocName: {
-		color: "#FFFFFF",
-		fontSize: 12,
+		color: "#94A3B8",
+		fontSize: 8,
 		fontWeight: "600",
-		flex: 1,
+		textAlign: "center",
 	},
 	// Input
 	inputArea: {

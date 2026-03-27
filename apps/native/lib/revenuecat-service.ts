@@ -8,7 +8,7 @@ import Purchases, {
 const REVENUECAT_APPLE_KEY = process.env.EXPO_PUBLIC_REVENUECAT_APPLE_KEY || "";
 const REVENUECAT_GOOGLE_KEY = process.env.EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY || "";
 
-export const ENTITLEMENT_ID = "pro";
+export const ENTITLEMENT_ID = "yearly";
 
 class RevenueCatService {
 	private static instance: RevenueCatService;

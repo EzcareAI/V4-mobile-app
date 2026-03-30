@@ -140,7 +140,7 @@ export default function BodyScanScreen() {
 				router.push({
 					pathname: "/(dashboard)/analyze-symptoms",
 					params: { imageBase64: _photo.base64 },
-				});
+				} as any);
 			} catch (error) {
 				console.error("Camera capture failed", error);
 				setIsScanning(false);

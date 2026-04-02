@@ -31,7 +31,7 @@
         }
       ]
     ],
-    "version": "1.0.0",
+    "version": "1.1.0",
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": false
@@ -42,7 +42,8 @@
         "NSMicrophoneUsageDescription": "EZCare needs access to your microphone for voice-to-text with EZBuddy.",
         "NSSpeechRecognitionUsageDescription": "EZCare uses speech recognition to transcribe your voice messages.",
         "NSPhotoLibraryUsageDescription": "EZCare needs access to your photos to share them with EZBuddy.",
-        "NSCameraUsageDescription": "EZCare needs access to your camera for health scans and sharing with EZBuddy."
+        "NSCameraUsageDescription": "EZCare needs access to your camera for health scans and sharing with EZBuddy.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {

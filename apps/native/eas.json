@@ -34,7 +34,7 @@
     },
     "production": {
       "extends": "base",
-      "autoIncrement": false
+      "autoIncrement": true
     },
     "production_apk": {
       "extends": "production",

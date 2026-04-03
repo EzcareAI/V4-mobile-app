@@ -19,10 +19,21 @@
     },
     "production": {
       "extends": "base",
-      "autoIncrement": true
+      "autoIncrement": true,
+      "ios": {
+        "ascApiKeyPath": "/home/ghost/Downloads/AuthKey_5497U87BFJ.p8",
+        "ascApiKeyIssuerId": "f5b67638-4c2b-4470-af8e-a8fb71c34e02",
+        "ascApiKeyId": "5497U87BFJ"
+      }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascApiKeyPath": "/home/ghost/Downloads/AuthKey_5497U87BFJ.p8",
+        "ascApiKeyIssuerId": "f5b67638-4c2b-4470-af8e-a8fb71c34e02",
+        "ascApiKeyId": "5497U87BFJ"
+      }
+    }
   }
 }

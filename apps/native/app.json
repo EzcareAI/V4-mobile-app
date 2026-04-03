@@ -11,6 +11,7 @@
     "plugins": [
       "expo-font",
       "expo-apple-authentication",
+      "expo-notifications",
       "expo-router",
       [
         "expo-image-picker",

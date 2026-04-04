@@ -1,5 +1,11 @@
 {
   "expo": {
+    "icon": "./assets/images/icon.png",
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0B0E17"
+    },
     "scheme": "ezcare",
     "userInterfaceStyle": "automatic",
     "orientation": "default",

@@ -1,7 +1,7 @@
 {
   "cli": {
     "version": ">= 18.0.3",
-    "appVersionSource": "remote"
+    "appVersionSource": "local"
   },
   "build": {
     "base": {
@@ -33,8 +33,7 @@
       }
     },
     "production": {
-      "extends": "base",
-      "autoIncrement": true
+      "extends": "base"
     },
     "production_apk": {
       "extends": "production",

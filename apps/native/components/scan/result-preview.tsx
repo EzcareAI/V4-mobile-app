@@ -92,7 +92,7 @@ export function ResultPreview({
 											{contributor.explanation}
 										</Text>
 										<Text className="mt-1 text-muted text-xs uppercase">
-											Likelihood: {contributor.likelihood}
+											Relevance: {contributor.likelihood}
 										</Text>
 									</View>
 								</View>
@@ -103,7 +103,7 @@ export function ResultPreview({
 
 				{/* Recommended Actions (Blurred if not subscribed) */}
 				<View className="mb-4">
-					<Text className="mb-3 font-bold text-xl">Recommended Actions</Text>
+					<Text className="mb-3 font-bold text-xl">Suggested Wellness Tips</Text>
 					{isSubscribed ? (
 						result.recommended_actions.map((action) => (
 							<Card className="mb-2" key={action.action} variant="secondary">
@@ -174,13 +174,13 @@ export function ResultPreview({
 								<View className="flex-1">
 									<Text className="mb-1 font-semibold">
 										{(() => {
-											if (result.escalation.urgency === "seek_immediate") {
-												return "Seek Immediate Attention";
+											if (result.escalation.urgency === "seek_immediate" || result.escalation.urgency === "consult_professional") {
+												return "Please Consult a Healthcare Professional";
 											}
 											if (result.escalation.urgency === "consult_soon") {
-												return "Consult a Professional Soon";
+												return "Consider Consulting a Professional";
 											}
-											return "Monitor Closely";
+											return "Keep Monitoring";
 										})()}
 									</Text>
 									{result.escalation.reason && (

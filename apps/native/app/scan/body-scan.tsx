@@ -74,8 +74,8 @@ export default function BodyScanScreen() {
 					<Ionicons color="#3EC9B5" name="camera-outline" size={64} />
 					<Text style={styles.permissionTitle}>Camera Access Required</Text>
 					<Text style={styles.permissionSub}>
-						EZCare AI needs camera access to perform an augmented reality body
-						analysis.
+						EZCare AI needs camera access for the AR wellness self-check
+						feature.
 					</Text>
 					<TouchableOpacity
 						onPress={requestPermission}
@@ -187,7 +187,7 @@ export default function BodyScanScreen() {
 					</TouchableOpacity>
 					<View style={styles.headerPill}>
 						<Ionicons color="#3EC9B5" name="scan-outline" size={14} />
-						<Text style={styles.headerPillText}>AR Body Scanner</Text>
+						<Text style={styles.headerPillText}>AR Wellness Check</Text>
 					</View>
 					<View style={styles.spacer} />
 				</View>
@@ -208,7 +208,7 @@ export default function BodyScanScreen() {
 							<View style={styles.analyzingOverlay}>
 								<ActivityIndicator color="#3EC9B5" size="large" />
 								<Text style={styles.analyzingText}>
-									Syncing biometric metrics...
+									Processing your input...
 								</Text>
 							</View>
 						)}
@@ -224,7 +224,7 @@ export default function BodyScanScreen() {
 					)}
 					{isScanning && (
 						<Text style={styles.instructionActive}>
-							Analyzing posture & structure...
+							Analyzing your input...
 						</Text>
 					)}
 

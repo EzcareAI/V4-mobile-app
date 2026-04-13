@@ -364,8 +364,8 @@ export default function ResultsPreviewScreen() {
 					Your AI Blueprint is Ready 🚀
 				</Text>
 				<Text className="mb-5 px-2 text-center text-[15px] text-ezcare-slate leading-6">
-					We've analyzed 40+ distinct biomarkers to engineer a highly
-					personalized longevity protocol for you.
+					We've analyzed your responses to create a personalized
+					wellness plan tailored to your lifestyle.
 				</Text>
 
 				{/* Elevated Health Score Display */}
@@ -590,7 +590,7 @@ export default function ResultsPreviewScreen() {
 									PubMed Information Studies
 								</Text>
 								<Text className="mt-0.5 font-medium text-[#94A3B8] text-[13px]">
-									Anti-inflammatory protocols
+									Nutrition and lifestyle tips
 								</Text>
 							</View>
 							<ChevronRight color="#CBD5E1" size={20} />

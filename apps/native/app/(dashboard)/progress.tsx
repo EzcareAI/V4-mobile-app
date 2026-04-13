@@ -432,7 +432,7 @@ export default function ProgressScreen() {
 				<View style={styles.header}>
 					<View>
 						<Text style={styles.title}>Your Progress 📈</Text>
-						<Text style={styles.sub}>Track your healing journey</Text>
+						<Text style={styles.sub}>Track your wellness journey</Text>
 					</View>
 					<TouchableOpacity
 						activeOpacity={0.8}
@@ -443,11 +443,11 @@ export default function ProgressScreen() {
 					</TouchableOpacity>
 				</View>
 
-				{/* Healing Score card */}
+				{/* Wellness Score card */}
 				<View style={styles.scoreCard}>
 					<View style={styles.scoreCardTop}>
 						<View>
-							<Text style={styles.scoreLabel}>Your Healing Score</Text>
+							<Text style={styles.scoreLabel}>Your Wellness Score</Text>
 							<Text style={styles.scoreUpdated}>Updated today</Text>
 						</View>
 						<View style={styles.scoreIconBadge}>
@@ -511,7 +511,7 @@ export default function ProgressScreen() {
 
 				{/* Chart card */}
 				<View style={styles.card}>
-					<Text style={styles.cardTitle}>Healing Score Over Time</Text>
+					<Text style={styles.cardTitle}>Wellness Score Over Time</Text>
 					{/* Range picker */}
 					<View style={styles.rangePicker}>
 						{(["Day", "Week", "12 Months"] as TimeRange[]).map((r) => (
@@ -761,7 +761,7 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 	},
 
-	// Healing Score card
+	// Wellness Score card
 	scoreCard: {
 		marginHorizontal: 20,
 		marginBottom: 20,

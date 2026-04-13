@@ -60,7 +60,7 @@ export default function OnboardingIndex() {
 						<Text style={styles.gradientText}>EZCare AI</Text>
 					</LinearGradient>
 					<Text style={styles.subheadline}>
-						Your Natural Healing Companion.
+						Your Personal Wellness Companion.
 					</Text>
 				</View>
 				{/* Footer */}
@@ -94,7 +94,7 @@ export default function OnboardingIndex() {
 							<View style={styles.trustIcon}>
 								<Check color={THEME.accent} size={13} />
 							</View>
-							<Text style={styles.trustLabel}>Clinically Trusted</Text>
+							<Text style={styles.trustLabel}>AI-Powered Wellness</Text>
 						</View>
 
 						<View style={styles.trustDot} />
@@ -103,7 +103,7 @@ export default function OnboardingIndex() {
 							<View style={styles.trustIcon}>
 								<Leaf color={THEME.accent} size={13} />
 							</View>
-							<Text style={styles.trustLabel}>100% Natural</Text>
+							<Text style={styles.trustLabel}>For Informational Use</Text>
 						</View>
 					</View>
 				</View>

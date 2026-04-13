@@ -26,8 +26,9 @@ export default function MedicalSourcesScreen() {
 
 			<ScrollView contentContainerStyle={styles.content} style={styles.scroll}>
 				<Text style={styles.preamble}>
-					EZCare AI’s models are trained and routinely factual-checked against
-					world-leading medical institutions and peer-reviewed journals.
+					EZCare AI references publicly available wellness and educational
+					resources. The information provided is for educational purposes only
+					and does not constitute medical advice.
 				</Text>
 
 				<View style={styles.card}>

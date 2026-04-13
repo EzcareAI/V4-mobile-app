@@ -376,8 +376,15 @@ export default function PaywallScreen() {
 				</TouchableOpacity>
 
 				<Text className="mx-10 mt-6 text-center text-[#73808C] text-[11px] leading-5">
-					By starting your subscription, you agree to our Terms of Service and
-					Privacy Policy. Renewals are automatic. Manage in Apple/Google Play
+					By starting your subscription, you agree to our{" "}
+					<Text className="underline font-bold text-[#73808C]" onPress={() => router.push("/terms-of-service")}>
+						Terms of Use
+					</Text>{" "}
+					and{" "}
+					<Text className="underline font-bold text-[#73808C]" onPress={() => router.push("/privacy-policy")}>
+						Privacy Policy
+					</Text>
+					. Renewals are automatic. Manage in Apple/Google Play
 					settings.
 				</Text>
 			</ScrollView>

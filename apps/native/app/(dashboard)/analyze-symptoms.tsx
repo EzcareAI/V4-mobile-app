@@ -57,7 +57,7 @@ export default function AnalyzeSymptomsScreen() {
 							probableCauses: data.probable_causes,
 							actionPlan: data.action_plan,
 							disclaimer:
-								"This is a past analysis from your history. Remember, this is not a medical diagnosis.",
+								"This is a past wellness check from your history. This is for educational purposes only — not medical advice, diagnosis, or treatment. Always consult a healthcare professional for health concerns.",
 						});
 						setPhase("results");
 					} else {
@@ -93,7 +93,7 @@ export default function AnalyzeSymptomsScreen() {
 			if (!isPro) {
 				Alert.alert(
 					"Upgrade to Pro",
-					"Detailed medical insights and deep analysis require an EZCare Pro subscription.",
+					"Detailed wellness insights and in-depth analysis require an EZCare Pro subscription.",
 					[
 						{
 							text: "Cancel",
@@ -223,7 +223,7 @@ export default function AnalyzeSymptomsScreen() {
 				>
 					<Ionicons color={DARK} name="arrow-back" size={24} />
 				</TouchableOpacity>
-				<Text style={styles.headerTitle}>Symptom Analysis</Text>
+				<Text style={styles.headerTitle}>Wellness Check</Text>
 				<View style={{ width: 44 }} />
 			</View>
 
@@ -233,6 +233,13 @@ export default function AnalyzeSymptomsScreen() {
 			>
 				{/* INPUT PHASE */}
 				{phase === "input" && (
+					<View>
+					<View style={styles.disclaimerBox}>
+						<Ionicons color="#E53E3E" name="warning" size={20} />
+						<Text style={styles.disclaimerText}>
+							EZCare is a wellness tracking tool, not a medical device. The insights provided are for general wellness and educational purposes only — not medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional for health concerns.
+						</Text>
+					</View>
 					<View style={styles.card}>
 						<Text style={styles.cardTitle}>Tell us more</Text>
 						<Text style={styles.cardSub}>
@@ -294,9 +301,10 @@ export default function AnalyzeSymptomsScreen() {
 						{error && <Text style={styles.errorText}>{error}</Text>}
 
 						<TouchableOpacity onPress={handleAnalyze} style={styles.primaryBtn}>
-							<Text style={styles.primaryBtnText}>Analyze Symptoms</Text>
+							<Text style={styles.primaryBtnText}>Get Wellness Insights</Text>
 							<Ionicons color="#FFF" name="sparkles" size={18} />
 						</TouchableOpacity>
+					</View>
 					</View>
 				)}
 
@@ -304,10 +312,10 @@ export default function AnalyzeSymptomsScreen() {
 				{phase === "loading" && (
 					<View style={styles.loadingCard}>
 						<ActivityIndicator color={TEAL} size="large" />
-						<Text style={styles.loadingTitle}>Analyzing Symptoms...</Text>
+						<Text style={styles.loadingTitle}>Checking Wellness Insights...</Text>
 						<Text style={styles.loadingSub}>
-							Consulting holistic physical therapy guidelines to determine
-							probable causes for {activeZones.join(", ")} discomfort.
+							Reviewing general wellness information to identify possible
+							comfort factors related to {activeZones.join(", ")} discomfort.
 						</Text>
 					</View>
 				)}
@@ -320,7 +328,7 @@ export default function AnalyzeSymptomsScreen() {
 							<Text style={styles.disclaimerText}>{analysis.disclaimer}</Text>
 						</View>
 
-						<Text style={styles.sectionHeading}>Probable Causes</Text>
+						<Text style={styles.sectionHeading}>Possible Factors</Text>
 						{analysis.probableCauses.map((cause, idx) => (
 							<View key={idx} style={styles.resultCard}>
 								<View style={styles.causeHeader}>
@@ -335,7 +343,7 @@ export default function AnalyzeSymptomsScreen() {
 												cause.likelihood < 40 && { color: "#2F855A" },
 											]}
 										>
-											{cause.likelihood}% Match
+											{cause.likelihood}% Relevance
 										</Text>
 									</View>
 								</View>
@@ -357,7 +365,7 @@ export default function AnalyzeSymptomsScreen() {
 							</View>
 						))}
 
-						<Text style={styles.sectionHeading}>Action Plan</Text>
+						<Text style={styles.sectionHeading}>Suggested Wellness Steps</Text>
 						{analysis.actionPlan.map((plan, idx) => (
 							<View key={idx} style={styles.planCard}>
 								<View style={styles.planDayBadge}>

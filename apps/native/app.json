@@ -23,7 +23,7 @@
         "expo-image-picker",
         {
           "photosPermission": "EZCare needs access to your photos to share them with EZBuddy.",
-          "cameraPermission": "EZCare needs access to your camera for health scans and sharing with EZBuddy."
+          "cameraPermission": "EZCare needs access to your camera for wellness features and sharing with EZBuddy."
         }
       ],
       "@react-native-voice/voice",
@@ -49,7 +49,7 @@
         "NSMicrophoneUsageDescription": "EZCare needs access to your microphone for voice-to-text with EZBuddy.",
         "NSSpeechRecognitionUsageDescription": "EZCare uses speech recognition to transcribe your voice messages.",
         "NSPhotoLibraryUsageDescription": "EZCare needs access to your photos to share them with EZBuddy.",
-        "NSCameraUsageDescription": "EZCare needs access to your camera for health scans and sharing with EZBuddy.",
+        "NSCameraUsageDescription": "EZCare needs access to your camera for wellness features and sharing with EZBuddy.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },

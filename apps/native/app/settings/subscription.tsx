@@ -122,8 +122,8 @@ export default function SubscriptionScreen() {
 					<Ionicons color="#FFF" name="sparkles" size={50} />
 					<Text style={styles.heroTitle}>Level Up Your Health</Text>
 					<Text style={styles.heroSub}>
-						Get unlimited AI body scans, deep medical insights, and personalized
-						healing protocols.
+						Get unlimited AI wellness insights, personalized guidance, and
+						advanced tracking features.
 					</Text>
 				</LinearGradient>
 
@@ -221,6 +221,19 @@ export default function SubscriptionScreen() {
 					the end of the period. You can manage your subscription in your App
 					Store settings.
 				</Text>
+
+				<View style={{ flexDirection: "row", justifyContent: "center", marginTop: 12, gap: 16 }}>
+					<TouchableOpacity onPress={() => router.push("/terms-of-service")}>
+						<Text style={{ color: "#64748B", fontSize: 12, textDecorationLine: "underline" }}>
+							Terms of Use
+						</Text>
+					</TouchableOpacity>
+					<TouchableOpacity onPress={() => router.push("/privacy-policy")}>
+						<Text style={{ color: "#64748B", fontSize: 12, textDecorationLine: "underline" }}>
+							Privacy Policy
+						</Text>
+					</TouchableOpacity>
+				</View>
 
 				<TouchableOpacity onPress={handleSignOut} style={{ marginTop: 24, alignSelf: "center", padding: 10 }}>
 					<Text style={{ color: "#F43F5E", fontSize: 13, fontWeight: "600" }}>

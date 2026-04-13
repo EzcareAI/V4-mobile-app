@@ -385,11 +385,11 @@ export default function HomeScreen() {
 						<Text style={styles.welcome}>Welcome back! 👋</Text>
 						{firstName ? (
 							<Text style={styles.welcomeSub}>
-								{firstName}'s healing journey
+								{firstName}'s wellness journey
 							</Text>
 						) : (
 							<Text style={styles.welcomeSub}>
-								Let's check in on your healing journey
+								Let's check in on your wellness journey
 							</Text>
 						)}
 					</View>
@@ -428,7 +428,7 @@ export default function HomeScreen() {
 					</View>
 					<Text style={styles.scoreDesc}>
 						Interact with your body map to log symptoms or explore targeted
-						healing insights.
+						wellness insights.
 					</Text>
 
 					<View style={styles.bodyWrapper}>
@@ -673,12 +673,12 @@ export default function HomeScreen() {
 						</View>
 						<View style={styles.chatTextBlock}>
 							<Text style={styles.chatTitle}>Chat With EZBuddy</Text>
-							<Text style={styles.chatSub}>Your AI healing companion</Text>
+							<Text style={styles.chatSub}>Your AI wellness companion</Text>
 						</View>
 					</View>
 					<Text style={styles.chatDesc}>
-						Ask anything about natural healing, nutrition, supplements, or
-						lifestyle changes.
+						Ask anything about wellness, nutrition, supplements, or
+						lifestyle tips.
 					</Text>
 					<View style={styles.chatStartBtn}>
 						<Ionicons
@@ -695,7 +695,7 @@ export default function HomeScreen() {
 					style={styles.scanCard}
 				>
 					<Ionicons color={TEAL} name="scan-outline" size={22} />
-					<Text style={styles.scanText}>Scan My Body with AR</Text>
+					<Text style={styles.scanText}>AR Wellness Check</Text>
 					<Ionicons color={TEAL} name="chevron-forward" size={18} />
 				</TouchableOpacity>
 			</ScrollView>

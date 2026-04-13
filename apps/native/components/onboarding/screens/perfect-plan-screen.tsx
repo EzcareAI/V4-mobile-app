@@ -71,16 +71,16 @@ export default function PerfectPlanScreen() {
 
 						<StepHeader
 							align="center"
-							description="You're much closer to your goals than you think. Our AI analysis shows rapid potential for recovery."
+							description="You're much closer to your goals than you think. Our AI insights show great potential for improvement."
 							title="Your plan is working already"
 						/>
 
-						{/* Healing Score Progress Card */}
+						{/* Wellness Score Progress Card */}
 						<View className="mt-8 rounded-[40px] border border-slate-50 bg-white p-8 shadow-2xl shadow-blue-100/50">
 							<View className="mb-8 flex-row items-center justify-start gap-x-4">
 								<View>
 									<Text className="font-bold text-[#29303D] text-lg">
-										Health Recovery
+										Wellness Progress
 									</Text>
 									<Text className="mt-0.5 font-bold text-[#73808C] text-xs uppercase tracking-widest">
 										4-Month Projection

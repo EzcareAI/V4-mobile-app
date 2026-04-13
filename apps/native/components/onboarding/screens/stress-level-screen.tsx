@@ -94,7 +94,7 @@ export const StressLevelScreen = () => {
 						<StepHeader
 							align="center"
 							className="mt-6"
-							description="Chronic stress is a major barrier to natural healing."
+							description="Chronic stress can impact your overall well-being."
 							title="How's your stress?"
 						/>
 

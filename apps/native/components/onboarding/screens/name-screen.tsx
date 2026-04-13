@@ -70,7 +70,7 @@ export function NameScreen() {
 
 							<StepHeader
 								className="mt-8"
-								description="We'd love to know what to call you as we build your personalized healing plan."
+								description="We'd love to know what to call you as we build your personalized wellness plan."
 								title="What's your name?"
 							/>
 
@@ -93,7 +93,7 @@ export function NameScreen() {
 							<View className="mt-8 rounded-2xl border border-blue-100 bg-blue-50/50 p-4">
 								<Text className="text-[#64748B] text-xs italic leading-5">
 									✨ Tip: Your name helps EZBuddy personalize your daily
-									check-ins and healing suggestions.
+									check-ins and wellness suggestions.
 								</Text>
 							</View>
 						</View>

@@ -165,7 +165,7 @@ export function HealthCoreHero({ streak, score }: Props) {
 					start={{ x: 0, y: 0.5 }}
 					style={StyleSheet.absoluteFill}
 				/>
-				<Text style={styles.ctaText}>Scan My Body</Text>
+				<Text style={styles.ctaText}>Start Wellness Check</Text>
 			</TouchableOpacity>
 		</View>
 	);

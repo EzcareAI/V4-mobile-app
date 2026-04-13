@@ -28,7 +28,7 @@ const DEFAULT_FALLBACK: ScanAIOutput = {
 		},
 	},
 	disclaimer:
-		"EZCare AI provides educational insights only. Not medical advice.",
+		"This is for educational and informational purposes only — not medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional.",
 };
 
 /**

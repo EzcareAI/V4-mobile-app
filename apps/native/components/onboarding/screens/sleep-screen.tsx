@@ -106,7 +106,7 @@ export const SleepScreen = () => {
 					<StepHeader
 						align="center"
 						className="mt-6"
-						description="Quality sleep is the foundation of natural healing and energy recovery."
+						description="Quality sleep is the foundation of wellness and energy recovery."
 						title="How would you rate your sleep?"
 					/>
 

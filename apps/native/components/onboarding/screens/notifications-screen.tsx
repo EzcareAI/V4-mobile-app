@@ -81,7 +81,7 @@ export const NotificationsScreen = () => {
 							className="mt-6"
 							description={
 								<Text>
-									Daily healing check-ins boost results by{" "}
+									Daily wellness check-ins boost results by{" "}
 									<Text className="font-bold text-[#2DE2E2]">100%</Text>.
 								</Text>
 							}
@@ -116,8 +116,8 @@ export const NotificationsScreen = () => {
 										<Text className="text-[#73808C] text-xs">now</Text>
 									</View>
 									<Text className="mt-2 text-[#73808C] text-sm leading-5">
-										Good morning! 🌅 Ready for your daily healing check-in? Your
-										inflammation levels are improving!
+										Good morning! 🌅 Ready for your daily wellness check-in? Your
+										progress is looking great!
 									</Text>
 								</View>
 

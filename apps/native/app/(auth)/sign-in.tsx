@@ -97,7 +97,7 @@ export default function SignInScreen() {
 						<View style={styles.titleSection}>
 							<Text style={styles.title}>Welcome Back 👋</Text>
 							<Text style={styles.subtitle}>
-								Sign in to continue your healing journey
+								Sign in to continue your wellness journey
 							</Text>
 						</View>
 

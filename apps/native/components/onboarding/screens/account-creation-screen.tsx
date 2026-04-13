@@ -327,7 +327,7 @@ export function AccountCreationScreen() {
 						Almost There!
 					</Text>
 					<Text className="mt-4 font-medium text-[#73808C] text-[17px] leading-7">
-						Let's create your private account to save your personalized healing
+						Let's create your private account to save your personalized wellness
 						plan.
 					</Text>
 				</View>
@@ -434,7 +434,7 @@ export function AccountCreationScreen() {
 						</Text>
 					</View>
 					<Text className="font-medium text-[15px] text-emerald-800/80 leading-6">
-						Secure cloud sync • HIPAA-grade encryption • No data sharing with
+						Secure cloud sync • Encrypted storage • No data sharing with
 						third parties.
 					</Text>
 				</View>
@@ -442,8 +442,8 @@ export function AccountCreationScreen() {
 				{/* Privacy Notice */}
 				<Text className="mb-4 px-4 text-center font-medium text-[#73808C] text-[13px] leading-5">
 					By creating an account, you agree to our{"\n"}
-					<Text className="font-bold text-[#73808C]">Terms of Service</Text> and{" "}
-					<Text className="font-bold text-[#73808C]">Privacy Policy</Text>.
+					<Text className="font-bold text-[#73808C] underline" onPress={() => router.push("/terms-of-service")}>Terms of Use</Text> and{" "}
+					<Text className="font-bold text-[#73808C] underline" onPress={() => router.push("/privacy-policy")}>Privacy Policy</Text>.
 				</Text>
 
 				{/* CTA */}

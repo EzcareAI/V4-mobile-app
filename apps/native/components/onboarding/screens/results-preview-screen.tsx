@@ -17,6 +17,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import {
 	Animated,
+	Dimensions,
 	Linking,
 	Platform,
 	ScrollView,
@@ -93,13 +94,14 @@ const PulseRing = ({ delay = 0, color = "#10B981" }) => {
 		outputRange: [0, 0.4, 0],
 	});
 
+	const pulseSize = Math.min(Dimensions.get("window").width * 0.55, 220);
 	return (
 		<Animated.View
 			style={{
 				position: "absolute",
-				width: 220,
-				height: 220,
-				borderRadius: 110,
+				width: pulseSize,
+				height: pulseSize,
+				borderRadius: pulseSize / 2,
 				borderWidth: 2,
 				borderColor: color,
 				transform: [{ scale }],
@@ -181,6 +183,19 @@ export default function ResultsPreviewScreen() {
 		bodyZoneSelected,
 		intentType,
 		currentStep,
+		sleepQuality,
+		stressLevel,
+		activityLevel,
+		smokingFrequency,
+		alcoholFrequency,
+		zoneSymptomIntensity,
+		zoneFrequency,
+		zoneDuration,
+		overallPriority,
+		overallBlocker,
+		currentEnergyLevel,
+		currentDigestionComfort,
+		motivationLevel,
 	} = useOnboardingStore();
 
 	const router = useRouter();
@@ -263,72 +278,180 @@ export default function ResultsPreviewScreen() {
 		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 	};
 
-	const getProbableCauses = () => {
-		if (score < 50) {
-			return [
-				{
-					icon: <HeartPulse color="#EF4444" size={20} />,
-					iconBg: "bg-red-50",
-					text: "High stress levels detected",
-				},
-				{
+	const getPersonalInsights = () => {
+		type Insight = { icon: React.ReactNode; iconBg: string; text: string };
+		const insights: Insight[] = [];
+
+		// ── Sleep-based insight ──
+		if (sleepQuality !== undefined) {
+			if (sleepQuality <= 2) {
+				insights.push({
 					icon: <Moon color="#8B5CF6" size={20} />,
 					iconBg: "bg-purple-50",
-					text: "Poor sleep quality metrics",
-				},
-				{
+					text: "Your sleep quality is low — better rest could boost your overall wellness",
+				});
+			} else if (sleepQuality >= 4) {
+				insights.push({
+					icon: <Moon color="#10B981" size={20} />,
+					iconBg: "bg-emerald-50",
+					text: "Great sleep habits — keep up the solid rest routine",
+				});
+			} else {
+				insights.push({
+					icon: <Moon color="#F59E0B" size={20} />,
+					iconBg: "bg-amber-50",
+					text: "Your sleep is fair — small improvements could make a big difference",
+				});
+			}
+		}
+
+		// ── Stress-based insight ──
+		if (stressLevel === "high") {
+			insights.push({
+				icon: <HeartPulse color="#EF4444" size={20} />,
+				iconBg: "bg-red-50",
+				text: "High stress reported — relaxation and mindfulness could help",
+			});
+		} else if (stressLevel === "moderate") {
+			insights.push({
+				icon: <HeartPulse color="#F59E0B" size={20} />,
+				iconBg: "bg-amber-50",
+				text: "Moderate stress levels — building a consistent wind-down routine may help",
+			});
+		} else if (stressLevel === "low") {
+			insights.push({
+				icon: <HeartPulse color="#10B981" size={20} />,
+				iconBg: "bg-emerald-50",
+				text: "Low stress — you're managing well, keep it up",
+			});
+		}
+
+		// ── Activity-based insight ──
+		if (activityLevel !== undefined) {
+			if (activityLevel <= 2) {
+				insights.push({
 					icon: <Dumbbell color="#F59E0B" size={20} />,
 					iconBg: "bg-amber-50",
-					text: "Limited physical activity",
-				},
-			];
+					text: "Low activity level — even light daily movement can improve how you feel",
+				});
+			} else if (activityLevel >= 4) {
+				insights.push({
+					icon: <Dumbbell color="#10B981" size={20} />,
+					iconBg: "bg-emerald-50",
+					text: "Active lifestyle — your exercise habits are a strong foundation",
+				});
+			}
 		}
-		if (score < 70) {
-			return [
-				{
-					icon: <HeartPulse color="#EF4444" size={20} />,
+
+		// ── Zone-specific insight (if user chose a body zone) ──
+		if (intentType === "zone" && bodyZoneSelected?.length > 0) {
+			const zoneLabel = bodyZoneSelected.map(z => ZONE_NAMES[z] ?? z).join(" & ");
+			if (zoneSymptomIntensity !== undefined && zoneSymptomIntensity >= 5) {
+				insights.push({
+					icon: <Activity color="#EF4444" size={20} />,
 					iconBg: "bg-red-50",
-					text: "Moderate stress indicators",
-				},
-				{
-					icon: <Moon color="#8B5CF6" size={20} />,
+					text: `Noticeable discomfort in ${zoneLabel} — targeted self-care could help`,
+				});
+			} else if (zoneSymptomIntensity !== undefined) {
+				insights.push({
+					icon: <Activity color="#3B82F6" size={20} />,
+					iconBg: "bg-blue-50",
+					text: `Mild discomfort in ${zoneLabel} — monitoring and gentle care recommended`,
+				});
+			}
+			if (zoneFrequency === "constantly" || zoneDuration === "longterm") {
+				insights.push({
+					icon: <Brain color="#8B5CF6" size={20} />,
 					iconBg: "bg-purple-50",
-					text: "Variable sleep patterns",
-				},
+					text: `Ongoing ${zoneLabel} discomfort — consider consulting a professional if it persists`,
+				});
+			}
+		}
+
+		// ── Overall-health insight (if user chose "overall" intent) ──
+		if (intentType === "overall") {
+			if (overallPriority) {
+				const priorityLabels: Record<string, string> = {
+					energy: "energy levels",
+					sleep: "sleep quality",
+					digestion: "digestive comfort",
+					stress: "stress management",
+					weight: "weight management",
+				};
+				insights.push({
+					icon: <Brain color="#3B82F6" size={20} />,
+					iconBg: "bg-blue-50",
+					text: `Your top priority is ${priorityLabels[overallPriority] ?? overallPriority} — your plan will focus here`,
+				});
+			}
+			if (currentEnergyLevel !== undefined && currentEnergyLevel <= 2) {
+				insights.push({
+					icon: <Activity color="#F59E0B" size={20} />,
+					iconBg: "bg-amber-50",
+					text: "Low energy reported — nutrition and rest improvements can help",
+				});
+			}
+			if (currentDigestionComfort !== undefined && currentDigestionComfort <= 2) {
+				insights.push({
+					icon: <HeartPulse color="#F59E0B" size={20} />,
+					iconBg: "bg-amber-50",
+					text: "Digestive discomfort noted — dietary adjustments may improve comfort",
+				});
+			}
+		}
+
+		// ── Smoking / Alcohol insights ──
+		if (smokingFrequency === "regularly") {
+			insights.push({
+				icon: <Activity color="#EF4444" size={20} />,
+				iconBg: "bg-red-50",
+				text: "Regular smoking impacts overall wellness — reducing intake can help significantly",
+			});
+		}
+		if (alcoholFrequency === "often") {
+			insights.push({
+				icon: <Activity color="#F59E0B" size={20} />,
+				iconBg: "bg-amber-50",
+				text: "Frequent alcohol use reported — moderation could improve sleep and energy",
+			});
+		}
+
+		// ── Motivation boost (if high) ──
+		if (motivationLevel !== undefined && motivationLevel >= 4) {
+			insights.push({
+				icon: <Sparkles color="#10B981" size={20} />,
+				iconBg: "bg-emerald-50",
+				text: "High motivation — you're in a great mindset to build lasting habits",
+			});
+		}
+
+		// Ensure we always show at least 2 and at most 4 insights
+		if (insights.length === 0) {
+			insights.push(
 				{
 					icon: <Activity color="#3B82F6" size={20} />,
 					iconBg: "bg-blue-50",
-					text: "Inconsistent lifestyle habits",
+					text: "Your wellness journey is just getting started — let's build great habits",
 				},
-			];
+				{
+					icon: <Brain color="#10B981" size={20} />,
+					iconBg: "bg-emerald-50",
+					text: "Consistency is key — small daily actions add up over time",
+				},
+			);
 		}
-		return [
-			{
-				icon: <Activity color="#10B981" size={20} />,
-				iconBg: "bg-emerald-50",
-				text: "Good lifestyle balance",
-			},
-			{
-				icon: <Brain color="#10B981" size={20} />,
-				iconBg: "bg-emerald-50",
-				text: "Consistent wellness routines",
-			},
-			{
-				icon: <HeartPulse color="#10B981" size={20} />,
-				iconBg: "bg-emerald-50",
-				text: "Active health mindset",
-			},
-		];
+
+		return insights.slice(0, 4);
 	};
 
-	const probableCauses = getProbableCauses();
+	const personalInsights = getPersonalInsights();
 
 	const getStatusText = () => {
 		if (score >= 70) {
 			return "Excellent Wellness Potential";
 		}
 		if (score >= 50) {
-			return "Good Baseline Health";
+			return "Good Wellness Baseline";
 		}
 		return "Immediate Attention Recommended";
 	};
@@ -360,7 +483,7 @@ export default function ResultsPreviewScreen() {
 					colors={["#F8FAFC", "#F1F5F9"]}
 					style={StyleSheet.absoluteFill}
 				/>
-				<Text className="mb-2 text-center font-bold text-[28px] text-ezcare-navy tracking-tight">
+				<Text className="mb-2 text-center font-bold text-[24px] text-ezcare-navy tracking-tight">
 					Your AI Blueprint is Ready 🚀
 				</Text>
 				<Text className="mb-5 px-2 text-center text-[15px] text-ezcare-slate leading-6">
@@ -410,76 +533,84 @@ export default function ResultsPreviewScreen() {
 						top={80}
 					/>
 
-					<View className="relative h-[220px] w-[220px] items-center justify-center">
-						<PulseRing color={scoreInfo.gradient[0]} delay={0} />
-						<PulseRing color={scoreInfo.gradient[1]} delay={800} />
-						<PulseRing color={scoreInfo.gradient[0]} delay={1600} />
+					{(() => {
+						const screenW = Dimensions.get("window").width;
+						const circleSize = Math.min(screenW * 0.55, 220);
+						const half = circleSize / 2;
+						const outerR = half - 8;
+						const mainR = half * 0.382 * 2; // ~84 at 220
+						const circumference = 2 * Math.PI * mainR;
+						const scoreFontSize = Math.round(circleSize * 0.33);
+						return (
+						<View style={{ width: circleSize, height: circleSize, alignItems: "center", justifyContent: "center" }}>
+							<PulseRing color={scoreInfo.gradient[0]} delay={0} />
+							<PulseRing color={scoreInfo.gradient[1]} delay={800} />
+							<PulseRing color={scoreInfo.gradient[0]} delay={1600} />
 
-						<Svg height={220} viewBox="0 0 220 220" width={220}>
-							<Defs>
-								<SvgGradient
-									id="scoreGradient"
-									x1="0%"
-									x2="100%"
-									y1="0%"
-									y2="100%"
+							<Svg height={circleSize} viewBox={`0 0 ${circleSize} ${circleSize}`} width={circleSize}>
+								<Defs>
+									<SvgGradient
+										id="scoreGradient"
+										x1="0%"
+										x2="100%"
+										y1="0%"
+										y2="100%"
+									>
+										<Stop offset="0%" stopColor={scoreInfo.gradient[0]} />
+										<Stop offset="100%" stopColor={scoreInfo.gradient[1]} />
+									</SvgGradient>
+								</Defs>
+
+								<Circle
+									cx={half}
+									cy={half}
+									fill="none"
+									r={outerR}
+									stroke="#E2E8F0"
+									strokeDasharray="2 10"
+									strokeWidth="3"
+								/>
+
+								<Circle
+									cx={half}
+									cy={half}
+									fill="none"
+									r={mainR}
+									stroke="#F1F5F9"
+									strokeWidth={Math.round(circleSize * 0.073)}
+								/>
+
+								<Circle
+									cx={half}
+									cy={half}
+									fill="none"
+									r={mainR}
+									stroke="url(#scoreGradient)"
+									strokeDasharray={`${(displayScore / 100) * circumference} ${circumference}`}
+									strokeLinecap="round"
+									strokeWidth={Math.round(circleSize * 0.073)}
+									transform={`rotate(-90 ${half} ${half})`}
+								/>
+							</Svg>
+							<View style={{ position: "absolute", alignItems: "center", justifyContent: "center" }}>
+								<Text
+									className="text-center font-black"
+									style={{
+										fontSize: scoreFontSize,
+										color: scoreInfo.gradient[0],
+										letterSpacing: -2,
+										lineHeight: scoreFontSize + 2,
+									}}
 								>
-									<Stop offset="0%" stopColor={scoreInfo.gradient[0]} />
-									<Stop offset="100%" stopColor={scoreInfo.gradient[1]} />
-								</SvgGradient>
-							</Defs>
-
-							{/* Outer Decorative Tech Track */}
-							<Circle
-								cx="110"
-								cy="110"
-								fill="none"
-								r="102"
-								stroke="#E2E8F0"
-								strokeDasharray="2 10"
-								strokeWidth="3"
-							/>
-
-							{/* Background Main Track */}
-							<Circle
-								cx="110"
-								cy="110"
-								fill="none"
-								r="84"
-								stroke="#F1F5F9"
-								strokeWidth="16"
-							/>
-
-							{/* Progress Bar (Animated) */}
-							<Circle
-								cx="110"
-								cy="110"
-								fill="none"
-								r="84"
-								stroke="url(#scoreGradient)"
-								strokeDasharray={`${(displayScore / 100) * 527.7} 527.7`}
-								strokeLinecap="round"
-								strokeWidth="16"
-								transform="rotate(-90 110 110)"
-							/>
-						</Svg>
-						<View className="absolute mt-2 items-center justify-center">
-							<Text
-								className="text-center font-black"
-								style={{
-									fontSize: 72,
-									color: scoreInfo.gradient[0],
-									letterSpacing: -3,
-									lineHeight: 74,
-								}}
-							>
-								{displayScore}
-							</Text>
-							<Text className="mt-1 font-extrabold text-[#94A3B8] text-[13px] uppercase tracking-[0.2em]">
-								/ 100
-							</Text>
+									{displayScore}
+								</Text>
+								<Text className="mt-1 font-extrabold text-[#94A3B8] text-[11px] uppercase tracking-[0.2em]">
+									/ 100
+								</Text>
+							</View>
 						</View>
-					</View>
+						);
+					})()}
 
 					<Text
 						className={`mt-6 text-center font-bold text-xl ${scoreInfo.text}`}
@@ -514,23 +645,23 @@ export default function ResultsPreviewScreen() {
 					</View>
 				)}
 
-				{/* Probable Causes with Rich Icons */}
+				{/* Personal Insights */}
 				<View className="mb-8">
 					<Text className="mb-3 font-bold text-ezcare-navy text-xl">
 						Personal Insights
 					</Text>
-					{probableCauses.map((cause) => (
+					{personalInsights.map((insight) => (
 						<View
 							className="mb-2 flex-row items-center rounded-2xl bg-white p-3 shadow-sm"
-							key={cause.text}
+							key={insight.text}
 						>
 							<View
-								className={`mr-4 h-10 w-10 shrink-0 items-center justify-center rounded-xl ${cause.iconBg || "bg-slate-50"}`}
+								className={`mr-4 h-10 w-10 shrink-0 items-center justify-center rounded-xl ${insight.iconBg || "bg-slate-50"}`}
 							>
-								{cause.icon}
+								{insight.icon}
 							</View>
 							<Text className="flex-1 font-medium text-[#29303D]">
-								{cause.text}
+								{insight.text}
 							</Text>
 						</View>
 					))}

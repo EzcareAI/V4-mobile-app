@@ -4,6 +4,7 @@ import {
 	ActivityIndicator,
 	Alert,
 	Animated,
+	Dimensions,
 	Easing,
 	Platform,
 	ScrollView,
@@ -40,9 +41,11 @@ const PRIZES = [
 
 const SLICE_ANGLE = 360 / PRIZES.length; // 60 degrees
 
-const SVG_SIZE = 300;
+const SCREEN_WIDTH = Dimensions.get("window").width;
+const SVG_SIZE = Math.min(SCREEN_WIDTH - 48, 300); // 24px padding each side, max 300
 const CENTER = SVG_SIZE / 2;
 const RADIUS = CENTER - 10; // 10px padding to avoid stroke clipping
+const WHEEL_FONT_SIZE = Math.round(SVG_SIZE / 10);
 
 function createSlicePath(startAngle: number, endAngle: number) {
 	const startX =
@@ -223,62 +226,36 @@ export function DiscountWheelScreen() {
 			return;
 		}
 
-		console.log(`[RevenueCat] Attempting purchase for priceLabel: ${priceLabel}`);
-		console.log(`[RevenueCat] Available packages:`, offering.availablePackages.map(p => ({
-			id: p.identifier,
-			type: p.packageType,
-			price: p.product.price,
-			currency: p.product.currencyCode
-		})));
-
-		// Find the package based on the price or type
+		// Find the package based on the exact product ID
 		let pkg: PurchasesPackage | undefined;
-		
+
 		if (priceLabel === "29.99") {
-			// 1. Look for ANY package with "discount" in the identifier (most reliable if user named it yearly_discount)
-			pkg = offering.availablePackages.find(p => 
-				p.identifier.toLowerCase().includes("discount")
+			// Look for the discounted yearly product by its exact App Store product ID
+			pkg = offering.availablePackages.find(p =>
+				p.product.identifier === "com.ezcare.yearly_discounted"
 			);
 
-			// 2. If not found, look for ANY package that mentions "yearly" or "annual" and is cheaper than 35
+			// Fallback: look for any package with "discount" in the identifier
 			if (!pkg) {
-				const potentialDiscounted = offering.availablePackages
-					.filter(p => 
-						(p.packageType === "ANNUAL" || p.identifier.toLowerCase().includes("yearly") || p.identifier.toLowerCase().includes("annual")) &&
-						p.product.price < 35
-					)
-					.sort((a, b) => a.product.price - b.product.price);
-				
-				if (potentialDiscounted.length > 0) {
-					pkg = potentialDiscounted[0];
-				}
-			}
-
-			// 3. Fallback: if we only have two packages and one is cheaper than the other, pick the cheaper one
-			if (!pkg && offering.availablePackages.length >= 2) {
-				const sortedByPrice = [...offering.availablePackages].sort((a, b) => a.product.price - b.product.price);
-				// Check if the cheapest is significantly cheaper than the most expensive
-				if (sortedByPrice[0].product.price < sortedByPrice[sortedByPrice.length - 1].product.price * 0.9) {
-					pkg = sortedByPrice[0];
-				}
+				pkg = offering.availablePackages.find(p =>
+					p.identifier.toLowerCase().includes("discount") ||
+					p.product.identifier.toLowerCase().includes("discount")
+				);
 			}
 		} else {
 			// Full Price - Look for the main ANNUAL package (most expensive one)
 			const annuals = offering.availablePackages
-				.filter(p => p.packageType === "ANNUAL" || p.identifier === "$rc_annual")
+				.filter(p => p.packageType === "ANNUAL" && p.product.identifier !== "com.ezcare.yearly_discounted")
 				.sort((a, b) => b.product.price - a.product.price);
-			pkg = annuals[0] || offering.availablePackages[0];
+			pkg = annuals[0] || offering.availablePackages.find(p => p.packageType === "ANNUAL");
 		}
 
-		// Final fallback: use the first available package if nothing else matched
 		if (!pkg) {
 			pkg = offering.availablePackages[0];
 		}
 
-		console.log(`[RevenueCat] Selected package:`, pkg.identifier);
-
 		if (!pkg) {
-			Alert.alert("Error", "The selected plan is not available at the moment.");
+			Alert.alert("Error", "The selected plan is not available at the moment. Please try again later.");
 			return;
 		}
 
@@ -411,7 +388,7 @@ export function DiscountWheelScreen() {
 												<SvgText
 													alignmentBaseline="middle"
 													fill="#FFFFFF"
-													fontSize="30"
+													fontSize={WHEEL_FONT_SIZE}
 													fontWeight="bold"
 													textAnchor="middle"
 													transform={`rotate(${textAngle + 90}, ${textX}, ${textY})`}

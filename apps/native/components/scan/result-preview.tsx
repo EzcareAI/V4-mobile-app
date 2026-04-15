@@ -60,9 +60,9 @@ export function ResultPreview({
 			<View className="p-6">
 				{/* Header */}
 				<View className="mb-6">
-					<Text className="mb-2 font-bold text-3xl">Your Scan Results</Text>
+					<Text className="mb-2 font-bold text-3xl">Your Wellness Insights</Text>
 					<View className="flex-row items-center gap-2">
-						<Text className="text-muted">Confidence:</Text>
+						<Text className="text-muted">Relevance:</Text>
 						<Text className={`font-semibold ${getConfidenceColor()}`}>
 							{getConfidenceLabel()}
 						</Text>
@@ -78,7 +78,7 @@ export function ResultPreview({
 
 				{/* Possible Contributors (Always Visible) */}
 				<View className="mb-4">
-					<Text className="mb-3 font-bold text-xl">Possible Contributors</Text>
+					<Text className="mb-3 font-bold text-xl">Possible Lifestyle Factors</Text>
 					{result.possible_contributors.map((contributor) => (
 						<Card className="mb-2" key={contributor.factor} variant="secondary">
 							<Card.Body>
@@ -174,7 +174,7 @@ export function ResultPreview({
 								<View className="flex-1">
 									<Text className="mb-1 font-semibold">
 										{(() => {
-											if (result.escalation.urgency === "seek_immediate" || result.escalation.urgency === "consult_professional") {
+											if (result.escalation.urgency === "seek_immediate") {
 												return "Please Consult a Healthcare Professional";
 											}
 											if (result.escalation.urgency === "consult_soon") {

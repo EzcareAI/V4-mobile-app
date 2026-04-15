@@ -549,7 +549,7 @@ export default function ProgressScreen() {
 							alignItems: "center",
 						}}
 					>
-						<Text style={styles.cardTitle}>Symptom Tracker</Text>
+						<Text style={styles.cardTitle}>Wellness Tracker</Text>
 						<Ionicons color={TEAL} name="arrow-forward" size={20} />
 					</View>
 					{activeSymptoms.map((s) => {
@@ -788,10 +788,10 @@ const styles = StyleSheet.create({
 	},
 	scoreRow: { flexDirection: "row", alignItems: "flex-end", marginBottom: 10 },
 	scoreBig: {
-		fontSize: 64,
+		fontSize: Math.min(Dimensions.get("window").width * 0.14, 64),
 		fontWeight: "900",
 		color: "#FFFFFF",
-		lineHeight: 70,
+		lineHeight: Math.min(Dimensions.get("window").width * 0.16, 70),
 	},
 	scoreOutOf: {
 		fontSize: 22,
@@ -921,7 +921,7 @@ const styles = StyleSheet.create({
 	streakSub: { fontSize: 13, color: GREY },
 	streakCount: {
 		textAlign: "center",
-		fontSize: 64,
+		fontSize: Math.min(Dimensions.get("window").width * 0.14, 64),
 		fontWeight: "900",
 		color: "#F97316",
 	},

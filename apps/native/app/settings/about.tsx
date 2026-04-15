@@ -40,17 +40,17 @@ export default function AboutScreen() {
 				<View style={styles.card}>
 					<Text style={styles.missionTitle}>Our Mission</Text>
 					<Text style={styles.missionBody}>
-						EZCare is designed to serve as your proactive health companion. We
-						leverage cutting-edge AI models to track your daily vitals, analyze
-						complex medical documents, and guide you towards a healthier, more
-						balanced life.
+						EZCare is designed to serve as your lifestyle wellness companion. We
+						use AI to help you track daily wellness habits, explore general
+						self-care ideas, and support you on your wellness journey.
 					</Text>
 
 					<Text style={styles.disclaimer}>
-						Note: EZCare AI is for informational and organizational purposes
-						only. It is not a substitute for professional medical advice,
-						diagnosis, or treatment. Always seek the advice of your physician or
-						other qualified health provider.
+						Important: EZCare AI is a lifestyle and wellness tool for general
+						informational and educational purposes only. It is NOT a medical
+						device or service, and does not provide medical advice, diagnoses,
+						or treatment. Always consult a qualified healthcare professional
+						for any health concerns.
 					</Text>
 				</View>
 			</ScrollView>

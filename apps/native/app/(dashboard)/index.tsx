@@ -421,14 +421,14 @@ export default function HomeScreen() {
 				{/* ── Health Score & Body Map Card ── */}
 				<View style={styles.card}>
 					<View style={styles.scoreRow}>
-						<Text style={styles.scoreTitle}>Health Score</Text>
+						<Text style={styles.scoreTitle}>Wellness Score</Text>
 						<View style={styles.scoreBadge}>
 							<Text style={styles.scoreText}>{score}/100</Text>
 						</View>
 					</View>
 					<Text style={styles.scoreDesc}>
-						Interact with your body map to log symptoms or explore targeted
-						wellness insights.
+						Interact with your body map to log discomfort areas or explore
+						general wellness tips.
 					</Text>
 
 					<View style={styles.bodyWrapper}>
@@ -456,7 +456,7 @@ export default function HomeScreen() {
 						</Suspense>
 					</View>
 
-					{/* Analyze Symptoms CTA */}
+					{/* Wellness Check CTA */}
 					{selectedZones.length > 0 && (
 						<TouchableOpacity
 							activeOpacity={0.8}
@@ -474,11 +474,19 @@ export default function HomeScreen() {
 						>
 							<Ionicons color="#FFF" name="analytics-outline" size={20} />
 							<Text style={styles.analyzeBtnText}>
-								Analyze {selectedZones.length} Symptom
+								Check {selectedZones.length} Zone
 								{selectedZones.length === 1 ? "" : "s"}
 							</Text>
 						</TouchableOpacity>
 					)}
+				</View>
+
+				{/* ── Wellness Disclaimer ── */}
+				<View style={styles.disclaimerBanner}>
+					<Ionicons color="#D97706" name="information-circle" size={18} />
+					<Text style={styles.disclaimerBannerText}>
+						EZCare is a lifestyle and wellness tool for educational purposes only. It does not provide medical advice, diagnoses, or treatment. Consult a healthcare professional for medical concerns.
+					</Text>
 				</View>
 
 				{/* ── Daily Check-In Card ── */}
@@ -604,7 +612,7 @@ export default function HomeScreen() {
 									{mission.title}
 								</Text>
 								<Text style={styles.actionSub}>
-									+{mission.healthPoints} pts to total Health Score
+									+{mission.healthPoints} pts to Wellness Score
 								</Text>
 							</View>
 							<Text style={{ fontSize: 11, color: GREY }}>
@@ -617,7 +625,7 @@ export default function HomeScreen() {
 				{/* ── Recent Analyses ── */}
 				{recentAnalyses.length > 0 && (
 					<View style={{ marginBottom: 24 }}>
-						<Text style={styles.sectionTitle}>Recent Analyses</Text>
+						<Text style={styles.sectionTitle}>Recent Wellness Checks</Text>
 						<ScrollView
 							contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
 							horizontal
@@ -707,6 +715,27 @@ const styles = StyleSheet.create({
 	safe: { flex: 1, backgroundColor: BG },
 	scroll: { flex: 1 },
 	content: { paddingBottom: 32 },
+
+	// Disclaimer
+	disclaimerBanner: {
+		flexDirection: "row",
+		alignItems: "center",
+		backgroundColor: "#FFFBEB",
+		marginHorizontal: 20,
+		marginBottom: 16,
+		padding: 12,
+		borderRadius: 12,
+		borderWidth: 1,
+		borderColor: "#FDE68A",
+		gap: 8,
+	},
+	disclaimerBannerText: {
+		flex: 1,
+		fontSize: 11,
+		color: "#92400E",
+		lineHeight: 16,
+		fontWeight: "500",
+	},
 
 	// Header
 	header: {

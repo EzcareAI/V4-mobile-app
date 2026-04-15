@@ -19,58 +19,76 @@ function getClient() {
 
 export interface AnalysisRequest {
 	zones: string[];
-	symptomsDescription: string;
+	description: string;
 	painLevel: number;
 	imageBase64?: string;
+	/** @deprecated Use description instead */
+	symptomsDescription?: string;
 }
 
 export interface AnalysisResponse {
-	probableCauses: Array<{
+	wellnessTips: Array<{
 		name: string;
 		description: string;
-		likelihood: number; // Percentage (0 to 100)
 	}>;
-	actionPlan: Array<{
+	wellnessSuggestions: Array<{
 		day: number;
 		activity: string;
 		duration: string;
 	}>;
 	disclaimer: string;
+	/** @deprecated Use wellnessTips instead. Kept for backward compat with saved history. */
+	probableCauses?: Array<{
+		name: string;
+		description: string;
+		likelihood?: number;
+	}>;
+	/** @deprecated Use wellnessSuggestions instead. Kept for backward compat with saved history. */
+	actionPlan?: Array<{
+		day: number;
+		activity: string;
+		duration: string;
+	}>;
 }
 
 const SYSTEM_PROMPT = `
-You are EZBuddy, an empathetic AI wellness companion embedded in a lifestyle and wellness tracking app.
+You are EZBuddy, a friendly AI lifestyle and wellness companion embedded in a general wellness tracking app.
 A user has selected specific body zones where they are experiencing discomfort and provided details.
 
-**CRITICAL — THIS IS NOT A MEDICAL APP:**
-You are NOT a doctor, nurse, or healthcare professional of any kind. This app does NOT provide medical advice, medical diagnoses, clinical assessments, or treatment recommendations. You MUST NOT use clinical or diagnostic language such as "diagnosis", "condition", "treatment", "prescribe", or "prognosis".
+**CRITICAL — THIS IS NOT A MEDICAL APP. YOU ARE NOT A HEALTHCARE PROVIDER.**
+You are NOT a doctor, nurse, or healthcare professional of any kind. This app does NOT provide medical advice, medical diagnoses, clinical assessments, or treatment recommendations.
 
-Instead, frame everything as general wellness observations and lifestyle suggestions. Use phrases like "possible lifestyle factor", "general wellness tip", and "comfort suggestion". These are only *possible lifestyle and comfort-related factors* based on their inputs and are NOT a clinical diagnosis or medical opinion.
+You MUST NOT:
+- Use clinical or diagnostic language such as "diagnosis", "condition", "treatment", "prescribe", "prognosis", "symptom", or "cause"
+- Suggest any specific medical conditions or diseases
+- Provide percentage-based confidence or likelihood scores
+- Imply that your output replaces professional medical consultation
 
-If the user describes anything that sounds serious (e.g., chest pain, numbness, sudden severe symptoms, difficulty breathing), you MUST strongly advise them to contact a healthcare professional or emergency services immediately and NOT provide any wellness suggestions for those symptoms.
+Instead, frame everything as general lifestyle observations and comfort tips. Use phrases like "lifestyle factor", "general comfort tip", and "self-care idea".
+
+If the user describes anything that sounds serious (e.g., chest pain, numbness, sudden severe symptoms, difficulty breathing), you MUST respond ONLY with a strong recommendation to contact a healthcare professional or emergency services immediately. Do NOT provide any other suggestions for those inputs.
 
 **OUTPUT FORMAT:**
 You MUST return your entire response as a strictly valid, minified JSON object matching the following structure exactly, with NO markdown formatting, NO markdown code block wrappers (like \`\`\`json), and NO conversational prefixes or suffixes. It must be strictly parseable by JSON.parse().
 
 {
-  "disclaimer": "This information is for general wellness and educational purposes only. It is NOT medical advice, a medical diagnosis, or a treatment plan. EZCare is a wellness tracking tool, not a medical device. Always consult a qualified healthcare professional for any health concerns or before making changes to your health routine.",
-  "probableCauses": [
+  "disclaimer": "This information is for general lifestyle and educational purposes only. It is NOT medical advice, a diagnosis, or a treatment plan. EZCare is a wellness and lifestyle tracking tool, not a medical device or service. Always consult a qualified healthcare professional for any health concerns.",
+  "wellnessTips": [
     {
-      "name": "String: Name of possible lifestyle or comfort factor (e.g., 'Muscle Tension from Posture'). Do NOT use clinical or diagnostic terms.",
-      "description": "String: Brief general wellness explanation. Do NOT diagnose or suggest treatments.",
-      "likelihood": number // A general relevance score from 0 to 100 (e.g., 70). This is NOT a diagnostic confidence level.
+      "name": "String: Name of a general lifestyle or comfort factor (e.g., 'Posture Habits'). Do NOT use clinical terms or imply a diagnosis.",
+      "description": "String: A brief, general lifestyle observation. Do NOT diagnose or suggest treatments."
     }
   ],
-  "actionPlan": [
+  "wellnessSuggestions": [
     {
       "day": number,
-      "activity": "String: e.g., 'Gentle stretching and rest'",
+      "activity": "String: e.g., 'Gentle stretching and relaxation'",
       "duration": "String: e.g., '5 mins'"
     }
   ]
 }
 
-Provide a 7-day general wellness suggestion plan (Days 1 through 7) consisting of self-care activities like rest, gentle stretching, or relaxation techniques appropriate for general comfort. Each day should have a distinct suggestion. These are NOT treatment plans and must NOT reference specific medical conditions — always recommend seeing a healthcare professional for persistent or worsening discomfort.
+Provide a 7-day general self-care idea list (Days 1 through 7) with activities like rest, gentle stretching, or relaxation techniques for general comfort. Each day should have a distinct idea. These are NOT treatment plans and must NOT reference specific medical conditions. Always recommend consulting a healthcare professional for persistent or worsening discomfort.
 `;
 
 export const aiAnalysisService = {
@@ -79,11 +97,11 @@ export const aiAnalysisService = {
 
 		const textPrompt = `
 User Data:
-- Selected Body Zones: ${request.zones.join(", ") || "General Body Scan"}
-- Pain Level: ${request.painLevel}/10
-- Symptoms Description: "${request.symptomsDescription}"
+- Selected Body Zones: ${request.zones.join(", ") || "General Wellness Check"}
+- Discomfort Level: ${request.painLevel}/10
+- Description: "${request.description || request.symptomsDescription}"
 
-Analyze the above (taking the provided image into account if present) and provide the result strictly in the requested JSON format.
+Based on the above general wellness inputs (and the provided image if present), provide lifestyle comfort tips and self-care ideas strictly in the requested JSON format.
 `;
 
 		try {
@@ -122,7 +140,7 @@ Analyze the above (taking the provided image into account if present) and provid
 			return JSON.parse(cleanJson) as AnalysisResponse;
 		} catch (error) {
 			console.error("[AI Analysis] Failed to generate plan:", error);
-			throw new Error("Unable to analyze symptoms at this time.");
+			throw new Error("Unable to generate wellness insights at this time.");
 		}
 	},
 };

@@ -26,6 +26,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	ActivityIndicator,
 	Alert,
+	Dimensions,
 	Image,
 	Keyboard,
 	KeyboardAvoidingView,
@@ -64,6 +65,7 @@ interface Message {
 	role: "user" | "assistant";
 	content: string;
 	imageUri?: string;
+	docName?: string;
 }
 
 function ChatScreen() {
@@ -72,7 +74,7 @@ function ChatScreen() {
 		{
 			id: "1",
 			role: "assistant",
-			content: `Hi ${firstName || "there"}! I'm EZBuddy. I see your health score is currently ${healthScore || "--"}. How can I help you today?`,
+			content: `Hi ${firstName || "there"}! I'm EZBuddy, your lifestyle wellness companion. Your current wellness score is ${healthScore || "--"}. How can I help you with your wellness journey today?`,
 		},
 	]);
 	const [input, setInput] = useState("");
@@ -175,6 +177,7 @@ function ChatScreen() {
 					mediaType,
 				});
 				setAttachedDoc(null);
+				setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 200);
 			}
 		} else {
 			const { status } = await requestMediaLibraryPermissionsAsync();
@@ -205,6 +208,7 @@ function ChatScreen() {
 					mediaType,
 				});
 				setAttachedDoc(null);
+				setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 200);
 			}
 		}
 	};
@@ -221,6 +225,7 @@ function ChatScreen() {
 				const text = await readAsStringAsync(asset.uri);
 				setAttachedDoc({ name: asset.name, text: text.slice(0, 8000) }); // cap at 8k chars
 				setAttachedImage(null);
+				setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 200);
 			} catch {
 				Alert.alert(
 					"File Error",
@@ -303,21 +308,19 @@ function ChatScreen() {
 			return;
 		}
 
-		// Build the display message
-		let displayText = userText;
-		if (docSnap) {
-			displayText = `📄 **${docSnap.name}**\n${userText}`;
-		}
-
 		const userMsg: Message = {
 			id: Date.now().toString(),
 			role: "user",
-			content: displayText,
+			content: userText,
 			imageUri: imgSnap?.uri,
+			docName: docSnap?.name,
 		};
 		const newMessages = [...messages, userMsg];
 		setMessages(newMessages);
 		setIsLoading(true);
+
+		// Scroll to show the new message
+		setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
 
 		try {
 			// Build Anthropic message content for the last user turn (multimodal)
@@ -363,7 +366,7 @@ function ChatScreen() {
 				model: "claude-3-haiku-20240307",
 				max_tokens: 2048,
 				system:
-					"You are EZBuddy, a premium health and wellness AI assistant. Provide long, empathetic, context-rich, and highly actionable responses. Always use relevant emojis to make the conversation feel premium and engaging. Use Markdown formatting (bolding important terms, using italics for emphasis) to help the user parse information easily. Focus on holistic wellness, nutrition, and exercise advice.",
+					"You are EZBuddy, a friendly lifestyle and wellness companion. You are NOT a doctor, nurse, or medical professional. You do NOT provide medical advice, diagnoses, or treatment recommendations. Never use clinical or diagnostic language. If a user describes serious symptoms, advise them to contact a healthcare professional immediately. Provide general lifestyle tips about wellness, nutrition, exercise, and self-care. Always include a reminder that your suggestions are for general informational and educational purposes only and are not a substitute for professional medical advice. Use relevant emojis and Markdown formatting to make responses engaging.",
 				messages: [...priorApiMessages, { role: "user", content: userContent }],
 			});
 
@@ -382,6 +385,7 @@ function ChatScreen() {
 				...prev,
 				{ id: `${Date.now()}-ai`, role: "assistant", content: assistantReply },
 			]);
+			setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
 		} catch (_error) {
 			setMessages((prev) => [
 				...prev,
@@ -486,13 +490,21 @@ function ChatScreen() {
 										<Image
 											resizeMode="cover"
 											source={{ uri: m.imageUri }}
-											style={styles.attachedImage}
+											style={styles.chatImage}
 										/>
 									)}
+									{m.docName && (
+										<View style={styles.docBubble}>
+											<Ionicons color="#3EC9B5" name="document-text" size={22} />
+											<Text style={styles.docBubbleName} numberOfLines={1}>{m.docName}</Text>
+										</View>
+									)}
 									{isUser ? (
-										<Text style={[styles.messageText, styles.userText]}>
-											{m.content}
-										</Text>
+										m.content ? (
+											<Text style={[styles.messageText, styles.userText]}>
+												{m.content}
+											</Text>
+										) : null
 									) : (
 										<Markdown
 											style={{
@@ -526,7 +538,7 @@ function ChatScreen() {
 						</View>
 					)}
 					{/* Draft Staging Bubble */}
-					{(attachedImage || (attachedDoc && input.trim())) && (
+					{(attachedImage || attachedDoc) && (
 						<View style={[styles.messageBubble, styles.userBubble]}>
 							<View
 								style={[
@@ -538,15 +550,20 @@ function ChatScreen() {
 								{attachedImage && (
 									<Image
 										source={{ uri: attachedImage.uri }}
-										style={styles.attachedImage}
+										style={styles.chatImage}
 									/>
 								)}
-								{(input.trim() || attachedDoc) && (
+								{attachedDoc && (
+									<View style={styles.docBubble}>
+										<Ionicons color="#3EC9B5" name="document-text" size={22} />
+										<Text style={styles.docBubbleName} numberOfLines={1}>{attachedDoc.name}</Text>
+									</View>
+								)}
+								{input.trim() ? (
 									<Text style={[styles.messageText, styles.userText]}>
-										{attachedDoc ? `📄 ${attachedDoc.name}\n` : ""}
 										{input}
 									</Text>
-								)}
+								) : null}
 								<View style={styles.draftBadge}>
 									<Text style={styles.draftBadgeText}>Draft</Text>
 								</View>
@@ -786,7 +803,7 @@ const styles = StyleSheet.create({
 		marginBottom: 4,
 	},
 	messageCard: {
-		maxWidth: "80%",
+		maxWidth: Dimensions.get("window").width > 600 ? 480 : "80%",
 		paddingHorizontal: 16,
 		paddingVertical: 12,
 		borderRadius: 20,
@@ -811,6 +828,31 @@ const styles = StyleSheet.create({
 		height: 160,
 		borderRadius: 12,
 		marginBottom: 8,
+	},
+	chatImage: {
+		width: "100%",
+		aspectRatio: 4 / 3,
+		borderRadius: 12,
+		marginBottom: 8,
+		maxHeight: Math.min(Dimensions.get("window").height * 0.25, 220),
+	},
+	docBubble: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 10,
+		backgroundColor: "rgba(62,201,181,0.08)",
+		borderWidth: 1,
+		borderColor: "rgba(62,201,181,0.25)",
+		borderRadius: 12,
+		paddingHorizontal: 14,
+		paddingVertical: 10,
+		marginBottom: 8,
+	},
+	docBubbleName: {
+		flex: 1,
+		color: "#E2E8F0",
+		fontSize: 14,
+		fontWeight: "600",
 	},
 	// Attachment preview bar
 	previewBar: {

@@ -180,10 +180,10 @@ export default function PaywallScreen() {
 					/>
 					<View className="absolute top-0 right-0 -mt-20 -mr-20 h-64 w-64 rounded-full bg-blue-50/50 opacity-50" />
 
-					<Text className="text-center font-bold text-[32px] text-ezcare-navy leading-10 tracking-tight">
-						Unlock Your Full{"\n"}Health Core
+					<Text className="text-center font-bold text-[26px] sm:text-[32px] text-ezcare-navy leading-9 tracking-tight">
+						Unlock Your Full{"\n"}Wellness Journey
 					</Text>
-					<Text className="mt-4 text-center text-[17px] text-ezcare-slate leading-6">
+					<Text className="mt-4 text-center text-[15px] text-ezcare-slate leading-6">
 						Get personalized plans, daily check-ins, and continuous AI guidance
 					</Text>
 				</View>

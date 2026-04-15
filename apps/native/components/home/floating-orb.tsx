@@ -63,7 +63,7 @@ export function FloatingOrb() {
 		},
 		{
 			id: "scan",
-			label: "Scan Symptom",
+			label: "Wellness Scan",
 			icon: <Activity color="#3EC9B5" size={18} />,
 			onPress: () => {
 				setExpanded(false);

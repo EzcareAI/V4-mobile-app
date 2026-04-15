@@ -53,11 +53,14 @@ export default function AnalyzeSymptomsScreen() {
 				.then(({ data, error: fetchErr }) => {
 					if (data && !fetchErr) {
 						setActiveZones(data.zones || []);
+						// Support both old (probableCauses/actionPlan) and new (wellnessTips/wellnessSuggestions) history records
+						const tips = data.wellness_tips || data.probable_causes || [];
+						const suggestions = data.wellness_suggestions || data.action_plan || [];
 						setAnalysis({
-							probableCauses: data.probable_causes,
-							actionPlan: data.action_plan,
+							wellnessTips: tips.map((t: any) => ({ name: t.name, description: t.description })),
+							wellnessSuggestions: suggestions,
 							disclaimer:
-								"This is a past wellness check from your history. This is for educational purposes only — not medical advice, diagnosis, or treatment. Always consult a healthcare professional for health concerns.",
+								"This is a past wellness check from your history. This is for general lifestyle and educational purposes only — not medical advice, diagnosis, or treatment. Always consult a healthcare professional for health concerns.",
 						});
 						setPhase("results");
 					} else {
@@ -78,7 +81,7 @@ export default function AnalyzeSymptomsScreen() {
 
 	const handleAnalyze = async () => {
 		if (description.trim().length < 5) {
-			setError("Please provide a little more detail about your symptoms.");
+			setError("Please provide a little more detail about what you're experiencing.");
 			return;
 		}
 
@@ -110,9 +113,9 @@ export default function AnalyzeSymptomsScreen() {
 			}
 
 			const res = await aiAnalysisService.analyzeSymptoms({
-				zones: activeZones.length > 0 ? activeZones : ["General Body Scan"],
+				zones: activeZones.length > 0 ? activeZones : ["General Wellness Check"],
 				painLevel,
-				symptomsDescription: description,
+				description,
 				imageBase64: imageBase64 || undefined,
 			});
 			setAnalysis(res);
@@ -123,7 +126,7 @@ export default function AnalyzeSymptomsScreen() {
 		} catch (err: unknown) {
 			console.error("Analysis Failed:", err);
 			setError(
-				"We had trouble analyzing your symptoms. Please try again later."
+				"We had trouble generating wellness insights. Please try again later."
 			);
 			setPhase("input");
 		}
@@ -175,10 +178,10 @@ export default function AnalyzeSymptomsScreen() {
 					.from("health_analyses")
 					.insert({
 						user_id: session.user.id,
-						zones: activeZones.length > 0 ? activeZones : ["General Body Scan"],
-						symptoms_description: `Pain level ${painLevel}/10. ${description}`,
-						probable_causes: analysis.probableCauses,
-						action_plan: analysis.actionPlan,
+						zones: activeZones.length > 0 ? activeZones : ["General Wellness Check"],
+						symptoms_description: `Discomfort level ${painLevel}/10. ${description}`,
+						probable_causes: analysis.wellnessTips,
+						action_plan: analysis.wellnessSuggestions,
 						image_url: uploadedImageUrl,
 					});
 
@@ -237,7 +240,7 @@ export default function AnalyzeSymptomsScreen() {
 					<View style={styles.disclaimerBox}>
 						<Ionicons color="#E53E3E" name="warning" size={20} />
 						<Text style={styles.disclaimerText}>
-							EZCare is a wellness tracking tool, not a medical device. The insights provided are for general wellness and educational purposes only — not medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional for health concerns.
+							EZCare is a lifestyle and wellness tracking tool — not a medical device or service. The information provided is for general lifestyle and educational purposes only. It is NOT medical advice, a diagnosis, or a treatment plan. Always consult a qualified healthcare professional for any health concerns.
 						</Text>
 					</View>
 					<View style={styles.card}>
@@ -245,7 +248,7 @@ export default function AnalyzeSymptomsScreen() {
 						<Text style={styles.cardSub}>
 							You selected:{" "}
 							<Text style={{ fontWeight: "bold", color: TEAL }}>
-								{activeZones.length > 0 ? activeZones.join(", ") : "Manual General Scan"}
+								{activeZones.length > 0 ? activeZones.join(", ") : "General Wellness Check"}
 							</Text>
 						</Text>
 
@@ -312,10 +315,10 @@ export default function AnalyzeSymptomsScreen() {
 				{phase === "loading" && (
 					<View style={styles.loadingCard}>
 						<ActivityIndicator color={TEAL} size="large" />
-						<Text style={styles.loadingTitle}>Checking Wellness Insights...</Text>
+						<Text style={styles.loadingTitle}>Generating Wellness Tips...</Text>
 						<Text style={styles.loadingSub}>
-							Reviewing general wellness information to identify possible
-							comfort factors related to {activeZones.join(", ")} discomfort.
+							Reviewing general lifestyle information to provide
+							comfort tips related to {activeZones.join(", ")} discomfort.
 						</Text>
 					</View>
 				)}
@@ -328,45 +331,16 @@ export default function AnalyzeSymptomsScreen() {
 							<Text style={styles.disclaimerText}>{analysis.disclaimer}</Text>
 						</View>
 
-						<Text style={styles.sectionHeading}>Possible Factors</Text>
-						{analysis.probableCauses.map((cause, idx) => (
+						<Text style={styles.sectionHeading}>Lifestyle & Comfort Tips</Text>
+						{(analysis.wellnessTips || analysis.probableCauses || []).map((tip, idx) => (
 							<View key={idx} style={styles.resultCard}>
-								<View style={styles.causeHeader}>
-									<Text style={styles.causeName}>{cause.name}</Text>
-									<View style={styles.percentWrap}>
-										<Text
-											style={[
-												styles.percentText,
-												cause.likelihood >= 70 && { color: "#C53030" },
-												cause.likelihood >= 40 &&
-													cause.likelihood < 70 && { color: "#B7791F" },
-												cause.likelihood < 40 && { color: "#2F855A" },
-											]}
-										>
-											{cause.likelihood}% Relevance
-										</Text>
-									</View>
-								</View>
-
-								{/* Premium Progress Bar */}
-								<View style={styles.barTrack}>
-									<View
-										style={[
-											styles.barFill,
-											{ width: `${cause.likelihood}%` },
-											cause.likelihood >= 70 && { backgroundColor: "#FC8181" },
-											cause.likelihood >= 40 &&
-												cause.likelihood < 70 && { backgroundColor: "#F6E05E" },
-											cause.likelihood < 40 && { backgroundColor: "#68D391" },
-										]}
-									/>
-								</View>
-								<Text style={styles.causeDesc}>{cause.description}</Text>
+								<Text style={styles.causeName}>{tip.name}</Text>
+								<Text style={[styles.causeDesc, { marginTop: 8 }]}>{tip.description}</Text>
 							</View>
 						))}
 
-						<Text style={styles.sectionHeading}>Suggested Wellness Steps</Text>
-						{analysis.actionPlan.map((plan, idx) => (
+						<Text style={styles.sectionHeading}>Self-Care Ideas</Text>
+						{(analysis.wellnessSuggestions || analysis.actionPlan || []).map((plan, idx) => (
 							<View key={idx} style={styles.planCard}>
 								<View style={styles.planDayBadge}>
 									<Text style={styles.planDayText}>Day {plan.day}</Text>

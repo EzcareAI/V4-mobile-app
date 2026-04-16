@@ -19,6 +19,7 @@ import type {
 	PurchasesPackage,
 } from "react-native-purchases";
 
+import { apptroveService } from "@/lib/apptrove-service";
 import { revenueCatService } from "@/lib/revenuecat-service";
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -120,6 +121,11 @@ export default function PaywallScreen() {
 				setPro(true);
 				setAnswer("subscriptionStatus", "active");
 				setAnswer("paymentAttempted", true);
+				apptroveService.trackSubscribe(
+					pkg.product.identifier,
+					pkg.product.price,
+					pkg.product.currencyCode
+				);
 
 				// Log success
 				await supabase.from("events").insert([

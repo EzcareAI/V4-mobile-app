@@ -17,6 +17,7 @@ import {
 	View,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
+import { apptroveService } from "@/lib/apptrove-service";
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
@@ -84,6 +85,7 @@ export function AccountCreationScreen() {
 
 		setAnswer("email", email);
 		setAnswer("authMethod", "email");
+		apptroveService.trackRegistration(data.user?.id ?? "", email, "email");
 		nextStep();
 		router.push("/(onboarding)/23");
 	};
@@ -153,6 +155,7 @@ export function AccountCreationScreen() {
 							setAnswer("email", userEmail);
 						}
 						setAnswer("authMethod", provider);
+						apptroveService.trackRegistration(tokenSession.user.id, userEmail, provider);
 						nextStep();
 						router.push("/(onboarding)/23");
 					}
@@ -169,6 +172,7 @@ export function AccountCreationScreen() {
 					setAnswer("email", userEmail);
 				}
 				setAnswer("authMethod", provider);
+				apptroveService.trackRegistration(sessionData.user.id, userEmail, provider);
 				nextStep();
 				router.push("/(onboarding)/23");
 			}
@@ -220,6 +224,7 @@ export function AccountCreationScreen() {
 						setAnswer("firstName", credential.fullName.givenName);
 					}
 					setAnswer("authMethod", "apple");
+					apptroveService.trackRegistration(data.user.id, userEmail, "apple");
 					nextStep();
 					router.push("/(onboarding)/23");
 				}

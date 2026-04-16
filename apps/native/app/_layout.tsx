@@ -7,6 +7,7 @@ import { Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { AppThemeProvider } from "@/contexts/app-theme-context";
+import { apptroveService } from "@/lib/apptrove-service";
 import { authClient } from "@/lib/auth-client";
 import { revenueCatService } from "@/lib/revenuecat-service";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -144,6 +145,10 @@ const Layout = () => {
 			setPro(isPro);
 		};
 		initRevenueCat();
+
+		// Initialize Apptrove SDK for affiliate & install tracking
+		apptroveService.initialize();
+		apptroveService.trackAppOpen();
 	}, [setPro]);
 
 	return (

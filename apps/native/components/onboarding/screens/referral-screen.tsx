@@ -145,7 +145,7 @@ export const ReferralScreen = () => {
 										setErrorMsg("");
 										setAnswer("referralCode", val.toUpperCase());
 									}}
-									placeholder="e.g., HEALTH2024"
+									placeholder="e.g., EZCARE2024"
 									placeholderTextColor="#94a3b8"
 									value={referralCode}
 								/>

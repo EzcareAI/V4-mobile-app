@@ -102,7 +102,7 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 					<Text className="mt-4 text-center font-medium text-[#60708F] text-lg leading-6">
 						{isReinforcement
 							? "Most people never take this step — you already did."
-							: "Your personalized health strategy is coming together."}
+							: "Your personalized wellness strategy is coming together."}
 					</Text>
 
 					{/* Premium Animated Graph Card */}

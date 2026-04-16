@@ -180,7 +180,7 @@ export default function BodyDiagramScreen() {
 												marginTop: 4,
 											}}
 										>
-											Skip zones — scan your full health picture
+											Skip zones — check your full wellness picture
 										</Text>
 									</View>
 

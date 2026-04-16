@@ -102,7 +102,7 @@ export function OverallPriorityScreen() {
 						<StepHeader
 							align="center"
 							className="mt-6"
-							description="We'll focus your plan on this priority while keeping your overall health on track."
+							description="We'll focus your plan on this priority while keeping your overall wellness on track."
 							title="What matters most?"
 						/>
 

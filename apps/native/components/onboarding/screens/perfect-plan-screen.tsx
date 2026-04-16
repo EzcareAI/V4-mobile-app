@@ -151,7 +151,7 @@ export default function PerfectPlanScreen() {
 								<View className="mb-6 h-1.5 w-16 rounded-full bg-white/30" />
 								<Text className="font-semibold text-[22px] text-white leading-8">
 									Your body is responding beautifully. Every small action today
-									creates a massive ripple for your future health.
+									creates a massive ripple for your future wellbeing.
 								</Text>
 							</LinearGradient>
 						</View>

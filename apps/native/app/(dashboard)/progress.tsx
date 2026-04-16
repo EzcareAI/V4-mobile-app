@@ -417,7 +417,7 @@ export default function ProgressScreen() {
 	const activeSymptoms = [
 		mkSymptom("sleep", "Sleep Quality", "🌙"),
 		mkSymptom("energy", "Energy Levels", "⚡"),
-		mkSymptom("digestion", "Digestive Health", "🍏"),
+		mkSymptom("digestion", "Digestive Wellness", "🍏"),
 		mkSymptom("stress", "Stress Management", "💗"),
 	];
 

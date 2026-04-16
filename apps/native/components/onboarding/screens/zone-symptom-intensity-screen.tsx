@@ -70,7 +70,7 @@ export function ZoneSymptomIntensityScreen() {
 										elevation: 10,
 									}}
 								>
-									<Text style={{ fontSize: 48 }}>🤒</Text>
+									<Text style={{ fontSize: 48 }}>🎯</Text>
 								</LinearGradient>
 								<View
 									className="absolute -top-1 -right-1 h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-blue-400"
@@ -131,12 +131,12 @@ export function ZoneSymptomIntensityScreen() {
 
 						<View className="mt-8 overflow-hidden rounded-2xl bg-white p-4 shadow-sm">
 							<Text className="mb-3 font-semibold text-[#0d2137] text-xs uppercase tracking-wider">
-								Pain Scale Visual
+								Comfort Scale
 							</Text>
 							<View className="h-2 rounded-full bg-gradient-to-r from-green-400 via-amber-400 to-red-500" />
 							<View className="mt-2 flex-row justify-between">
 								<Text className="font-medium text-[#64748B] text-xs">
-									No pain
+									Comfortable
 								</Text>
 								<Text className="font-medium text-[#64748B] text-xs">
 									Unbearable

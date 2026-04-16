@@ -102,7 +102,7 @@ export function OverallMotivationScreen() {
 
 						<StepHeader
 							className="mt-8"
-							description="What drives you to make health changes?"
+							description="What drives you to make positive changes?"
 							title="What motivates you?"
 						/>
 

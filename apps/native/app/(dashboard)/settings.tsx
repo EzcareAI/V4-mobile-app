@@ -328,7 +328,7 @@ export default function SettingsScreen() {
 									onPress: () => {
 										Alert.alert(
 											"Are you absolutely sure?",
-											"Your health data, progress, and subscription will be permanently erased.",
+											"Your wellness data, progress, and subscription will be permanently erased.",
 											[
 												{ text: "Cancel", style: "cancel" },
 												{

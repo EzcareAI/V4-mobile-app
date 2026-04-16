@@ -31,7 +31,7 @@ export function OverallBlockerScreen() {
 		{
 			value: "time",
 			label: "⏱️ Lack of Time",
-			desc: "Too busy for health routines",
+			desc: "Too busy for wellness routines",
 		},
 		{
 			value: "consistency",
@@ -46,7 +46,7 @@ export function OverallBlockerScreen() {
 		{
 			value: "stress",
 			label: "⚡ Stress",
-			desc: "Too stressed to focus on health",
+			desc: "Too stressed to focus on wellness",
 		},
 		{ value: "other", label: "🎯 Other", desc: "Something else" },
 	];
@@ -98,7 +98,7 @@ export function OverallBlockerScreen() {
 
 						<StepHeader
 							className="mt-8"
-							description="What makes it hardest to reach your health goals?"
+							description="What makes it hardest to reach your wellness goals?"
 							title="What's blocking you?"
 						/>
 

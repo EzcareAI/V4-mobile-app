@@ -38,7 +38,7 @@ const ZONE_NAMES: Record<string, string> = {
 	head: "Mental Clarity",
 	chest: "Respiratory",
 	stomach: "Digestion",
-	joints: "Joint Health",
+	joints: "Joint Comfort",
 	inflammation: "Immune System",
 	energy: "Energy Levels",
 };

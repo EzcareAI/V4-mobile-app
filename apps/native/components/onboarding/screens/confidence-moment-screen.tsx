@@ -11,16 +11,16 @@ const BENEFITS = [
 	{
 		emoji: "🎯",
 		title: "Personalized 7-day roadmap",
-		desc: "A step-by-step natural health plan built around your answers.",
+		desc: "A step-by-step wellness plan built around your answers.",
 	},
 	{
 		emoji: "🤖",
 		title: "EZBuddy AI guidance",
-		desc: "Your AI health coach available 24/7 to support your journey.",
+		desc: "Your AI wellness companion available 24/7 to support your journey.",
 	},
 	{
 		emoji: "📊",
-		title: "Health score & progress tracking",
+		title: "Wellness score & progress tracking",
 		desc: "Watch your wellbeing improve with measurable milestones.",
 	},
 	{
@@ -31,7 +31,7 @@ const BENEFITS = [
 ];
 
 const BADGES = [
-	{ emoji: "✓", label: "Clinically\nTrusted" },
+	{ emoji: "✓", label: "Science-Based\nApproach" },
 	{ emoji: "🌿", label: "100%\nNatural" },
 	{ emoji: "🔒", label: "Your Data\nProtected" },
 ];
@@ -166,7 +166,7 @@ export function ConfidenceMomentScreen() {
 						<StepHeader
 							align="center"
 							className="mt-6"
-							description="You've given us exactly what we need to build your personalized health plan."
+							description="You've given us exactly what we need to build your personalized wellness plan."
 							hideIcon={true}
 							title="Great job!"
 						/>

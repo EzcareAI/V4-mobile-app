@@ -34,7 +34,8 @@
     "db:generate": "turbo -F @ezcare/db db:generate",
     "db:migrate": "turbo -F @ezcare/db db:migrate",
     "prebuild": "bun --cwd apps/native expo prebuild",
-    "expo": "bun --cwd apps/native expo"
+    "expo": "bun --cwd apps/native expo",
+    "postinstall": "node apps/native/scripts/patch-voice-gradle.js && node apps/native/scripts/patch-metro-cache.js"
   },
   "dependencies": {
     "@ezcare/env": "workspace:*",

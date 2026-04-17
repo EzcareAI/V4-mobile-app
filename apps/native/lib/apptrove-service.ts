@@ -1,8 +1,10 @@
-import {
-	ApptroveConfig,
-	ApptroveSDK,
-	ApptroveEvent,
-} from "react-native-apptrove";
+/**
+ * Apptrove SDK service — stub implementation.
+ *
+ * The react-native-apptrove package will be added once the bun workspace
+ * lockfile resolution is sorted. All methods are safe no-ops until then.
+ * TODO: Restore full implementation when react-native-apptrove is in bun.lock
+ */
 
 const APPTROVE_SDK_KEY = "ff84ab36-6665-46c1-a3bf-fbd4df1199a0";
 
@@ -19,77 +21,21 @@ class ApptroveService {
 		return ApptroveService.instance;
 	}
 
-	/**
-	 * Initialize the Apptrove SDK. Call once early in the app lifecycle.
-	 */
 	initialize(): void {
-		if (this.initialized) return;
-
-		try {
-			const config = new ApptroveConfig(
-				APPTROVE_SDK_KEY,
-				ApptroveConfig.EnvironmentProduction
-			);
-
-			config.setDeferredDeeplinkCallbackListener((deepLinkData: any) => {
-				console.log("[Apptrove] Deferred deeplink:", deepLinkData?.url);
-			});
-
-			ApptroveSDK.initialize(config);
-			this.initialized = true;
-			console.log("[Apptrove] SDK initialized");
-		} catch (error) {
-			console.error("[Apptrove] Init error:", error);
-		}
+		// Stub — will initialize react-native-apptrove when package is available
+		console.log("[Apptrove] Stub — SDK not yet integrated in binary");
 	}
 
-	/**
-	 * Track APP_OPEN event.
-	 */
 	trackAppOpen(): void {
-		if (!this.initialized) return;
-		try {
-			const event = new ApptroveEvent(ApptroveEvent.APP_OPEN);
-			ApptroveSDK.trackEvent(event);
-		} catch (error) {
-			console.error("[Apptrove] trackAppOpen error:", error);
-		}
+		// no-op
 	}
 
-	/**
-	 * Track COMPLETE_REGISTRATION after account creation.
-	 */
-	trackRegistration(userId: string, email?: string, method?: string): void {
-		if (!this.initialized) return;
-		try {
-			const event = new ApptroveEvent(ApptroveEvent.COMPLETE_REGISTRATION);
-			event.param1 = method ?? "unknown";
-			if (userId) ApptroveSDK.setUserId(userId);
-			if (email) ApptroveSDK.setUserEmail(email);
-			ApptroveSDK.trackEvent(event);
-		} catch (error) {
-			console.error("[Apptrove] trackRegistration error:", error);
-		}
+	trackRegistration(_userId: string, _email?: string, _method?: string): void {
+		// no-op
 	}
 
-	/**
-	 * Track SUBSCRIBE after a successful in-app purchase.
-	 */
-	trackSubscribe(
-		productId: string,
-		revenue: number,
-		currency: string = "USD"
-	): void {
-		if (!this.initialized) return;
-		try {
-			const event = new ApptroveEvent(ApptroveEvent.SUBSCRIBE);
-			event.param1 = productId;
-			event.revenue = revenue;
-			event.currency = currency;
-			ApptroveSDK.trackEvent(event);
-		} catch (error) {
-			console.error("[Apptrove] trackSubscribe error:", error);
-		}
+	trackSubscribe(_productId: string, _revenue: number, _currency: string = "USD"): void {
+		// no-op
 	}
 }
 

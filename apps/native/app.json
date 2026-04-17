@@ -51,7 +51,6 @@
         "NSSpeechRecognitionUsageDescription": "EZCare uses speech recognition to transcribe your voice messages.",
         "NSPhotoLibraryUsageDescription": "EZCare needs access to your photos to share them with EZBuddy.",
         "NSCameraUsageDescription": "EZCare needs access to your camera for wellness features and sharing with EZBuddy.",
-        "NSUserTrackingUsageDescription": "EZCare uses this data to improve your experience and measure campaign effectiveness.",
         "ITSAppUsesNonExemptEncryption": false
       }
     },

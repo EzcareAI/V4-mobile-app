@@ -1,12 +1,11 @@
 /**
- * Patches metro-cache to restore the deprecated `private/stores/` path.
- *
- * uniwind's compiled metro plugin requires:
+ * Patches metro & metro-cache to restore deprecated `private/` paths that
+ * uniwind's compiled metro plugin still requires:
  *   require('metro-cache/private/stores/FileStore')
+ *   require('metro/private/DeltaBundler/Graph')
  *
- * But metro-cache 0.83+ moved FileStore to `src/stores/FileStore`.
- * This script creates a `private/stores/FileStore.js` shim that
- * re-exports from the correct location.
+ * Both moved to `src/...` in metro 0.83+. We create shim files under
+ * `private/` that re-export from the corresponding `src/` location.
  */
 const fs = require("node:fs");
 const path = require("node:path");
@@ -20,72 +19,84 @@ const searchRoots = [
 
 let patched = 0;
 
-function patchMetroCache(metroCacheDir) {
-	const srcStores = path.join(metroCacheDir, "src", "stores");
-	const privateStores = path.join(metroCacheDir, "private", "stores");
+function shimDir(pkgDir, srcSubPath, privateSubPath, label) {
+	const srcDir = path.join(pkgDir, "src", ...srcSubPath);
+	const privateDir = path.join(pkgDir, "private", ...privateSubPath);
 
-	if (!fs.existsSync(srcStores)) return;
-	if (fs.existsSync(path.join(privateStores, "FileStore.js"))) {
-		console.log(`[patch-metro-cache] Already patched: ${metroCacheDir}`);
-		return;
-	}
+	if (!fs.existsSync(srcDir)) return 0;
 
-	fs.mkdirSync(privateStores, { recursive: true });
+	let created = 0;
+	fs.mkdirSync(privateDir, { recursive: true });
 
-	// Read src/stores/ and create shims for each .js file
-	const files = fs.readdirSync(srcStores).filter(f => f.endsWith(".js"));
-	for (const file of files) {
-		const shimPath = path.join(privateStores, file);
-		const relativePath = path.relative(privateStores, path.join(srcStores, file));
+	const jsFiles = fs.readdirSync(srcDir).filter(f => f.endsWith(".js"));
+	for (const file of jsFiles) {
+		const shimPath = path.join(privateDir, file);
+		if (fs.existsSync(shimPath)) continue;
+		const relativePath = path.relative(privateDir, path.join(srcDir, file));
 		const shimContent = `// Auto-generated shim — see scripts/patch-metro-cache.js\nmodule.exports = require('${relativePath.replace(/\\/g, "/")}');\n`;
 		fs.writeFileSync(shimPath, shimContent, "utf8");
+		created++;
 	}
 
-	// Also create .d.ts shims if they exist
-	const dtsFiles = fs.readdirSync(srcStores).filter(f => f.endsWith(".d.ts"));
+	const dtsFiles = fs.readdirSync(srcDir).filter(f => f.endsWith(".d.ts"));
 	for (const file of dtsFiles) {
-		const shimPath = path.join(privateStores, file);
-		if (!fs.existsSync(shimPath)) {
-			const relativePath = path.relative(privateStores, path.join(srcStores, file));
-			fs.writeFileSync(shimPath, `export * from '${relativePath.replace(/\\/g, "/")}';\n`, "utf8");
-		}
+		const shimPath = path.join(privateDir, file);
+		if (fs.existsSync(shimPath)) continue;
+		const relativePath = path.relative(privateDir, path.join(srcDir, file));
+		fs.writeFileSync(shimPath, `export * from '${relativePath.replace(/\\/g, "/")}';\n`, "utf8");
 	}
 
-	console.log(`[patch-metro-cache] Patched: ${metroCacheDir} (${files.length} shims)`);
-	patched++;
+	if (created > 0) {
+		console.log(`[patch-metro-cache] Patched ${label}: ${pkgDir} (${created} shims)`);
+		patched++;
+	}
+	return created;
+}
+
+function patchMetroCache(metroCacheDir) {
+	shimDir(metroCacheDir, ["stores"], ["stores"], "metro-cache/private/stores");
+}
+
+function patchMetro(metroDir) {
+	shimDir(metroDir, ["DeltaBundler"], ["DeltaBundler"], "metro/private/DeltaBundler");
+}
+
+function patchBunHoisted(bunDir, prefix, patcher) {
+	try {
+		const entries = fs.readdirSync(bunDir).filter(e => e.startsWith(prefix));
+		for (const entry of entries) {
+			const pkgName = prefix.replace(/@$/, "");
+			const pkgPath = path.join(bunDir, entry, "node_modules", pkgName);
+			if (fs.existsSync(pkgPath)) patcher(pkgPath);
+		}
+	} catch (e) {
+		console.warn(`[patch-metro-cache] Error scanning .bun for ${prefix}: ${e.message}`);
+	}
 }
 
 for (const root of searchRoots) {
 	const nodeModules = path.join(root, "node_modules");
 	if (!fs.existsSync(nodeModules)) continue;
 
-	// Direct metro-cache in node_modules/
-	const directPath = path.join(nodeModules, "metro-cache");
-	if (fs.existsSync(directPath)) {
-		patchMetroCache(directPath);
-	}
+	// Direct installs in node_modules/
+	const directMetroCache = path.join(nodeModules, "metro-cache");
+	if (fs.existsSync(directMetroCache)) patchMetroCache(directMetroCache);
 
-	// Bun hoisted: node_modules/.bun/metro-cache@*/node_modules/metro-cache
+	const directMetro = path.join(nodeModules, "metro");
+	if (fs.existsSync(directMetro)) patchMetro(directMetro);
+
+	// Bun hoisted: node_modules/.bun/<name>@*/node_modules/<name>
 	const bunDir = path.join(nodeModules, ".bun");
 	if (fs.existsSync(bunDir)) {
-		try {
-			const entries = fs.readdirSync(bunDir).filter(e => e.startsWith("metro-cache@"));
-			for (const entry of entries) {
-				const mcPath = path.join(bunDir, entry, "node_modules", "metro-cache");
-				if (fs.existsSync(mcPath)) {
-					patchMetroCache(mcPath);
-				}
-			}
-		} catch (e) {
-			console.warn(`[patch-metro-cache] Error scanning .bun dir: ${e.message}`);
-		}
+		patchBunHoisted(bunDir, "metro-cache@", patchMetroCache);
+		patchBunHoisted(bunDir, "metro@", patchMetro);
 	}
 
 	// Also check inside @expo/metro if it exists
 	const expoMetroCache = path.join(nodeModules, "@expo", "metro", "metro-cache");
-	if (fs.existsSync(expoMetroCache)) {
-		patchMetroCache(expoMetroCache);
-	}
+	if (fs.existsSync(expoMetroCache)) patchMetroCache(expoMetroCache);
+	const expoMetro = path.join(nodeModules, "@expo", "metro", "metro");
+	if (fs.existsSync(expoMetro)) patchMetro(expoMetro);
 }
 
 if (patched === 0) {

@@ -10,7 +10,7 @@
     "ios": "expo run:ios",
     "prebuild": "expo prebuild",
     "web": "expo start --web",
-    "postinstall": "node scripts/patch-voice-gradle.js"
+    "postinstall": "node scripts/patch-voice-gradle.js && node scripts/patch-metro-cache.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

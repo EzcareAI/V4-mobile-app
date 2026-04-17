@@ -20,6 +20,10 @@ import type {
 } from "react-native-purchases";
 
 import { apptroveService } from "@/lib/apptrove-service";
+import {
+	inferPlanFromPackageType,
+	mixpanelService,
+} from "@/lib/mixpanel-service";
 import { revenueCatService } from "@/lib/revenuecat-service";
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
@@ -94,7 +98,12 @@ export default function PaywallScreen() {
 				},
 			])
 			.then();
-	}, [onboardingRecordId]);
+
+		mixpanelService.trackSubscriptionCtaSeen({
+			source: "onboarding_paywall",
+			offering: offering?.identifier,
+		});
+	}, [onboardingRecordId, offering?.identifier]);
 
 	const handlePurchase = async (pkg: PurchasesPackage) => {
 		if (Platform.OS === "ios") {
@@ -126,6 +135,17 @@ export default function PaywallScreen() {
 					pkg.product.price,
 					pkg.product.currencyCode
 				);
+				mixpanelService.trackSubscriptionStart({
+					product_id: pkg.product.identifier,
+					plan: inferPlanFromPackageType(pkg.packageType),
+					type:
+						(pkg.product as unknown as { introPrice?: unknown }).introPrice !=
+						null
+							? "trial"
+							: "paid",
+					revenue: pkg.product.price,
+					currency: pkg.product.currencyCode,
+				});
 
 				// Log success
 				await supabase.from("events").insert([

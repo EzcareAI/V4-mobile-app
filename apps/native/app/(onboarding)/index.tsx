@@ -11,6 +11,7 @@ import {
 	View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { mixpanelService } from "@/lib/mixpanel-service";
 import { THEME } from "@/lib/theme";
 
 const logoSource = require("@/assets/images/EZCare_Logo.jpg");
@@ -26,6 +27,7 @@ export default function OnboardingIndex() {
 			});
 		}
 
+		mixpanelService.trackOnboardingStart();
 		router.push("/(onboarding)/1");
 	};
 

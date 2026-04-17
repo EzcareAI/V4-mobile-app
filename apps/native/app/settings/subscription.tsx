@@ -18,6 +18,10 @@ import type {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { apptroveService } from "@/lib/apptrove-service";
 import { authClient } from "@/lib/auth-client";
+import {
+	inferPlanFromPackageType,
+	mixpanelService,
+} from "@/lib/mixpanel-service";
 import { revenueCatService } from "@/lib/revenuecat-service";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
@@ -64,6 +68,17 @@ export default function SubscriptionScreen() {
 					pkg.product.price,
 					pkg.product.currencyCode
 				);
+				mixpanelService.trackSubscriptionStart({
+					product_id: pkg.product.identifier,
+					plan: inferPlanFromPackageType(pkg.packageType),
+					type:
+						(pkg.product as unknown as { introPrice?: unknown }).introPrice !=
+						null
+							? "trial"
+							: "paid",
+					revenue: pkg.product.price,
+					currency: pkg.product.currencyCode,
+				});
 				Alert.alert(
 					"Welcome to Pro!",
 					"Your premium features are now unlocked."

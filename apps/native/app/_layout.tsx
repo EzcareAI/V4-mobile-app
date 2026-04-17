@@ -1,4 +1,5 @@
 import "@/global.css";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Stack, usePathname, useRouter } from "expo-router";
 import { HeroUINativeProvider } from "heroui-native";
@@ -9,9 +10,12 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AppThemeProvider } from "@/contexts/app-theme-context";
 import { apptroveService } from "@/lib/apptrove-service";
 import { authClient } from "@/lib/auth-client";
+import { mixpanelService } from "@/lib/mixpanel-service";
 import { revenueCatService } from "@/lib/revenuecat-service";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { queryClient } from "@/utils/trpc";
+
+const APP_INSTALLED_KEY = "__ezcare_app_installed_at";
 
 // Regex for matching onboarding step routes (/1, /2, etc.)
 const ONBOARDING_STEP_PATTERN = /^\/\d+$/;
@@ -149,6 +153,21 @@ const Layout = () => {
 		// Initialize Apptrove SDK for affiliate & install tracking
 		apptroveService.initialize();
 		apptroveService.trackAppOpen();
+
+		// Initialize Mixpanel (product analytics) + one-time app_install event
+		(async () => {
+			await mixpanelService.initialize();
+			mixpanelService.trackAppOpen();
+			try {
+				const installedAt = await AsyncStorage.getItem(APP_INSTALLED_KEY);
+				if (!installedAt) {
+					mixpanelService.trackAppInstall();
+					await AsyncStorage.setItem(APP_INSTALLED_KEY, String(Date.now()));
+				}
+			} catch (e) {
+				console.warn("[analytics] first-run detection failed:", e);
+			}
+		})();
 	}, [setPro]);
 
 	return (

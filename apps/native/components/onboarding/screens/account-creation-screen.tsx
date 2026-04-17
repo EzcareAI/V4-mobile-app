@@ -18,6 +18,7 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import { apptroveService } from "@/lib/apptrove-service";
+import { mixpanelService } from "@/lib/mixpanel-service";
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
@@ -85,7 +86,12 @@ export function AccountCreationScreen() {
 
 		setAnswer("email", email);
 		setAnswer("authMethod", "email");
-		apptroveService.trackRegistration(data.user?.id ?? "", email, "email");
+		const emailUserId = data.user?.id ?? "";
+		apptroveService.trackRegistration(emailUserId, email, "email");
+		if (emailUserId) {
+			mixpanelService.identify(emailUserId, { email });
+		}
+		mixpanelService.trackOnboardingComplete({ method: "email", user_id: emailUserId });
 		nextStep();
 		router.push("/(onboarding)/23");
 	};
@@ -156,6 +162,8 @@ export function AccountCreationScreen() {
 						}
 						setAnswer("authMethod", provider);
 						apptroveService.trackRegistration(tokenSession.user.id, userEmail, provider);
+						mixpanelService.identify(tokenSession.user.id, userEmail ? { email: userEmail } : undefined);
+						mixpanelService.trackOnboardingComplete({ method: provider, user_id: tokenSession.user.id });
 						nextStep();
 						router.push("/(onboarding)/23");
 					}
@@ -173,6 +181,8 @@ export function AccountCreationScreen() {
 				}
 				setAnswer("authMethod", provider);
 				apptroveService.trackRegistration(sessionData.user.id, userEmail, provider);
+				mixpanelService.identify(sessionData.user.id, userEmail ? { email: userEmail } : undefined);
+				mixpanelService.trackOnboardingComplete({ method: provider, user_id: sessionData.user.id });
 				nextStep();
 				router.push("/(onboarding)/23");
 			}
@@ -225,6 +235,8 @@ export function AccountCreationScreen() {
 					}
 					setAnswer("authMethod", "apple");
 					apptroveService.trackRegistration(data.user.id, userEmail, "apple");
+					mixpanelService.identify(data.user.id, userEmail ? { email: userEmail } : undefined);
+					mixpanelService.trackOnboardingComplete({ method: "apple", user_id: data.user.id });
 					nextStep();
 					router.push("/(onboarding)/23");
 				}

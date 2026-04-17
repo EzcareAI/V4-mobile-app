@@ -6,6 +6,8 @@ const schema = z.object({
 	EXPO_PUBLIC_SUPABASE_KEY: z.string().optional(),
 	EXPO_PUBLIC_SERVER_URL: z.string().url().optional(),
 	EXPO_PUBLIC_ANTHROPIC_API_KEY: z.string().optional(),
+	EXPO_PUBLIC_APPTROVE_ENV: z.enum(["development", "production"]).optional(),
+	EXPO_PUBLIC_MIXPANEL_TOKEN: z.string().optional(),
 });
 
 const parsed = schema.safeParse(process.env);
@@ -16,6 +18,8 @@ const defaults = {
 	EXPO_PUBLIC_SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1dGZ0a216dnNrdXl4bGxkemt4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg4OTYxNTIsImV4cCI6MjA4NDQ3MjE1Mn0.AZzu-viw1bNaCOqg8dzFdLHj5Dmg63o-eaX2wKQ0GHU",
 	EXPO_PUBLIC_SERVER_URL: "https://gutftkmzvskuyxlldzkx.supabase.co",
 	EXPO_PUBLIC_ANTHROPIC_API_KEY: "",
+	EXPO_PUBLIC_APPTROVE_ENV: "development" as const,
+	EXPO_PUBLIC_MIXPANEL_TOKEN: "",
 };
 
 export const env = {
@@ -28,4 +32,10 @@ export const env = {
 	ANTHROPIC_API_KEY:
 		parsed.data?.EXPO_PUBLIC_ANTHROPIC_API_KEY ??
 		defaults.EXPO_PUBLIC_ANTHROPIC_API_KEY,
+	EXPO_PUBLIC_APPTROVE_ENV:
+		parsed.data?.EXPO_PUBLIC_APPTROVE_ENV ??
+		defaults.EXPO_PUBLIC_APPTROVE_ENV,
+	EXPO_PUBLIC_MIXPANEL_TOKEN:
+		parsed.data?.EXPO_PUBLIC_MIXPANEL_TOKEN ??
+		defaults.EXPO_PUBLIC_MIXPANEL_TOKEN,
 };

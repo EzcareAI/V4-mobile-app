@@ -46,6 +46,25 @@ if [ -f "package.json" ] && [ -d "packages" ] && [ -d "apps" ]; then
   fi
   
   echo "✅ Dependencies installed"
+
+  # ── Shim: metro-cache/private/stores → metro-cache/src/stores ──
+  # uniwind's compiled metro plugin requires 'metro-cache/private/stores/FileStore'
+  # but metro-cache 0.83+ moved it to 'src/stores/'. Create a symlink so the
+  # require resolves correctly on EAS build servers.
+  echo "🔧 Patching metro-cache private/stores path for uniwind..."
+  for mc_dir in node_modules/.bun/metro-cache@*/node_modules/metro-cache; do
+    if [ -d "$mc_dir/src/stores" ] && [ ! -d "$mc_dir/private/stores" ]; then
+      mkdir -p "$mc_dir/private"
+      ln -s "../src/stores" "$mc_dir/private/stores"
+      echo "  ✅ Patched: $mc_dir/private/stores → src/stores"
+    fi
+  done
+  # Also patch the hoisted metro-cache if it exists at node_modules/metro-cache
+  if [ -d "node_modules/metro-cache/src/stores" ] && [ ! -d "node_modules/metro-cache/private/stores" ]; then
+    mkdir -p "node_modules/metro-cache/private"
+    ln -s "../src/stores" "node_modules/metro-cache/private/stores"
+    echo "  ✅ Patched: node_modules/metro-cache/private/stores → src/stores"
+  fi
 else
   echo "⚠️  Monorepo root not found"
   echo "📍 Current directory: $(pwd)"

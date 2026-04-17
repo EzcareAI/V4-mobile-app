@@ -66,6 +66,26 @@ interface Message {
 	content: string;
 	imageUri?: string;
 	docName?: string;
+	suggestions?: string[];
+}
+
+const SUGGESTIONS_RE = /<suggestions>([\s\S]*?)<\/suggestions>/i;
+
+function extractSuggestions(text: string): {
+	body: string;
+	suggestions: string[];
+} {
+	const m = text.match(SUGGESTIONS_RE);
+	if (!m) {
+		return { body: text, suggestions: [] };
+	}
+	const body = text.replace(SUGGESTIONS_RE, "").trim();
+	const suggestions = m[1]
+		.split("|")
+		.map((s) => s.trim())
+		.filter((s) => s.length > 0 && s.length <= 80)
+		.slice(0, 4);
+	return { body, suggestions };
 }
 
 function ChatScreen() {
@@ -253,8 +273,9 @@ function ChatScreen() {
 	);
 
 	// ── Send ───────────────────────────────────────────────
-	const handleSend = async () => {
-		const userText = input.trim();
+	const handleSend = async (overrideText?: string) => {
+		const fromSuggestion = overrideText !== undefined;
+		const userText = (overrideText ?? input).trim();
 		if (!(userText || attachedImage || attachedDoc) || isLoading) {
 			return;
 		}
@@ -275,7 +296,9 @@ function ChatScreen() {
 			return;
 		}
 
-		setInput("");
+		if (!fromSuggestion) {
+			setInput("");
+		}
 		const imgSnap = attachedImage;
 		const docSnap = attachedDoc;
 		setAttachedImage(null);
@@ -366,12 +389,14 @@ function ChatScreen() {
 				model: "claude-3-haiku-20240307",
 				max_tokens: 2048,
 				system:
-					"You are EZBuddy, a friendly lifestyle and wellness companion. You are NOT a doctor, nurse, or medical professional. You do NOT provide medical advice, diagnoses, or treatment recommendations. Never use clinical or diagnostic language. If a user describes serious symptoms, advise them to contact a healthcare professional immediately. Provide general lifestyle tips about wellness, nutrition, exercise, and self-care. Always include a reminder that your suggestions are for general informational and educational purposes only and are not a substitute for professional medical advice. Use relevant emojis and Markdown formatting to make responses engaging.",
+					"You are EZBuddy, a friendly lifestyle and wellness companion. You are NOT a doctor, nurse, or medical professional. You do NOT provide medical advice, diagnoses, or treatment recommendations. Never use clinical or diagnostic language. If a user describes serious symptoms, advise them to contact a healthcare professional immediately. Provide general lifestyle tips about wellness, nutrition, exercise, and self-care. Always include a reminder that your suggestions are for general informational and educational purposes only and are not a substitute for professional medical advice.\n\nFormatting rules:\n- Use relevant emojis to make responses warm and engaging.\n- Use **bold** for key wellness concepts, important terms, and action items the user should remember.\n- Use *italic* for gentle emphasis, encouragement, or softening of suggestions.\n- Keep paragraphs short (2–3 sentences max).\n\nAt the end of every response, append a <suggestions> block with 3 short follow-up questions (max 8 words each) the user might ask next, separated by the pipe character. Example: <suggestions>How do I improve sleep?|What foods help energy?|Tell me about stretching</suggestions>. The block is for the UI — do not mention it to the user.",
 				messages: [...priorApiMessages, { role: "user", content: userContent }],
 			});
 
-			const assistantReply =
+			const rawReply =
 				response.content[0].type === "text" ? response.content[0].text : "";
+			const { body: assistantReply, suggestions } =
+				extractSuggestions(rawReply);
 
 			if (Platform.OS === "ios") {
 				try {
@@ -383,7 +408,12 @@ function ChatScreen() {
 
 			setMessages((prev) => [
 				...prev,
-				{ id: `${Date.now()}-ai`, role: "assistant", content: assistantReply },
+				{
+					id: `${Date.now()}-ai`,
+					role: "assistant",
+					content: assistantReply,
+					suggestions: suggestions.length > 0 ? suggestions : undefined,
+				},
 			]);
 			setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
 		} catch (_error) {
@@ -519,6 +549,25 @@ function ChatScreen() {
 										>
 											{m.content}
 										</Markdown>
+									)}
+									{!isUser && m.suggestions && m.suggestions.length > 0 && (
+										<ScrollView
+											contentContainerStyle={styles.suggestionsRow}
+											horizontal
+											showsHorizontalScrollIndicator={false}
+											style={styles.suggestionsScroll}
+										>
+											{m.suggestions.map((s) => (
+												<TouchableOpacity
+													activeOpacity={0.75}
+													key={s}
+													onPress={() => handleSend(s)}
+													style={styles.suggestionChip}
+												>
+													<Text style={styles.suggestionChipText}>{s}</Text>
+												</TouchableOpacity>
+											))}
+										</ScrollView>
 									)}
 								</View>
 							</View>
@@ -819,6 +868,28 @@ const styles = StyleSheet.create({
 		borderBottomLeftRadius: 4,
 		borderWidth: 1,
 		borderColor: "rgba(62,201,181,0.2)",
+	},
+	suggestionsScroll: {
+		marginTop: 10,
+		marginHorizontal: -4,
+	},
+	suggestionsRow: {
+		paddingHorizontal: 4,
+		gap: 8,
+	},
+	suggestionChip: {
+		backgroundColor: "rgba(62,201,181,0.15)",
+		borderColor: "rgba(62,201,181,0.35)",
+		borderWidth: 1,
+		borderRadius: 14,
+		paddingHorizontal: 12,
+		paddingVertical: 6,
+		marginRight: 8,
+	},
+	suggestionChipText: {
+		color: "#3EC9B5",
+		fontSize: 13,
+		fontWeight: "600",
 	},
 	messageText: { fontSize: 15, lineHeight: 22 },
 	userText: { color: "#FFFFFF" },

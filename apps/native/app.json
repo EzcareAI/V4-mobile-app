@@ -57,6 +57,10 @@
     "android": {
       "package": "com.ezcareaiolder",
       "versionCode": 1,
+      "navigationBar": {
+        "backgroundColor": "#FFFFFF",
+        "barStyle": "dark-content"
+      },
       "permissions": [
         "android.permission.RECORD_AUDIO",
         "android.permission.READ_EXTERNAL_STORAGE",

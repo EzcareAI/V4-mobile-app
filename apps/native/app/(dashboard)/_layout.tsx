@@ -34,10 +34,12 @@ export default function DashboardLayout() {
 		return <Redirect href="/settings/subscription" />;
 	}
 
-	// On Android, add the system bottom inset (gesture nav bar height).
+	// On Android, add the system bottom inset (gesture nav bar height). Floor of 16
+	// ensures a visible separation from the nav bar on devices that report a 0 inset
+	// under certain edge-to-edge modes.
 	// On iOS, use the standard home indicator padding.
-	const bottomPad = Platform.OS === "ios" ? 28 : Math.max(insets.bottom, 8);
-	const tabBarHeight = Platform.OS === "ios" ? 88 : 56 + bottomPad;
+	const bottomPad = Platform.OS === "ios" ? 28 : Math.max(insets.bottom, 16);
+	const tabBarHeight = Platform.OS === "ios" ? 88 : 60 + bottomPad;
 
 	return (
 		<Tabs
@@ -105,7 +107,7 @@ export default function DashboardLayout() {
 const styles = StyleSheet.create({
 	iconWrap: {
 		width: 40,
-		height: 30,
+		height: 32,
 		alignItems: "center",
 		justifyContent: "center",
 		borderRadius: 12,

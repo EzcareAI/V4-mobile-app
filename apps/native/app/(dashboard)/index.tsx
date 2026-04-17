@@ -360,7 +360,8 @@ export default function HomeScreen() {
 	};
 
 	const handleSave = () => {
-		if (!allFilled) {
+		// Guard against double-tap: once saved locally, stop re-submitting.
+		if (!allFilled || saved) {
 			return;
 		}
 		saveCheckIn(values);
@@ -423,7 +424,7 @@ export default function HomeScreen() {
 					<View style={styles.scoreRow}>
 						<Text style={styles.scoreTitle}>Wellness Score</Text>
 						<View style={styles.scoreBadge}>
-							<Text style={styles.scoreText}>{score}/100</Text>
+							<Text style={styles.scoreText}>{Math.round(score)}/100</Text>
 						</View>
 					</View>
 					<Text style={styles.scoreDesc}>
@@ -490,7 +491,7 @@ export default function HomeScreen() {
 				</View>
 
 				{/* ── Daily Check-In Card ── */}
-				{canSave || saved ? (
+				{canSave && !saved ? (
 					// Active check-in
 					<View style={styles.card}>
 						<View style={styles.cardRow}>

@@ -207,10 +207,11 @@ export const useDashboardStore = create<DashboardState>()(
 				// avg is 1–5, map it to a small +0 to +2 health score bump
 				const checkInBonus = Math.round(((avg - 1) / 4) * 2 * 10) / 10;
 				const currentScore = useOnboardingStore.getState().healthScore ?? 50;
-				const newScore = Math.min(
-					100,
-					Math.max(0, currentScore + checkInBonus)
-				);
+				// Round to 1 decimal to avoid IEEE-754 drift (e.g. 77.09999999999998)
+				const newScore =
+					Math.round(
+						Math.min(100, Math.max(0, currentScore + checkInBonus)) * 10
+					) / 10;
 				useOnboardingStore.getState().setAnswer("healthScore", newScore);
 
 				// Background sync to DB

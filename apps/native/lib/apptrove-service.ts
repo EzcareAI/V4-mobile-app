@@ -49,9 +49,6 @@ class ApptroveService {
 					? ApptroveConfig.EnvironmentProduction
 					: ApptroveConfig.EnvironmentDevelopment;
 			const config = new ApptroveConfig(sdkKey, environment);
-			if (Platform.OS === "android") {
-				config.setAndroidId("AndroidTest123");
-			}
 			ApptroveSDK.initialize(config);
 			this.initialized = true;
 			console.log(

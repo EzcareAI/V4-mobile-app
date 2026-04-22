@@ -5,6 +5,7 @@
  * "where did this user come from?" and feeds the affiliate revenue/commission pipeline.
  */
 
+import { Platform } from "react-native";
 import {
 	ApptroveConfig,
 	ApptroveEvent,
@@ -44,6 +45,9 @@ class ApptroveService {
 					? ApptroveConfig.EnvironmentProduction
 					: ApptroveConfig.EnvironmentDevelopment;
 			const config = new ApptroveConfig(APPTROVE_SDK_KEY, environment);
+			if (Platform.OS === "android") {
+				config.setAndroidId("AndroidTest123");
+			}
 			ApptroveSDK.initialize(config);
 			this.initialized = true;
 			console.log(

@@ -174,20 +174,12 @@ export default function SubscriptionScreen() {
 					{offering?.availablePackages
 					.filter((pkg) => {
 						if (pkg.packageType === "ANNUAL") {
-							// Keep only the most expensive annual (full price)
 							const allAnnuals = offering.availablePackages
 								.filter(p => p.packageType === "ANNUAL")
 								.sort((a, b) => b.product.price - a.product.price);
 							return pkg.identifier === allAnnuals[0].identifier;
 						}
-						if (pkg.packageType === "MONTHLY") {
-							// Keep only the cheapest monthly ($11.99)
-							const allMonthlies = offering.availablePackages
-								.filter(p => p.packageType === "MONTHLY")
-								.sort((a, b) => a.product.price - b.product.price);
-							return pkg.identifier === allMonthlies[0].identifier;
-						}
-						return true;
+						return pkg.packageType === "MONTHLY" || pkg.packageType === "WEEKLY";
 					})
 					.map((pkg) => (
 						<TouchableOpacity
@@ -201,17 +193,12 @@ export default function SubscriptionScreen() {
 						>
 							<View>
 								<Text style={styles.pkgTitle}>
-									{pkg.packageType === "ANNUAL"
-										? "Yearly Access"
-										: "Monthly Access"}
+									{pkg.packageType === "ANNUAL" ? "Annual" : "Monthly"}
 								</Text>
 								<Text style={styles.pkgSubtitle}>
 									{pkg.packageType === "ANNUAL"
-										? "Annual Discounted Rate"
-										: "Standard Monthly Access"}
-								</Text>
-								<Text style={styles.fixedPriceText}>
-									Exact amount: {pkg.product.priceString}
+										? "Yearly Discounted Rate"
+										: "Zero commitment"}
 								</Text>
 							</View>
 							<View style={styles.priceWrap}>
@@ -416,11 +403,5 @@ const styles = StyleSheet.create({
 		color: "#D97706",
 		fontWeight: "700",
 		fontSize: 14,
-	},
-	fixedPriceText: {
-		fontSize: 11,
-		color: "#64748B",
-		marginTop: 4,
-		fontWeight: "500",
 	},
 });

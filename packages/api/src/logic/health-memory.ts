@@ -1,7 +1,7 @@
 import type { DailyInsightInput } from "../ai/schemas";
 
 export interface HealthPattern {
-	trend: "improving" | "stable" | "worsening";
+	trend: "improving" | "stable" | "needs_attention";
 	observation: string;
 }
 
@@ -67,5 +67,5 @@ export function detectHealthPatterns(input: DailyInsightInput): string {
 
 	return patterns.length > 0
 		? patterns.join(" ")
-		: "Health patterns are stable.";
+		: "Wellness patterns are stable.";
 }

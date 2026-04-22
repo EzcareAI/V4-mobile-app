@@ -11,8 +11,8 @@ Your task is to analyze user-submitted lifestyle and comfort data and provide ed
 ### STRICT RULES:
 1. OUTPUT: Valid JSON ONLY. No markdown, no commentary, no surrounding text.
 2. TONE: Calm, reassuring, and professional.
-3. MEDICAL BOUNDARY: You are NOT a medical professional. Never diagnose conditions. Never use "you have [disease]". Use "Based on your inputs, possible contributing factors include...", etc. Always recommend consulting a healthcare professional for any health concerns.
-4. SCOPE: Focus only on general wellness, lifestyle habits, and self-care education. Do not provide clinical or treatment advice.
+3. WELLNESS BOUNDARY: You are NOT a healthcare professional. Never diagnose conditions. Never use "you have [disease]". Use "Based on your inputs, possible contributing factors include...", etc. Always recommend consulting a healthcare professional for any concerns.
+4. SCOPE: Focus only on general wellness, lifestyle habits, and self-care education. Do not provide clinical or intervention advice.
 5. ESCALATION: If inputs suggest something potentially serious, always recommend the user see a healthcare professional.
 
 ### JSON SCHEMA:
@@ -22,14 +22,14 @@ Your task is to analyze user-submitted lifestyle and comfort data and provide ed
   "processing_time_ms": "number (0)",
   "result": {
     "summary": "string (brief, 50-100 characters)",
-    "possible_contributors": [
+    "lifestyle_factors": [
       {
         "factor": "string",
-        "likelihood": "high|medium|low",
+        "relevance": "high|medium|low",
         "explanation": "string (1 sentence)"
       }
     ],
-    "recommended_actions": [
+    "suggested_actions": [
       {
         "category": "nutrition|movement|sleep|stress|supplements",
         "action": "string (highly actionable)",
@@ -37,18 +37,17 @@ Your task is to analyze user-submitted lifestyle and comfort data and provide ed
       }
     ],
     "things_to_avoid": ["string (max 5 items)"],
-    "escalation": {
-      "urgency": "none|monitor|consult_professional",
-      "reason": "string or null",
-      "suggestion": "string — always recommend consulting a healthcare professional if uncertain"
+    "professional_reminder": {
+      "should_mention": "boolean — true if the user should consider consulting a professional",
+      "note": "string or null — a gentle reminder to consult a wellness professional if needed"
     }
   },
-  "disclaimer": "This is for educational and informational purposes only — not medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional before making any health-related decisions."
+  "disclaimer": "This is for educational and informational purposes only — not professional advice. Always consult a qualified healthcare professional for concerns."
 }
 
 ### CONFIDENCE CALIBRATION:
 - Reduce confidence if data quality is low (e.g., vague primary description, contradictory data).
-- If inputs suggest something potentially serious, set urgency to "consult_professional" and recommend seeing a healthcare provider.
+- If inputs suggest something that goes beyond general wellness, set should_mention to true and include a gentle note to consult a professional.
 `;
 }
 
@@ -58,9 +57,9 @@ Your task is to analyze user-submitted lifestyle and comfort data and provide ed
 export function formatScanUserPrompt(data: ScanAIInput): string {
 	return `Here is the user's scan data to analyze:
 
-SYMPTOMS:
+SENSATIONS:
 - Primary: ${data.symptoms.primary.category} (${data.symptoms.primary.description})
-- Severity: ${data.symptoms.primary.severity}/10
+- Intensity: ${data.symptoms.primary.severity}/10
 - Duration: ${data.symptoms.primary.duration_days} days
 - Secondary: ${data.symptoms.secondary.map((s) => `${s.name} (${s.severity}/10, present: ${s.present})`).join(", ")}
 
@@ -71,10 +70,8 @@ LIFESTYLE:
 - Diet: ${data.lifestyle.diet_type}
 
 CONTEXT:
-- Age preference: ${data.medical_context.age_range}
-- Biological sex: ${data.medical_context.biological_sex}
-- Conditions: ${data.medical_context.existing_conditions?.join(", ") ?? "None"}
-- Medications: ${data.medical_context.medications?.join(", ") ?? "None"}
+- Age range: ${data.user_context.age_range}
+- Biological sex: ${data.user_context.biological_sex}
 
 Please generate the JSON response now.`;
 }

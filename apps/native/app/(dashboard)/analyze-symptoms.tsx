@@ -60,7 +60,7 @@ export default function AnalyzeSymptomsScreen() {
 							wellnessTips: tips.map((t: any) => ({ name: t.name, description: t.description })),
 							wellnessSuggestions: suggestions,
 							disclaimer:
-								"This is a past wellness check from your history. This is for general lifestyle and educational purposes only — not medical advice, diagnosis, or treatment. Always consult a healthcare professional for health concerns.",
+								"This is a past wellness check from your history. This is for general lifestyle and educational purposes only. Always consult a professional for health concerns.",
 						});
 						setPhase("results");
 					} else {
@@ -179,7 +179,7 @@ export default function AnalyzeSymptomsScreen() {
 					.insert({
 						user_id: session.user.id,
 						zones: activeZones.length > 0 ? activeZones : ["General Wellness Check"],
-						symptoms_description: `Discomfort level ${painLevel}/10. ${description}`,
+						symptoms_description: `Comfort level ${painLevel}/10. ${description}`,
 						probable_causes: analysis.wellnessTips,
 						action_plan: analysis.wellnessSuggestions,
 						image_url: uploadedImageUrl,
@@ -240,7 +240,7 @@ export default function AnalyzeSymptomsScreen() {
 					<View style={styles.disclaimerBox}>
 						<Ionicons color="#E53E3E" name="warning" size={20} />
 						<Text style={styles.disclaimerText}>
-							EZCare is a lifestyle and wellness tracking tool — not a medical device or service. The information provided is for general lifestyle and educational purposes only. It is NOT medical advice, a diagnosis, or a treatment plan. Always consult a qualified healthcare professional for any health concerns.
+							EZCare is a lifestyle and wellness tracking tool — not a clinical service. The information provided is for general lifestyle and educational purposes only. Always consult a qualified professional for any concerns.
 						</Text>
 					</View>
 					<View style={styles.card}>
@@ -263,7 +263,7 @@ export default function AnalyzeSymptomsScreen() {
 						)}
 
 						<Text style={styles.label}>
-							How severe is the discomfort? ({painLevel}/10)
+							How does this feel? ({painLevel}/10)
 						</Text>
 						<View style={styles.painRow}>
 							{[2, 4, 6, 8, 10].map((level) => (
@@ -295,7 +295,7 @@ export default function AnalyzeSymptomsScreen() {
 								setError(null);
 								setDescription(text);
 							}}
-							placeholder="e.g. It's a sharp pain when lifting my arm, started 2 days ago..."
+							placeholder="e.g. I feel tension when lifting my arm, started 2 days ago..."
 							placeholderTextColor="#A0ABC0"
 							style={styles.inputArea}
 							value={description}
@@ -318,7 +318,7 @@ export default function AnalyzeSymptomsScreen() {
 						<Text style={styles.loadingTitle}>Generating Wellness Tips...</Text>
 						<Text style={styles.loadingSub}>
 							Reviewing general lifestyle information to provide
-							comfort tips related to {activeZones.join(", ")} discomfort.
+							comfort tips related to {activeZones.join(", ")}.
 						</Text>
 					</View>
 				)}

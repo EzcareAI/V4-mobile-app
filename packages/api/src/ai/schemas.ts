@@ -34,11 +34,9 @@ export const ScanAIInputSchema = z.object({
 		exercise_frequency: z.enum(["none", "light", "moderate", "intense"]),
 		diet_type: z.string(),
 	}),
-	medical_context: z.object({
+	user_context: z.object({
 		age_range: z.string(), // e.g., "18-25"
 		biological_sex: z.string(), // e.g., "male", "female"
-		existing_conditions: z.array(z.string()).optional(),
-		medications: z.array(z.string()).optional(),
 	}),
 });
 
@@ -52,14 +50,14 @@ export const ScanAIOutputSchema = z.object({
 	processing_time_ms: z.number().int().nonnegative(),
 	result: z.object({
 		summary: z.string(),
-		possible_contributors: z.array(
+		lifestyle_factors: z.array(
 			z.object({
 				factor: z.string(),
-				likelihood: z.enum(["high", "medium", "low"]),
+				relevance: z.enum(["high", "medium", "low"]),
 				explanation: z.string(),
 			})
 		),
-		recommended_actions: z.array(
+		suggested_actions: z.array(
 			z.object({
 				category: z.enum([
 					"nutrition",
@@ -73,10 +71,9 @@ export const ScanAIOutputSchema = z.object({
 			})
 		),
 		things_to_avoid: z.array(z.string()).max(5),
-		escalation: z.object({
-			urgency: z.enum(["none", "monitor", "consult_soon", "seek_immediate"]),
-			reason: z.string().optional().nullable(),
-			red_flags_detected: z.array(z.string()),
+		professional_reminder: z.object({
+			should_mention: z.boolean(),
+			note: z.string().optional().nullable(),
 		}),
 	}),
 	disclaimer: z.string(),

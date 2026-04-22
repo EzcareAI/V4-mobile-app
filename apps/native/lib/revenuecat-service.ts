@@ -8,7 +8,9 @@ import Purchases, {
 const REVENUECAT_APPLE_KEY = process.env.EXPO_PUBLIC_REVENUECAT_APPLE_KEY || "";
 const REVENUECAT_GOOGLE_KEY = process.env.EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY || "";
 
-export const ENTITLEMENT_ID = "yearly";
+// Entitlement IDs from RevenueCat dashboard
+// User is "pro" if they have EITHER the monthly or yearly entitlement
+const ENTITLEMENT_IDS = ["monthly", "yearly"] as const;
 
 class RevenueCatService {
 	private static instance: RevenueCatService;
@@ -32,7 +34,7 @@ class RevenueCatService {
 		}
 
 		try {
-			// Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
+			Purchases.setLogLevel(Purchases.LOG_LEVEL.DEBUG);
 
 			let apiKey = "";
 			if (Platform.OS === "ios") {
@@ -53,12 +55,19 @@ class RevenueCatService {
 	}
 
 	/**
-	 * Check if the user currently has an active 'pro' entitlement.
+	 * Check if any entitlement is active (monthly OR yearly).
+	 */
+	private hasActiveEntitlement(activeEntitlements: Record<string, unknown>): boolean {
+		return ENTITLEMENT_IDS.some((id) => activeEntitlements[id] !== undefined);
+	}
+
+	/**
+	 * Check if the user currently has an active pro entitlement.
 	 */
 	async checkProStatus(): Promise<boolean> {
 		try {
 			const customerInfo = await Purchases.getCustomerInfo();
-			return customerInfo.entitlements.active[ENTITLEMENT_ID] !== undefined;
+			return this.hasActiveEntitlement(customerInfo.entitlements.active);
 		} catch (error) {
 			console.error("RevenueCat: Error fetching customer info:", error);
 			return false;
@@ -87,24 +96,24 @@ class RevenueCatService {
 	async purchasePackage(pkg: PurchasesPackage): Promise<boolean> {
 		try {
 			const { customerInfo } = await Purchases.purchasePackage(pkg);
-			
-			// Primary check: entitlement is active
-			if (customerInfo.entitlements.active[ENTITLEMENT_ID] !== undefined) {
+
+			// Primary check: any entitlement is active
+			if (this.hasActiveEntitlement(customerInfo.entitlements.active)) {
 				return true;
 			}
 
 			// Fallback: a transaction exists for this product (handles sandbox timing
 			// delays and cases where the entitlement isn't attached in RevenueCat yet)
 			const productId = pkg.product.identifier;
-			const hasTransaction = 
+			const hasTransaction =
 				customerInfo.allPurchasedProductIdentifiers?.includes(productId) ||
 				Object.keys(customerInfo.allExpirationDates || {}).includes(productId) ||
 				Object.keys(customerInfo.allPurchaseDates || {}).includes(productId);
 
 			if (hasTransaction) {
 				console.warn(
-					`[RevenueCat] Purchase succeeded for ${productId} but entitlement '${ENTITLEMENT_ID}' is not active. ` +
-					`Check that this package is linked to the '${ENTITLEMENT_ID}' entitlement in RevenueCat.`
+					`[RevenueCat] Purchase succeeded for ${productId} but no entitlement is active. ` +
+					`Check that this package is linked to a 'monthly' or 'yearly' entitlement in RevenueCat.`
 				);
 				return true;
 			}
@@ -125,7 +134,7 @@ class RevenueCatService {
 	async restorePurchases(): Promise<boolean> {
 		try {
 			const customerInfo = await Purchases.restorePurchases();
-			return customerInfo.entitlements.active[ENTITLEMENT_ID] !== undefined;
+			return this.hasActiveEntitlement(customerInfo.entitlements.active);
 		} catch (error) {
 			console.error("RevenueCat: Restore Error:", error);
 			return false;

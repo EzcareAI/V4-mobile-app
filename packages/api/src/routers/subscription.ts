@@ -9,14 +9,14 @@ import { logger } from "../logic/logger";
 // Feature access levels
 const FREE_FEATURES = [
 	"onboarding",
-	"first_diagnosis",
+	"first_wellness_check",
 	"limited_chat",
 ] as const;
 const PREMIUM_FEATURES = [
 	"unlimited_chat",
 	"daily_checkin",
-	"health_score",
-	"full_diagnostics",
+	"wellness_score",
+	"full_wellness_checks",
 	"meal_scan",
 	"advanced_insights",
 ] as const;
@@ -31,7 +31,7 @@ const paywallTriggers = new Map<
 	{
 		chatCount: number;
 		checkinCount: number;
-		diagnosisViewed: boolean;
+		wellnessCheckViewed: boolean;
 	}
 >();
 
@@ -40,7 +40,7 @@ function getOrCreateTriggers(userId: string) {
 		paywallTriggers.set(userId, {
 			chatCount: 0,
 			checkinCount: 0,
-			diagnosisViewed: false,
+			wellnessCheckViewed: false,
 		});
 	}
 	return paywallTriggers.get(userId);
@@ -141,8 +141,8 @@ export const subscriptionRouter = router({
 			return { shouldShow: true, reason: "checkin_limit" as const };
 		}
 
-		if (triggers.diagnosisViewed) {
-			return { shouldShow: true, reason: "diagnosis_viewed" as const };
+		if (triggers.wellnessCheckViewed) {
+			return { shouldShow: true, reason: "wellness_check_viewed" as const };
 		}
 
 		return { shouldShow: false, reason: null };
@@ -150,7 +150,7 @@ export const subscriptionRouter = router({
 
 	// Increment paywall trigger (called after actions)
 	incrementTrigger: protectedProcedure
-		.input(z.object({ trigger: z.enum(["chat", "checkin", "diagnosis"]) }))
+		.input(z.object({ trigger: z.enum(["chat", "checkin", "wellness_check"]) }))
 		.mutation(({ ctx, input }) => {
 			const userId = ctx.session.user.id;
 			const triggers = getOrCreateTriggers(userId);
@@ -166,8 +166,8 @@ export const subscriptionRouter = router({
 				case "checkin":
 					triggers.checkinCount += 1;
 					break;
-				case "diagnosis":
-					triggers.diagnosisViewed = true;
+				case "wellness_check":
+					triggers.wellnessCheckViewed = true;
 					break;
 				default:
 					break;

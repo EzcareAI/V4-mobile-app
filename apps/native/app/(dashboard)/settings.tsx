@@ -120,7 +120,7 @@ export default function SettingsScreen() {
 		}
 		try {
 			await Share.share({
-				message: `🌿 I'm using EZCare AI to track my health naturally. Join me and use my referral code: ${myReferralCode}\n\nDownload the app today!`,
+				message: `🌿 I'm using EZCare AI to track my wellness naturally. Join me and use my referral code: ${myReferralCode}\n\nDownload the app today!`,
 			});
 		} catch {
 			/* ignore */
@@ -220,7 +220,7 @@ export default function SettingsScreen() {
 						<View style={{ flex: 1 }}>
 							<Text style={styles.listText}>Push Notifications</Text>
 							<Text style={styles.listSub}>
-								Daily reminders and health tips
+								Daily reminders and wellness tips
 							</Text>
 						</View>
 						<Switch
@@ -235,7 +235,7 @@ export default function SettingsScreen() {
 						<View style={styles.listRow}>
 							<Ionicons color={TEAL} name="time-outline" size={22} />
 							<Text style={[styles.listText, { flex: 1 }]}>
-								Daily Health Check-In Time
+								Daily Wellness Check-In Time
 							</Text>
 						</View>
 						<TouchableOpacity
@@ -275,7 +275,7 @@ export default function SettingsScreen() {
 							icon: "document-text-outline" as const,
 							label: "Terms of Service",
 						},
-						{ icon: "library-outline" as const, label: "Medical Sources" },
+						{ icon: "library-outline" as const, label: "Wellness Sources" },
 					].map((item, i, arr) => (
 						<View key={item.label}>
 							<TouchableOpacity
@@ -286,8 +286,8 @@ export default function SettingsScreen() {
 										router.push("/privacy-policy");
 									} else if (item.label === "Terms of Service") {
 										router.push("/terms-of-service");
-									} else if (item.label === "Medical Sources") {
-										router.push("/settings/medical-sources");
+									} else if (item.label === "Wellness Sources") {
+										router.push("/settings/wellness-sources");
 									}
 								}}
 								style={styles.listRow}

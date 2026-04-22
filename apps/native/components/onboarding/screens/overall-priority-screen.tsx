@@ -19,7 +19,7 @@ const PRIORITY_OPTIONS: SingleSelectOption[] = [
 	{
 		id: "digestion",
 		label: "Better Digestion",
-		description: "Fewer bloating & digestive discomforts",
+		description: "Fewer bloating & digestive concerns",
 		emoji: "🫘",
 	},
 	{

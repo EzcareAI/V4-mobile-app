@@ -19,12 +19,10 @@ export const scanStatusEnum = pgEnum("scan_status", [
 	"failed",
 ]);
 
-// Urgency enum for AI escalation
+// Professional reminder level for wellness checks
 export const scanUrgencyEnum = pgEnum("scan_urgency", [
 	"none",
-	"monitor",
-	"consult_soon",
-	"seek_immediate",
+	"gentle_reminder",
 ]);
 
 // Main scan table

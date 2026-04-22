@@ -13,7 +13,7 @@ import {
 import { user } from "./auth";
 
 // Trend direction enum
-export const trendEnum = pgEnum("health_trend", ["up", "down", "stable"]);
+export const trendEnum = pgEnum("wellness_trend", ["up", "down", "stable"]);
 
 // Calculated health scores (daily & rolling)
 export const healthScore = pgTable(

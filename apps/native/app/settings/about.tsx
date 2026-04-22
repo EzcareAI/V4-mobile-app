@@ -47,10 +47,9 @@ export default function AboutScreen() {
 
 					<Text style={styles.disclaimer}>
 						Important: EZCare AI is a lifestyle and wellness tool for general
-						informational and educational purposes only. It is NOT a medical
-						device or service, and does not provide medical advice, diagnoses,
-						or treatment. Always consult a qualified healthcare professional
-						for any health concerns.
+						informational and educational purposes only. It is not a substitute
+						for professional advice. Always consult a qualified healthcare
+						professional for any concerns.
 					</Text>
 				</View>
 			</ScrollView>

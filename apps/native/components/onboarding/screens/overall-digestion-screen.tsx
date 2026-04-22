@@ -29,7 +29,7 @@ export function OverallDigestionScreen() {
 			value: 3,
 			label: "Fair",
 			emoji: "😐",
-			desc: "Regular bloating/discomfort",
+			desc: "Occasional bloating or unease",
 		},
 		{ value: 2, label: "Poor", emoji: "😟", desc: "Frequent issues" },
 		{

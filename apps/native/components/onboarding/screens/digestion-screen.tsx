@@ -15,7 +15,7 @@ const DIGESTION_OPTIONS: SingleSelectOption[] = [
 		id: "sensitive",
 		label: "Sensitive",
 		description:
-			"I often experience bloating, discomfort, or reactions to certain foods",
+			"I often experience bloating, unease, or reactions to certain foods",
 		emoji: "🤢",
 		iconColor: "#FB7185",
 	},
@@ -23,7 +23,7 @@ const DIGESTION_OPTIONS: SingleSelectOption[] = [
 		id: "normal",
 		label: "Normal",
 		description:
-			"I can eat most foods without major issues, occasional mild discomfort",
+			"I can eat most foods without major issues, occasional mild unease",
 		emoji: "😌",
 		iconColor: "#3B82F6",
 	},

@@ -136,7 +136,7 @@ export const scanRouter = router({
 				timestamp: new Date().toISOString(),
 				symptoms: answers.symptoms,
 				lifestyle: answers.lifestyle,
-				medical_context: answers.medical_context,
+				user_context: answers.user_context || answers.medical_context,
 			};
 
 			// 3. Call AI service

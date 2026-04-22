@@ -350,20 +350,20 @@ export default function ResultsPreviewScreen() {
 				insights.push({
 					icon: <Activity color="#EF4444" size={20} />,
 					iconBg: "bg-red-50",
-					text: `Noticeable discomfort in ${zoneLabel} — targeted self-care could help`,
+					text: `Noticeable tension in ${zoneLabel} — targeted self-care could help`,
 				});
 			} else if (zoneSymptomIntensity !== undefined) {
 				insights.push({
 					icon: <Activity color="#3B82F6" size={20} />,
 					iconBg: "bg-blue-50",
-					text: `Mild discomfort in ${zoneLabel} — monitoring and gentle care recommended`,
+					text: `Mild tension in ${zoneLabel} — monitoring and gentle care recommended`,
 				});
 			}
 			if (zoneFrequency === "constantly" || zoneDuration === "longterm") {
 				insights.push({
 					icon: <Brain color="#8B5CF6" size={20} />,
 					iconBg: "bg-purple-50",
-					text: `Ongoing ${zoneLabel} discomfort — consider consulting a professional if it persists`,
+					text: `Ongoing ${zoneLabel} tension — consider consulting a professional if it persists`,
 				});
 			}
 		}
@@ -395,7 +395,7 @@ export default function ResultsPreviewScreen() {
 				insights.push({
 					icon: <HeartPulse color="#F59E0B" size={20} />,
 					iconBg: "bg-amber-50",
-					text: "Digestive discomfort noted — dietary adjustments may improve comfort",
+					text: "Digestive concerns noted — dietary adjustments may improve comfort",
 				});
 			}
 		}
@@ -491,7 +491,7 @@ export default function ResultsPreviewScreen() {
 					wellness plan tailored to your lifestyle.
 				</Text>
 
-				{/* Elevated Health Score Display */}
+				{/* Elevated Wellness Score Display */}
 				<Animated.View
 					className={`${scoreInfo.bg} mb-4 items-center overflow-hidden rounded-[32px] border border-white p-6 shadow-blue-100/50 shadow-xl`}
 					style={{ transform: [{ translateY: floatAnimY }] }}

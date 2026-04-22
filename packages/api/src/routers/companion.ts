@@ -10,21 +10,21 @@ import { z } from "zod";
 
 import { protectedProcedure, router } from "../index";
 
-// System prompt for the AI health companion
-const SYSTEM_PROMPT = `You are a calm, professional health companion for the EZCare AI app. You help users understand their body and health without providing medical diagnoses. You are:
+// System prompt for the AI wellness companion
+const SYSTEM_PROMPT = `You are a calm, professional wellness companion for the EZCare AI app. You help users build better daily habits and understand their lifestyle patterns. You are:
 - Reassuring but not dismissive
-- Educational without being condescending  
-- Action-oriented (suggest natural improvements)
+- Educational without being condescending
+- Action-oriented (suggest natural lifestyle improvements)
 - Never alarmist
 
 You NEVER:
-- Diagnose medical conditions
-- Recommend specific medications
-- Replace professional medical advice
+- Use clinical or diagnostic language
+- Recommend specific medications or clinical interventions
+- Act as a substitute for professional advice
 
-You have access to the user's health data which will be provided as context. Use this to personalize your responses.
+You have access to the user's wellness data which will be provided as context. Use this to personalize your responses.
 
-Respond in 2-4 sentences. Be warm but professional. Focus on encouragement and practical tips.`;
+Respond in 2-4 sentences. Be warm but professional. Focus on encouragement and practical lifestyle tips.`;
 
 interface UserContext {
 	healthScore?: number;
@@ -38,7 +38,7 @@ interface UserContext {
 	}>;
 	profile?: {
 		primaryGoal?: string | null;
-		symptoms?: string[];
+		feelings?: string[];
 	};
 }
 
@@ -47,15 +47,15 @@ function buildContextString(context: UserContext): string {
 	const parts: string[] = [];
 
 	if (context.healthScore !== undefined) {
-		parts.push(`Current health score: ${context.healthScore}/100`);
+		parts.push(`Current wellness score: ${context.healthScore}/100`);
 	}
 
 	if (context.profile?.primaryGoal) {
 		parts.push(`Primary goal: ${context.profile.primaryGoal}`);
 	}
 
-	if (context.profile?.symptoms && context.profile.symptoms.length > 0) {
-		parts.push(`Reported symptoms: ${context.profile.symptoms.join(", ")}`);
+	if (context.profile?.feelings && context.profile.feelings.length > 0) {
+		parts.push(`Areas of focus: ${context.profile.feelings.join(", ")}`);
 	}
 
 	if (context.recentCheckins && context.recentCheckins.length > 0) {
@@ -69,7 +69,7 @@ function buildContextString(context: UserContext): string {
 
 	return parts.length > 0
 		? `\n\nUser context:\n${parts.join("\n")}`
-		: "\n\nNo health data available yet.";
+		: "\n\nNo wellness data available yet.";
 }
 
 export const companionRouter = router({
@@ -112,7 +112,7 @@ export const companionRouter = router({
 				profile: profile
 					? {
 							primaryGoal: profile.primaryGoal,
-							symptoms: (profile.symptoms as string[]) ?? [],
+							feelings: (profile.symptoms as string[]) ?? [],
 						}
 					: undefined,
 			};
@@ -216,10 +216,10 @@ function generatePlaceholderResponse(
 
 	if (context.healthScore !== undefined) {
 		if (context.healthScore >= 70) {
-			return `Your health score of ${context.healthScore} shows you're doing well! Keep up your current habits and stay consistent with your daily check-ins.`;
+			return `Your wellness score of ${context.healthScore} shows you're doing well! Keep up your current habits and stay consistent with your daily check-ins.`;
 		}
-		return `I see your health score is ${context.healthScore}. Remember, small daily improvements add up. Focus on one area today - which feels most important to you?`;
+		return `I see your wellness score is ${context.healthScore}. Remember, small daily improvements add up. Focus on one area today - which feels most important to you?`;
 	}
 
-	return "I'm here to help you understand and improve your health. Feel free to ask me about sleep, stress, energy, or any health topic you're curious about!";
+	return "I'm here to help you understand and improve your wellness. Feel free to ask me about sleep, stress, energy, or any wellness topic you're curious about!";
 }

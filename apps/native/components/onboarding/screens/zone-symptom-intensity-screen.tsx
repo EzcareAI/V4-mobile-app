@@ -89,7 +89,7 @@ export function ZoneSymptomIntensityScreen() {
 
 						<StepHeader
 							className="mt-8"
-							description={`How intense is the discomfort in your ${zoneName}?`}
+							description={`How does your ${zoneName} feel?`}
 							title="Rate the intensity"
 						/>
 

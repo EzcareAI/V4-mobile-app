@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function MedicalSourcesScreen() {
+export default function WellnessSourcesScreen() {
 	const router = useRouter();
 
 	return (
@@ -20,15 +20,15 @@ export default function MedicalSourcesScreen() {
 				<TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
 					<Ionicons color="#1A1A2E" name="arrow-back" size={24} />
 				</TouchableOpacity>
-				<Text style={styles.headerTitle}>Medical Sources</Text>
+				<Text style={styles.headerTitle}>Wellness Sources</Text>
 				<View style={{ width: 40 }} />
 			</View>
 
 			<ScrollView contentContainerStyle={styles.content} style={styles.scroll}>
 				<Text style={styles.preamble}>
 					EZCare AI references publicly available wellness and educational
-					resources. The information provided is for educational purposes only
-					and does not constitute medical advice.
+					resources. The information provided is for general lifestyle and
+					educational purposes only.
 				</Text>
 
 				<View style={styles.card}>
@@ -39,23 +39,9 @@ export default function MedicalSourcesScreen() {
 					>
 						<Ionicons color="#3EC9B5" name="library-outline" size={24} />
 						<View style={styles.sourceText}>
-							<Text style={styles.sourceTitle}>Harvard Medical School</Text>
+							<Text style={styles.sourceTitle}>Harvard Sleep Research</Text>
 							<Text style={styles.sourceSub}>
-								Sleep and circadian rhythm research.
-							</Text>
-						</View>
-					</TouchableOpacity>
-					<View style={styles.divider} />
-					<TouchableOpacity
-						activeOpacity={0.7}
-						onPress={() => Linking.openURL("https://pubmed.ncbi.nlm.nih.gov/")}
-						style={styles.sourceRow}
-					>
-						<Ionicons color="#3EC9B5" name="pulse-outline" size={24} />
-						<View style={styles.sourceText}>
-							<Text style={styles.sourceTitle}>PubMed Central</Text>
-							<Text style={styles.sourceSub}>
-								Peer-reviewed biomedical and life sciences research.
+								Sleep and circadian rhythm wellness research.
 							</Text>
 						</View>
 					</TouchableOpacity>
@@ -63,17 +49,31 @@ export default function MedicalSourcesScreen() {
 					<TouchableOpacity
 						activeOpacity={0.7}
 						onPress={() =>
-							Linking.openURL("https://www.niddk.nih.gov/health-information")
+							Linking.openURL("https://www.who.int/health-topics/healthy-diet")
 						}
 						style={styles.sourceRow}
 					>
-						<Ionicons color="#3EC9B5" name="medkit-outline" size={24} />
+						<Ionicons color="#3EC9B5" name="leaf-outline" size={24} />
 						<View style={styles.sourceText}>
-							<Text style={styles.sourceTitle}>
-								National Institutes of Health (NIH)
-							</Text>
+							<Text style={styles.sourceTitle}>WHO Healthy Lifestyle</Text>
 							<Text style={styles.sourceSub}>
-								Clinical trials and preventative care guidelines.
+								General wellness and healthy lifestyle guidelines.
+							</Text>
+						</View>
+					</TouchableOpacity>
+					<View style={styles.divider} />
+					<TouchableOpacity
+						activeOpacity={0.7}
+						onPress={() =>
+							Linking.openURL("https://www.cdc.gov/physical-activity/")
+						}
+						style={styles.sourceRow}
+					>
+						<Ionicons color="#3EC9B5" name="fitness-outline" size={24} />
+						<View style={styles.sourceText}>
+							<Text style={styles.sourceTitle}>CDC Physical Activity</Text>
+							<Text style={styles.sourceSub}>
+								Physical activity and fitness guidelines for adults.
 							</Text>
 						</View>
 					</TouchableOpacity>

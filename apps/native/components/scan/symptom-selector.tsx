@@ -7,26 +7,26 @@ interface SymptomSelectorProps {
 	onSelect: (symptom: string) => void;
 }
 
-// POC hardcoded symptom data
+// Wellness-focused comfort descriptions per body zone
 const SYMPTOMS_BY_ZONE: Record<string, string[]> = {
-	head: ["Headache", "Dizziness", "Brain fog", "Migraine", "Tension"],
+	head: ["Tension", "Foggy feeling", "Fatigue", "Tightness", "Low focus"],
 	chest: [
-		"Chest pain",
-		"Shortness of breath",
-		"Heart palpitations",
 		"Tightness",
-		"Pressure",
+		"Low energy",
+		"Shallow breathing",
+		"Tension",
+		"General unease",
 	],
-	stomach: ["Bloating", "Nausea", "Cramping", "Indigestion", "Acid reflux"],
+	stomach: ["Bloating", "Unease", "Heaviness", "Sensitivity", "Fullness"],
 	back: [
-		"Lower back pain",
-		"Upper back pain",
+		"Lower back tightness",
+		"Upper back tightness",
 		"Stiffness",
 		"Muscle tension",
-		"Sharp pain",
+		"General soreness",
 	],
-	arms: ["Numbness", "Tingling", "Weakness", "Joint pain", "Muscle soreness"],
-	legs: ["Leg pain", "Swelling", "Cramping", "Restlessness", "Weakness"],
+	arms: ["Stiffness", "Tingling", "Fatigue", "Soreness", "Tightness"],
+	legs: ["Soreness", "Heaviness", "Tightness", "Restlessness", "Fatigue"],
 };
 
 export function SymptomSelector({ zone, onSelect }: SymptomSelectorProps) {
@@ -50,7 +50,7 @@ export function SymptomSelector({ zone, onSelect }: SymptomSelectorProps) {
 					{zone.toUpperCase()}
 				</Text>
 				<Text className="mb-6 font-bold text-2xl">
-					What are you experiencing?
+					How does this area feel?
 				</Text>
 
 				<View className="gap-3">

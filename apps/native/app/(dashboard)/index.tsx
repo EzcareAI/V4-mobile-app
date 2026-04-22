@@ -428,7 +428,7 @@ export default function HomeScreen() {
 						</View>
 					</View>
 					<Text style={styles.scoreDesc}>
-						Interact with your body map to log discomfort areas or explore
+						Interact with your body map to note how your body feels or explore
 						general wellness tips.
 					</Text>
 
@@ -475,7 +475,7 @@ export default function HomeScreen() {
 						>
 							<Ionicons color="#FFF" name="analytics-outline" size={20} />
 							<Text style={styles.analyzeBtnText}>
-								Check {selectedZones.length} Zone
+								Explore {selectedZones.length} Zone
 								{selectedZones.length === 1 ? "" : "s"}
 							</Text>
 						</TouchableOpacity>
@@ -486,7 +486,7 @@ export default function HomeScreen() {
 				<View style={styles.disclaimerBanner}>
 					<Ionicons color="#D97706" name="information-circle" size={18} />
 					<Text style={styles.disclaimerBannerText}>
-						EZCare is a lifestyle and wellness tool for educational purposes only. It does not provide medical advice, diagnoses, or treatment. Consult a healthcare professional for medical concerns.
+						EZCare is a lifestyle and wellness tool for educational purposes only. It does not provide clinical advice. Consult a qualified professional for any concerns.
 					</Text>
 				</View>
 

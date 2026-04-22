@@ -52,10 +52,10 @@ function getSymptomText(key: string, val: number): string {
 			return "High energy levels";
 		case "digestion":
 			if (val <= 2) {
-				return "Frequent digestive issues";
+				return "Room for improvement";
 			}
 			if (val === 3) {
-				return "Some digestive issues";
+				return "Some room for improvement";
 			}
 			return "Great digestion";
 		case "stress":
@@ -71,7 +71,7 @@ function getSymptomText(key: string, val: number): string {
 	}
 }
 
-type TrendType = "Worsening" | "Improving" | "Stable";
+type TrendType = "Needs Attention" | "Improving" | "Stable";
 function getTrend(key: string, val: number | undefined): TrendType {
 	if (!val || val === 0) {
 		return "Stable";
@@ -81,7 +81,7 @@ function getTrend(key: string, val: number | undefined): TrendType {
 			return "Improving";
 		}
 		if (val >= 4) {
-			return "Worsening";
+			return "Needs Attention";
 		}
 		return "Stable";
 	}
@@ -89,7 +89,7 @@ function getTrend(key: string, val: number | undefined): TrendType {
 		return "Improving";
 	}
 	if (val <= 2) {
-		return "Worsening";
+		return "Needs Attention";
 	}
 	return "Stable";
 }
@@ -605,7 +605,7 @@ export default function ProgressScreen() {
 						);
 					})}
 					<Text style={styles.symptomFooter}>
-						Based on your last 30 days of check-ins. Tap to run AI analysis.
+						Based on your last 30 days of check-ins. Tap to see AI insights.
 					</Text>
 				</TouchableOpacity>
 
@@ -655,7 +655,7 @@ export default function ProgressScreen() {
 				<View style={styles.modalBg}>
 					<View style={styles.modalContent}>
 						<View style={styles.modalHeader}>
-							<Text style={styles.modalTitle}>AI Health Report ✨</Text>
+							<Text style={styles.modalTitle}>AI Wellness Summary ✨</Text>
 							<TouchableOpacity
 								hitSlop={10}
 								onPress={() => setShowReport(false)}
@@ -704,7 +704,7 @@ export default function ProgressScreen() {
 
 							<Text style={styles.modalDesc}>
 								{score >= 70
-									? "Your biomarkers are trending exceptionally well! Your weekly consistency is paying off. Keep your wellness routines steady to maintain this peak state."
+									? "Your wellness habits are trending exceptionally well! Your weekly consistency is paying off. Keep your wellness routines steady to maintain this peak state."
 									: score >= 50
 										? "You're making solid progress. Focus on your targeted daily actions and ensure you're getting enough restorative sleep to boost your score further."
 										: "Your body is signaling some high stress. It's highly recommended to prioritize rest, hydration, and light stretching today to begin recovery."}

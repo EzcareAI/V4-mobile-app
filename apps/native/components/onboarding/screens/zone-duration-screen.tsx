@@ -80,7 +80,7 @@ export function ZoneDurationScreen() {
 
 						<StepHeader
 							className="mt-8"
-							description="When did you first notice this discomfort?"
+							description="When did you first notice this feeling?"
 							title="How long has this been going on?"
 						/>
 

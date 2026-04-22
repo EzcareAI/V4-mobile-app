@@ -18,17 +18,17 @@ const DEFAULT_FALLBACK: ScanAIOutput = {
 	confidence: 0.0,
 	processing_time_ms: 0,
 	result: {
-		summary: "We're analyzing your scan. Check back shortly.",
-		possible_contributors: [],
-		recommended_actions: [],
+		summary: "We're reviewing your wellness check. Check back shortly.",
+		lifestyle_factors: [],
+		suggested_actions: [],
 		things_to_avoid: [],
-		escalation: {
-			urgency: "monitor",
-			red_flags_detected: [],
+		professional_reminder: {
+			should_mention: true,
+			note: "For persistent concerns, consider speaking with a wellness or healthcare professional.",
 		},
 	},
 	disclaimer:
-		"This is for educational and informational purposes only — not medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional.",
+		"This is for educational and informational purposes only — not professional advice. Always consult a qualified healthcare professional for concerns.",
 };
 
 /**

@@ -13,7 +13,8 @@ import {
 } from "react-native-apptrove";
 import { env } from "@ezcare/env/native";
 
-const APPTROVE_SDK_KEY = "ff84ab36-6665-46c1-a3bf-fbd4df1199a0";
+const APPTROVE_SDK_KEY_IOS = "ff84ab36-6665-46c1-a3bf-fbd4df1199a0";
+const APPTROVE_SDK_KEY_ANDROID = "59b0d897-e2e7-4ce5-b6a6-b3684bc33a40";
 
 // Event IDs from Apptrove dashboard (My Apps > Events)
 // CRITICAL: use the exact IDs with correct casing — I (capital i) vs l (lowercase L)
@@ -40,11 +41,14 @@ class ApptroveService {
 			return;
 		}
 		try {
+			const sdkKey = Platform.OS === "android"
+				? APPTROVE_SDK_KEY_ANDROID
+				: APPTROVE_SDK_KEY_IOS;
 			const environment =
 				env.EXPO_PUBLIC_APPTROVE_ENV === "production"
 					? ApptroveConfig.EnvironmentProduction
 					: ApptroveConfig.EnvironmentDevelopment;
-			const config = new ApptroveConfig(APPTROVE_SDK_KEY, environment);
+			const config = new ApptroveConfig(sdkKey, environment);
 			if (Platform.OS === "android") {
 				config.setAndroidId("AndroidTest123");
 			}

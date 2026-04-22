@@ -46,7 +46,11 @@ export default function SubscriptionScreen() {
 	useEffect(() => {
 		async function loadOfferings() {
 			try {
+				await revenueCatService.initialize();
 				const currentOffering = await revenueCatService.getOfferings();
+				if (!currentOffering) {
+					console.warn("RevenueCat: No current offering found. Check your RevenueCat dashboard.");
+				}
 				setOffering(currentOffering);
 			} catch (err) {
 				console.error("Load Offerings Error:", err);
@@ -63,19 +67,16 @@ export default function SubscriptionScreen() {
 			const success = await revenueCatService.purchasePackage(pkg);
 			if (success) {
 				setPro(true);
-				apptroveService.trackSubscribe(
-					pkg.product.identifier,
-					pkg.product.price,
-					pkg.product.currencyCode
-				);
+				const hasIntroPrice = (pkg.product as unknown as { introPrice?: unknown }).introPrice != null;
+				if (hasIntroPrice) {
+					apptroveService.trackStartTrial(pkg.product.identifier, pkg.product.currencyCode);
+				} else {
+					apptroveService.trackSubscribe(pkg.product.identifier, pkg.product.price, pkg.product.currencyCode);
+				}
 				mixpanelService.trackSubscriptionStart({
 					product_id: pkg.product.identifier,
 					plan: inferPlanFromPackageType(pkg.packageType),
-					type:
-						(pkg.product as unknown as { introPrice?: unknown }).introPrice !=
-						null
-							? "trial"
-							: "paid",
+					type: hasIntroPrice ? "trial" : "paid",
 					revenue: pkg.product.price,
 					currency: pkg.product.currencyCode,
 				});
@@ -141,7 +142,7 @@ export default function SubscriptionScreen() {
 				{/* Hero Section */}
 				<LinearGradient colors={["#3EC9B5", "#2BA999"]} style={styles.hero}>
 					<Ionicons color="#FFF" name="sparkles" size={50} />
-					<Text style={styles.heroTitle}>Level Up Your Health</Text>
+					<Text style={styles.heroTitle}>Level Up Your Wellness</Text>
 					<Text style={styles.heroSub}>
 						Get unlimited AI wellness insights, personalized guidance, and
 						advanced tracking features.
@@ -160,7 +161,7 @@ export default function SubscriptionScreen() {
 
 				{/* Features list */}
 				<View style={styles.featureSection}>
-					<FeatureItem icon="body-outline" text="Unlimited AI Analysis" />
+					<FeatureItem icon="body-outline" text="Unlimited AI Insights" />
 					<FeatureItem
 						icon="chatbubble-ellipses-outline"
 						text="Infinite EZBuddy Chat"

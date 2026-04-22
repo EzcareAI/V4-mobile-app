@@ -57,7 +57,12 @@ export default function PaywallScreen() {
 	useEffect(() => {
 		async function loadOfferings() {
 			try {
+				// Ensure RevenueCat is initialized before fetching offerings
+				await revenueCatService.initialize();
 				const currentOffering = await revenueCatService.getOfferings();
+				if (!currentOffering) {
+					console.warn("RevenueCat: No current offering found. Check your RevenueCat dashboard.");
+				}
 				setOffering(currentOffering);
 			} catch (err) {
 				console.error("Load Offerings Error:", err);
@@ -130,19 +135,16 @@ export default function PaywallScreen() {
 				setPro(true);
 				setAnswer("subscriptionStatus", "active");
 				setAnswer("paymentAttempted", true);
-				apptroveService.trackSubscribe(
-					pkg.product.identifier,
-					pkg.product.price,
-					pkg.product.currencyCode
-				);
+				const hasIntroPrice = (pkg.product as unknown as { introPrice?: unknown }).introPrice != null;
+				if (hasIntroPrice) {
+					apptroveService.trackStartTrial(pkg.product.identifier, pkg.product.currencyCode);
+				} else {
+					apptroveService.trackSubscribe(pkg.product.identifier, pkg.product.price, pkg.product.currencyCode);
+				}
 				mixpanelService.trackSubscriptionStart({
 					product_id: pkg.product.identifier,
 					plan: inferPlanFromPackageType(pkg.packageType),
-					type:
-						(pkg.product as unknown as { introPrice?: unknown }).introPrice !=
-						null
-							? "trial"
-							: "paid",
+					type: hasIntroPrice ? "trial" : "paid",
 					revenue: pkg.product.price,
 					currency: pkg.product.currencyCode,
 				});

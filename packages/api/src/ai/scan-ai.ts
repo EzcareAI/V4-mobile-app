@@ -82,7 +82,7 @@ async function callClaude(
 	try {
 		const message = await anthropic.messages.create(
 			{
-				model: "claude-3-5-sonnet-20241022", // UsingSonnet 3.5 for now as 4.5 check
+				model: "claude-sonnet-4-6",
 				max_tokens: 1000,
 				messages: [{ role: "user", content: userPrompt }],
 				system: systemPrompt,

@@ -179,7 +179,7 @@ export default function AnalyzeSymptomsScreen() {
 					.insert({
 						user_id: session.user.id,
 						zones: activeZones.length > 0 ? activeZones : ["General Body Awareness"],
-						symptoms_description: `Comfort level ${painLevel}/10. ${description}`,
+						symptoms_description: `Awareness level ${painLevel}/10. ${description}`,
 						probable_causes: analysis.wellnessTips,
 						action_plan: analysis.wellnessSuggestions,
 						image_url: uploadedImageUrl,
@@ -263,7 +263,7 @@ export default function AnalyzeSymptomsScreen() {
 						)}
 
 						<Text style={styles.label}>
-							How does this feel? ({painLevel}/10)
+							Awareness intensity ({painLevel}/10)
 						</Text>
 						<View style={styles.painRow}>
 							{[2, 4, 6, 8, 10].map((level) => (

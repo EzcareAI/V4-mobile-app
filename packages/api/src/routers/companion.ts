@@ -219,10 +219,10 @@ function generatePlaceholderResponse(
 
 	if (context.healthScore !== undefined) {
 		if (context.healthScore >= 70) {
-			return `Your wellness score of ${context.healthScore} shows you're doing well! Keep up your current habits and stay consistent with your daily check-ins.`;
+			return `Your awareness score of ${context.healthScore} shows you're doing well! Keep up your current habits and stay consistent with your daily check-ins.`;
 		}
-		return `I see your wellness score is ${context.healthScore}. Remember, small daily improvements add up. Focus on one area today - which feels most important to you?`;
+		return `I see your awareness score is ${context.healthScore}. Remember, small daily improvements add up. Focus on one area today - which feels most important to you?`;
 	}
 
-	return "I'm here to help you understand and improve your wellness. Feel free to ask me about sleep, stress, energy, or any wellness topic you're curious about!";
+	return "I'm here to help you learn about your daily habits. Feel free to ask me about sleep, stress, energy, or any lifestyle topic you're curious about!";
 }

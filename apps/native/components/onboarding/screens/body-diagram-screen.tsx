@@ -55,7 +55,7 @@ export default function BodyDiagramScreen() {
 					<StepHeader
 						align="center"
 						className="mb-2"
-						description="Tap body areas to focus on specific issues, or skip for overall wellness."
+						description="Tap body areas to focus on specific areas, or skip for a general overview."
 						title="Focus Areas"
 					/>
 
@@ -180,7 +180,7 @@ export default function BodyDiagramScreen() {
 												marginTop: 4,
 											}}
 										>
-											Skip zones — check your full wellness picture
+											Skip zones — get your full lifestyle overview
 										</Text>
 									</View>
 

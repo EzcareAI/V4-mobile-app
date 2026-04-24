@@ -417,7 +417,7 @@ export default function ProgressScreen() {
 	const activeSymptoms = [
 		mkSymptom("sleep", "Sleep Quality", "🌙"),
 		mkSymptom("energy", "Energy Levels", "⚡"),
-		mkSymptom("digestion", "Digestive Wellness", "🍏"),
+		mkSymptom("digestion", "Post-Meal Comfort", "🍏"),
 		mkSymptom("stress", "Stress Management", "💗"),
 	];
 
@@ -432,7 +432,7 @@ export default function ProgressScreen() {
 				<View style={styles.header}>
 					<View>
 						<Text style={styles.title}>Your Progress 📈</Text>
-						<Text style={styles.sub}>Track your wellness journey</Text>
+						<Text style={styles.sub}>Track your awareness journey</Text>
 					</View>
 					<TouchableOpacity
 						activeOpacity={0.8}
@@ -605,7 +605,7 @@ export default function ProgressScreen() {
 						);
 					})}
 					<Text style={styles.symptomFooter}>
-						Based on your last 30 days of check-ins. Tap to see AI insights.
+						Based on your last 30 days of check-ins. Tap to explore reflections.
 					</Text>
 				</TouchableOpacity>
 

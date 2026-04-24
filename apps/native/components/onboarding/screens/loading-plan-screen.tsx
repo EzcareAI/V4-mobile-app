@@ -297,7 +297,7 @@ export const LoadingPlanScreen = () => {
 												Plan Ready!
 											</Text>
 											<Text className="mt-1 font-medium text-[#73808C] text-sm leading-5">
-												Your personalized wellness plan is precisely tailored and
+												Your personalized lifestyle plan is precisely tailored and
 												ready.
 											</Text>
 										</View>

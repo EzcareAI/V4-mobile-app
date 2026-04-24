@@ -120,7 +120,7 @@ export default function SettingsScreen() {
 		}
 		try {
 			await Share.share({
-				message: `🌿 I'm using EZCare AI to track my wellness naturally. Join me and use my referral code: ${myReferralCode}\n\nDownload the app today!`,
+				message: `🌿 I'm using EZCare AI to build better daily habits. Join me and use my referral code: ${myReferralCode}\n\nDownload the app today!`,
 			});
 		} catch {
 			/* ignore */
@@ -220,7 +220,7 @@ export default function SettingsScreen() {
 						<View style={{ flex: 1 }}>
 							<Text style={styles.listText}>Push Notifications</Text>
 							<Text style={styles.listSub}>
-								Daily reminders and wellness tips
+								Daily reminders and lifestyle tips
 							</Text>
 						</View>
 						<Switch
@@ -328,7 +328,7 @@ export default function SettingsScreen() {
 									onPress: () => {
 										Alert.alert(
 											"Are you absolutely sure?",
-											"Your wellness data, progress, and subscription will be permanently erased.",
+											"Your data, progress, and subscription will be permanently erased.",
 											[
 												{ text: "Cancel", style: "cancel" },
 												{

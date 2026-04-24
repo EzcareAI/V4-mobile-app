@@ -188,7 +188,7 @@ export const NotificationsScreen = () => {
 								<View className="h-16 flex-row items-center justify-center">
 									<Bell color="white" size={22} />
 									<Text className="ml-3 font-bold text-lg text-white">
-										Allow Notifications
+										Continue
 									</Text>
 								</View>
 							</LinearGradient>
@@ -210,7 +210,7 @@ export const NotificationsScreen = () => {
 								<View className="h-16 flex-row items-center justify-center">
 									<BellOff color="#71717a" size={22} />
 									<Text className="ml-3 font-bold text-[#73808C] text-lg">
-										Don't Allow
+										Not Now
 									</Text>
 								</View>
 							</LinearGradient>

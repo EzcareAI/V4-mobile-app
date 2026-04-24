@@ -288,7 +288,7 @@ export default function ResultsPreviewScreen() {
 				insights.push({
 					icon: <Moon color="#8B5CF6" size={20} />,
 					iconBg: "bg-purple-50",
-					text: "Your sleep quality is low — better rest could boost your overall wellness",
+					text: "Your sleep quality is low — better rest could boost your overall lifestyle",
 				});
 			} else if (sleepQuality >= 4) {
 				insights.push({
@@ -405,7 +405,7 @@ export default function ResultsPreviewScreen() {
 			insights.push({
 				icon: <Activity color="#EF4444" size={20} />,
 				iconBg: "bg-red-50",
-				text: "Regular smoking impacts overall wellness — reducing intake can help significantly",
+				text: "Regular smoking impacts overall lifestyle — reducing intake can help significantly",
 			});
 		}
 		if (alcoholFrequency === "often") {
@@ -431,7 +431,7 @@ export default function ResultsPreviewScreen() {
 				{
 					icon: <Activity color="#3B82F6" size={20} />,
 					iconBg: "bg-blue-50",
-					text: "Your wellness journey is just getting started — let's build great habits",
+					text: "Your awareness journey is just getting started — let's build great habits",
 				},
 				{
 					icon: <Brain color="#10B981" size={20} />,

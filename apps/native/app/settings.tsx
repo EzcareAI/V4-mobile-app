@@ -67,7 +67,7 @@ export default function SettingsScreen() {
 		}
 		try {
 			await Share.share({
-				message: `🌿 I'm using EZCare AI to track my wellness naturally. Join me and use my referral code: ${referralCode}\n\nDownload the app today!`,
+				message: `🌿 I'm using EZCare AI to build better daily habits. Join me and use my referral code: ${referralCode}\n\nDownload the app today!`,
 			});
 		} catch (e) {
 			console.error("Share error:", e);
@@ -337,14 +337,14 @@ export default function SettingsScreen() {
 
 					<TouchableOpacity
 						activeOpacity={0.7}
-						onPress={() => router.push("/settings/wellness-sources")}
+						onPress={() => router.push("/settings/learning-sources")}
 						style={styles.row}
 					>
 						<View style={styles.rowIcon}>
 							<Ionicons color="#3EC9B5" name="library-outline" size={20} />
 						</View>
 						<View style={styles.rowContent}>
-							<Text style={styles.rowTitle}>Wellness Sources</Text>
+							<Text style={styles.rowTitle}>Learning Sources</Text>
 						</View>
 						<Ionicons color="#94A3B8" name="chevron-forward" size={18} />
 					</TouchableOpacity>

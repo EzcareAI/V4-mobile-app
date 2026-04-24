@@ -101,7 +101,7 @@ User Data:
 - Comfort Level: ${request.painLevel}/10
 - Description: "${request.description || request.symptomsDescription}"
 
-Based on the above general wellness inputs (and the provided image if present), provide lifestyle comfort tips and self-care ideas strictly in the requested JSON format.
+Based on the above general lifestyle inputs (and the provided image if present), provide educational comfort tips and self-care ideas strictly in the requested JSON format.
 `;
 
 		try {

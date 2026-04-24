@@ -18,7 +18,7 @@ const SOURCES = [
 		url: "https://www.health.harvard.edu",
 	},
 	{
-		name: "Mayo Clinic Patient Education",
+		name: "Mayo Clinic Lifestyle Education",
 		description: "Educational resources for understanding your body and lifestyle choices.",
 		url: "https://www.mayoclinic.org",
 	},

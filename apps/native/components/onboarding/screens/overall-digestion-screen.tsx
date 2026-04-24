@@ -129,7 +129,7 @@ export function OverallDigestionScreen() {
 
 						<View className="mt-8 rounded-2xl border border-blue-100 bg-blue-50/50 p-4">
 							<Text className="text-[#64748B] text-xs leading-5">
-								🫘 Digestion is key to nutrient absorption and overall wellness.
+								🫘 Post-meal comfort is key to nutrient absorption and overall lifestyle balance.
 								This helps us personalize your dietary approach.
 							</Text>
 						</View>

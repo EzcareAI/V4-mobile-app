@@ -74,26 +74,14 @@ export default function BodyScanScreen() {
 					<Ionicons color="#3EC9B5" name="camera-outline" size={64} />
 					<Text style={styles.permissionTitle}>Camera Access Required</Text>
 					<Text style={styles.permissionSub}>
-						EZCare AI needs camera access for the AR wellness self-check
+						EZCare AI needs camera access for the AR body awareness
 						feature.
 					</Text>
 					<TouchableOpacity
 						onPress={requestPermission}
 						style={styles.primaryBtn}
 					>
-						<Text style={styles.primaryBtnText}>Allow Camera</Text>
-					</TouchableOpacity>
-					<TouchableOpacity
-						onPress={() => {
-							if (router.canGoBack()) {
-								router.dismissAll();
-							} else {
-								router.replace("/");
-							}
-						}}
-						style={styles.ghostBtn}
-					>
-						<Text style={styles.ghostBtnText}>Cancel</Text>
+						<Text style={styles.primaryBtnText}>Continue</Text>
 					</TouchableOpacity>
 				</View>
 			</SafeAreaView>

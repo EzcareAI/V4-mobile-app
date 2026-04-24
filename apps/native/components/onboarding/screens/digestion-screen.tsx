@@ -96,7 +96,7 @@ export const DigestionScreen = () => {
 						<StepHeader
 							align="center"
 							className="mt-6"
-							description="This helps us create a personalized meal and wellness plan for you."
+							description="This helps us create a personalized meal and lifestyle plan for you."
 							title="How sensitive is your digestion?"
 						/>
 
@@ -121,7 +121,7 @@ export const DigestionScreen = () => {
 									<Text className="mt-2 text-[#B45309] text-[16px] leading-6">
 										Your digestion sensitivity helps us recommend the right
 										foods, timing, and preparation methods to optimize your
-										wellness journey.
+										awareness journey.
 									</Text>
 								</View>
 							</View>

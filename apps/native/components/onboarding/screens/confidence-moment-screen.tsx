@@ -11,7 +11,7 @@ const BENEFITS = [
 	{
 		emoji: "🎯",
 		title: "Personalized 7-day roadmap",
-		desc: "A step-by-step wellness plan built around your answers.",
+		desc: "A step-by-step lifestyle plan built around your answers.",
 	},
 	{
 		emoji: "🤖",
@@ -166,7 +166,7 @@ export function ConfidenceMomentScreen() {
 						<StepHeader
 							align="center"
 							className="mt-6"
-							description="You've given us exactly what we need to build your personalized wellness plan."
+							description="You've given us exactly what we need to build your personalized lifestyle plan."
 							hideIcon={true}
 							title="Great job!"
 						/>

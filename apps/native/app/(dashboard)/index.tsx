@@ -386,11 +386,11 @@ export default function HomeScreen() {
 						<Text style={styles.welcome}>Welcome back! 👋</Text>
 						{firstName ? (
 							<Text style={styles.welcomeSub}>
-								{firstName}'s wellness journey
+								{firstName}'s awareness journey
 							</Text>
 						) : (
 							<Text style={styles.welcomeSub}>
-								Let's check in on your wellness journey
+								Let's check in on your awareness journey
 							</Text>
 						)}
 					</View>
@@ -686,7 +686,7 @@ export default function HomeScreen() {
 						</View>
 					</View>
 					<Text style={styles.chatDesc}>
-						Ask anything about wellness, nutrition, supplements, or
+						Ask anything about lifestyle, nutrition, supplements, or
 						lifestyle tips.
 					</Text>
 					<View style={styles.chatStartBtn}>

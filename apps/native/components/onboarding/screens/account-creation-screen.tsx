@@ -344,7 +344,7 @@ export function AccountCreationScreen() {
 						Almost There!
 					</Text>
 					<Text className="mt-4 font-medium text-[#73808C] text-[17px] leading-7">
-						Let's create your private account to save your personalized wellness
+						Let's create your private account to save your personalized lifestyle
 						plan.
 					</Text>
 				</View>

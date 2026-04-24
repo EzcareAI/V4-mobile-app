@@ -13,14 +13,14 @@ const GENDER_OPTIONS: SingleSelectOption[] = [
 	{
 		id: "female",
 		label: "Female",
-		description: "Tailored for women's wellness",
+		description: "Tailored for women's lifestyle",
 		icon: Venus,
 		iconColor: "#FF8099",
 	},
 	{
 		id: "male",
 		label: "Male",
-		description: "Tailored for men's wellness",
+		description: "Tailored for men's lifestyle",
 		icon: Mars,
 		iconColor: "#66B3FF",
 	},
@@ -70,7 +70,7 @@ export const GenderScreen = () => {
 						<StepHeader
 							align="center"
 							className="mt-8"
-							description="This helps us personalize recommendations for your biology and wellness profile."
+							description="This helps us personalize recommendations for your biology and lifestyle profile."
 							title="What is your gender?"
 						/>
 						<View className="mt-4">

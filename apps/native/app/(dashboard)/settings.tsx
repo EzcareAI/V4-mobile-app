@@ -235,7 +235,7 @@ export default function SettingsScreen() {
 						<View style={styles.listRow}>
 							<Ionicons color={TEAL} name="time-outline" size={22} />
 							<Text style={[styles.listText, { flex: 1 }]}>
-								Daily Wellness Check-In Time
+								Daily Awareness Check-In Time
 							</Text>
 						</View>
 						<TouchableOpacity
@@ -275,7 +275,7 @@ export default function SettingsScreen() {
 							icon: "document-text-outline" as const,
 							label: "Terms of Service",
 						},
-						{ icon: "library-outline" as const, label: "Wellness Sources" },
+						{ icon: "library-outline" as const, label: "Learning Sources" },
 					].map((item, i, arr) => (
 						<View key={item.label}>
 							<TouchableOpacity
@@ -286,8 +286,8 @@ export default function SettingsScreen() {
 										router.push("/privacy-policy");
 									} else if (item.label === "Terms of Service") {
 										router.push("/terms-of-service");
-									} else if (item.label === "Wellness Sources") {
-										router.push("/settings/wellness-sources");
+									} else if (item.label === "Learning Sources") {
+										router.push("/settings/learning-sources");
 									}
 								}}
 								style={styles.listRow}

@@ -46,7 +46,7 @@ export default function PrivacyPolicyScreen() {
 				<Text style={{ fontSize: 16, lineHeight: 24, color: "#333" }}>
 					At EZCare AI, we take your privacy seriously. This Privacy Policy
 					explains how we collect, use, and protect your information when you
-					use our AI wellness guidance service.
+					use our AI body awareness learning service.
 				</Text>
 
 				<View style={{ marginTop: 24 }}>
@@ -55,9 +55,9 @@ export default function PrivacyPolicyScreen() {
 					</Text>
 					<Text style={{ fontSize: 14, lineHeight: 22, color: "#444" }}>
 						• Account Information: Email address, password, and subscription
-						details{"\n"}• Health Quiz Responses: Your answers to our onboarding
-						health questionnaire{"\n"}• Chat Messages: Your conversations with
-						Ez, our AI wellness buddy
+						details{"\n"}• Lifestyle Quiz Responses: Your answers to our onboarding
+						lifestyle questionnaire{"\n"}• Chat Messages: Your conversations with
+						Ez, our AI awareness companion
 						{"\n"}• Usage Data: How you interact with our service{"\n"}• Payment
 						Information: Billing details processed securely through Stripe
 					</Text>
@@ -68,7 +68,7 @@ export default function PrivacyPolicyScreen() {
 						How We Use Your Information
 					</Text>
 					<Text style={{ fontSize: 14, lineHeight: 22, color: "#444" }}>
-						• Provide personalized AI wellness guidance{"\n"}• Improve our AI
+						• Provide personalized AI educational awareness content{"\n"}• Improve our AI
 						models and service quality{"\n"}• Process payments and manage your
 						subscription{"\n"}• Send important service updates{"\n"}• Ensure
 						platform security

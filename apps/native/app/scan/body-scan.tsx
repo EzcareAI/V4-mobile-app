@@ -187,7 +187,7 @@ export default function BodyScanScreen() {
 					</TouchableOpacity>
 					<View style={styles.headerPill}>
 						<Ionicons color="#3EC9B5" name="scan-outline" size={14} />
-						<Text style={styles.headerPillText}>AR Wellness Check</Text>
+						<Text style={styles.headerPillText}>AR Body Awareness</Text>
 					</View>
 					<View style={styles.spacer} />
 				</View>

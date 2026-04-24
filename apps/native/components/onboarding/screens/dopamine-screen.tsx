@@ -96,7 +96,7 @@ export function DopamineScreen({ type }: DopamineScreenProps) {
 					</LinearGradient>
 
 					<Text className="text-center font-bold text-[#1A2138] text-[32px] leading-tight">
-						{isReinforcement ? "Great start." : "Your path to recovery."}
+						{isReinforcement ? "Great start." : "Your path to better habits."}
 					</Text>
 
 					<Text className="mt-4 text-center font-medium text-[#60708F] text-lg leading-6">

@@ -135,7 +135,7 @@ export function OverallEnergyScreen() {
 						<View className="mt-8 rounded-2xl border border-blue-100 bg-blue-50/50 p-4">
 							<Text className="text-[#64748B] text-xs leading-5">
 								🔋 Energy levels help us understand if you need focus on sleep
-								quality, nutrition, or activity recovery.
+								quality, nutrition, or rest practices.
 							</Text>
 						</View>
 					</View>

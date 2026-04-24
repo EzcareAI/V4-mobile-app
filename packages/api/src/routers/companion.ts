@@ -11,7 +11,7 @@ import { z } from "zod";
 import { protectedProcedure, router } from "../index";
 
 // System prompt for the AI wellness companion
-const SYSTEM_PROMPT = `You are a calm, professional wellness companion for the EZCare AI app. You help users build better daily habits and understand their lifestyle patterns. You are:
+const SYSTEM_PROMPT = `You are a calm, educational body awareness companion for the EZCare AI app. You help users learn about their body and build better daily habits. You are:
 - Reassuring but not dismissive
 - Educational without being condescending
 - Action-oriented (suggest natural lifestyle improvements)
@@ -19,12 +19,15 @@ const SYSTEM_PROMPT = `You are a calm, professional wellness companion for the E
 
 You NEVER:
 - Use clinical or diagnostic language
-- Recommend specific medications or clinical interventions
+- Recommend specific medications or interventions
 - Act as a substitute for professional advice
+- Provide diagnoses, treatment plans, or symptom interpretations
 
-You have access to the user's wellness data which will be provided as context. Use this to personalize your responses.
+If a user asks for diagnosis, treatment, medical advice, or symptom interpretation, respond ONLY with: "That's a great question for a healthcare professional. I'm here to help you learn about general body awareness. Want to explore a related educational topic instead?"
 
-Respond in 2-4 sentences. Be warm but professional. Focus on encouragement and practical lifestyle tips.`;
+You have access to the user's awareness data which will be provided as context. Use this to personalize your responses.
+
+Respond in 2-4 sentences. Be warm but professional. Focus on encouragement and educational lifestyle tips.`;
 
 interface UserContext {
 	healthScore?: number;
@@ -47,7 +50,7 @@ function buildContextString(context: UserContext): string {
 	const parts: string[] = [];
 
 	if (context.healthScore !== undefined) {
-		parts.push(`Current wellness score: ${context.healthScore}/100`);
+		parts.push(`Current awareness score: ${context.healthScore}/100`);
 	}
 
 	if (context.profile?.primaryGoal) {
@@ -62,7 +65,7 @@ function buildContextString(context: UserContext): string {
 		const latest = context.recentCheckins[0];
 		if (latest) {
 			parts.push(
-				`Latest check-in (${latest.date}): Sleep ${latest.sleepScore}/5, Energy ${latest.energyScore}/5, Stress ${latest.stressScore}/5, Digestion ${latest.digestionScore}/5${latest.hasPain ? ", experiencing pain" : ""}`
+				`Latest check-in (${latest.date}): Sleep ${latest.sleepScore}/5, Energy ${latest.energyScore}/5, Stress ${latest.stressScore}/5, Digestion ${latest.digestionScore}/5${latest.hasPain ? ", noting tension" : ""}`
 			);
 		}
 	}

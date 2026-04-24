@@ -62,7 +62,7 @@ export default function OnboardingIndex() {
 						<Text style={styles.gradientText}>EZCare AI</Text>
 					</LinearGradient>
 					<Text style={styles.subheadline}>
-						Your Personal Wellness Companion.
+						Your Personal Awareness Companion.
 					</Text>
 				</View>
 				{/* Footer */}

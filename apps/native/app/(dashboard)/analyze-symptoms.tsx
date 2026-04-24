@@ -60,7 +60,7 @@ export default function AnalyzeSymptomsScreen() {
 							wellnessTips: tips.map((t: any) => ({ name: t.name, description: t.description })),
 							wellnessSuggestions: suggestions,
 							disclaimer:
-								"This is a past wellness check from your history. This is for general lifestyle and educational purposes only. Always consult a professional for health concerns.",
+								"This is a past reflection from your history. This is for general educational purposes only. Always consult a professional for any concerns.",
 						});
 						setPhase("results");
 					} else {
@@ -96,7 +96,7 @@ export default function AnalyzeSymptomsScreen() {
 			if (!isPro) {
 				Alert.alert(
 					"Upgrade to Pro",
-					"Detailed wellness insights and in-depth analysis require an EZCare Pro subscription.",
+					"Detailed body awareness reflections require an EZCare Pro subscription.",
 					[
 						{
 							text: "Cancel",
@@ -113,7 +113,7 @@ export default function AnalyzeSymptomsScreen() {
 			}
 
 			const res = await aiAnalysisService.analyzeSymptoms({
-				zones: activeZones.length > 0 ? activeZones : ["General Wellness Check"],
+				zones: activeZones.length > 0 ? activeZones : ["General Body Awareness"],
 				painLevel,
 				description,
 				imageBase64: imageBase64 || undefined,
@@ -126,7 +126,7 @@ export default function AnalyzeSymptomsScreen() {
 		} catch (err: unknown) {
 			console.error("Analysis Failed:", err);
 			setError(
-				"We had trouble generating wellness insights. Please try again later."
+				"We had trouble generating your reflections. Please try again later."
 			);
 			setPhase("input");
 		}
@@ -178,7 +178,7 @@ export default function AnalyzeSymptomsScreen() {
 					.from("health_analyses")
 					.insert({
 						user_id: session.user.id,
-						zones: activeZones.length > 0 ? activeZones : ["General Wellness Check"],
+						zones: activeZones.length > 0 ? activeZones : ["General Body Awareness"],
 						symptoms_description: `Comfort level ${painLevel}/10. ${description}`,
 						probable_causes: analysis.wellnessTips,
 						action_plan: analysis.wellnessSuggestions,
@@ -226,7 +226,7 @@ export default function AnalyzeSymptomsScreen() {
 				>
 					<Ionicons color={DARK} name="arrow-back" size={24} />
 				</TouchableOpacity>
-				<Text style={styles.headerTitle}>Wellness Check</Text>
+				<Text style={styles.headerTitle}>Body Awareness</Text>
 				<View style={{ width: 44 }} />
 			</View>
 
@@ -240,7 +240,7 @@ export default function AnalyzeSymptomsScreen() {
 					<View style={styles.disclaimerBox}>
 						<Ionicons color="#E53E3E" name="warning" size={20} />
 						<Text style={styles.disclaimerText}>
-							EZCare is a lifestyle and wellness tracking tool — not a clinical service. The information provided is for general lifestyle and educational purposes only. Always consult a qualified professional for any concerns.
+							EZCare is an educational lifestyle awareness tool. All information is for general educational purposes only. Consult a healthcare professional for any concern, diagnosis, or treatment decision.
 						</Text>
 					</View>
 					<View style={styles.card}>
@@ -248,7 +248,7 @@ export default function AnalyzeSymptomsScreen() {
 						<Text style={styles.cardSub}>
 							You selected:{" "}
 							<Text style={{ fontWeight: "bold", color: TEAL }}>
-								{activeZones.length > 0 ? activeZones.join(", ") : "General Wellness Check"}
+								{activeZones.length > 0 ? activeZones.join(", ") : "General Body Awareness"}
 							</Text>
 						</Text>
 
@@ -304,7 +304,7 @@ export default function AnalyzeSymptomsScreen() {
 						{error && <Text style={styles.errorText}>{error}</Text>}
 
 						<TouchableOpacity onPress={handleAnalyze} style={styles.primaryBtn}>
-							<Text style={styles.primaryBtnText}>Get Wellness Insights</Text>
+							<Text style={styles.primaryBtnText}>See Today's Reflections</Text>
 							<Ionicons color="#FFF" name="sparkles" size={18} />
 						</TouchableOpacity>
 					</View>
@@ -315,10 +315,10 @@ export default function AnalyzeSymptomsScreen() {
 				{phase === "loading" && (
 					<View style={styles.loadingCard}>
 						<ActivityIndicator color={TEAL} size="large" />
-						<Text style={styles.loadingTitle}>Generating Wellness Tips...</Text>
+						<Text style={styles.loadingTitle}>Generating Reflections...</Text>
 						<Text style={styles.loadingSub}>
-							Reviewing general lifestyle information to provide
-							comfort tips related to {activeZones.join(", ")}.
+							Exploring educational lifestyle information
+							related to {activeZones.join(", ")}.
 						</Text>
 					</View>
 				)}
@@ -331,7 +331,7 @@ export default function AnalyzeSymptomsScreen() {
 							<Text style={styles.disclaimerText}>{analysis.disclaimer}</Text>
 						</View>
 
-						<Text style={styles.sectionHeading}>Lifestyle & Comfort Tips</Text>
+						<Text style={styles.sectionHeading}>Educational Lifestyle Tips</Text>
 						{(analysis.wellnessTips || analysis.probableCauses || []).map((tip, idx) => (
 							<View key={idx} style={styles.resultCard}>
 								<Text style={styles.causeName}>{tip.name}</Text>

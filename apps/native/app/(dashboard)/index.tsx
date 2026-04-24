@@ -419,17 +419,17 @@ export default function HomeScreen() {
 					</TouchableOpacity>
 				</View>
 
-				{/* ── Health Score & Body Map Card ── */}
+				{/* ── Awareness Score & Body Map Card ── */}
 				<View style={styles.card}>
 					<View style={styles.scoreRow}>
-						<Text style={styles.scoreTitle}>Wellness Score</Text>
+						<Text style={styles.scoreTitle}>Awareness Score</Text>
 						<View style={styles.scoreBadge}>
 							<Text style={styles.scoreText}>{Math.round(score)}/100</Text>
 						</View>
 					</View>
 					<Text style={styles.scoreDesc}>
-						Interact with your body map to note how your body feels or explore
-						general wellness tips.
+						Interact with your body map to reflect on how you feel or explore
+						general lifestyle tips.
 					</Text>
 
 					<View style={styles.bodyWrapper}>
@@ -457,7 +457,7 @@ export default function HomeScreen() {
 						</Suspense>
 					</View>
 
-					{/* Wellness Check CTA */}
+					{/* Body Awareness CTA */}
 					{selectedZones.length > 0 && (
 						<TouchableOpacity
 							activeOpacity={0.8}
@@ -486,7 +486,7 @@ export default function HomeScreen() {
 				<View style={styles.disclaimerBanner}>
 					<Ionicons color="#D97706" name="information-circle" size={18} />
 					<Text style={styles.disclaimerBannerText}>
-						EZCare is a lifestyle and wellness tool for educational purposes only. It does not provide clinical advice. Consult a qualified professional for any concerns.
+						EZCare is an educational lifestyle awareness tool. All information is for general educational purposes only. Consult a healthcare professional for any medical concern, diagnosis, or treatment decision.
 					</Text>
 				</View>
 
@@ -613,7 +613,7 @@ export default function HomeScreen() {
 									{mission.title}
 								</Text>
 								<Text style={styles.actionSub}>
-									+{mission.healthPoints} pts to Wellness Score
+									+{mission.healthPoints} pts to Awareness Score
 								</Text>
 							</View>
 							<Text style={{ fontSize: 11, color: GREY }}>
@@ -626,7 +626,7 @@ export default function HomeScreen() {
 				{/* ── Recent Analyses ── */}
 				{recentAnalyses.length > 0 && (
 					<View style={{ marginBottom: 24 }}>
-						<Text style={styles.sectionTitle}>Recent Wellness Checks</Text>
+						<Text style={styles.sectionTitle}>Recent Reflections</Text>
 						<ScrollView
 							contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
 							horizontal
@@ -654,7 +654,7 @@ export default function HomeScreen() {
 										)}
 									</View>
 									<Text numberOfLines={1} style={styles.historyZones}>
-										{item.zones[0] === "General Body Scan" ? "📸 Body Scan" : item.zones.join(", ")}
+										{item.zones[0] === "General Body Scan" ? "📸 Body Awareness" : item.zones.join(", ")}
 									</Text>
 									<Text style={styles.historyDate}>
 										{new Date(item.created_at).toLocaleDateString()}
@@ -682,7 +682,7 @@ export default function HomeScreen() {
 						</View>
 						<View style={styles.chatTextBlock}>
 							<Text style={styles.chatTitle}>Chat With EZBuddy</Text>
-							<Text style={styles.chatSub}>Your AI wellness companion</Text>
+							<Text style={styles.chatSub}>Your AI awareness companion</Text>
 						</View>
 					</View>
 					<Text style={styles.chatDesc}>
@@ -704,7 +704,7 @@ export default function HomeScreen() {
 					style={styles.scanCard}
 				>
 					<Ionicons color={TEAL} name="scan-outline" size={22} />
-					<Text style={styles.scanText}>AR Wellness Check</Text>
+					<Text style={styles.scanText}>AR Body Awareness</Text>
 					<Ionicons color={TEAL} name="chevron-forward" size={18} />
 				</TouchableOpacity>
 			</ScrollView>

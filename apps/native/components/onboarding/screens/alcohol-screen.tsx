@@ -103,7 +103,7 @@ export function AlcoholScreen() {
 						<StepHeader
 							align="center"
 							className="mt-6"
-							description="This helps us factor recovery, nutrition, and sleep patterns into your plan."
+							description="This helps us factor rest, nutrition, and sleep patterns into your plan."
 							title="How often do you drink alcohol?"
 						/>
 

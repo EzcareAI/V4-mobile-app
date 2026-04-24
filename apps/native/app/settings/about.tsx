@@ -40,16 +40,16 @@ export default function AboutScreen() {
 				<View style={styles.card}>
 					<Text style={styles.missionTitle}>Our Mission</Text>
 					<Text style={styles.missionBody}>
-						EZCare is designed to serve as your lifestyle wellness companion. We
-						use AI to help you track daily wellness habits, explore general
-						self-care ideas, and support you on your wellness journey.
+						EZCare is designed to serve as your educational body awareness companion.
+						We use AI to help you learn about your body, build daily lifestyle habits,
+						explore general self-care ideas, and support your awareness journey.
 					</Text>
 
 					<Text style={styles.disclaimer}>
-						Important: EZCare AI is a lifestyle and wellness tool for general
-						informational and educational purposes only. It is not a substitute
-						for professional advice. Always consult a qualified healthcare
-						professional for any concerns.
+						Important: EZCare AI is an educational lifestyle awareness tool for
+						general educational purposes only. It does not provide medical advice,
+						diagnoses, or treatment. Always consult a qualified healthcare
+						professional for any medical concerns.
 					</Text>
 				</View>
 			</ScrollView>

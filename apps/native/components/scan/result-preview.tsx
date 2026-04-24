@@ -60,7 +60,7 @@ export function ResultPreview({
 			<View className="p-6">
 				{/* Header */}
 				<View className="mb-6">
-					<Text className="mb-2 font-bold text-3xl">Your Wellness Insights</Text>
+					<Text className="mb-2 font-bold text-3xl">Your Body Awareness Reflections</Text>
 					<View className="flex-row items-center gap-2">
 						<Text className="text-muted">Relevance:</Text>
 						<Text className={`font-semibold ${getConfidenceColor()}`}>
@@ -180,7 +180,7 @@ export function ResultPreview({
 											if (result.escalation.urgency === "consult_soon") {
 												return "Consider Consulting a Professional";
 											}
-											return "Keep Monitoring";
+											return "Keep Reflecting";
 										})()}
 									</Text>
 									{result.escalation.reason && (

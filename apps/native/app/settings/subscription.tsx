@@ -142,10 +142,10 @@ export default function SubscriptionScreen() {
 				{/* Hero Section */}
 				<LinearGradient colors={["#3EC9B5", "#2BA999"]} style={styles.hero}>
 					<Ionicons color="#FFF" name="sparkles" size={50} />
-					<Text style={styles.heroTitle}>Level Up Your Wellness</Text>
+					<Text style={styles.heroTitle}>Level Up Your Awareness</Text>
 					<Text style={styles.heroSub}>
-						Get unlimited AI wellness insights, personalized guidance, and
-						advanced tracking features.
+						Get unlimited AI body awareness reflections, personalized guidance,
+						and advanced learning features.
 					</Text>
 				</LinearGradient>
 

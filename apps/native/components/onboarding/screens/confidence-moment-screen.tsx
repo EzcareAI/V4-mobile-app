@@ -16,12 +16,12 @@ const BENEFITS = [
 	{
 		emoji: "🤖",
 		title: "EZBuddy AI guidance",
-		desc: "Your AI wellness companion available 24/7 to support your journey.",
+		desc: "Your AI awareness companion available 24/7 to support your journey.",
 	},
 	{
 		emoji: "📊",
-		title: "Wellness score & progress tracking",
-		desc: "Watch your wellbeing improve with measurable milestones.",
+		title: "Awareness score & progress tracking",
+		desc: "Watch your daily awareness grow with educational milestones.",
 	},
 	{
 		emoji: "💪",

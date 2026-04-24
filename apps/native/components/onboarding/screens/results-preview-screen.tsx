@@ -356,7 +356,7 @@ export default function ResultsPreviewScreen() {
 				insights.push({
 					icon: <Activity color="#3B82F6" size={20} />,
 					iconBg: "bg-blue-50",
-					text: `Mild tension in ${zoneLabel} — monitoring and gentle care recommended`,
+					text: `Mild tension in ${zoneLabel} — reflecting on this and gentle self-care recommended`,
 				});
 			}
 			if (zoneFrequency === "constantly" || zoneDuration === "longterm") {
@@ -374,7 +374,7 @@ export default function ResultsPreviewScreen() {
 				const priorityLabels: Record<string, string> = {
 					energy: "energy levels",
 					sleep: "sleep quality",
-					digestion: "digestive comfort",
+					digestion: "post-meal comfort",
 					stress: "stress management",
 					weight: "weight management",
 				};
@@ -395,7 +395,7 @@ export default function ResultsPreviewScreen() {
 				insights.push({
 					icon: <HeartPulse color="#F59E0B" size={20} />,
 					iconBg: "bg-amber-50",
-					text: "Digestive concerns noted — dietary adjustments may improve comfort",
+					text: "Post-meal comfort noted — dietary adjustments may help",
 				});
 			}
 		}
@@ -448,12 +448,12 @@ export default function ResultsPreviewScreen() {
 
 	const getStatusText = () => {
 		if (score >= 70) {
-			return "Excellent Wellness Potential";
+			return "Excellent Awareness Potential";
 		}
 		if (score >= 50) {
-			return "Good Wellness Baseline";
+			return "Good Awareness Baseline";
 		}
-		return "Immediate Attention Recommended";
+		return "Room for Growth";
 	};
 
 	// Display label for selected zones
@@ -487,11 +487,11 @@ export default function ResultsPreviewScreen() {
 					Your AI Blueprint is Ready 🚀
 				</Text>
 				<Text className="mb-5 px-2 text-center text-[15px] text-ezcare-slate leading-6">
-					We've analyzed your responses to create a personalized
-					wellness plan tailored to your lifestyle.
+					We've reviewed your responses to create a personalized
+					awareness plan tailored to your lifestyle.
 				</Text>
 
-				{/* Elevated Wellness Score Display */}
+				{/* Elevated Awareness Score Display */}
 				<Animated.View
 					className={`${scoreInfo.bg} mb-4 items-center overflow-hidden rounded-[32px] border border-white p-6 shadow-blue-100/50 shadow-xl`}
 					style={{ transform: [{ translateY: floatAnimY }] }}

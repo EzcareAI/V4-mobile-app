@@ -443,11 +443,11 @@ export default function ProgressScreen() {
 					</TouchableOpacity>
 				</View>
 
-				{/* Wellness Score card */}
+				{/* Awareness Score card */}
 				<View style={styles.scoreCard}>
 					<View style={styles.scoreCardTop}>
 						<View>
-							<Text style={styles.scoreLabel}>Your Wellness Score</Text>
+							<Text style={styles.scoreLabel}>Your Awareness Score</Text>
 							<Text style={styles.scoreUpdated}>Updated today</Text>
 						</View>
 						<View style={styles.scoreIconBadge}>
@@ -511,7 +511,7 @@ export default function ProgressScreen() {
 
 				{/* Chart card */}
 				<View style={styles.card}>
-					<Text style={styles.cardTitle}>Wellness Score Over Time</Text>
+					<Text style={styles.cardTitle}>Awareness Score Over Time</Text>
 					{/* Range picker */}
 					<View style={styles.rangePicker}>
 						{(["Day", "Week", "12 Months"] as TimeRange[]).map((r) => (
@@ -549,7 +549,7 @@ export default function ProgressScreen() {
 							alignItems: "center",
 						}}
 					>
-						<Text style={styles.cardTitle}>Wellness Tracker</Text>
+						<Text style={styles.cardTitle}>Awareness Journal</Text>
 						<Ionicons color={TEAL} name="arrow-forward" size={20} />
 					</View>
 					{activeSymptoms.map((s) => {
@@ -655,7 +655,7 @@ export default function ProgressScreen() {
 				<View style={styles.modalBg}>
 					<View style={styles.modalContent}>
 						<View style={styles.modalHeader}>
-							<Text style={styles.modalTitle}>AI Wellness Summary ✨</Text>
+							<Text style={styles.modalTitle}>AI Awareness Summary ✨</Text>
 							<TouchableOpacity
 								hitSlop={10}
 								onPress={() => setShowReport(false)}
@@ -704,10 +704,10 @@ export default function ProgressScreen() {
 
 							<Text style={styles.modalDesc}>
 								{score >= 70
-									? "Your wellness habits are trending exceptionally well! Your weekly consistency is paying off. Keep your wellness routines steady to maintain this peak state."
+									? "Your daily awareness habits are progressing exceptionally well! Your weekly consistency is paying off. Keep your routines steady to maintain this momentum."
 									: score >= 50
 										? "You're making solid progress. Focus on your targeted daily actions and ensure you're getting enough restorative sleep to boost your score further."
-										: "Your body is signaling some high stress. It's highly recommended to prioritize rest, hydration, and light stretching today to begin recovery."}
+										: "You've been experiencing some high stress lately. It's recommended to prioritize rest, hydration, and light stretching today to recharge."}
 							</Text>
 
 							<View style={styles.modalStatsRow}>

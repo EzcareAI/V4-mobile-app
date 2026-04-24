@@ -75,12 +75,12 @@ export default function PerfectPlanScreen() {
 							title="Your plan is working already"
 						/>
 
-						{/* Wellness Score Progress Card */}
+						{/* Awareness Score Progress Card */}
 						<View className="mt-8 rounded-[40px] border border-slate-50 bg-white p-8 shadow-2xl shadow-blue-100/50">
 							<View className="mb-8 flex-row items-center justify-start gap-x-4">
 								<View>
 									<Text className="font-bold text-[#29303D] text-lg">
-										Wellness Progress
+										Awareness Progress
 									</Text>
 									<Text className="mt-0.5 font-bold text-[#73808C] text-xs uppercase tracking-widest">
 										4-Month Projection

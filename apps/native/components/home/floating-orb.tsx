@@ -62,12 +62,12 @@ export function FloatingOrb() {
 			onPress: () => setExpanded(false),
 		},
 		{
-			id: "scan",
-			label: "Wellness Scan",
+			id: "checkin",
+			label: "Daily Check-In",
 			icon: <Activity color="#3EC9B5" size={18} />,
 			onPress: () => {
 				setExpanded(false);
-				router.push("/scan/body-scan");
+				router.push("/(dashboard)");
 			},
 		},
 		{

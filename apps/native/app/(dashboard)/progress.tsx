@@ -13,7 +13,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle, Line, Path, Text as SvgText } from "react-native-svg";
 import { useDashboardStore } from "@/stores/dashboard-store";
-import { useOnboardingStore } from "@/stores/onboarding-store";
 
 // ── Design tokens ──────────────────────────────────
 const BG = "#F4F6F8";
@@ -263,18 +262,17 @@ function LineChart({ data }: { data: { label: string; value: number }[] }) {
 }
 
 export default function ProgressScreen() {
-	const { healthScore, computeHealthScore } = useOnboardingStore();
 	const { streak, lastCheckInValues, checkInHistory } = useDashboardStore();
 	const router = useRouter();
 	const [range, setRange] = useState<TimeRange>("Day");
 	const [showReport, setShowReport] = useState(false);
 
-	const score = healthScore ?? computeHealthScore();
-	let scoreLabel = "Great progress! Keep it up!";
-	if (score < 50) {
-		scoreLabel = "Let's build on your foundation!";
-	} else if (score < 75) {
-		scoreLabel = "Good foundation. Let's optimize further!";
+	// Use streak-based levels instead of numerical health score
+	let streakLevel: "high" | "mid" | "low" = "low";
+	if (streak >= 14) {
+		streakLevel = "high";
+	} else if (streak >= 5) {
+		streakLevel = "mid";
 	}
 
 	// ── Dynamic Chart Aggregation ──
@@ -432,7 +430,7 @@ export default function ProgressScreen() {
 				<View style={styles.header}>
 					<View>
 						<Text style={styles.title}>Your Progress 📈</Text>
-						<Text style={styles.sub}>Track your awareness journey</Text>
+						<Text style={styles.sub}>Track your daily habits</Text>
 					</View>
 					<TouchableOpacity
 						activeOpacity={0.8}
@@ -443,34 +441,22 @@ export default function ProgressScreen() {
 					</TouchableOpacity>
 				</View>
 
-				{/* Awareness Score card */}
+				{/* Streak card */}
 				<View style={styles.scoreCard}>
 					<View style={styles.scoreCardTop}>
 						<View>
-							<Text style={styles.scoreLabel}>Your Awareness Score</Text>
-							<Text style={styles.scoreUpdated}>Updated today</Text>
+							<Text style={styles.scoreLabel}>Your Daily Streak</Text>
+							<Text style={styles.scoreUpdated}>Keep it going!</Text>
 						</View>
 						<View style={styles.scoreIconBadge}>
-							<Ionicons color="#FFFFFF" name="pulse-outline" size={20} />
+							<Ionicons color="#FFFFFF" name="flame-outline" size={20} />
 						</View>
 					</View>
 
 					<View style={styles.scoreRow}>
-						<Text style={styles.scoreBig}>{Math.round(score)}</Text>
-						<Text style={styles.scoreOutOf}>/100</Text>
+						<Text style={styles.scoreBig}>{streak}</Text>
+						<Text style={styles.scoreOutOf}> days</Text>
 					</View>
-
-					{/* Progress bar */}
-					<View style={styles.scoreBar}>
-						<View
-							style={[
-								styles.scoreBarFill,
-								{ width: `${(score / 100) * 100}%` as `${number}%` },
-							]}
-						/>
-					</View>
-
-					<Text style={styles.scoreTagline}>— {scoreLabel}</Text>
 
 					{/* 7-Day Streak Flames */}
 					<View style={styles.streakRow}>
@@ -484,7 +470,7 @@ export default function ProgressScreen() {
 								const isLit = i < litCount;
 								return (
 									<Ionicons
-										color={isLit ? "#FF6D00" : "#CBD5E1"} // Deeper, more premium orange
+										color={isLit ? "#FF6D00" : "#CBD5E1"}
 										key={`flame-top-${i}`}
 										name={isLit ? "flame" : "flame-outline"}
 										size={22}
@@ -494,120 +480,37 @@ export default function ProgressScreen() {
 							})}
 						</View>
 					</View>
-
-					{/* Stats row */}
-					<View style={styles.statsRow}>
-						<View style={styles.stat}>
-							<Text style={styles.statVal}>{Math.round(score)}</Text>
-							<Text style={styles.statLbl}>Avg Score</Text>
-						</View>
-						<View style={styles.statDivider} />
-						<View style={styles.stat}>
-							<Text style={styles.statVal}>{Math.round(score)}</Text>
-							<Text style={styles.statLbl}>Best Score</Text>
-						</View>
-					</View>
 				</View>
 
-				{/* Chart card */}
-				<View style={styles.card}>
-					<Text style={styles.cardTitle}>Awareness Score Over Time</Text>
-					{/* Range picker */}
-					<View style={styles.rangePicker}>
-						{(["Day", "Week", "12 Months"] as TimeRange[]).map((r) => (
-							<TouchableOpacity
-								key={r}
-								onPress={() => setRange(r)}
-								style={[styles.rangeBtn, range === r && styles.rangeBtnActive]}
-							>
-								<Text
-									style={[
-										styles.rangeBtnText,
-										range === r && styles.rangeBtnTextActive,
-									]}
-								>
-									{r}
-								</Text>
-							</TouchableOpacity>
-						))}
-					</View>
-					<View style={{ paddingLeft: 20, marginTop: 8 }}>
-						<LineChart data={chartData} />
-					</View>
-				</View>
-
-				{/* Symptom Tracker */}
-				<TouchableOpacity
-					activeOpacity={0.9}
-					onPress={() => router.push("/(dashboard)/analyze-symptoms" as any)}
-					style={[styles.card, { borderColor: TEAL, borderWidth: 1 }]}
-				>
-					<View
-						style={{
-							flexDirection: "row",
-							justifyContent: "space-between",
-							alignItems: "center",
-						}}
-					>
-						<Text style={styles.cardTitle}>Awareness Journal</Text>
-						<Ionicons color={TEAL} name="arrow-forward" size={20} />
-					</View>
-					{activeSymptoms.map((s) => {
-						// Stable state visual styling
-						const isStable = s.trend === "Stable";
-						let bColor = "#FFF5F5";
-						let borderColor = "#FECACA";
-						let txtColor = "#EF4444";
-						if (s.isImproving) {
-							bColor = "#F0FFF4";
-							borderColor = "#86EFAC";
-							txtColor = "#22C55E";
-						} else if (isStable) {
-							bColor = "#F8FAFC";
-							borderColor = "#E2E8F0";
-							txtColor = "#94A3B8";
-						}
-
-						let iconName: "remove" | "arrow-up" | "arrow-down" = "remove";
-						if (s.isImproving) {
-							iconName = "arrow-up";
-						} else if (!isStable) {
-							iconName = "arrow-down";
-						}
-
-						return (
+				{/* Check-in Journal */}
+				<View style={[styles.card, { borderColor: TEAL, borderWidth: 1 }]}>
+					<Text style={styles.cardTitle}>Check-in Journal</Text>
+					{activeSymptoms.map((s) => (
+						<View
+							key={s.key}
+							style={[
+								styles.symptomRow,
+								{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" },
+							]}
+						>
 							<View
-								key={s.key}
-								style={[
-									styles.symptomRow,
-									{ backgroundColor: bColor, borderColor },
-								]}
+								style={[styles.symptomIcon, { backgroundColor: "#FFFFFF" }]}
 							>
-								<View
-									style={[styles.symptomIcon, { backgroundColor: "#FFFFFF" }]}
-								>
-									<Text style={{ fontSize: 20 }}>{s.icon}</Text>
-								</View>
-								<View style={styles.symptomContent}>
-									<Text style={styles.symptomTitle}>{s.label}</Text>
-									<Text style={styles.symptomDesc}>{s.desc}</Text>
-									<Text style={styles.symptomDays}>
-										{s.daysTracked} days tracked
-									</Text>
-								</View>
-								<View style={styles.trendBadge}>
-									<Ionicons color={txtColor} name={iconName} size={12} />
-									<Text style={[styles.trendText, { color: txtColor }]}>
-										{s.trend}
-									</Text>
-								</View>
+								<Text style={{ fontSize: 20 }}>{s.icon}</Text>
 							</View>
-						);
-					})}
+							<View style={styles.symptomContent}>
+								<Text style={styles.symptomTitle}>{s.label}</Text>
+								<Text style={styles.symptomDesc}>{s.desc}</Text>
+								<Text style={styles.symptomDays}>
+									{s.daysTracked} days tracked
+								</Text>
+							</View>
+						</View>
+					))}
 					<Text style={styles.symptomFooter}>
-						Based on your last 30 days of check-ins. Tap to explore reflections.
+						Based on your last 30 days of daily check-ins.
 					</Text>
-				</TouchableOpacity>
+				</View>
 
 				{/* Streak card */}
 				<View style={[styles.card, { backgroundColor: "#FFF8F0" }]}>
@@ -670,44 +573,44 @@ export default function ProgressScreen() {
 									styles.modalBadge,
 									{
 										backgroundColor:
-											score >= 70
+											streakLevel === "high"
 												? "#DCFCE7"
-												: score >= 50
+												: streakLevel === "mid"
 													? "#FEF3C7"
 													: "#FEE2E2",
 									},
 								]}
 							>
 								<Text style={{ fontSize: 48, marginBottom: 8 }}>
-									{score >= 70 ? "🏆" : score >= 50 ? "🌱" : "⚠️"}
+									{streakLevel === "high" ? "🏆" : streakLevel === "mid" ? "🌱" : "⚠️"}
 								</Text>
 								<Text
 									style={[
 										styles.modalStatusText,
 										{
 											color:
-												score >= 70
+												streakLevel === "high"
 													? "#166534"
-													: score >= 50
+													: streakLevel === "mid"
 														? "#92400E"
 														: "#991B1B",
 										},
 									]}
 								>
-									{score >= 70
+									{streakLevel === "high"
 										? "Thriving"
-										: score >= 50
+										: streakLevel === "mid"
 											? "Building Habits"
-											: "Needs Attention"}
+											: "Getting Started"}
 								</Text>
 							</View>
 
 							<Text style={styles.modalDesc}>
-								{score >= 70
-									? "Your daily awareness habits are progressing exceptionally well! Your weekly consistency is paying off. Keep your routines steady to maintain this momentum."
-									: score >= 50
-										? "You're making solid progress. Focus on your targeted daily actions and ensure you're getting enough restorative sleep to boost your score further."
-										: "You've been experiencing some high stress lately. It's recommended to prioritize rest, hydration, and light stretching today to recharge."}
+								{streakLevel === "high"
+									? "Your daily check-in habits are going strong! Your consistency is paying off. Keep your routines steady to maintain this momentum."
+									: streakLevel === "mid"
+										? "You're building a solid routine. Keep logging your daily check-ins to strengthen your habits."
+										: "Start logging daily check-ins to build consistency. Small steps lead to big changes!"}
 							</Text>
 
 							<View style={styles.modalStatsRow}>
@@ -716,8 +619,8 @@ export default function ProgressScreen() {
 									<Text style={styles.modalStatLbl}>Days Logged</Text>
 								</View>
 								<View style={styles.modalStatBox}>
-									<Text style={styles.modalStatNum}>{Math.round(score)}</Text>
-									<Text style={styles.modalStatLbl}>Avg Score</Text>
+									<Text style={styles.modalStatNum}>{checkInHistory.length}</Text>
+									<Text style={styles.modalStatLbl}>Total Check-ins</Text>
 								</View>
 							</View>
 

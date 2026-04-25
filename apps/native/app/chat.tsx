@@ -89,12 +89,12 @@ function extractSuggestions(text: string): {
 }
 
 function ChatScreen() {
-	const { firstName, healthScore, isPro } = useOnboardingStore();
+	const { firstName, isPro } = useOnboardingStore();
 	const [messages, setMessages] = useState<Message[]>([
 		{
 			id: "1",
 			role: "assistant",
-			content: `Hi ${firstName || "there"}! I'm EZBuddy, your educational body awareness companion. Your current awareness score is ${healthScore || "--"}. How can I help you learn about your lifestyle today?`,
+			content: `Hi ${firstName || "there"}! I'm EZBuddy, your educational lifestyle companion. How can I help you learn about your daily habits today?`,
 		},
 	]);
 	const [input, setInput] = useState("");

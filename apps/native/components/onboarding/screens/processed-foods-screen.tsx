@@ -86,19 +86,19 @@ export const ProcessedFoodsScreen = () => {
 							/>
 						</View>
 
-						{/* Awareness Score Impact */}
+						{/* Why This Matters */}
 						<View className="mt-10 flex-row items-start rounded-[32px] border border-indigo-50/50 bg-[#F8FAFF] p-6">
 							<View className="mr-4 rounded-2xl bg-[#FFF4E5] p-3.5">
 								<TrendingUp color="#818CF8" size={22} />
 							</View>
 							<View className="flex-1">
 								<Text className="font-bold text-[#0d2137] text-[17px] leading-6">
-									Awareness Score Impact
+									Why This Matters
 								</Text>
 								<Text className="mt-1 text-[#73808C] text-[14px] leading-[22px]">
 									Understanding your current eating patterns helps us create
 									realistic goals and track meaningful improvements in your
-									awareness journey.
+									daily habits.
 								</Text>
 							</View>
 						</View>

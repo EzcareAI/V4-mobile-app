@@ -20,8 +20,8 @@ const BENEFITS = [
 	},
 	{
 		emoji: "📊",
-		title: "Awareness score & progress tracking",
-		desc: "Watch your daily awareness grow with educational milestones.",
+		title: "Streak & progress tracking",
+		desc: "Watch your daily habits grow with educational milestones.",
 	},
 	{
 		emoji: "💪",

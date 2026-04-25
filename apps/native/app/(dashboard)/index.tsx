@@ -1,19 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import {
-	lazy,
-	Suspense,
 	useCallback,
 	useEffect,
 	useRef,
 	useState,
 } from "react";
 import {
-	ActivityIndicator,
 	Animated,
-	Image,
 	PanResponder,
 	Platform,
 	ScrollView,
@@ -23,16 +19,8 @@ import {
 	View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { supabase } from "@/lib/supabase";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { useOnboardingStore } from "@/stores/onboarding-store";
-
-// Lazy-load so @react-three/fiber/native is NOT evaluated at module load time.
-// Direct imports of this library resolve to `undefined` in production APKs,
-// causing the "Element type is invalid: got undefined" crash on launch.
-const Body3DSelector = lazy(
-	() => import("@/components/onboarding/common/body-3d-selector")
-);
 
 // ── Design tokens ──────────────────────────────────
 const BG = "#F4F6F8";
@@ -294,13 +282,13 @@ function formatCountdown(ms: number): string {
 }
 
 export default function HomeScreen() {
-	const { firstName, gender, computeHealthScore, healthScore } =
+	const { firstName } =
 		useOnboardingStore();
 	const {
 		canCheckIn,
 		saveCheckIn,
 		getNextCheckInMs,
-
+		streak,
 		resetDailyMissions,
 		missions,
 		toggleMission,
@@ -314,34 +302,7 @@ export default function HomeScreen() {
 	});
 	const [saved, setSaved] = useState(false);
 	const [nextMs, setNextMs] = useState(getNextCheckInMs());
-	const [selectedZones, setSelectedZones] = useState<string[]>([]);
-	const [recentAnalyses, setRecentAnalyses] = useState<any[]>([]);
 	const router = useRouter();
-
-	useFocusEffect(
-		useCallback(() => {
-			async function loadHistory() {
-				const {
-					data: { session },
-				} = await supabase.auth.getSession();
-				if (!session?.user?.id) {
-					return;
-				}
-
-				const { data, error } = await supabase
-					.from("health_analyses")
-					.select("id, created_at, zones, probable_causes, image_url")
-					.eq("user_id", session.user.id)
-					.order("created_at", { ascending: false })
-					.limit(5);
-
-				if (!error && data) {
-					setRecentAnalyses(data);
-				}
-			}
-			loadHistory();
-		}, [])
-	);
 
 	// Resets daily missions + live countdown
 	useEffect(() => {
@@ -351,7 +312,6 @@ export default function HomeScreen() {
 	}, [resetDailyMissions, getNextCheckInMs]);
 
 	const canSave = canCheckIn();
-	const score = healthScore ?? computeHealthScore();
 	const isPro = useOnboardingStore((state) => state.isPro);
 	const allFilled = Object.values(values).every((v) => v > 0);
 
@@ -419,74 +379,25 @@ export default function HomeScreen() {
 					</TouchableOpacity>
 				</View>
 
-				{/* ── Awareness Score & Body Map Card ── */}
+				{/* ── Streak & Motivation Card ── */}
 				<View style={styles.card}>
 					<View style={styles.scoreRow}>
-						<Text style={styles.scoreTitle}>Awareness Score</Text>
+						<Text style={styles.scoreTitle}>Your Daily Streak</Text>
 						<View style={styles.scoreBadge}>
-							<Text style={styles.scoreText}>{Math.round(score)}/100</Text>
+							<Text style={styles.scoreText}>🔥 {streak} days</Text>
 						</View>
 					</View>
 					<Text style={styles.scoreDesc}>
-						Interact with your body map to reflect on how you feel or explore
-						general lifestyle tips.
+						Build better daily habits by completing your check-ins and actions.
+						Consistency is key!
 					</Text>
-
-					<View style={styles.bodyWrapper}>
-						<Suspense
-							fallback={
-								<ActivityIndicator
-									color="#3EC9B5"
-									size="large"
-									style={{ flex: 1 }}
-								/>
-							}
-						>
-							<Body3DSelector
-								gender={(gender as "male" | "female") || "male"}
-								onChange={setSelectedZones}
-								onZoneSelect={(_zoneId: string) => {
-									if (Platform.OS === "ios") {
-										impactAsync(ImpactFeedbackStyle.Light).catch(() => {
-											/* ignore */
-										});
-									}
-								}}
-								value={selectedZones}
-							/>
-						</Suspense>
-					</View>
-
-					{/* Body Awareness CTA */}
-					{selectedZones.length > 0 && (
-						<TouchableOpacity
-							activeOpacity={0.8}
-							onPress={() => {
-								if (Platform.OS === "ios") {
-									impactAsync(ImpactFeedbackStyle.Medium).catch(() => {});
-								}
-								router.push(
-									`/(dashboard)/analyze-symptoms?zones=${encodeURIComponent(
-										selectedZones.join(",")
-									)}`
-								);
-							}}
-							style={styles.analyzeBtn}
-						>
-							<Ionicons color="#FFF" name="analytics-outline" size={20} />
-							<Text style={styles.analyzeBtnText}>
-								Explore {selectedZones.length} Zone
-								{selectedZones.length === 1 ? "" : "s"}
-							</Text>
-						</TouchableOpacity>
-					)}
 				</View>
 
 				{/* ── Wellness Disclaimer ── */}
 				<View style={styles.disclaimerBanner}>
 					<Ionicons color="#D97706" name="information-circle" size={18} />
 					<Text style={styles.disclaimerBannerText}>
-						EZCare is an educational lifestyle awareness tool. All information is for general educational purposes only. Consult a healthcare professional for any medical concern, diagnosis, or treatment decision.
+						EZCare is a lifestyle habit tracker for educational purposes only. It does not replace professional advice of any kind.
 					</Text>
 				</View>
 
@@ -555,7 +466,7 @@ export default function HomeScreen() {
 							style={{ alignSelf: "center", marginTop: 16 }}
 						/>
 						<Text style={styles.completedTitle}>
-							Daily Health Check-In – Next One
+							Daily Check-In – Next One
 						</Text>
 						<Text style={styles.completedEvening}>Evening Check-In</Text>
 						<View style={styles.countdownBox}>
@@ -613,7 +524,7 @@ export default function HomeScreen() {
 									{mission.title}
 								</Text>
 								<Text style={styles.actionSub}>
-									+{mission.healthPoints} pts to Awareness Score
+									Daily habit — tap to log
 								</Text>
 							</View>
 							<Text style={{ fontSize: 11, color: GREY }}>
@@ -623,52 +534,7 @@ export default function HomeScreen() {
 					);
 				})}
 
-				{/* ── Recent Analyses ── */}
-				{recentAnalyses.length > 0 && (
-					<View style={{ marginBottom: 24 }}>
-						<Text style={styles.sectionTitle}>Recent Reflections</Text>
-						<ScrollView
-							contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}
-							horizontal
-							showsHorizontalScrollIndicator={false}
-						>
-							{recentAnalyses.map((item) => (
-								<TouchableOpacity
-									activeOpacity={0.8}
-									key={item.id}
-									onPress={() =>
-										router.push(
-											`/(dashboard)/analyze-symptoms?historyId=${item.id}`
-										)
-									}
-									style={styles.historyCard}
-								>
-									<View style={styles.historyIconWrap}>
-										{item.image_url ? (
-											<Image
-												source={{ uri: item.image_url }}
-												style={styles.historyImage}
-											/>
-										) : (
-											<Ionicons color={TEAL} name="body-outline" size={20} />
-										)}
-									</View>
-									<Text numberOfLines={1} style={styles.historyZones}>
-										{item.zones[0] === "General Body Scan" ? "📸 Body Awareness" : item.zones.join(", ")}
-									</Text>
-									<Text style={styles.historyDate}>
-										{new Date(item.created_at).toLocaleDateString()}
-									</Text>
-									{item.probable_causes?.[0] && (
-										<Text numberOfLines={1} style={styles.historyTopCause}>
-											{item.probable_causes[0].name}
-										</Text>
-									)}
-								</TouchableOpacity>
-							))}
-						</ScrollView>
-					</View>
-				)}
+				{/* Recent Analyses removed — not needed for current version */}
 
 				{/* ── EZBuddy Chat ── */}
 				<TouchableOpacity
@@ -698,16 +564,7 @@ export default function HomeScreen() {
 						<Text style={styles.chatStartText}>Start Conversation</Text>
 					</View>
 				</TouchableOpacity>
-				<TouchableOpacity
-					activeOpacity={0.9}
-					onPress={() => router.push("/scan/body-scan")}
-					style={styles.scanCard}
-				>
-					<Ionicons color={TEAL} name="scan-outline" size={22} />
-					<Text style={styles.scanText}>AR Body Awareness</Text>
-					<Ionicons color={TEAL} name="chevron-forward" size={18} />
-				</TouchableOpacity>
-			</ScrollView>
+				</ScrollView>
 		</SafeAreaView>
 	);
 }

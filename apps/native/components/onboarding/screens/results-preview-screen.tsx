@@ -200,7 +200,7 @@ export default function ResultsPreviewScreen() {
 
 	const router = useRouter();
 	const [score, setScore] = useState(0);
-	const [displayScore, setDisplayScore] = useState(0);
+	const [readinessLabel, setReadinessLabel] = useState("");
 
 	// Animation Values
 	const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -212,6 +212,15 @@ export default function ResultsPreviewScreen() {
 		setScore(computed);
 		setAnswer("healthScore", computed);
 		setAnswer("resultsShown", new Date().toISOString());
+
+		// Derive a qualitative readiness label (no numerical display)
+		if (computed >= 70) {
+			setReadinessLabel("Ready");
+		} else if (computed >= 50) {
+			setReadinessLabel("On Track");
+		} else {
+			setReadinessLabel("Let's Go");
+		}
 
 		// 1. Initial Entry Animation (Fade & Slide UP)
 		Animated.parallel([
@@ -243,24 +252,6 @@ export default function ResultsPreviewScreen() {
 				}),
 			])
 		).start();
-
-		// 3. Ticker Animation for Score (0 to computed)
-		let start = 0;
-		const duration = 1500;
-		const animateScore = (timestamp: number) => {
-			if (!start) {
-				start = timestamp;
-			}
-			const progress = Math.min((timestamp - start) / duration, 1);
-			// Ease-out cubic polynomial
-			const easeOut = 1 - (1 - progress) ** 3;
-			setDisplayScore(Math.floor(easeOut * computed));
-
-			if (progress < 1) {
-				requestAnimationFrame(animateScore);
-			}
-		};
-		requestAnimationFrame(animateScore);
 	}, [computeHealthScore, setAnswer, fadeAnim, slideAnimY, floatAnimY]);
 
 	const scoreInfo = getScoreColor(score);
@@ -448,12 +439,12 @@ export default function ResultsPreviewScreen() {
 
 	const getStatusText = () => {
 		if (score >= 70) {
-			return "Excellent Awareness Potential";
+			return "Your Plan is Optimized!";
 		}
 		if (score >= 50) {
-			return "Good Awareness Baseline";
+			return "Great Starting Point!";
 		}
-		return "Room for Growth";
+		return "Let's Build Great Habits!";
 	};
 
 	// Display label for selected zones
@@ -491,7 +482,7 @@ export default function ResultsPreviewScreen() {
 					awareness plan tailored to your lifestyle.
 				</Text>
 
-				{/* Elevated Awareness Score Display */}
+				{/* Readiness Display */}
 				<Animated.View
 					className={`${scoreInfo.bg} mb-4 items-center overflow-hidden rounded-[32px] border border-white p-6 shadow-blue-100/50 shadow-xl`}
 					style={{ transform: [{ translateY: floatAnimY }] }}
@@ -586,26 +577,25 @@ export default function ResultsPreviewScreen() {
 									fill="none"
 									r={mainR}
 									stroke="url(#scoreGradient)"
-									strokeDasharray={`${(displayScore / 100) * circumference} ${circumference}`}
+									strokeDasharray={`${0.85 * circumference} ${circumference}`}
 									strokeLinecap="round"
 									strokeWidth={Math.round(circleSize * 0.073)}
 									transform={`rotate(-90 ${half} ${half})`}
 								/>
 							</Svg>
 							<View style={{ position: "absolute", alignItems: "center", justifyContent: "center" }}>
+								<Text style={{ fontSize: 40, marginBottom: 2 }}>
+									{score >= 70 ? "🏆" : score >= 50 ? "🌟" : "🚀"}
+								</Text>
 								<Text
-									className="text-center font-black"
+									className="text-center font-extrabold"
 									style={{
-										fontSize: scoreFontSize,
+										fontSize: 14,
 										color: scoreInfo.gradient[0],
-										letterSpacing: -2,
-										lineHeight: scoreFontSize + 2,
+										letterSpacing: 0.5,
 									}}
 								>
-									{displayScore}
-								</Text>
-								<Text className="mt-1 font-extrabold text-[#94A3B8] text-[11px] uppercase tracking-[0.2em]">
-									/ 100
+									{readinessLabel}
 								</Text>
 							</View>
 						</View>

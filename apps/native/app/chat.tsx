@@ -41,6 +41,7 @@ import {
 import Markdown from "react-native-markdown-display";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+import { useCompanionStore } from "@/stores/companion-store";
 
 const apiKey = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
 
@@ -70,22 +71,30 @@ interface Message {
 }
 
 const SUGGESTIONS_RE = /<suggestions>([\s\S]*?)<\/suggestions>/i;
+const MEMORY_RE = /<memory>([\s\S]*?)<\/memory>/i;
 
 function extractSuggestions(text: string): {
 	body: string;
 	suggestions: string[];
+	memoryFacts: string[];
 } {
-	const m = text.match(SUGGESTIONS_RE);
+	const memMatch = text.match(MEMORY_RE);
+	const memoryFacts = memMatch
+		? memMatch[1].split("|").map((s) => s.trim()).filter((s) => s.length > 0 && s.length <= 100)
+		: [];
+
+	const cleaned = text.replace(MEMORY_RE, "");
+	const m = cleaned.match(SUGGESTIONS_RE);
 	if (!m) {
-		return { body: text, suggestions: [] };
+		return { body: cleaned.trim(), suggestions: [], memoryFacts };
 	}
-	const body = text.replace(SUGGESTIONS_RE, "").trim();
+	const body = cleaned.replace(SUGGESTIONS_RE, "").trim();
 	const suggestions = m[1]
 		.split("|")
 		.map((s) => s.trim())
 		.filter((s) => s.length > 0 && s.length <= 80)
 		.slice(0, 4);
-	return { body, suggestions };
+	return { body, suggestions, memoryFacts };
 }
 
 const SYSTEM_PROMPT = `You are EZBuddy, a warm, smart, and conversational lifestyle companion inside the EZCare app. You feel like texting a knowledgeable best friend — not a chatbot.
@@ -122,10 +131,16 @@ const SYSTEM_PROMPT = `You are EZBuddy, a warm, smart, and conversational lifest
 - Use bullet points for lists (max 3-4 items)
 - End every response with a <suggestions> block: 3 short follow-up prompts (max 8 words), separated by |
   Example: <suggestions>What foods help with energy?|How can I sleep better?|Tell me about stress relief</suggestions>
-  This block is for the UI — never mention it to the user.`;
+  This block is for the UI — never mention it to the user.
+
+## Memory
+- If the user shares personal details (name, preferences, conditions, goals, habits), include a <memory> block at the end of your response with key facts to remember, separated by |
+  Example: <memory>prefers keto diet|works out 3x per week|has trouble sleeping</memory>
+  This block is for the system — never mention it to the user.`;
 
 function ChatScreen() {
 	const { firstName, isPro } = useOnboardingStore();
+	const { getMemoryContext, incrementConversationCount, addTopic } = useCompanionStore();
 	const [messages, setMessages] = useState<Message[]>([
 		{
 			id: "1",
@@ -301,6 +316,11 @@ function ChatScreen() {
 			return;
 		}
 
+		// Track conversation on first user message
+		if (messages.filter((m) => m.role === "user").length === 0) {
+			incrementConversationCount();
+		}
+
 		const userMsg: Message = {
 			id: Date.now().toString(),
 			role: "user",
@@ -342,11 +362,15 @@ function ChatScreen() {
 				content: m.content,
 			}));
 
+			// Build system prompt with companion memory
+			const memoryContext = getMemoryContext();
+			const fullSystemPrompt = SYSTEM_PROMPT + memoryContext;
+
 			// Use streaming for progressive output
 			const stream = anthropic.messages.stream({
 				model: "claude-haiku-4-5-20251001",
 				max_tokens: 1024,
-				system: SYSTEM_PROMPT,
+				system: fullSystemPrompt,
 				messages: [...priorApiMessages, { role: "user", content: userContent }],
 			});
 
@@ -362,7 +386,15 @@ function ChatScreen() {
 			const finalMessage = await stream.finalMessage();
 
 			const rawReply = finalMessage.content[0].type === "text" ? finalMessage.content[0].text : fullText;
-			const { body: assistantReply, suggestions } = extractSuggestions(rawReply);
+			const { body: assistantReply, suggestions, memoryFacts } = extractSuggestions(rawReply);
+
+			// Save memory facts from the AI's response
+			if (memoryFacts.length > 0) {
+				const { addFact } = useCompanionStore.getState();
+				for (const fact of memoryFacts) {
+					addFact(fact);
+				}
+			}
 
 			if (Platform.OS === "ios") {
 				try { await impactAsync(ImpactFeedbackStyle.Medium); } catch {}

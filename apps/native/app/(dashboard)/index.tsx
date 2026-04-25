@@ -534,7 +534,55 @@ export default function HomeScreen() {
 					);
 				})}
 
-				{/* Recent Analyses removed — not needed for current version */}
+				{/* ── Feature Hub ── */}
+				<Text style={styles.sectionTitle}>Explore</Text>
+				<View style={styles.featureRow}>
+					<TouchableOpacity
+						activeOpacity={0.85}
+						onPress={() => router.push("/scan/meal-scanner")}
+						style={styles.featureCard}
+					>
+						<LinearGradient
+							colors={["#FF6B35", "#FF4444"]}
+							start={{ x: 0, y: 0 }}
+							end={{ x: 1, y: 1 }}
+							style={styles.featureGrad}
+						>
+							<Text style={styles.featureEmoji}>📸</Text>
+							<Text style={styles.featureLabel}>AI Meal{"\n"}Scanner</Text>
+						</LinearGradient>
+					</TouchableOpacity>
+					<TouchableOpacity
+						activeOpacity={0.85}
+						onPress={() => router.push("/vibe-card")}
+						style={styles.featureCard}
+					>
+						<LinearGradient
+							colors={["#8B5CF6", "#EC4899"]}
+							start={{ x: 0, y: 0 }}
+							end={{ x: 1, y: 1 }}
+							style={styles.featureGrad}
+						>
+							<Text style={styles.featureEmoji}>✨</Text>
+							<Text style={styles.featureLabel}>Vibe{"\n"}Card</Text>
+						</LinearGradient>
+					</TouchableOpacity>
+					<TouchableOpacity
+						activeOpacity={0.85}
+						onPress={() => router.push("/rewards")}
+						style={styles.featureCard}
+					>
+						<LinearGradient
+							colors={["#FFD700", "#FF8C00"]}
+							start={{ x: 0, y: 0 }}
+							end={{ x: 1, y: 1 }}
+							style={styles.featureGrad}
+						>
+							<Text style={styles.featureEmoji}>🏆</Text>
+							<Text style={styles.featureLabel}>Rewards{"\n"}& XP</Text>
+						</LinearGradient>
+					</TouchableOpacity>
+				</View>
 
 				{/* ── EZBuddy Chat ── */}
 				<TouchableOpacity
@@ -984,4 +1032,37 @@ const styles = StyleSheet.create({
 		borderColor: "rgba(62,201,181,0.3)",
 	},
 	scanText: { flex: 1, fontSize: 15, fontWeight: "700", color: TEAL },
+
+	// Feature hub
+	featureRow: {
+		flexDirection: "row",
+		paddingHorizontal: 20,
+		gap: 12,
+		marginBottom: 24,
+	},
+	featureCard: {
+		flex: 1,
+		borderRadius: 20,
+		overflow: "hidden",
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.15,
+		shadowRadius: 8,
+		elevation: 4,
+	},
+	featureGrad: {
+		paddingVertical: 20,
+		paddingHorizontal: 12,
+		alignItems: "center",
+		justifyContent: "center",
+		minHeight: 110,
+	},
+	featureEmoji: { fontSize: 32, marginBottom: 8 },
+	featureLabel: {
+		color: "#FFFFFF",
+		fontSize: 13,
+		fontWeight: "800",
+		textAlign: "center",
+		lineHeight: 17,
+	},
 });

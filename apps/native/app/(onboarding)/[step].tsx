@@ -6,17 +6,11 @@ import { ActivityLevelScreen } from "@/components/onboarding/screens/activity-le
 import { AlcoholScreen } from "@/components/onboarding/screens/alcohol-screen";
 import { BirthdayScreen } from "@/components/onboarding/screens/birthday-screen";
 
-// BodyDiagramScreen uses Body3DSelector (@react-three/fiber/native) — lazy-load
-// to prevent the library from being evaluated at module load time in production APKs.
-const BodyDiagramScreen = lazy(
-	() => import("@/components/onboarding/screens/body-diagram-screen")
-);
-
-// ===== SHARED CONVERGENCE SCREENS (Steps 17+) =====
+// ===== SHARED CONVERGENCE SCREENS =====
 import { ConfidenceMomentScreen } from "@/components/onboarding/screens/confidence-moment-screen";
 import { DiscountWheelScreen } from "@/components/onboarding/screens/discount-wheel-screen";
 import { DopamineScreen } from "@/components/onboarding/screens/dopamine-screen";
-// ===== BASELINE SCREENS (Steps 1-10) =====
+// ===== BASELINE SCREENS (Steps 1-11) =====
 import { GenderScreen } from "@/components/onboarding/screens/gender-screen";
 import { HeightWeightScreen } from "@/components/onboarding/screens/height-weight-screen";
 import { LoadingPlanScreen } from "@/components/onboarding/screens/loading-plan-screen";
@@ -32,11 +26,6 @@ import { ReferralScreen } from "@/components/onboarding/screens/referral-screen"
 import { SleepScreen } from "@/components/onboarding/screens/sleep-screen";
 import { SmokingScreen } from "@/components/onboarding/screens/smoking-screen";
 import { StressLevelScreen } from "@/components/onboarding/screens/stress-level-screen";
-import { ZoneDurationScreen } from "@/components/onboarding/screens/zone-duration-screen";
-import { ZoneFrequencyScreen } from "@/components/onboarding/screens/zone-frequency-screen";
-import { ZoneImpactScreen } from "@/components/onboarding/screens/zone-impact-screen";
-import { ZoneSymptomIntensityScreen } from "@/components/onboarding/screens/zone-symptom-intensity-screen";
-import { ZoneTriggerScreen } from "@/components/onboarding/screens/zone-trigger-screen";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 // Lazy-load Skia-dependent screens so @shopify/react-native-skia is NOT
@@ -54,14 +43,40 @@ const LoadingFallback = () => (
 	</View>
 );
 
+// ── Step Layout ──────────────────────────────────────
+// 1  Name
+// 2  Gender
+// 3  Birthday
+// 4  Height/Weight
+// 5  Activity Level
+// 6  Dopamine (reinforcement)
+// 7  Sleep
+// 8  Stress Level
+// 9  Smoking
+// 10 Alcohol
+// 11 Dopamine (progress)
+// 12-16 Overall path (priority, blocker, energy, digestion, motivation)
+// 17 Confidence Moment
+// 18 Results Preview
+// 19 Paywall
+// 20 Discount Wheel
+// 21 Account Creation
+// 22 Loading Plan
+// 23 Perfect Plan
+// 24 Notifications
+// 25 Referral
+
 const OnboardingStep = () => {
 	const { step } = useLocalSearchParams<{ step: string }>();
 	const stepNumber = Number.parseInt(step ?? "1", 10);
 	const setAnswer = useOnboardingStore((state) => state.setAnswer);
-	const intentType = useOnboardingStore((state) => state.intentType);
 
 	useEffect(() => {
 		setAnswer("currentStep", stepNumber);
+		// Auto-set intent to "overall" (body diagram removed)
+		if (stepNumber === 12) {
+			setAnswer("intentType", "overall");
+		}
 	}, [stepNumber, setAnswer]);
 
 	const renderBaseline = () => {
@@ -88,81 +103,55 @@ const OnboardingStep = () => {
 				return <AlcoholScreen />;
 			case 11:
 				return <DopamineScreen type="progress" />;
-			case 12:
-				return (
-					<Suspense fallback={<LoadingFallback />}>
-						<BodyDiagramScreen />
-					</Suspense>
-				);
 			default:
 				return null;
 		}
 	};
 
-	const renderConditionalPath = () => {
-		if (intentType === "zone") {
-			switch (stepNumber) {
-				case 13:
-					return <ZoneSymptomIntensityScreen />;
-				case 14:
-					return <ZoneDurationScreen />;
-				case 15:
-					return <ZoneFrequencyScreen />;
-				case 16:
-					return <ZoneTriggerScreen />;
-				case 17:
-					return <ZoneImpactScreen />;
-				default:
-					return null;
-			}
+	const renderOverallPath = () => {
+		switch (stepNumber) {
+			case 12:
+				return <OverallPriorityScreen />;
+			case 13:
+				return <OverallBlockerScreen />;
+			case 14:
+				return <OverallEnergyScreen />;
+			case 15:
+				return <OverallDigestionScreen />;
+			case 16:
+				return <OverallMotivationScreen />;
+			default:
+				return null;
 		}
-
-		if (intentType === "overall") {
-			switch (stepNumber) {
-				case 13:
-					return <OverallPriorityScreen />;
-				case 14:
-					return <OverallBlockerScreen />;
-				case 15:
-					return <OverallEnergyScreen />;
-				case 16:
-					return <OverallDigestionScreen />;
-				case 17:
-					return <OverallMotivationScreen />;
-				default:
-					return null;
-			}
-		}
-		return null;
 	};
 
 	const renderConvergence = () => {
 		switch (stepNumber) {
-			case 18:
+			case 17:
 				return <ConfidenceMomentScreen />;
-			case 19:
+			case 18:
 				return (
 					<Suspense fallback={<LoadingFallback />}>
 						<ResultsPreviewScreen />
 					</Suspense>
 				);
-			case 20:
+			case 19:
 				return <PaywallScreen />;
-			case 21:
+			case 20:
 				return <DiscountWheelScreen />;
-			case 22:
+			case 21:
 				return <AccountCreationScreen />;
-			case 23:
+			case 22:
 				return <LoadingPlanScreen />;
-			case 24:
+			case 23:
 				return (
 					<Suspense fallback={<LoadingFallback />}>
 						<PerfectPlanScreen />
 					</Suspense>
 				);
-			case 25:
+			case 24:
 				return <NotificationsScreen />;
-			case 26:
+			case 25:
 				return <ReferralScreen />;
 			default:
 				return null;
@@ -170,7 +159,7 @@ const OnboardingStep = () => {
 	};
 
 	const renderStep = () => {
-		return renderBaseline() || renderConditionalPath() || renderConvergence();
+		return renderBaseline() || renderOverallPath() || renderConvergence();
 	};
 
 	return <View className="flex-1 bg-white">{renderStep()}</View>;

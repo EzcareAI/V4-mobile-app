@@ -104,7 +104,7 @@ export const useOnboardingStore = create<OnboardingState>()(
 	persist(
 		(set, get) => ({
 			currentStep: 0,
-			totalSteps: 26,
+			totalSteps: 25,
 			unitPreference: "imperial",
 			notificationsEnabled: true,
 			morningCheckInTime: "8:00 AM",
@@ -140,7 +140,7 @@ export const useOnboardingStore = create<OnboardingState>()(
 			reset: () =>
 				set({
 					currentStep: 0,
-					totalSteps: 26,
+					totalSteps: 25,
 					scanMode: "onboarding",
 					firstName: undefined,
 					gender: undefined,

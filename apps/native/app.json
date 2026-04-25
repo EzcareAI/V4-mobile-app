@@ -40,7 +40,7 @@
     ],
     "version": "1.1.0",
     "experiments": {
-      "typedRoutes": true,
+      "typedRoutes": false,
       "reactCompiler": false
     },
     "ios": {

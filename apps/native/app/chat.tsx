@@ -88,17 +88,60 @@ function extractSuggestions(text: string): {
 	return { body, suggestions };
 }
 
+const SYSTEM_PROMPT = `You are EZBuddy, a warm, smart, and conversational lifestyle companion inside the EZCare app. You feel like texting a knowledgeable best friend — not a chatbot.
+
+## Your Personality
+- Warm, encouraging, curious. You ask follow-up questions to understand the user better.
+- You write like a human: short messages, casual tone, use "you" a lot.
+- NEVER dump a wall of text. Keep each message 2-4 short paragraphs MAX.
+- Use **bold** for key takeaways and *italic* for gentle emphasis.
+- Use emojis naturally but don't overdo it (1-2 per message).
+
+## Conversation Style
+- Start by asking a clarifying question before giving advice.
+- When the user shares a problem, acknowledge it first ("That makes sense", "I hear you"), then explore.
+- After understanding their situation, suggest 2-3 **probable causes** and ask which resonates.
+- Then offer a simple, actionable **mini-plan** (3 steps max).
+- Build on previous messages — reference what they said earlier.
+
+## What You Do
+- Help users learn about lifestyle habits, nutrition, exercise, mindfulness, self-care
+- Identify patterns in their habits and suggest improvements
+- Create simple action plans tailored to their specific situation
+- Motivate and celebrate small wins
+
+## What You DON'T Do
+- You are NOT a doctor, nurse, or therapist. You do NOT diagnose or treat.
+- If asked for diagnosis, treatment, medication dosage, or symptom interpretation, respond: "That's a great question for a healthcare professional! I can help you explore general lifestyle tips related to that though. Want to dig into that?"
+- Never use phrases like "health score", "medical assessment", or "clinical guidance"
+
+## Formatting
+- Keep paragraphs to 2-3 sentences max
+- Use **bold** for key concepts and action items
+- Use *italic* for encouragement
+- Use bullet points for lists (max 3-4 items)
+- End every response with a <suggestions> block: 3 short follow-up prompts (max 8 words), separated by |
+  Example: <suggestions>What foods help with energy?|How can I sleep better?|Tell me about stress relief</suggestions>
+  This block is for the UI — never mention it to the user.`;
+
 function ChatScreen() {
 	const { firstName, isPro } = useOnboardingStore();
 	const [messages, setMessages] = useState<Message[]>([
 		{
 			id: "1",
 			role: "assistant",
-			content: `Hi ${firstName || "there"}! I'm EZBuddy, your educational lifestyle companion. How can I help you learn about your daily habits today?`,
+			content: `Hey ${firstName || "there"}! 👋\n\nI'm EZBuddy, your lifestyle companion. I'm here to help you build better daily habits.\n\n**What's on your mind today?** Whether it's sleep, energy, nutrition, or stress — I'd love to help you figure things out.`,
+			suggestions: [
+				"I've been tired lately",
+				"Help me eat healthier",
+				"I'm stressed out",
+				"Build a morning routine",
+			],
 		},
 	]);
 	const [input, setInput] = useState("");
 	const [isLoading, setIsLoading] = useState(false);
+	const [streamingText, setStreamingText] = useState("");
 	const [isListening, setIsListening] = useState(false);
 	const [attachedImage, setAttachedImage] = useState<AttachedImage | null>(
 		null
@@ -138,7 +181,6 @@ function ChatScreen() {
 			setIsListening(false);
 		} else {
 			try {
-				// Request permissions for both Android and iOS
 				const { status } = await Audio.Audio.requestPermissionsAsync();
 				if (status !== "granted") {
 					Alert.alert(
@@ -147,17 +189,14 @@ function ChatScreen() {
 					);
 					return;
 				}
-
 				if (Platform.OS === "ios") {
 					try {
 						await impactAsync(ImpactFeedbackStyle.Medium);
-					} catch {
-						/* ignore */
-					}
+					} catch {}
 				}
 				await Voice.start("en-US");
 				setIsListening(true);
-			} catch (_err) {
+			} catch {
 				Alert.alert(
 					"Microphone Error",
 					"Could not start voice recognition. Please check permissions."
@@ -171,64 +210,34 @@ function ChatScreen() {
 		if (source === "camera") {
 			const { status } = await requestCameraPermissionsAsync();
 			if (status !== "granted") {
-				Alert.alert(
-					"Permission required",
-					"Camera access is needed to take photos."
-				);
+				Alert.alert("Permission required", "Camera access is needed to take photos.");
 				return;
 			}
-			const result = await launchCameraAsync({
-				base64: true,
-				quality: 0.7,
-				mediaTypes: "images",
-			});
+			const result = await launchCameraAsync({ base64: true, quality: 0.7, mediaTypes: "images" });
 			if (!result.canceled && result.assets[0].base64) {
 				const asset = result.assets[0];
 				const ext = asset.uri.split(".").pop()?.toLowerCase();
 				let mediaType: AttachedImage["mediaType"] = "image/jpeg";
-				if (ext === "png") {
-					mediaType = "image/png";
-				} else if (ext === "webp") {
-					mediaType = "image/webp";
-				}
-				setAttachedImage({
-					uri: asset.uri,
-					base64: asset.base64 ?? "",
-					mediaType,
-				});
+				if (ext === "png") mediaType = "image/png";
+				else if (ext === "webp") mediaType = "image/webp";
+				setAttachedImage({ uri: asset.uri, base64: asset.base64 ?? "", mediaType });
 				setAttachedDoc(null);
-				setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 200);
 			}
 		} else {
 			const { status } = await requestMediaLibraryPermissionsAsync();
 			if (status !== "granted") {
-				Alert.alert(
-					"Permission required",
-					"Photo library access is needed to upload images."
-				);
+				Alert.alert("Permission required", "Photo library access is needed.");
 				return;
 			}
-			const result = await launchImageLibraryAsync({
-				base64: true,
-				quality: 0.7,
-				mediaTypes: "images",
-			});
+			const result = await launchImageLibraryAsync({ base64: true, quality: 0.7, mediaTypes: "images" });
 			if (!result.canceled && result.assets[0].base64) {
 				const asset = result.assets[0];
 				const ext = asset.uri.split(".").pop()?.toLowerCase();
 				let mediaType: AttachedImage["mediaType"] = "image/jpeg";
-				if (ext === "png") {
-					mediaType = "image/png";
-				} else if (ext === "webp") {
-					mediaType = "image/webp";
-				}
-				setAttachedImage({
-					uri: asset.uri,
-					base64: asset.base64 ?? "",
-					mediaType,
-				});
+				if (ext === "png") mediaType = "image/png";
+				else if (ext === "webp") mediaType = "image/webp";
+				setAttachedImage({ uri: asset.uri, base64: asset.base64 ?? "", mediaType });
 				setAttachedDoc(null);
-				setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 200);
 			}
 		}
 	};
@@ -240,93 +249,54 @@ function ChatScreen() {
 			copyToCacheDirectory: true,
 		});
 		if (!result.canceled && result.assets[0]) {
-			const asset = result.assets[0];
 			try {
-				const text = await readAsStringAsync(asset.uri);
-				setAttachedDoc({ name: asset.name, text: text.slice(0, 8000) }); // cap at 8k chars
+				const text = await readAsStringAsync(result.assets[0].uri);
+				setAttachedDoc({ name: result.assets[0].name, text: text.slice(0, 8000) });
 				setAttachedImage(null);
-				setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 200);
 			} catch {
-				Alert.alert(
-					"File Error",
-					"Could not read that file. Only plain text files are supported."
-				);
+				Alert.alert("File Error", "Could not read that file.");
 			}
 		}
 	};
 
-	// ── Attachment action menu ────────────────────────────
-	const openAttachMenu = () => {
-		bottomSheetModalRef.current?.present();
-	};
+	const openAttachMenu = () => bottomSheetModalRef.current?.present();
 
 	const renderBackdrop = useCallback(
 		(props: any) => (
-			<BottomSheetBackdrop
-				{...props}
-				appearsOnIndex={0}
-				disappearsOnIndex={-1}
-				opacity={0.5}
-			/>
+			<BottomSheetBackdrop {...props} appearsOnIndex={0} disappearsOnIndex={-1} opacity={0.5} />
 		),
 		[]
 	);
 
-	// ── Send ───────────────────────────────────────────────
+	// ── Send with streaming ─────────────────────────────────
 	const handleSend = async (overrideText?: string) => {
 		const fromSuggestion = overrideText !== undefined;
 		const userText = (overrideText ?? input).trim();
-		if (!(userText || attachedImage || attachedDoc) || isLoading) {
-			return;
-		}
+		if (!(userText || attachedImage || attachedDoc) || isLoading) return;
 
-		// Message throttling for non-Pro users
 		if (!isPro && messages.length >= 7) {
-			Alert.alert(
-				"Chat Limit Reached",
-				"Unlimited EZBuddy chat requires an EZCare Pro subscription.",
-				[
-					{ text: "Cancel", style: "cancel" },
-					{
-						text: "View Plans",
-						onPress: () => router.push("/settings/subscription"),
-					},
-				]
-			);
+			Alert.alert("Chat Limit Reached", "Unlimited EZBuddy chat requires EZCare Pro.", [
+				{ text: "Cancel", style: "cancel" },
+				{ text: "View Plans", onPress: () => router.push("/settings/subscription") },
+			]);
 			return;
 		}
 
-		if (!fromSuggestion) {
-			setInput("");
-		}
+		if (!fromSuggestion) setInput("");
 		const imgSnap = attachedImage;
 		const docSnap = attachedDoc;
 		setAttachedImage(null);
 		setAttachedDoc(null);
 
 		if (Platform.OS === "ios") {
-			try {
-				await impactAsync(ImpactFeedbackStyle.Light);
-			} catch {
-				/* ignore */
-			}
+			try { await impactAsync(ImpactFeedbackStyle.Light); } catch {}
 		}
 
 		if (!apiKey || apiKey === "dummy_key_to_prevent_sdk_crash") {
 			setMessages((prev) => [
 				...prev,
-				{
-					id: Date.now().toString(),
-					role: "user",
-					content: userText,
-					imageUri: imgSnap?.uri,
-				},
-				{
-					id: `${Date.now()}-err`,
-					role: "assistant",
-					content:
-						"⚠️ API Key Missing: Please ensure your EXPO_PUBLIC_ANTHROPIC_API_KEY is set in apps/native/.env and rebuild.",
-				},
+				{ id: Date.now().toString(), role: "user", content: userText, imageUri: imgSnap?.uri },
+				{ id: `${Date.now()}-err`, role: "assistant", content: "⚠️ API key missing. Please set EXPO_PUBLIC_ANTHROPIC_API_KEY and rebuild." },
 			]);
 			return;
 		}
@@ -341,71 +311,64 @@ function ChatScreen() {
 		const newMessages = [...messages, userMsg];
 		setMessages(newMessages);
 		setIsLoading(true);
+		setStreamingText("");
 
-		// Scroll to show the new message
 		setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
 
 		try {
-			// Build Anthropic message content for the last user turn (multimodal)
 			type ContentBlock =
 				| { type: "text"; text: string }
-				| {
-						type: "image";
-						source: {
-							type: "base64";
-							media_type: AttachedImage["mediaType"];
-							data: string;
-						};
-				  };
+				| { type: "image"; source: { type: "base64"; media_type: AttachedImage["mediaType"]; data: string } };
 
 			const userContent: ContentBlock[] = [];
 
 			if (imgSnap) {
 				userContent.push({
 					type: "image",
-					source: {
-						type: "base64",
-						media_type: imgSnap.mediaType,
-						data: imgSnap.base64,
-					},
+					source: { type: "base64", media_type: imgSnap.mediaType, data: imgSnap.base64 },
 				});
 			}
 
 			let promptText = userText;
 			if (docSnap) {
-				promptText = `[Document attached: ${docSnap.name}]\n\n${docSnap.text}\n\n---\nUser question: ${userText}`;
+				promptText = `[Document: ${docSnap.name}]\n\n${docSnap.text}\n\n---\nUser: ${userText}`;
 			}
 			if (promptText) {
 				userContent.push({ type: "text", text: promptText });
 			}
 
-			// Prior messages (text-only for now)
 			const priorApiMessages = messages.map((m) => ({
 				role: m.role as "user" | "assistant",
 				content: m.content,
 			}));
 
-			const response = await anthropic.messages.create({
+			// Use streaming for progressive output
+			const stream = anthropic.messages.stream({
 				model: "claude-haiku-4-5-20251001",
-				max_tokens: 2048,
-				system:
-					"You are EZBuddy, an educational body awareness companion. You help users LEARN about their body and lifestyle choices. You are NOT a doctor, nurse, therapist, or licensed professional of any kind. You do NOT provide diagnoses, treatment plans, dosage recommendations, or symptom interpretations.\n\nIf a user asks for diagnosis, treatment, medical advice, medication dosage, or symptom interpretation, you MUST respond with: \"That's a great question for a healthcare professional. I'm here to help you learn about general wellness and body awareness. Want to explore a related educational topic instead?\"\n\nYou provide general educational information about lifestyle habits, nutrition, exercise, mindfulness, and self-care. Frame everything as learning and awareness — never as health measurement, medical assessment, or clinical guidance.\n\nFormatting rules:\n- Use relevant emojis to make responses warm and engaging.\n- Use **bold** for key concepts, important terms, and action items.\n- Use *italic* for gentle emphasis or encouragement.\n- Keep paragraphs short (2–3 sentences max).\n\nAt the end of every response, append a <suggestions> block with 3 short follow-up questions (max 8 words each) the user might ask next, separated by the pipe character. Example: <suggestions>How do I improve sleep?|What foods help energy?|Tell me about stretching</suggestions>. The block is for the UI — do not mention it to the user.",
+				max_tokens: 1024,
+				system: SYSTEM_PROMPT,
 				messages: [...priorApiMessages, { role: "user", content: userContent }],
 			});
 
-			const rawReply =
-				response.content[0].type === "text" ? response.content[0].text : "";
-			const { body: assistantReply, suggestions } =
-				extractSuggestions(rawReply);
+			let fullText = "";
+
+			stream.on("text", (text) => {
+				fullText += text;
+				setStreamingText(fullText);
+				// Auto-scroll as text streams in
+				scrollRef.current?.scrollToEnd({ animated: false });
+			});
+
+			const finalMessage = await stream.finalMessage();
+
+			const rawReply = finalMessage.content[0].type === "text" ? finalMessage.content[0].text : fullText;
+			const { body: assistantReply, suggestions } = extractSuggestions(rawReply);
 
 			if (Platform.OS === "ios") {
-				try {
-					await impactAsync(ImpactFeedbackStyle.Medium);
-				} catch {
-					/* ignore */
-				}
+				try { await impactAsync(ImpactFeedbackStyle.Medium); } catch {}
 			}
 
+			setStreamingText("");
 			setMessages((prev) => [
 				...prev,
 				{
@@ -417,13 +380,13 @@ function ChatScreen() {
 			]);
 			setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
 		} catch (_error) {
+			setStreamingText("");
 			setMessages((prev) => [
 				...prev,
 				{
 					id: `${Date.now()}-err`,
 					role: "assistant",
-					content:
-						"I'm sorry, I couldn't reach my network connection right now. Please check that your API key is set in the `.env` file.",
+					content: "Oops, I couldn't connect right now. Check your internet and try again! 🔄",
 				},
 			]);
 		} finally {
@@ -432,17 +395,12 @@ function ChatScreen() {
 	};
 
 	useEffect(() => {
-		setTimeout(() => {
-			scrollRef.current?.scrollToEnd({ animated: true });
-		}, 100);
+		setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
 	}, []);
 
-	// Scroll to bottom when keyboard opens so the input is never hidden
 	useEffect(() => {
 		const sub = Keyboard.addListener("keyboardDidShow", () => {
-			setTimeout(() => {
-				scrollRef.current?.scrollToEnd({ animated: true });
-			}, 100);
+			setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
 		});
 		return () => sub.remove();
 	}, []);
@@ -456,33 +414,29 @@ function ChatScreen() {
 			>
 				{/* HEADER */}
 				<View style={styles.header}>
-					<TouchableOpacity
-						hitSlop={8}
-						onPress={() => router.back()}
-						style={styles.backBtn}
-					>
+					<TouchableOpacity hitSlop={8} onPress={() => router.back()} style={styles.backBtn}>
 						<Ionicons color="#FFFFFF" name="chevron-back" size={24} />
 					</TouchableOpacity>
 					<View style={styles.headerTitleContainer}>
-						<Text style={styles.headerTitle}>EZBuddy AI</Text>
+						<Text style={styles.headerTitle}>EZBuddy</Text>
 						<View style={styles.onlineStatus}>
-							<View
-								style={[
-									styles.onlineDot,
-									isListening && styles.onlineDotRecording,
-								]}
-							/>
-							<Text
-								style={[
-									styles.onlineText,
-									isListening && styles.onlineTextRecording,
-								]}
-							>
-								{isListening ? "Listening..." : "Online"}
+							<View style={[styles.onlineDot, isListening && styles.onlineDotRecording]} />
+							<Text style={[styles.onlineText, isListening && styles.onlineTextRecording]}>
+								{isListening ? "Listening..." : isLoading ? "Typing..." : "Online"}
 							</Text>
 						</View>
 					</View>
-					<View style={styles.spacer} />
+					{/* Voice call button */}
+					<TouchableOpacity
+						onPress={toggleListening}
+						style={[styles.callBtn, isListening && styles.callBtnActive]}
+					>
+						<Ionicons
+							color={isListening ? "#0B0E17" : "#3EC9B5"}
+							name={isListening ? "mic" : "call-outline"}
+							size={20}
+						/>
+					</TouchableOpacity>
 				</View>
 
 				{/* CHAT AREA */}
@@ -497,31 +451,16 @@ function ChatScreen() {
 						return (
 							<View
 								key={m.id}
-								style={[
-									styles.messageBubble,
-									isUser ? styles.userBubble : styles.aiBubble,
-								]}
+								style={[styles.messageBubble, isUser ? styles.userBubble : styles.aiBubble]}
 							>
 								{!isUser && (
-									<LinearGradient
-										colors={["#28B898", "#3EC9B5"]}
-										style={styles.aiAvatar}
-									>
+									<LinearGradient colors={["#28B898", "#3EC9B5"]} style={styles.aiAvatar}>
 										<Ionicons color="#0B0E17" name="sparkles" size={14} />
 									</LinearGradient>
 								)}
-								<View
-									style={[
-										styles.messageCard,
-										isUser ? styles.userCard : styles.aiCard,
-									]}
-								>
+								<View style={[styles.messageCard, isUser ? styles.userCard : styles.aiCard]}>
 									{m.imageUri && (
-										<Image
-											resizeMode="cover"
-											source={{ uri: m.imageUri }}
-											style={styles.chatImage}
-										/>
+										<Image resizeMode="cover" source={{ uri: m.imageUri }} style={styles.chatImage} />
 									)}
 									{m.docName && (
 										<View style={styles.docBubble}>
@@ -531,32 +470,23 @@ function ChatScreen() {
 									)}
 									{isUser ? (
 										m.content ? (
-											<Text style={[styles.messageText, styles.userText]}>
-												{m.content}
-											</Text>
+											<Text style={[styles.messageText, styles.userText]}>{m.content}</Text>
 										) : null
 									) : (
 										<Markdown
 											style={{
-												body: {
-													color: "#E2E8F0",
-													fontSize: 15,
-													lineHeight: 22,
-												},
+												body: { color: "#E2E8F0", fontSize: 15, lineHeight: 22 },
 												strong: { fontWeight: "bold", color: "#FFFFFF" },
 												em: { fontStyle: "italic", color: "#3EC9B5" },
+												bullet_list: { marginTop: 4, marginBottom: 4 },
+												list_item: { marginBottom: 2 },
 											}}
 										>
 											{m.content}
 										</Markdown>
 									)}
 									{!isUser && m.suggestions && m.suggestions.length > 0 && (
-										<ScrollView
-											contentContainerStyle={styles.suggestionsRow}
-											horizontal
-											showsHorizontalScrollIndicator={false}
-											style={styles.suggestionsScroll}
-										>
+										<View style={styles.suggestionsWrap}>
 											{m.suggestions.map((s) => (
 												<TouchableOpacity
 													activeOpacity={0.75}
@@ -567,52 +497,62 @@ function ChatScreen() {
 													<Text style={styles.suggestionChipText}>{s}</Text>
 												</TouchableOpacity>
 											))}
-										</ScrollView>
+										</View>
 									)}
 								</View>
 							</View>
 						);
 					})}
-					{isLoading && (
+
+					{/* Streaming response */}
+					{isLoading && streamingText ? (
 						<View style={[styles.messageBubble, styles.aiBubble]}>
-							<LinearGradient
-								colors={["#28B898", "#3EC9B5"]}
-								style={styles.aiAvatar}
-							>
+							<LinearGradient colors={["#28B898", "#3EC9B5"]} style={styles.aiAvatar}>
 								<Ionicons color="#0B0E17" name="sparkles" size={14} />
 							</LinearGradient>
 							<View style={[styles.messageCard, styles.aiCard]}>
-								<ActivityIndicator color="#3EC9B5" size="small" />
+								<Markdown
+									style={{
+										body: { color: "#E2E8F0", fontSize: 15, lineHeight: 22 },
+										strong: { fontWeight: "bold", color: "#FFFFFF" },
+										em: { fontStyle: "italic", color: "#3EC9B5" },
+									}}
+								>
+									{streamingText.replace(SUGGESTIONS_RE, "")}
+								</Markdown>
+								<View style={styles.typingDots}>
+									<View style={[styles.dot, styles.dot1]} />
+									<View style={[styles.dot, styles.dot2]} />
+									<View style={[styles.dot, styles.dot3]} />
+								</View>
 							</View>
 						</View>
-					)}
-					{/* Draft Staging Bubble */}
+					) : isLoading ? (
+						<View style={[styles.messageBubble, styles.aiBubble]}>
+							<LinearGradient colors={["#28B898", "#3EC9B5"]} style={styles.aiAvatar}>
+								<Ionicons color="#0B0E17" name="sparkles" size={14} />
+							</LinearGradient>
+							<View style={[styles.messageCard, styles.aiCard]}>
+								<View style={styles.typingDots}>
+									<View style={[styles.dot, styles.dot1]} />
+									<View style={[styles.dot, styles.dot2]} />
+									<View style={[styles.dot, styles.dot3]} />
+								</View>
+							</View>
+						</View>
+					) : null}
+
+					{/* Draft preview */}
 					{(attachedImage || attachedDoc) && (
 						<View style={[styles.messageBubble, styles.userBubble]}>
-							<View
-								style={[
-									styles.messageCard,
-									styles.userCard,
-									{ opacity: 0.7, borderStyle: "dashed" },
-								]}
-							>
-								{attachedImage && (
-									<Image
-										source={{ uri: attachedImage.uri }}
-										style={styles.chatImage}
-									/>
-								)}
+							<View style={[styles.messageCard, styles.userCard, { opacity: 0.7 }]}>
+								{attachedImage && <Image source={{ uri: attachedImage.uri }} style={styles.chatImage} />}
 								{attachedDoc && (
 									<View style={styles.docBubble}>
 										<Ionicons color="#3EC9B5" name="document-text" size={22} />
 										<Text style={styles.docBubbleName} numberOfLines={1}>{attachedDoc.name}</Text>
 									</View>
 								)}
-								{input.trim() ? (
-									<Text style={[styles.messageText, styles.userText]}>
-										{input}
-									</Text>
-								) : null}
 								<View style={styles.draftBadge}>
 									<Text style={styles.draftBadgeText}>Draft</Text>
 								</View>
@@ -623,20 +563,12 @@ function ChatScreen() {
 
 				{/* INPUT AREA */}
 				<SafeAreaView edges={["bottom"]} style={{ backgroundColor: "#0B0E17" }}>
-					{/* Attachment preview strip */}
 					{(attachedImage || attachedDoc) && (
 						<View style={styles.previewBar}>
 							{attachedImage && (
 								<View style={styles.previewImageWrapper}>
-									<Image
-										source={{ uri: attachedImage.uri }}
-										style={styles.previewImage}
-										resizeMode="cover"
-									/>
-									<TouchableOpacity
-										onPress={() => setAttachedImage(null)}
-										style={styles.removeBtn}
-									>
+									<Image source={{ uri: attachedImage.uri }} style={styles.previewImage} resizeMode="cover" />
+									<TouchableOpacity onPress={() => setAttachedImage(null)} style={styles.removeBtn}>
 										<Ionicons name="close-circle" size={20} color="#FF4F6E" />
 									</TouchableOpacity>
 								</View>
@@ -645,14 +577,9 @@ function ChatScreen() {
 								<View style={styles.previewImageWrapper}>
 									<View style={styles.previewDoc}>
 										<Ionicons name="document-text" size={26} color="#3EC9B5" />
-										<Text style={styles.previewDocName} numberOfLines={1}>
-											{attachedDoc.name}
-										</Text>
+										<Text style={styles.previewDocName} numberOfLines={1}>{attachedDoc.name}</Text>
 									</View>
-									<TouchableOpacity
-										onPress={() => setAttachedDoc(null)}
-										style={styles.removeBtn}
-									>
+									<TouchableOpacity onPress={() => setAttachedDoc(null)} style={styles.removeBtn}>
 										<Ionicons name="close-circle" size={20} color="#FF4F6E" />
 									</TouchableOpacity>
 								</View>
@@ -660,11 +587,7 @@ function ChatScreen() {
 						</View>
 					)}
 					<View style={styles.inputArea}>
-						<TouchableOpacity
-							activeOpacity={0.7}
-							onPress={openAttachMenu}
-							style={styles.attachBtn}
-						>
+						<TouchableOpacity activeOpacity={0.7} onPress={openAttachMenu} style={styles.attachBtn}>
 							<Ionicons color="#94A3B8" name="add" size={22} />
 						</TouchableOpacity>
 						<View style={styles.inputWrapper}>
@@ -672,9 +595,7 @@ function ChatScreen() {
 								maxLength={1000}
 								multiline
 								onChangeText={setInput}
-								placeholder={
-									isListening ? "Listening..." : "Message EZBuddy..."
-								}
+								placeholder={isListening ? "Listening..." : "Message EZBuddy..."}
 								placeholderTextColor={isListening ? "#3EC9B5" : "#94A3B8"}
 								style={styles.textInput}
 								value={input}
@@ -691,22 +612,15 @@ function ChatScreen() {
 								/>
 							</TouchableOpacity>
 							<TouchableOpacity
-								disabled={
-									!(input.trim() || attachedImage || attachedDoc) || isLoading
-								}
-								onPress={handleSend}
+								disabled={!(input.trim() || attachedImage || attachedDoc) || isLoading}
+								onPress={() => handleSend()}
 								style={[
 									styles.sendBtn,
-									!(input.trim() || attachedImage || attachedDoc) &&
-										styles.sendBtnDisabled,
+									!(input.trim() || attachedImage || attachedDoc) && styles.sendBtnDisabled,
 								]}
 							>
 								<Ionicons
-									color={
-										input.trim() || attachedImage || attachedDoc
-											? "#0B0E17"
-											: "#94A3B8"
-									}
+									color={input.trim() || attachedImage || attachedDoc ? "#0B0E17" : "#94A3B8"}
 									name="arrow-up"
 									size={20}
 								/>
@@ -726,55 +640,20 @@ function ChatScreen() {
 				<BottomSheetView style={styles.sheetContent}>
 					<Text style={styles.sheetTitle}>Attach to message</Text>
 					<View style={styles.sheetRow}>
-						<TouchableOpacity
-							onPress={() => {
-								pickImage("camera");
-								bottomSheetModalRef.current?.dismiss();
-							}}
-							style={styles.sheetBtn}
-						>
-							<View
-								style={[
-									styles.sheetIconWrap,
-									{ backgroundColor: "#rgba(255,255,255,0.05)" },
-								]}
-							>
+						<TouchableOpacity onPress={() => { pickImage("camera"); bottomSheetModalRef.current?.dismiss(); }} style={styles.sheetBtn}>
+							<View style={styles.sheetIconWrap}>
 								<Ionicons color="#3EC9B5" name="camera" size={24} />
 							</View>
 							<Text style={styles.sheetBtnText}>Camera</Text>
 						</TouchableOpacity>
-
-						<TouchableOpacity
-							onPress={() => {
-								pickImage("gallery");
-								bottomSheetModalRef.current?.dismiss();
-							}}
-							style={styles.sheetBtn}
-						>
-							<View
-								style={[
-									styles.sheetIconWrap,
-									{ backgroundColor: "#rgba(255,255,255,0.05)" },
-								]}
-							>
+						<TouchableOpacity onPress={() => { pickImage("gallery"); bottomSheetModalRef.current?.dismiss(); }} style={styles.sheetBtn}>
+							<View style={styles.sheetIconWrap}>
 								<Ionicons color="#3EC9B5" name="images" size={24} />
 							</View>
 							<Text style={styles.sheetBtnText}>Gallery</Text>
 						</TouchableOpacity>
-
-						<TouchableOpacity
-							onPress={() => {
-								pickDocument();
-								bottomSheetModalRef.current?.dismiss();
-							}}
-							style={styles.sheetBtn}
-						>
-							<View
-								style={[
-									styles.sheetIconWrap,
-									{ backgroundColor: "#rgba(255,255,255,0.05)" },
-								]}
-							>
+						<TouchableOpacity onPress={() => { pickDocument(); bottomSheetModalRef.current?.dismiss(); }} style={styles.sheetBtn}>
+							<View style={styles.sheetIconWrap}>
 								<Ionicons color="#3EC9B5" name="document-text" size={24} />
 							</View>
 							<Text style={styles.sheetBtnText}>Document</Text>
@@ -786,7 +665,6 @@ function ChatScreen() {
 	);
 }
 
-// Wrap the screen in providers
 export default function ChatScreenWrapper() {
 	return (
 		<BottomSheetModalProvider>
@@ -815,11 +693,25 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		justifyContent: "center",
 	},
+	callBtn: {
+		width: 40,
+		height: 40,
+		borderRadius: 20,
+		backgroundColor: "rgba(62,201,181,0.15)",
+		alignItems: "center",
+		justifyContent: "center",
+		borderWidth: 1,
+		borderColor: "rgba(62,201,181,0.3)",
+	},
+	callBtnActive: {
+		backgroundColor: "#3EC9B5",
+		borderColor: "#3EC9B5",
+	},
 	headerTitleContainer: { alignItems: "center" },
 	headerTitle: {
 		color: "#FFFFFF",
-		fontSize: 16,
-		fontWeight: "700",
+		fontSize: 17,
+		fontWeight: "800",
 		letterSpacing: 0.5,
 	},
 	onlineStatus: {
@@ -828,21 +720,15 @@ const styles = StyleSheet.create({
 		marginTop: 2,
 		gap: 4,
 	},
-	onlineDot: {
-		width: 6,
-		height: 6,
-		borderRadius: 3,
-		backgroundColor: "#3EC9B5",
-	},
+	onlineDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#3EC9B5" },
 	onlineDotRecording: { backgroundColor: "#FF4F6E" },
 	onlineText: { color: "#3EC9B5", fontSize: 11, fontWeight: "600" },
 	onlineTextRecording: { color: "#FF4F6E" },
-	spacer: { width: 40 },
 	chatArea: { flex: 1 },
-	chatContent: { padding: 24, gap: 20 },
+	chatContent: { padding: 20, gap: 16 },
 	messageBubble: { flexDirection: "row", width: "100%" },
 	userBubble: { justifyContent: "flex-end" },
-	aiBubble: { justifyContent: "flex-start", alignItems: "flex-end", gap: 12 },
+	aiBubble: { justifyContent: "flex-start", alignItems: "flex-end", gap: 10 },
 	aiAvatar: {
 		width: 28,
 		height: 28,
@@ -861,30 +747,27 @@ const styles = StyleSheet.create({
 		backgroundColor: "#1A2138",
 		borderBottomRightRadius: 4,
 		borderWidth: 1,
-		borderColor: "rgba(255,255,255,0.05)",
+		borderColor: "rgba(255,255,255,0.06)",
 	},
 	aiCard: {
-		backgroundColor: "rgba(62,201,181,0.1)",
+		backgroundColor: "rgba(62,201,181,0.08)",
 		borderBottomLeftRadius: 4,
 		borderWidth: 1,
-		borderColor: "rgba(62,201,181,0.2)",
+		borderColor: "rgba(62,201,181,0.15)",
 	},
-	suggestionsScroll: {
-		marginTop: 10,
-		marginHorizontal: -4,
-	},
-	suggestionsRow: {
-		paddingHorizontal: 4,
+	suggestionsWrap: {
+		marginTop: 12,
+		flexDirection: "row",
+		flexWrap: "wrap",
 		gap: 8,
 	},
 	suggestionChip: {
-		backgroundColor: "rgba(62,201,181,0.15)",
-		borderColor: "rgba(62,201,181,0.35)",
+		backgroundColor: "rgba(62,201,181,0.12)",
+		borderColor: "rgba(62,201,181,0.3)",
 		borderWidth: 1,
-		borderRadius: 14,
-		paddingHorizontal: 12,
-		paddingVertical: 6,
-		marginRight: 8,
+		borderRadius: 16,
+		paddingHorizontal: 14,
+		paddingVertical: 8,
 	},
 	suggestionChipText: {
 		color: "#3EC9B5",
@@ -893,13 +776,6 @@ const styles = StyleSheet.create({
 	},
 	messageText: { fontSize: 15, lineHeight: 22 },
 	userText: { color: "#FFFFFF" },
-	aiText: { color: "#E2E8F0" },
-	attachedImage: {
-		width: "100%",
-		height: 160,
-		borderRadius: 12,
-		marginBottom: 8,
-	},
 	chatImage: {
 		width: "100%",
 		aspectRatio: 4 / 3,
@@ -919,19 +795,26 @@ const styles = StyleSheet.create({
 		paddingVertical: 10,
 		marginBottom: 8,
 	},
-	docBubbleName: {
-		flex: 1,
-		color: "#E2E8F0",
-		fontSize: 14,
-		fontWeight: "600",
-	},
-	// Attachment preview bar
-	previewBar: {
-		paddingHorizontal: 16,
-		paddingVertical: 8,
+	docBubbleName: { flex: 1, color: "#E2E8F0", fontSize: 14, fontWeight: "600" },
+	// Typing indicator dots
+	typingDots: {
 		flexDirection: "row",
-		gap: 8,
+		alignItems: "center",
+		gap: 4,
+		paddingVertical: 4,
 	},
+	dot: {
+		width: 8,
+		height: 8,
+		borderRadius: 4,
+		backgroundColor: "#3EC9B5",
+		opacity: 0.4,
+	},
+	dot1: { opacity: 0.8 },
+	dot2: { opacity: 0.5 },
+	dot3: { opacity: 0.3 },
+	// Preview bar
+	previewBar: { paddingHorizontal: 16, paddingVertical: 8, flexDirection: "row", gap: 8 },
 	previewImageWrapper: { position: "relative" },
 	previewImage: { width: 56, height: 56, borderRadius: 10 },
 	removeBtn: { position: "absolute", top: -6, right: -6 },
@@ -946,12 +829,7 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 		borderColor: "rgba(62,201,181,0.3)",
 	},
-	previewDocName: {
-		color: "#94A3B8",
-		fontSize: 8,
-		fontWeight: "600",
-		textAlign: "center",
-	},
+	previewDocName: { color: "#94A3B8", fontSize: 8, fontWeight: "600", textAlign: "center" },
 	// Input
 	inputArea: {
 		paddingHorizontal: 12,
@@ -1012,38 +890,20 @@ const styles = StyleSheet.create({
 		marginBottom: 2,
 	},
 	sendBtnDisabled: { backgroundColor: "rgba(255,255,255,0.05)" },
-	// Bottom Sheet
-	sheetContent: {
-		padding: 24,
-		alignItems: "center",
-	},
-	sheetTitle: {
-		color: "#FFFFFF",
-		fontSize: 18,
-		fontWeight: "800",
-		marginBottom: 24,
-	},
-	sheetRow: {
-		flexDirection: "row",
-		justifyContent: "space-around",
-		width: "100%",
-	},
-	sheetBtn: {
-		alignItems: "center",
-		gap: 8,
-	},
+	// Sheet
+	sheetContent: { padding: 24, alignItems: "center" },
+	sheetTitle: { color: "#FFFFFF", fontSize: 18, fontWeight: "800", marginBottom: 24 },
+	sheetRow: { flexDirection: "row", justifyContent: "space-around", width: "100%" },
+	sheetBtn: { alignItems: "center", gap: 8 },
 	sheetIconWrap: {
 		width: 56,
 		height: 56,
 		borderRadius: 28,
+		backgroundColor: "rgba(255,255,255,0.05)",
 		alignItems: "center",
 		justifyContent: "center",
 	},
-	sheetBtnText: {
-		color: "#94A3B8",
-		fontSize: 13,
-		fontWeight: "600",
-	},
+	sheetBtnText: { color: "#94A3B8", fontSize: 13, fontWeight: "600" },
 	draftBadge: {
 		position: "absolute",
 		top: -8,
@@ -1053,9 +913,5 @@ const styles = StyleSheet.create({
 		paddingVertical: 2,
 		borderRadius: 8,
 	},
-	draftBadgeText: {
-		color: "#0B0E17",
-		fontSize: 10,
-		fontWeight: "800",
-	},
+	draftBadgeText: { color: "#0B0E17", fontSize: 10, fontWeight: "800" },
 });

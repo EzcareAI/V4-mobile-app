@@ -1,5 +1,5 @@
 import { Redirect, Tabs } from "expo-router";
-import { Home, LineChart, Settings } from "lucide-react-native";
+import { Home, LineChart, Settings, Bot } from "lucide-react-native";
 import { Platform, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -73,6 +73,15 @@ export default function DashboardLayout() {
 					title: "Home",
 					tabBarIcon: ({ color, focused }) => (
 						<TabBarIcon color={color} focused={focused} Icon={Home} />
+					),
+				}}
+			/>
+			<Tabs.Screen
+				name="buddy"
+				options={{
+					title: "EZBuddy",
+					tabBarIcon: ({ color, focused }) => (
+						<TabBarIcon color={color} focused={focused} Icon={Bot} />
 					),
 				}}
 			/>

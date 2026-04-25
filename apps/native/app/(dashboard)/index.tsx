@@ -21,6 +21,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { useOnboardingStore } from "@/stores/onboarding-store";
+import { useGamificationStore } from "@/stores/gamification-store";
 
 // ── Design tokens ──────────────────────────────────
 const BG = "#F4F6F8";
@@ -340,23 +341,16 @@ export default function HomeScreen() {
 				showsVerticalScrollIndicator={false}
 				style={styles.scroll}
 			>
-				{/* ── Header ── */}
+				{/* ── Header with EZBuddy ── */}
 				<View style={styles.header}>
-					<View>
-						<Text style={styles.welcome}>Welcome back! 👋</Text>
-						{firstName ? (
-							<Text style={styles.welcomeSub}>
-								{firstName}'s awareness journey
-							</Text>
-						) : (
-							<Text style={styles.welcomeSub}>
-								Let's check in on your awareness journey
-							</Text>
-						)}
+					<View style={{ flex: 1 }}>
+						<Text style={styles.welcome}>
+							{new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 17 ? "Hey" : "Good evening"}{firstName ? `, ${firstName}` : ""}! 👋
+						</Text>
+						<Text style={styles.welcomeSub}>
+							{streak > 0 ? `🔥 ${streak}-day streak — keep it going!` : "Let's start building your streak today"}
+						</Text>
 					</View>
-					<TouchableOpacity style={styles.bellBtn}>
-						<Ionicons color={TEAL} name="notifications-outline" size={22} />
-					</TouchableOpacity>
 					<TouchableOpacity
 						onPress={() => router.push("/settings/subscription")}
 						style={styles.proBtn}
@@ -379,19 +373,55 @@ export default function HomeScreen() {
 					</TouchableOpacity>
 				</View>
 
-				{/* ── Streak & Motivation Card ── */}
-				<View style={styles.card}>
-					<View style={styles.scoreRow}>
-						<Text style={styles.scoreTitle}>Your Daily Streak</Text>
-						<View style={styles.scoreBadge}>
-							<Text style={styles.scoreText}>🔥 {streak} days</Text>
+				{/* ── EZBuddy Companion Card (Duolingo-style) ── */}
+				<TouchableOpacity activeOpacity={0.9} onPress={() => router.push("/(dashboard)/buddy")} style={styles.buddyCard}>
+					<View style={styles.buddyRow}>
+						<View style={styles.buddyAvatarWrap}>
+							<LinearGradient colors={[TEAL, "#28B898"]} style={styles.buddyAvatar}>
+								<Text style={{ fontSize: 28 }}>
+									{(() => {
+										const lv = useDashboardStore.getState().lastCheckInValues;
+										if (!lv) return "🤖";
+										const avg = (lv.sleep + lv.energy + (6 - lv.stress) + lv.digestion) / 4;
+										if (avg >= 4) return "😊";
+										if (avg >= 3) return "🙂";
+										return "🤔";
+									})()}
+								</Text>
+							</LinearGradient>
+							<View style={styles.buddyOnline} />
+						</View>
+						<View style={styles.buddySpeech}>
+							<Text style={styles.buddySpeechText}>
+								{(() => {
+									const lv = useDashboardStore.getState().lastCheckInValues;
+									const hour = new Date().getHours();
+									if (!lv) return "Hey! Do your first check-in and I'll start giving you personalized tips. 💪";
+									if (hour < 12 && lv.sleep <= 2) return "Rough sleep? Try avoiding screens 1 hour before bed tonight. I believe in you! 💜";
+									if (hour < 12 && lv.sleep >= 4) return "You slept great! That's your foundation for an amazing day. Let's build on it! ⚡";
+									if (lv.energy <= 2) return "Energy low? A quick 10-min walk + glass of water works wonders. Try it! 🚶";
+									if (lv.stress >= 4) return "I notice you're stressed. Take 3 deep breaths right now — I'll wait. 🧘";
+									if (streak >= 7) return `${streak} days strong! You're crushing it. Consistency is your superpower! 🔥`;
+									return "Looking good today! Keep checking in so I can track your patterns. 📊";
+								})()}
+							</Text>
+							<View style={styles.buddySpeechArrow} />
 						</View>
 					</View>
-					<Text style={styles.scoreDesc}>
-						Build better daily habits by completing your check-ins and actions.
-						Consistency is key!
-					</Text>
-				</View>
+					<View style={styles.buddyActions}>
+						<TouchableOpacity onPress={() => router.push("/chat")} style={styles.buddyActionBtn}>
+							<Ionicons color={TEAL} name="chatbubble-ellipses-outline" size={14} />
+							<Text style={styles.buddyActionText}>Chat</Text>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={() => router.push("/(dashboard)/buddy")} style={styles.buddyActionBtn}>
+							<Ionicons color={TEAL} name="person-outline" size={14} />
+							<Text style={styles.buddyActionText}>Profile</Text>
+						</TouchableOpacity>
+						<View style={styles.buddyXpPill}>
+							<Text style={styles.buddyXpText}>⭐ Lv {useGamificationStore.getState().getLevel()}</Text>
+						</View>
+					</View>
+				</TouchableOpacity>
 
 				{/* ── Wellness Disclaimer ── */}
 				<View style={styles.disclaimerBanner}>
@@ -584,34 +614,17 @@ export default function HomeScreen() {
 					</TouchableOpacity>
 				</View>
 
-				{/* ── EZBuddy Chat ── */}
-				<TouchableOpacity
-					activeOpacity={0.9}
-					onPress={() => router.push("/chat")}
-					style={styles.chatCard}
-				>
-					<View style={styles.chatRow}>
-						<View style={styles.chatAvatarWrap}>
-							<Text style={styles.chatAvatarText}>🤖</Text>
-						</View>
-						<View style={styles.chatTextBlock}>
-							<Text style={styles.chatTitle}>Chat With EZBuddy</Text>
-							<Text style={styles.chatSub}>Your AI awareness companion</Text>
-						</View>
-					</View>
-					<Text style={styles.chatDesc}>
-						Ask anything about lifestyle, nutrition, supplements, or
-						lifestyle tips.
+				{/* ── Daily Insight (contextual) ── */}
+				<View style={styles.insightCard}>
+					<Ionicons color="#8B5CF6" name="bulb-outline" size={18} />
+					<Text style={styles.insightText}>
+						{streak >= 7
+							? "Users with 7+ day streaks report 40% better energy levels over time."
+							: streak >= 3
+								? "You're building momentum! 3 days in a row activates habit formation."
+								: "Start your daily check-in streak — small steps lead to big changes."}
 					</Text>
-					<View style={styles.chatStartBtn}>
-						<Ionicons
-							color={TEAL}
-							name="chatbubble-ellipses-outline"
-							size={16}
-						/>
-						<Text style={styles.chatStartText}>Start Conversation</Text>
-					</View>
-				</TouchableOpacity>
+				</View>
 				</ScrollView>
 		</SafeAreaView>
 	);
@@ -951,49 +964,73 @@ const styles = StyleSheet.create({
 	actionTitleDone: { textDecorationLine: "line-through", opacity: 0.5 },
 	actionSub: { fontSize: 12, color: GREY, marginTop: 3 },
 
-	// EZBuddy chat card
-	chatCard: {
+	// EZBuddy companion card
+	buddyCard: {
 		marginHorizontal: 20,
-		marginTop: 12,
 		marginBottom: 16,
-		backgroundColor: TEAL,
+		backgroundColor: CARD,
 		borderRadius: 20,
-		padding: 20,
+		padding: 16,
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 3 },
+		shadowOpacity: 0.08,
+		shadowRadius: 12,
+		elevation: 4,
+		borderWidth: 1.5,
+		borderColor: "rgba(62,201,181,0.15)",
 	},
-	chatRow: {
-		flexDirection: "row",
-		alignItems: "center",
-		gap: 14,
-		marginBottom: 12,
+	buddyRow: { flexDirection: "row", alignItems: "flex-start", gap: 12, marginBottom: 12 },
+	buddyAvatarWrap: { position: "relative" },
+	buddyAvatar: {
+		width: 52, height: 52, borderRadius: 26,
+		alignItems: "center", justifyContent: "center",
 	},
-	chatAvatarWrap: {
-		width: 56,
-		height: 56,
-		borderRadius: 28,
-		backgroundColor: "rgba(255,255,255,0.2)",
-		alignItems: "center",
-		justifyContent: "center",
+	buddyOnline: {
+		position: "absolute", bottom: 0, right: 0,
+		width: 14, height: 14, borderRadius: 7,
+		backgroundColor: "#10B981", borderWidth: 2.5, borderColor: CARD,
 	},
-	chatAvatarText: { fontSize: 28 },
-	chatTextBlock: { flex: 1 },
-	chatTitle: { fontSize: 18, fontWeight: "800", color: "#FFFFFF" },
-	chatSub: { fontSize: 13, color: "rgba(255,255,255,0.8)", marginTop: 2 },
-	chatDesc: {
-		fontSize: 14,
-		color: "rgba(255,255,255,0.9)",
-		lineHeight: 20,
+	buddySpeech: {
+		flex: 1, backgroundColor: "#F0FDF9",
+		borderRadius: 16, borderTopLeftRadius: 4,
+		padding: 12, position: "relative",
+	},
+	buddySpeechText: { color: DARK, fontSize: 13, fontWeight: "500", lineHeight: 19 },
+	buddySpeechArrow: {
+		position: "absolute", left: -6, top: 14,
+		width: 0, height: 0,
+		borderTopWidth: 6, borderBottomWidth: 6, borderRightWidth: 8,
+		borderTopColor: "transparent", borderBottomColor: "transparent",
+		borderRightColor: "#F0FDF9",
+	},
+	buddyActions: { flexDirection: "row", gap: 8, alignItems: "center" },
+	buddyActionBtn: {
+		flexDirection: "row", alignItems: "center", gap: 4,
+		backgroundColor: "rgba(62,201,181,0.08)",
+		paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10,
+	},
+	buddyActionText: { color: TEAL, fontSize: 12, fontWeight: "700" },
+	buddyXpPill: {
+		marginLeft: "auto",
+		backgroundColor: "rgba(255,215,0,0.12)",
+		paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10,
+	},
+	buddyXpText: { color: "#FF8C00", fontSize: 11, fontWeight: "800" },
+
+	// Insight card
+	insightCard: {
+		marginHorizontal: 20,
 		marginBottom: 16,
-	},
-	chatStartBtn: {
 		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "center",
-		gap: 8,
-		backgroundColor: "#FFFFFF",
-		borderRadius: 12,
-		paddingVertical: 12,
+		alignItems: "flex-start",
+		gap: 10,
+		backgroundColor: "rgba(139,92,246,0.06)",
+		borderRadius: 14,
+		padding: 14,
+		borderWidth: 1,
+		borderColor: "rgba(139,92,246,0.12)",
 	},
-	chatStartText: { fontSize: 15, fontWeight: "700", color: TEAL },
+	insightText: { flex: 1, color: "#6D28D9", fontSize: 13, fontWeight: "500", lineHeight: 18 },
 
 	// Analyze Button
 	analyzeBtn: {

@@ -107,7 +107,7 @@ export default function PersonalInfoScreen() {
 						</View>
 
 						<View style={styles.card}>
-							<Text style={styles.sectionLabel}>HEALTH PROFILE</Text>
+							<Text style={styles.sectionLabel}>LIFESTYLE PROFILE</Text>
 
 							<View style={styles.row}>
 								<Text style={styles.label}>Target Areas</Text>
@@ -120,7 +120,7 @@ export default function PersonalInfoScreen() {
 						</View>
 
 						<Text style={styles.footerNote}>
-							To update your email or primary health targets, please contact
+							To update your email or lifestyle preferences, please contact
 							support.
 						</Text>
 					</>

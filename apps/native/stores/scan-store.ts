@@ -4,13 +4,13 @@ interface ScanStore {
 	// Scan session
 	scanId: string | null;
 	zone: string | null;
-	symptom: string | null;
+	concern: string | null;
 	answers: Record<string, unknown>;
 
 	// Actions
 	setScanId: (id: string) => void;
 	setZone: (zone: string) => void;
-	setSymptom: (symptom: string) => void;
+	setConcern: (concern: string) => void;
 	setAnswer: (cardId: string, value: unknown) => void;
 	reset: () => void;
 }
@@ -18,12 +18,12 @@ interface ScanStore {
 export const useScanStore = create<ScanStore>((set) => ({
 	scanId: null,
 	zone: null,
-	symptom: null,
+	concern: null,
 	answers: {},
 
 	setScanId: (id) => set({ scanId: id }),
 	setZone: (zone) => set({ zone }),
-	setSymptom: (symptom) => set({ symptom }),
+	setConcern: (concern) => set({ concern }),
 	setAnswer: (cardId, value) =>
 		set((state) => ({
 			answers: { ...state.answers, [cardId]: value },
@@ -32,7 +32,7 @@ export const useScanStore = create<ScanStore>((set) => ({
 		set({
 			scanId: null,
 			zone: null,
-			symptom: null,
+			concern: null,
 			answers: {},
 		}),
 }));

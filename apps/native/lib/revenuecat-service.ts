@@ -65,6 +65,12 @@ class RevenueCatService {
 	 * Check if the user currently has an active pro entitlement.
 	 */
 	async checkProStatus(): Promise<boolean> {
+		if (!this.initialized) {
+			await this.initialize();
+		}
+		if (!this.initialized) {
+			return false;
+		}
 		try {
 			const customerInfo = await Purchases.getCustomerInfo();
 			return this.hasActiveEntitlement(customerInfo.entitlements.active);
@@ -78,6 +84,12 @@ class RevenueCatService {
 	 * Fetch current offerings (paywall data).
 	 */
 	async getOfferings(): Promise<PurchasesOffering | null> {
+		if (!this.initialized) {
+			await this.initialize();
+		}
+		if (!this.initialized) {
+			return null;
+		}
 		try {
 			const offerings = await Purchases.getOfferings();
 			if (offerings.current !== null) {
@@ -94,6 +106,12 @@ class RevenueCatService {
 	 * Purchase a specific package.
 	 */
 	async purchasePackage(pkg: PurchasesPackage): Promise<boolean> {
+		if (!this.initialized) {
+			await this.initialize();
+		}
+		if (!this.initialized) {
+			return false;
+		}
 		try {
 			const { customerInfo } = await Purchases.purchasePackage(pkg);
 
@@ -132,6 +150,12 @@ class RevenueCatService {
 	 * Restore past purchases.
 	 */
 	async restorePurchases(): Promise<boolean> {
+		if (!this.initialized) {
+			await this.initialize();
+		}
+		if (!this.initialized) {
+			return false;
+		}
 		try {
 			const customerInfo = await Purchases.restorePurchases();
 			return this.hasActiveEntitlement(customerInfo.entitlements.active);

@@ -28,7 +28,7 @@ const CHART_H = 140;
 type TimeRange = "Day" | "Week" | "12 Months";
 
 // ── Dynamic text mappers ────────────────────────────
-function getSymptomText(key: string, val: number): string {
+function getMetricText(key: string, val: number): string {
 	if (val === 0) {
 		return "No data yet";
 	}
@@ -405,7 +405,7 @@ export default function ProgressScreen() {
 			key,
 			label,
 			icon,
-			desc: getSymptomText(key, val),
+			desc: getMetricText(key, val),
 			trend: getTrend(key, val),
 			isImproving: getTrend(key, val) === "Improving",
 			daysTracked: streak,

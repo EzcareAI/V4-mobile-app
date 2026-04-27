@@ -179,7 +179,7 @@ export default function ResultsPreviewScreen() {
 	const {
 		setAnswer,
 		nextStep,
-		computeHealthScore,
+		computeAwarenessScore,
 		bodyZoneSelected,
 		intentType,
 		currentStep,
@@ -188,7 +188,7 @@ export default function ResultsPreviewScreen() {
 		activityLevel,
 		smokingFrequency,
 		alcoholFrequency,
-		zoneSymptomIntensity,
+		zoneConcernIntensity,
 		zoneFrequency,
 		zoneDuration,
 		overallPriority,
@@ -208,9 +208,9 @@ export default function ResultsPreviewScreen() {
 	const floatAnimY = useRef(new Animated.Value(0)).current;
 
 	useEffect(() => {
-		const computed = computeHealthScore();
+		const computed = computeAwarenessScore();
 		setScore(computed);
-		setAnswer("healthScore", computed);
+		setAnswer("lifestyleScore", computed);
 		setAnswer("resultsShown", new Date().toISOString());
 
 		// Derive a qualitative readiness label (no numerical display)
@@ -252,7 +252,7 @@ export default function ResultsPreviewScreen() {
 				}),
 			])
 		).start();
-	}, [computeHealthScore, setAnswer, fadeAnim, slideAnimY, floatAnimY]);
+	}, [computeAwarenessScore, setAnswer, fadeAnim, slideAnimY, floatAnimY]);
 
 	const scoreInfo = getScoreColor(score);
 
@@ -337,13 +337,13 @@ export default function ResultsPreviewScreen() {
 		// ── Zone-specific insight (if user chose a body zone) ──
 		if (intentType === "zone" && bodyZoneSelected?.length > 0) {
 			const zoneLabel = bodyZoneSelected.map(z => ZONE_NAMES[z] ?? z).join(" & ");
-			if (zoneSymptomIntensity !== undefined && zoneSymptomIntensity >= 5) {
+			if (zoneConcernIntensity !== undefined && zoneConcernIntensity >= 5) {
 				insights.push({
 					icon: <Activity color="#EF4444" size={20} />,
 					iconBg: "bg-red-50",
 					text: `Noticeable tension in ${zoneLabel} — targeted self-care could help`,
 				});
-			} else if (zoneSymptomIntensity !== undefined) {
+			} else if (zoneConcernIntensity !== undefined) {
 				insights.push({
 					icon: <Activity color="#3B82F6" size={20} />,
 					iconBg: "bg-blue-50",

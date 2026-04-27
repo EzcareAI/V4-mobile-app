@@ -18,7 +18,7 @@ export const mapOnboardingToProfile = (state: OnboardingState) => {
 		? stressLevelMap[state.stressLevel]
 		: 3;
 
-	// 3. Map Health Goals (Store: energy|sleep|digestion|stress|weight -> API: energy|sleep|digestion|stress|longevity)
+	// 3. Map Lifestyle Goals (Store: energy|sleep|digestion|stress|weight -> API: energy|sleep|digestion|stress|longevity)
 	const goalMap: Record<
 		string,
 		"energy" | "sleep" | "digestion" | "stress" | "longevity"
@@ -30,8 +30,8 @@ export const mapOnboardingToProfile = (state: OnboardingState) => {
 		weight: "longevity",
 	};
 
-	// 4. Map Symptoms
-	// Combine any specific triggers or issues into the symptom enum
+	// 4. Map Concerns
+	// Combine any specific triggers or issues into the concerns enum
 	const mappedSymptoms: (
 		| "fatigue"
 		| "digestive"

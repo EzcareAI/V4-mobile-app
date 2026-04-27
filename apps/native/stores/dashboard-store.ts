@@ -22,55 +22,50 @@ export interface Mission {
 	id: string;
 	title: string;
 	icon: string;
-	/** Health score points awarded when completed. Precise values tied to published evidence. */
-	healthPoints: number;
-	/** XP granted for level progression. Often mapped directly to healthPoints * 10 or similar. */
+	/** Habit score points awarded when completed. */
+	habitPoints: number;
+	/** XP granted for level progression. */
 	xp: number;
 	completed: boolean;
 }
 
 /**
- * Health score increments are intentionally small and evidence-based:
- * - Deep breathing: demonstrated sympathetic tone reduction (≈+0.8 pts)
- * - Logging a meal: promotes dietary awareness (≈+0.5 pts)
- * - 10-min walk: meta-analysis equivalent ~10-min MVPA benefit (≈+1.2 pts)
- * - Hydration: 2L target linked to metabolic efficiency (≈+0.6 pts)
- * - Morning stretch: improves HRV, reduces cortisol (≈+0.9 pts)
+ * Habit score increments for daily lifestyle actions.
  */
 const DAILY_MISSIONS: Omit<Mission, "completed">[] = [
 	{
 		id: "breathing",
 		title: "Deep Breathing Focus",
 		icon: "😮‍💨",
-		healthPoints: 0.8,
+		habitPoints: 0.8,
 		xp: 80,
 	},
 	{
 		id: "meal",
 		title: "Log First Meal",
 		icon: "🥗",
-		healthPoints: 0.5,
+		habitPoints: 0.5,
 		xp: 50,
 	},
 	{
 		id: "walk",
 		title: "10 Min Walk",
 		icon: "👟",
-		healthPoints: 1.2,
+		habitPoints: 1.2,
 		xp: 120,
 	},
 	{
 		id: "hydrate",
 		title: "Drink 2L of Water",
 		icon: "💧",
-		healthPoints: 0.6,
+		habitPoints: 0.6,
 		xp: 60,
 	},
 	{
 		id: "stretch",
 		title: "Morning Stretch",
 		icon: "🧘",
-		healthPoints: 0.9,
+		habitPoints: 0.9,
 		xp: 90,
 	},
 ];
@@ -83,8 +78,8 @@ export interface DashboardState {
 	streak: number;
 	lastStreakUpdateDate: string | null; // Date string YYYY-MM-DD
 
-	// Health score delta from daily actions (accumulated, capped at 5 per day)
-	dailyHealthScoreDelta: number;
+	// Habit score delta from daily actions (accumulated, capped at 5 per day)
+	dailyHabitScoreDelta: number;
 
 	// Missions
 	missions: Mission[];
@@ -110,7 +105,7 @@ export const useDashboardStore = create<DashboardState>()(
 			checkInHistory: [],
 			streak: 0,
 			lastStreakUpdateDate: null,
-			dailyHealthScoreDelta: 0,
+			dailyHabitScoreDelta: 0,
 			missions: DAILY_MISSIONS.map((m) => ({ ...m, completed: false })),
 			missionsResetDate: null,
 
@@ -197,22 +192,22 @@ export const useDashboardStore = create<DashboardState>()(
 					};
 				});
 
-				// Bump health score in onboarding store based on check-in quality
+				// Bump lifestyle score in onboarding store based on check-in quality
 				const avg =
 					(metrics.sleep +
 						metrics.energy +
 						(6 - metrics.stress) +
 						metrics.digestion) /
 					4;
-				// avg is 1–5, map it to a small +0 to +2 health score bump
+				// avg is 1–5, map it to a small +0 to +2 lifestyle score bump
 				const checkInBonus = Math.round(((avg - 1) / 4) * 2 * 10) / 10;
-				const currentScore = useOnboardingStore.getState().healthScore ?? 50;
+				const currentScore = useOnboardingStore.getState().lifestyleScore ?? 50;
 				// Round to 1 decimal to avoid IEEE-754 drift (e.g. 77.09999999999998)
 				const newScore =
 					Math.round(
 						Math.min(100, Math.max(0, currentScore + checkInBonus)) * 10
 					) / 10;
-				useOnboardingStore.getState().setAnswer("healthScore", newScore);
+				useOnboardingStore.getState().setAnswer("lifestyleScore", newScore);
 
 				// Background sync to DB
 				get().syncToSupabase();
@@ -230,30 +225,30 @@ export const useDashboardStore = create<DashboardState>()(
 					m.id === id ? { ...m, completed: !m.completed } : m
 				);
 
-				// Adjust the accumulated daily health score delta
+				// Adjust the accumulated daily habit score delta
 				const delta = wasCompleted
-					? -mission.healthPoints
-					: mission.healthPoints;
-				const newDailyDelta = Math.max(0, get().dailyHealthScoreDelta + delta);
+					? -mission.habitPoints
+					: mission.habitPoints;
+				const newDailyDelta = Math.max(0, get().dailyHabitScoreDelta + delta);
 
 				set({
 					missions: updatedMissions,
-					dailyHealthScoreDelta: newDailyDelta,
+					dailyHabitScoreDelta: newDailyDelta,
 				});
 
-				// Apply the health point change to the live score (capped 0–100)
-				const currentScore = useOnboardingStore.getState().healthScore ?? 50;
+				// Apply the habit point change to the live score (capped 0–100)
+				const currentScore = useOnboardingStore.getState().lifestyleScore ?? 50;
 				const newScore = Math.min(
 					100,
 					Math.max(
 						0,
 						currentScore +
-							(wasCompleted ? -mission.healthPoints : mission.healthPoints)
+							(wasCompleted ? -mission.habitPoints : mission.habitPoints)
 					)
 				);
 				useOnboardingStore
 					.getState()
-					.setAnswer("healthScore", Math.round(newScore * 10) / 10);
+					.setAnswer("lifestyleScore", Math.round(newScore * 10) / 10);
 
 				// Background sync to DB
 				get().syncToSupabase();
@@ -264,9 +259,9 @@ export const useDashboardStore = create<DashboardState>()(
 			},
 
 			getLevel: () => {
-				const { dailyHealthScoreDelta } = get();
+				const { dailyHabitScoreDelta } = get();
 				// Simple level logic: every 5 points is a level
-				return Math.floor(dailyHealthScoreDelta / 5) + 1;
+				return Math.floor(dailyHabitScoreDelta / 5) + 1;
 			},
 
 			getXpInCurrentLevel: () => {
@@ -287,7 +282,7 @@ export const useDashboardStore = create<DashboardState>()(
 				set({
 					missions: DAILY_MISSIONS.map((m) => ({ ...m, completed: false })),
 					missionsResetDate: todayStr,
-					dailyHealthScoreDelta: 0,
+					dailyHabitScoreDelta: 0,
 				});
 			},
 

@@ -427,7 +427,7 @@ export default function HomeScreen() {
 				<View style={styles.disclaimerBanner}>
 					<Ionicons color="#D97706" name="information-circle" size={18} />
 					<Text style={styles.disclaimerBannerText}>
-						EZCare is a lifestyle habit tracker for educational purposes only. It does not replace professional advice of any kind.
+						EZCare is an educational lifestyle awareness tool only. It does not provide medical advice, diagnoses, or treatment. Not a substitute for professional care.
 					</Text>
 				</View>
 
@@ -619,10 +619,10 @@ export default function HomeScreen() {
 					<Ionicons color="#8B5CF6" name="bulb-outline" size={18} />
 					<Text style={styles.insightText}>
 						{streak >= 7
-							? "Users with 7+ day streaks report 40% better energy levels over time."
+							? "Users with 7+ day streaks feel more aware of their daily patterns over time."
 							: streak >= 3
 								? "You're building momentum! 3 days in a row activates habit formation."
-								: "Start your daily check-in streak — small steps lead to big changes."}
+								: "Start your daily check-in streak — small steps lead to big awareness."}
 					</Text>
 				</View>
 				</ScrollView>
@@ -724,7 +724,7 @@ const styles = StyleSheet.create({
 		elevation: 3,
 	},
 
-	// Health Score & Body
+	// Lifestyle Score & Body
 	sectionTitle: {
 		fontSize: 20,
 		fontWeight: "800",

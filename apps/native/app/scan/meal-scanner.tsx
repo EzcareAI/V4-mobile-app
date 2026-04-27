@@ -220,7 +220,7 @@ If the photo is not food-related, still respond with the JSON but set plateScore
 						<TouchableOpacity onPress={() => router.back()} style={styles.closeBtn}>
 							<Ionicons color="#FFFFFF" name="close" size={22} />
 						</TouchableOpacity>
-						<Text style={styles.resultHeaderTitle}>Meal Analysis</Text>
+						<Text style={styles.resultHeaderTitle}>Meal Insights</Text>
 						<TouchableOpacity onPress={retake} style={styles.retakeBtn}>
 							<Ionicons color="#3EC9B5" name="camera-outline" size={20} />
 						</TouchableOpacity>
@@ -328,6 +328,11 @@ If the photo is not food-related, still respond with the JSON but set plateScore
 							<Text style={styles.actionBtnOutlineText}>Home</Text>
 						</TouchableOpacity>
 					</View>
+
+					{/* Educational Disclaimer */}
+					<Text style={{ color: "rgba(255,255,255,0.35)", fontSize: 10, textAlign: "center", marginTop: 16, marginHorizontal: 20, lineHeight: 14 }}>
+						For educational purposes only. Nutritional estimates are approximate and not a substitute for professional dietary advice.
+					</Text>
 				</ScrollView>
 			</SafeAreaView>
 		);

@@ -17,9 +17,9 @@ interface ResultPreviewProps {
 		}>;
 		things_to_avoid: string[];
 		escalation: {
-			urgency: "none" | "monitor" | "consult_soon" | "seek_immediate";
+			urgency: "none" | "note" | "learn_more" | "explore_further";
 			reason?: string;
-			red_flags_detected: string[];
+			notes: string[];
 		};
 	};
 	confidence: number;
@@ -174,11 +174,11 @@ export function ResultPreview({
 								<View className="flex-1">
 									<Text className="mb-1 font-semibold">
 										{(() => {
-											if (result.escalation.urgency === "seek_immediate") {
-												return "Please Consult a Healthcare Professional";
+											if (result.escalation.urgency === "explore_further") {
+												return "Worth Exploring Further";
 											}
-											if (result.escalation.urgency === "consult_soon") {
-												return "Consider Consulting a Professional";
+											if (result.escalation.urgency === "learn_more") {
+												return "Learn More About This";
 											}
 											return "Keep Reflecting";
 										})()}

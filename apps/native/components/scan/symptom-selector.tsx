@@ -2,13 +2,13 @@ import { Button } from "heroui-native";
 import { useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 
-interface SymptomSelectorProps {
+interface ConcernSelectorProps {
 	zone: string;
 	onSelect: (symptom: string) => void;
 }
 
 // Wellness-focused comfort descriptions per body zone
-const SYMPTOMS_BY_ZONE: Record<string, string[]> = {
+const FEELINGS_BY_ZONE: Record<string, string[]> = {
 	head: ["Tension", "Foggy feeling", "Fatigue", "Tightness", "Low focus"],
 	chest: [
 		"Tightness",
@@ -29,9 +29,9 @@ const SYMPTOMS_BY_ZONE: Record<string, string[]> = {
 	legs: ["Soreness", "Heaviness", "Tightness", "Restlessness", "Fatigue"],
 };
 
-export function SymptomSelector({ zone, onSelect }: SymptomSelectorProps) {
+export function ConcernSelector({ zone, onSelect }: ConcernSelectorProps) {
 	const [selected, setSelected] = useState<string | null>(null);
-	const symptoms = SYMPTOMS_BY_ZONE[zone] || [];
+	const symptoms = FEELINGS_BY_ZONE[zone] || [];
 
 	const handleSelect = (symptom: string) => {
 		setSelected(symptom);

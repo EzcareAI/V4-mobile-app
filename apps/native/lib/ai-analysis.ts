@@ -23,7 +23,7 @@ export interface AnalysisRequest {
 	painLevel: number;
 	imageBase64?: string;
 	/** @deprecated Use description instead */
-	symptomsDescription?: string;
+	concernDescription?: string;
 }
 
 export interface AnalysisResponse {
@@ -92,14 +92,14 @@ Provide a 7-day general self-care idea list (Days 1 through 7) with activities l
 `;
 
 export const aiAnalysisService = {
-	async analyzeSymptoms(request: AnalysisRequest): Promise<AnalysisResponse> {
+	async analyzeConcerns(request: AnalysisRequest): Promise<AnalysisResponse> {
 		const client = getClient();
 
 		const textPrompt = `
 User Data:
 - Selected Body Zones: ${request.zones.join(", ") || "General Body Awareness"}
 - Comfort Level: ${request.painLevel}/10
-- Description: "${request.description || request.symptomsDescription}"
+- Description: "${request.description || request.concernDescription}"
 
 Based on the above general lifestyle inputs (and the provided image if present), provide educational comfort tips and self-care ideas strictly in the requested JSON format.
 `;

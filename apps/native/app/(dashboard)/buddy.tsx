@@ -55,7 +55,7 @@ function getDailyTips(lastValues: { sleep: number; energy: number; stress: numbe
 	else if (lastValues.stress <= 2) tips.push({ icon: "😌", text: "You're calm and centered. Perfect state for creative thinking.", color: "#10B981" });
 
 	if (lastValues.digestion <= 2) tips.push({ icon: "🥦", text: "Digestion needs attention. Add more fiber and drink warm water.", color: "#F97316" });
-	else if (lastValues.digestion >= 4) tips.push({ icon: "✅", text: "Digestion is strong! Your gut health habits are paying off.", color: "#10B981" });
+	else if (lastValues.digestion >= 4) tips.push({ icon: "✅", text: "Digestion feels good! Your daily habits are paying off.", color: "#10B981" });
 
 	if (streak >= 7) tips.push({ icon: "🔥", text: `${streak}-day streak! You're in the top 10% of consistent users.`, color: "#FF6B35" });
 	else if (streak >= 3) tips.push({ icon: "📈", text: `${streak} days and climbing. Consistency beats intensity every time.`, color: TEAL });
@@ -107,7 +107,7 @@ export default function BuddyScreen() {
 	const tips = useMemo(() => getDailyTips(lastCheckInValues, streak), [lastCheckInValues, streak]);
 	const buddyMood = useMemo(() => getBuddyMood(lastCheckInValues), [lastCheckInValues]);
 
-	// Body energy bar: composite score from last check-in
+	// Daily vibe bar: composite score from last check-in
 	const energyScore = useMemo(() => {
 		if (!lastCheckInValues) return 0;
 		const avg = (lastCheckInValues.sleep + lastCheckInValues.energy + (6 - lastCheckInValues.stress) + lastCheckInValues.digestion) / 4;
@@ -146,7 +146,7 @@ export default function BuddyScreen() {
 						style={styles.energyGrad}
 					>
 						<View style={styles.energyTop}>
-							<Text style={styles.energyTitle}>Body Vitality Score</Text>
+							<Text style={styles.energyTitle}>Daily Vibe Score</Text>
 							<Text style={styles.energyValue}>{energyScore}%</Text>
 						</View>
 						<View style={styles.energyBarBg}>
@@ -318,6 +318,9 @@ export default function BuddyScreen() {
 				<View style={styles.footer}>
 					<Text style={styles.footerText}>EZBuddy learns from every interaction.</Text>
 					<Text style={styles.footerText}>The more you use the app, the smarter I get.</Text>
+					<Text style={[styles.footerText, { marginTop: 12, fontSize: 10, color: "#B0B8C4" }]}>
+						EZCare is for educational and lifestyle awareness purposes only. It does not provide medical advice, diagnoses, or treatment. Always consult a qualified professional for any concerns.
+					</Text>
 				</View>
 			</ScrollView>
 		</SafeAreaView>

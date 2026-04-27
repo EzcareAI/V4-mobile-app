@@ -29,20 +29,20 @@ export interface OnboardingState {
 	stressLevel?: "low" | "moderate" | "high";
 	smokingFrequency?: "never" | "occasionally" | "regularly";
 	alcoholFrequency?: "never" | "occasionally" | "weekly" | "often";
-	healthConditions: string[];
+	lifestyleConditions: string[];
 
 	// Phase 3: Body Diagram Intent
 	bodyZoneSelected: string[];
 	intentType?: IntentType;
 
 	// Phase 3A: Zone-Specific Smart Questions
-	zoneSymptomIntensity?: number;
+	zoneConcernIntensity?: number;
 	zoneDuration?: "days" | "weeks" | "months" | "longterm";
 	zoneFrequency?: "constantly" | "often" | "sometimes" | "rarely";
 	zoneTriggers?: string[];
 	zoneImpact?: number;
 
-	// Phase 3B: Overall Health Smart Questions
+	// Phase 3B: Overall Lifestyle Smart Questions
 	overallPriority?: "energy" | "sleep" | "digestion" | "stress" | "weight";
 	overallBlocker?: "consistency" | "stress" | "time" | "nutrition" | "other";
 	currentEnergyLevel?: number;
@@ -50,7 +50,7 @@ export interface OnboardingState {
 	motivationLevel?: number;
 
 	// Phase 4: Results & Payment
-	healthScore?: number;
+	lifestyleScore?: number;
 	resultsShown?: string; // ISO timestamp
 	scanMode?: "onboarding" | "home"; // Which entry point triggered the scan
 
@@ -79,7 +79,7 @@ export interface OnboardingState {
 	dietType?: "classic" | "keto" | "paleo" | "vegan" | "carnivore";
 	goals: string[];
 	obstacles: string[];
-	symptoms: string[];
+	concerns: string[];
 	// Digestion and food answers
 	digestionSensitivity?: "sensitive" | "normal" | "strong";
 	processedFoodsFrequency?: "rarely" | "sometimes" | "often";
@@ -95,7 +95,7 @@ export interface OnboardingState {
 	nextStep: () => void;
 	prevStep: () => void;
 	reset: () => void;
-	computeHealthScore: () => number;
+	computeAwarenessScore: () => number;
 	syncToSupabase: () => Promise<void>;
 	getOrGenerateReferralCode: () => string;
 }
@@ -114,9 +114,9 @@ export const useOnboardingStore = create<OnboardingState>()(
 			onboardingComplete: false,
 			goals: [],
 			obstacles: [],
-			symptoms: [],
+			concerns: [],
 			cravings: [],
-			healthConditions: [],
+			lifestyleConditions: [],
 			bodyZoneSelected: [],
 			isPro: false,
 
@@ -155,7 +155,7 @@ export const useOnboardingStore = create<OnboardingState>()(
 					alcoholFrequency: undefined,
 					bodyZoneSelected: [],
 					intentType: undefined,
-					zoneSymptomIntensity: undefined,
+					zoneConcernIntensity: undefined,
 					zoneDuration: undefined,
 					zoneFrequency: undefined,
 					zoneTriggers: [],
@@ -165,7 +165,7 @@ export const useOnboardingStore = create<OnboardingState>()(
 					currentEnergyLevel: undefined,
 					currentDigestionComfort: undefined,
 					motivationLevel: undefined,
-					healthScore: undefined,
+					lifestyleScore: undefined,
 					resultsShown: undefined,
 					subscriptionStatus: undefined,
 					discountWheelShown: false,
@@ -179,9 +179,9 @@ export const useOnboardingStore = create<OnboardingState>()(
 					dietType: undefined,
 					goals: [],
 					obstacles: [],
-					symptoms: [],
+					concerns: [],
 					cravings: [],
-					healthConditions: [],
+					lifestyleConditions: [],
 					digestionSensitivity: undefined,
 					processedFoodsFrequency: undefined,
 					primaryGoal: undefined,
@@ -205,9 +205,9 @@ export const useOnboardingStore = create<OnboardingState>()(
 					stress_level: state.stressLevel,
 					smoking_status: state.smokingFrequency,
 					alcohol_status: state.alcoholFrequency,
-					health_goals: state.goals,
+					lifestyle_goals: state.goals,
 					primary_goal: state.primaryGoal,
-					health_conditions: state.healthConditions,
+					lifestyle_conditions: state.lifestyleConditions,
 					body_parts_selected: state.bodyZoneSelected,
 					branch: state.intentType,
 					paywall_plan_selected: state.subscriptionStatus,
@@ -274,12 +274,12 @@ export const useOnboardingStore = create<OnboardingState>()(
 				return newCode;
 			},
 
-			computeHealthScore: () => {
+			computeAwarenessScore: () => {
 				const state = get();
 				let score = 50; // Baseline
 
 				// Adjustments grouped by concern
-				score += computeLifestyleScore(state);
+				score += computeLifestyleFactors(state);
 				score += computeActivityScore(state);
 
 				if (state.intentType === "zone") {
@@ -299,7 +299,7 @@ export const useOnboardingStore = create<OnboardingState>()(
 );
 
 // Helper functions for score calculation to keep complexity low
-function computeLifestyleScore(state: OnboardingState): number {
+function computeLifestyleFactors(state: OnboardingState): number {
 	let adjustment = 0;
 
 	if (state.sleepQuality && state.sleepQuality >= 4) {
@@ -344,7 +344,7 @@ function computeActivityScore(state: OnboardingState): number {
 }
 
 function computeZoneScore(state: OnboardingState): number {
-	let adjustment = -(state.zoneSymptomIntensity || 0);
+	let adjustment = -(state.zoneConcernIntensity || 0);
 	if (state.zoneFrequency === "constantly") {
 		adjustment -= 3;
 	}

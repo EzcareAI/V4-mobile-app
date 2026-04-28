@@ -30,7 +30,7 @@ export default function DashboardLayout() {
 	const insets = useSafeAreaInsets();
 	const isPro = useOnboardingStore((state) => state.isPro);
 
-	if (!isPro) {
+	if (!isPro && !__DEV__) {
 		return <Redirect href="/settings/subscription" />;
 	}
 

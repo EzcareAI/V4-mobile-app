@@ -312,6 +312,7 @@ export default function PaywallScreen() {
 									onPress={() => {
 										setAnswer("subscriptionStatus", "skipped");
 										setAnswer("paymentAttempted", false);
+										setPro(true);
 										nextStep();
 										router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
 									}}

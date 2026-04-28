@@ -125,16 +125,18 @@ export default function SubscriptionScreen() {
 			<ScrollView contentContainerStyle={styles.scroll}>
 				{/* Header */}
 				<View style={styles.header}>
-					{isPro ? (
-						<TouchableOpacity
-							onPress={() => router.back()}
-							style={styles.backBtn}
-						>
-							<Ionicons color={DARK} name="chevron-back" size={24} />
-						</TouchableOpacity>
-					) : (
-						<View style={{ width: 40 }} />
-					)}
+					<TouchableOpacity
+						onPress={() => {
+							if (router.canGoBack()) {
+								router.back();
+							} else {
+								router.replace("/(dashboard)");
+							}
+						}}
+						style={styles.backBtn}
+					>
+						<Ionicons color={DARK} name="chevron-back" size={24} />
+					</TouchableOpacity>
 					<Text style={styles.headerTitle}>Upgrade to Pro</Text>
 					<View style={{ width: 24 }} />
 				</View>

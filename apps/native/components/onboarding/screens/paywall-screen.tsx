@@ -304,19 +304,39 @@ export default function PaywallScreen() {
 					) : (
 						<View className="flex-1 items-center justify-center rounded-[20px] border border-dashed border-slate-300 bg-slate-50 py-10">
 							<Text className="text-center text-[#94A3B8] text-sm">
-								Plans unavailable right now.
+								{__DEV__ ? "Plans unavailable (dev mode)." : "Could not load plans. Please check your connection."}
 							</Text>
-							<TouchableOpacity
-								className="mt-4 rounded-xl bg-[#28B898] px-6 py-3"
-								onPress={() => {
-									setAnswer("subscriptionStatus", "skipped");
-									setAnswer("paymentAttempted", false);
-									nextStep();
-									router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
-								}}
-							>
-								<Text className="font-bold text-white text-sm">Continue for Free</Text>
-							</TouchableOpacity>
+							{__DEV__ ? (
+								<TouchableOpacity
+									className="mt-4 rounded-xl bg-[#28B898] px-6 py-3"
+									onPress={() => {
+										setAnswer("subscriptionStatus", "skipped");
+										setAnswer("paymentAttempted", false);
+										nextStep();
+										router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+									}}
+								>
+									<Text className="font-bold text-white text-sm">Continue for Free</Text>
+								</TouchableOpacity>
+							) : (
+								<TouchableOpacity
+									className="mt-4 rounded-xl bg-[#64748B] px-6 py-3"
+									onPress={async () => {
+										setLoading(true);
+										try {
+											await revenueCatService.initialize();
+											const currentOffering = await revenueCatService.getOfferings();
+											setOffering(currentOffering);
+										} catch (err) {
+											console.error("Retry Load Offerings Error:", err);
+										} finally {
+											setLoading(false);
+										}
+									}}
+								>
+									<Text className="font-bold text-white text-sm">Try Again</Text>
+								</TouchableOpacity>
+							)}
 						</View>
 					)}
 				</View>

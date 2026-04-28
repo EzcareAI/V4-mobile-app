@@ -319,7 +319,7 @@ export default function BuddyScreen() {
 					<Text style={styles.footerText}>EZBuddy learns from every interaction.</Text>
 					<Text style={styles.footerText}>The more you use the app, the smarter I get.</Text>
 					<Text style={[styles.footerText, { marginTop: 12, fontSize: 10, color: "#B0B8C4" }]}>
-						EZCare is for educational and lifestyle awareness purposes only. It does not provide medical advice, diagnoses, or treatment. Always consult a qualified professional for any concerns.
+						EZCare is for educational and lifestyle awareness purposes only. It is not a substitute for professional advice. Always consult a qualified professional for any concerns.
 					</Text>
 				</View>
 			</ScrollView>

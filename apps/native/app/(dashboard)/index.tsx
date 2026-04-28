@@ -423,11 +423,11 @@ export default function HomeScreen() {
 					</View>
 				</TouchableOpacity>
 
-				{/* ── Wellness Disclaimer ── */}
+				{/* ── Lifestyle Disclaimer ── */}
 				<View style={styles.disclaimerBanner}>
 					<Ionicons color="#D97706" name="information-circle" size={18} />
 					<Text style={styles.disclaimerBannerText}>
-						EZCare is an educational lifestyle awareness tool only. It does not provide medical advice, diagnoses, or treatment. Not a substitute for professional care.
+						EZCare is an educational lifestyle awareness tool only. It is not a substitute for professional advice. Always consult a qualified professional for any concerns.
 					</Text>
 				</View>
 

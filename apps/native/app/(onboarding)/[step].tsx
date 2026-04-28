@@ -8,6 +8,7 @@ import { BirthdayScreen } from "@/components/onboarding/screens/birthday-screen"
 
 // ===== SHARED CONVERGENCE SCREENS =====
 import { ConfidenceMomentScreen } from "@/components/onboarding/screens/confidence-moment-screen";
+import { DisclaimerScreen } from "@/components/onboarding/screens/disclaimer-screen";
 import { DiscountWheelScreen } from "@/components/onboarding/screens/discount-wheel-screen";
 import { DopamineScreen } from "@/components/onboarding/screens/dopamine-screen";
 // ===== BASELINE SCREENS (Steps 1-11) =====
@@ -54,7 +55,7 @@ const LoadingFallback = () => (
 // 8  Stress Level
 // 9  Smoking
 // 10 Alcohol
-// 11 Dopamine (progress)
+// 11 Disclaimer (mandatory acknowledgment)
 // 12-16 Overall path (priority, blocker, energy, digestion, motivation)
 // 17 Confidence Moment
 // 18 Results Preview
@@ -102,7 +103,7 @@ const OnboardingStep = () => {
 			case 10:
 				return <AlcoholScreen />;
 			case 11:
-				return <DopamineScreen type="progress" />;
+				return <DisclaimerScreen />;
 			default:
 				return null;
 		}

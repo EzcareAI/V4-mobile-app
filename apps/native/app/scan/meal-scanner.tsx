@@ -110,7 +110,7 @@ export default function MealScannerScreen() {
 4. Provide a lifestyle impact assessment (positive/negative habits)
 5. Give 2-3 actionable tips
 
-IMPORTANT: This is for EDUCATIONAL purposes only. You are NOT providing medical or dietary advice. Always frame as "learning about nutrition" not "health measurement".
+IMPORTANT: This is for EDUCATIONAL purposes only. You are NOT providing professional dietary advice. Always frame as "learning about nutrition" not "measuring health".
 
 Respond in this exact JSON format (no markdown, no code blocks, just raw JSON):
 {

@@ -209,7 +209,7 @@ export default function PaywallScreen() {
 					<View className="absolute top-0 right-0 -mt-20 -mr-20 h-64 w-64 rounded-full bg-blue-50/50 opacity-50" />
 
 					<Text className="text-center font-bold text-[26px] sm:text-[32px] text-ezcare-navy leading-9 tracking-tight">
-						Unlock Your Full{"\n"}Wellness Journey
+						Unlock Your Full{"\n"}Lifestyle Journey
 					</Text>
 					<Text className="mt-4 text-center text-[15px] text-ezcare-slate leading-6">
 						Get personalized plans, daily check-ins, and continuous AI guidance
@@ -304,8 +304,19 @@ export default function PaywallScreen() {
 					) : (
 						<View className="flex-1 items-center justify-center rounded-[20px] border border-dashed border-slate-300 bg-slate-50 py-10">
 							<Text className="text-center text-[#94A3B8] text-sm">
-								Waiting for RevenueCat configuration...
+								Plans unavailable right now.
 							</Text>
+							<TouchableOpacity
+								className="mt-4 rounded-xl bg-[#28B898] px-6 py-3"
+								onPress={() => {
+									setAnswer("subscriptionStatus", "skipped");
+									setAnswer("paymentAttempted", false);
+									nextStep();
+									router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+								}}
+							>
+								<Text className="font-bold text-white text-sm">Continue for Free</Text>
+							</TouchableOpacity>
 						</View>
 					)}
 				</View>

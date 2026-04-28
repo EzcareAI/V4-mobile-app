@@ -398,8 +398,8 @@ export default function ProgressScreen() {
 
 	const chartData = buildChartData();
 
-	// ── Dynamic Symptoms ──
-	const mkSymptom = (key: string, label: string, icon: string) => {
+	// ── Dynamic Lifestyle Metrics ──
+	const mkMetric = (key: string, label: string, icon: string) => {
 		const val = lastCheckInValues?.[key as keyof typeof lastCheckInValues] || 0;
 		return {
 			key,
@@ -412,11 +412,11 @@ export default function ProgressScreen() {
 		};
 	};
 
-	const activeSymptoms = [
-		mkSymptom("sleep", "Sleep Quality", "🌙"),
-		mkSymptom("energy", "Energy Levels", "⚡"),
-		mkSymptom("digestion", "Post-Meal Comfort", "🍏"),
-		mkSymptom("stress", "Stress Management", "💗"),
+	const activeMetrics = [
+		mkMetric("sleep", "Sleep Quality", "🌙"),
+		mkMetric("energy", "Energy Levels", "⚡"),
+		mkMetric("digestion", "Post-Meal Comfort", "🍏"),
+		mkMetric("stress", "Stress Management", "💗"),
 	];
 
 	return (
@@ -485,29 +485,29 @@ export default function ProgressScreen() {
 				{/* Check-in Journal */}
 				<View style={[styles.card, { borderColor: TEAL, borderWidth: 1 }]}>
 					<Text style={styles.cardTitle}>Check-in Journal</Text>
-					{activeSymptoms.map((s) => (
+					{activeMetrics.map((s) => (
 						<View
 							key={s.key}
 							style={[
-								styles.symptomRow,
+								styles.metricRow,
 								{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" },
 							]}
 						>
 							<View
-								style={[styles.symptomIcon, { backgroundColor: "#FFFFFF" }]}
+								style={[styles.metricIcon, { backgroundColor: "#FFFFFF" }]}
 							>
 								<Text style={{ fontSize: 20 }}>{s.icon}</Text>
 							</View>
-							<View style={styles.symptomContent}>
-								<Text style={styles.symptomTitle}>{s.label}</Text>
-								<Text style={styles.symptomDesc}>{s.desc}</Text>
-								<Text style={styles.symptomDays}>
+							<View style={styles.metricContent}>
+								<Text style={styles.metricTitle}>{s.label}</Text>
+								<Text style={styles.metricDesc}>{s.desc}</Text>
+								<Text style={styles.metricDays}>
 									{s.daysTracked} days tracked
 								</Text>
 							</View>
 						</View>
 					))}
-					<Text style={styles.symptomFooter}>
+					<Text style={styles.metricFooter}>
 						Based on your last 30 days of daily check-ins.
 					</Text>
 				</View>
@@ -664,7 +664,7 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 	},
 
-	// Wellness Score card
+	// Lifestyle Score card
 	scoreCard: {
 		marginHorizontal: 20,
 		marginBottom: 20,
@@ -776,8 +776,8 @@ const styles = StyleSheet.create({
 	rangeBtnText: { fontSize: 13, fontWeight: "600", color: GREY },
 	rangeBtnTextActive: { color: "#FFFFFF" },
 
-	// Symptom rows
-	symptomRow: {
+	// Metric rows
+	metricRow: {
 		flexDirection: "row",
 		alignItems: "center",
 		gap: 12,
@@ -786,20 +786,20 @@ const styles = StyleSheet.create({
 		marginBottom: 10,
 		borderWidth: 1,
 	},
-	symptomIcon: {
+	metricIcon: {
 		width: 48,
 		height: 48,
 		borderRadius: 24,
 		alignItems: "center",
 		justifyContent: "center",
 	},
-	symptomContent: { flex: 1 },
-	symptomTitle: { fontSize: 14, fontWeight: "700", color: DARK },
-	symptomDesc: { fontSize: 12, color: GREY, marginTop: 1 },
-	symptomDays: { fontSize: 11, color: GREY, marginTop: 2 },
+	metricContent: { flex: 1 },
+	metricTitle: { fontSize: 14, fontWeight: "700", color: DARK },
+	metricDesc: { fontSize: 12, color: GREY, marginTop: 1 },
+	metricDays: { fontSize: 11, color: GREY, marginTop: 2 },
 	trendBadge: { flexDirection: "row", alignItems: "center", gap: 3 },
 	trendText: { fontSize: 12, fontWeight: "700" },
-	symptomFooter: {
+	metricFooter: {
 		textAlign: "center",
 		fontSize: 12,
 		color: GREY,

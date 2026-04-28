@@ -213,8 +213,6 @@ export const useOnboardingStore = create<OnboardingState>()(
 					paywall_plan_selected: state.subscriptionStatus,
 					last_completed_step: state.currentStep,
 					user_id: state.userId,
-					email: state.email,
-					first_name: state.firstName,
 					referral_code: state.myReferralCode,
 					referred_by_code: state.referralCode,
 					updated_at: new Date().toISOString(),

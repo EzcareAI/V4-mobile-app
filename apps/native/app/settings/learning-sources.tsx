@@ -14,7 +14,7 @@ const SOURCES = [
 	},
 	{
 		name: "Harvard Health Publishing",
-		description: "Evidence-based educational articles on wellness and lifestyle.",
+		description: "Educational articles on lifestyle and daily habits.",
 		url: "https://www.health.harvard.edu",
 	},
 	{
@@ -24,12 +24,12 @@ const SOURCES = [
 	},
 	{
 		name: "World Health Organization",
-		description: "Global educational resources on wellness and healthy living.",
+		description: "Global educational resources on healthy living.",
 		url: "https://www.who.int",
 	},
 	{
 		name: "American Psychological Association",
-		description: "Educational resources on mental wellness, stress, and mindfulness.",
+		description: "Educational resources on stress management and mindfulness.",
 		url: "https://www.apa.org",
 	},
 ];
@@ -73,8 +73,8 @@ export default function LearningSources() {
 					<Ionicons color="#D97706" name="information-circle" size={18} />
 					<Text style={styles.disclaimerText}>
 						EZCare is an educational lifestyle awareness tool. It does not provide
-						medical advice, diagnoses, or treatment recommendations. Always consult
-						a qualified healthcare professional for any medical concerns.
+						professional advice or recommendations. Always consult
+						a qualified professional for any concerns about your wellbeing.
 					</Text>
 				</View>
 			</ScrollView>

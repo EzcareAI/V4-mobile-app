@@ -723,7 +723,7 @@ export default function ResultsPreviewScreen() {
 							className="flex-row items-center rounded-[16px] border border-[#E2E8F0] bg-white p-4"
 							onPress={() =>
 								Linking.openURL(
-									"https://www.niddk.nih.gov/health-information/digestive-diseases"
+									"https://www.who.int/news-room/fact-sheets/detail/healthy-diet"
 								)
 							}
 						>
@@ -732,10 +732,10 @@ export default function ResultsPreviewScreen() {
 							</View>
 							<View className="flex-1">
 								<Text className="font-bold text-[#1E293B] text-[15px]">
-									NIH Digestion Research
+									WHO Lifestyle Research
 								</Text>
 								<Text className="mt-0.5 font-medium text-[#94A3B8] text-[13px]">
-									Gut health optimization
+									Nutrition and lifestyle education
 								</Text>
 							</View>
 							<ChevronRight color="#CBD5E1" size={20} />

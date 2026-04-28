@@ -37,9 +37,9 @@ export function OverallMotivationScreen() {
 		},
 		{
 			value: 3,
-			label: "Prevent Disease",
+			label: "Stay Consistent",
 			emoji: "🛡️",
-			desc: "Family history concerns",
+			desc: "Build long-term habits",
 		},
 		{
 			value: 2,

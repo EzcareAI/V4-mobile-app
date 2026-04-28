@@ -103,7 +103,7 @@ export function ResultPreview({
 
 				{/* Recommended Actions (Blurred if not subscribed) */}
 				<View className="mb-4">
-					<Text className="mb-3 font-bold text-xl">Suggested Wellness Tips</Text>
+					<Text className="mb-3 font-bold text-xl">Suggested Lifestyle Tips</Text>
 					{isSubscribed ? (
 						result.recommended_actions.map((action) => (
 							<Card className="mb-2" key={action.action} variant="secondary">

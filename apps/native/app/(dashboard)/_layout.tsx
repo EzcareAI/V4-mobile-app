@@ -103,13 +103,7 @@ export default function DashboardLayout() {
 					),
 				}}
 			/>
-			<Tabs.Screen
-				name="analyze-symptoms"
-				options={{
-					href: null,
-				}}
-			/>
-		</Tabs>
+			</Tabs>
 	);
 }
 

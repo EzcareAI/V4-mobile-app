@@ -4,10 +4,10 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 
 interface ConcernSelectorProps {
 	zone: string;
-	onSelect: (symptom: string) => void;
+	onSelect: (feeling: string) => void;
 }
 
-// Wellness-focused comfort descriptions per body zone
+// Lifestyle-focused comfort descriptions per body zone
 const FEELINGS_BY_ZONE: Record<string, string[]> = {
 	head: ["Tension", "Foggy feeling", "Fatigue", "Tightness", "Low focus"],
 	chest: [
@@ -31,10 +31,10 @@ const FEELINGS_BY_ZONE: Record<string, string[]> = {
 
 export function ConcernSelector({ zone, onSelect }: ConcernSelectorProps) {
 	const [selected, setSelected] = useState<string | null>(null);
-	const symptoms = FEELINGS_BY_ZONE[zone] || [];
+	const feelings = FEELINGS_BY_ZONE[zone] || [];
 
-	const handleSelect = (symptom: string) => {
-		setSelected(symptom);
+	const handleSelect = (feeling: string) => {
+		setSelected(feeling);
 	};
 
 	const handleContinue = () => {
@@ -54,22 +54,22 @@ export function ConcernSelector({ zone, onSelect }: ConcernSelectorProps) {
 				</Text>
 
 				<View className="gap-3">
-					{symptoms.map((symptom) => (
+					{feelings.map((feeling) => (
 						<Pressable
 							className={`rounded-xl border-2 p-4 ${
-								selected === symptom
+								selected === feeling
 									? "border-primary bg-primary/10"
 									: "border-border bg-card"
 							}`}
-							key={symptom}
-							onPress={() => handleSelect(symptom)}
+							key={feeling}
+							onPress={() => handleSelect(feeling)}
 						>
 							<Text
 								className={`text-base ${
-									selected === symptom ? "font-semibold" : "font-normal"
+									selected === feeling ? "font-semibold" : "font-normal"
 								}`}
 							>
-								{symptom}
+								{feeling}
 							</Text>
 						</Pressable>
 					))}

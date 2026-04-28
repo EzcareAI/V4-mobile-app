@@ -96,7 +96,7 @@ export default function OnboardingIndex() {
 							<View style={styles.trustIcon}>
 								<Check color={THEME.accent} size={13} />
 							</View>
-							<Text style={styles.trustLabel}>AI-Powered Wellness</Text>
+							<Text style={styles.trustLabel}>AI-Powered Lifestyle</Text>
 						</View>
 
 						<View style={styles.trustDot} />

@@ -15,8 +15,14 @@ const ENTITLEMENT_IDS = ["monthly", "yearly"] as const;
 class RevenueCatService {
 	private static instance: RevenueCatService;
 	private initialized = false;
+	private isSimulator = false;
 
-	private constructor() {}
+	private constructor() {
+		// Detect simulator: no real App Store available
+		if (__DEV__) {
+			this.isSimulator = true;
+		}
+	}
 
 	static getInstance(): RevenueCatService {
 		if (!RevenueCatService.instance) {
@@ -30,6 +36,13 @@ class RevenueCatService {
 	 */
 	async initialize(): Promise<void> {
 		if (this.initialized) {
+			return;
+		}
+
+		// In dev/simulator mode, skip RevenueCat entirely and grant full access
+		if (this.isSimulator) {
+			this.initialized = true;
+			console.log("RevenueCat: DEV MODE — skipping configuration, granting full access");
 			return;
 		}
 
@@ -71,6 +84,9 @@ class RevenueCatService {
 		if (!this.initialized) {
 			return false;
 		}
+		if (this.isSimulator) {
+			return true;
+		}
 		try {
 			const customerInfo = await Purchases.getCustomerInfo();
 			return this.hasActiveEntitlement(customerInfo.entitlements.active);
@@ -89,6 +105,9 @@ class RevenueCatService {
 		}
 		if (!this.initialized) {
 			return null;
+		}
+		if (this.isSimulator) {
+			return null; // No real offerings in dev — paywall will show "Continue for Free"
 		}
 		try {
 			const offerings = await Purchases.getOfferings();

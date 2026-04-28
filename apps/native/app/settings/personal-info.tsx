@@ -38,7 +38,7 @@ export default function PersonalInfoScreen() {
 
 				let query = supabase
 					.from("onboarding_profiles")
-					.select("first_name, email, body_parts_selected");
+					.select("first_name, body_parts_selected");
 
 				if (user?.id) {
 					query = query.eq("user_id", user.id);

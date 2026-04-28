@@ -20,13 +20,13 @@ export default function WellnessSourcesScreen() {
 				<TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
 					<Ionicons color="#1A1A2E" name="arrow-back" size={24} />
 				</TouchableOpacity>
-				<Text style={styles.headerTitle}>Wellness Sources</Text>
+				<Text style={styles.headerTitle}>Lifestyle Sources</Text>
 				<View style={{ width: 40 }} />
 			</View>
 
 			<ScrollView contentContainerStyle={styles.content} style={styles.scroll}>
 				<Text style={styles.preamble}>
-					EZCare AI references publicly available wellness and educational
+					EZCare AI references publicly available lifestyle and educational
 					resources. The information provided is for general lifestyle and
 					educational purposes only.
 				</Text>
@@ -41,7 +41,7 @@ export default function WellnessSourcesScreen() {
 						<View style={styles.sourceText}>
 							<Text style={styles.sourceTitle}>Harvard Sleep Research</Text>
 							<Text style={styles.sourceSub}>
-								Sleep and circadian rhythm wellness research.
+								Sleep and circadian rhythm lifestyle research.
 							</Text>
 						</View>
 					</TouchableOpacity>
@@ -57,7 +57,7 @@ export default function WellnessSourcesScreen() {
 						<View style={styles.sourceText}>
 							<Text style={styles.sourceTitle}>WHO Healthy Lifestyle</Text>
 							<Text style={styles.sourceSub}>
-								General wellness and healthy lifestyle guidelines.
+								General healthy lifestyle guidelines.
 							</Text>
 						</View>
 					</TouchableOpacity>

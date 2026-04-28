@@ -2,6 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import {
+	Linking,
 	ScrollView,
 	StyleSheet,
 	Text,
@@ -9,6 +10,29 @@ import {
 	View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const RESOURCES = [
+	{
+		name: "World Health Organization",
+		url: "https://www.who.int",
+		icon: "globe-outline" as const,
+	},
+	{
+		name: "International Red Cross",
+		url: "https://www.icrc.org",
+		icon: "heart-outline" as const,
+	},
+	{
+		name: "US CDC Resources",
+		url: "https://www.cdc.gov",
+		icon: "shield-checkmark-outline" as const,
+	},
+	{
+		name: "French Resources (Ameli)",
+		url: "https://www.ameli.fr",
+		icon: "flag-outline" as const,
+	},
+];
 
 export default function AboutScreen() {
 	const router = useRouter();
@@ -34,25 +58,47 @@ export default function AboutScreen() {
 						<Text style={styles.logoText}>EZ</Text>
 					</LinearGradient>
 					<Text style={styles.appName}>EZCare AI</Text>
-					<Text style={styles.version}>Version 1.0.0</Text>
+					<Text style={styles.version}>Version 1.1.0</Text>
 				</View>
 
 				<View style={styles.card}>
-					<Text style={styles.missionTitle}>Our Mission</Text>
+					<Text style={styles.missionTitle}>About This App</Text>
 					<Text style={styles.missionBody}>
-						EZCare is designed to serve as your educational body awareness companion.
-						We use AI to help you learn about your body, build daily lifestyle habits,
-						explore general self-care ideas, and support your awareness journey.
+						EZCare AI is a lifestyle companion. It is not a device for measuring
+						or assessing anything related to your body. It does not provide
+						professional advice of any kind. For any concern about your
+						wellbeing, please consult a qualified professional.
 					</Text>
 
 					<Text style={styles.disclaimer}>
-						Important: EZCare AI is an educational lifestyle awareness tool for
-						general informational and educational purposes only. It is NOT a medical
-						device, does NOT provide medical advice, diagnoses, treatment, or health
-						measurements of any kind. It has not received regulatory clearance from
-						the FDA or any other regulatory body. Always consult a qualified
-						professional for any concerns about your wellbeing.
+						EZCare AI is for general informational and educational purposes only.
+						It has not received regulatory clearance from the FDA or any other
+						regulatory body. Always consult a qualified professional for any
+						concerns.
 					</Text>
+				</View>
+
+				<View style={styles.card}>
+					<Text style={styles.missionTitle}>Helpful Resources</Text>
+					<Text style={[styles.missionBody, { marginBottom: 16 }]}>
+						For any concern about your wellbeing, please visit these trusted
+						organizations:
+					</Text>
+
+					{RESOURCES.map((resource) => (
+						<TouchableOpacity
+							key={resource.name}
+							onPress={() => Linking.openURL(resource.url)}
+							style={styles.resourceRow}
+						>
+							<Ionicons color="#3EC9B5" name={resource.icon} size={20} />
+							<View style={styles.resourceText}>
+								<Text style={styles.resourceName}>{resource.name}</Text>
+								<Text style={styles.resourceUrl}>{resource.url}</Text>
+							</View>
+							<Ionicons color="#94A3B8" name="open-outline" size={16} />
+						</TouchableOpacity>
+					))}
 				</View>
 			</ScrollView>
 		</SafeAreaView>
@@ -74,7 +120,7 @@ const styles = StyleSheet.create({
 	backBtn: { width: 40, alignItems: "flex-start", paddingVertical: 4 },
 	headerTitle: { fontSize: 18, fontWeight: "800", color: "#1A1A2E" },
 	scroll: { flex: 1 },
-	content: { padding: 24 },
+	content: { padding: 24, paddingBottom: 60 },
 	logoContainer: {
 		alignItems: "center",
 		marginTop: 20,
@@ -114,6 +160,7 @@ const styles = StyleSheet.create({
 		backgroundColor: "#FFFFFF",
 		borderRadius: 24,
 		padding: 24,
+		marginBottom: 20,
 		shadowColor: "#000",
 		shadowOffset: { width: 0, height: 4 },
 		shadowOpacity: 0.05,
@@ -137,5 +184,25 @@ const styles = StyleSheet.create({
 		color: "#94A3B8",
 		lineHeight: 18,
 		fontStyle: "italic",
+	},
+	resourceRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		paddingVertical: 12,
+		borderBottomWidth: 1,
+		borderBottomColor: "rgba(0,0,0,0.05)",
+		gap: 12,
+	},
+	resourceText: { flex: 1 },
+	resourceName: {
+		fontSize: 15,
+		fontWeight: "700",
+		color: "#1A1A2E",
+		marginBottom: 2,
+	},
+	resourceUrl: {
+		fontSize: 12,
+		color: "#3EC9B5",
+		fontWeight: "500",
 	},
 });

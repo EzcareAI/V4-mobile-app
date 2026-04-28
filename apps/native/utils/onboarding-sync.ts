@@ -32,7 +32,7 @@ export const mapOnboardingToProfile = (state: OnboardingState) => {
 
 	// 4. Map Concerns
 	// Combine any specific triggers or issues into the concerns enum
-	const mappedSymptoms: (
+	const mappedConcerns: (
 		| "fatigue"
 		| "digestive"
 		| "anxiety"
@@ -40,13 +40,13 @@ export const mapOnboardingToProfile = (state: OnboardingState) => {
 		| "brain_fog"
 	)[] = [];
 	if (state.currentEnergyLevel && state.currentEnergyLevel <= 2) {
-		mappedSymptoms.push("fatigue");
+		mappedConcerns.push("fatigue");
 	}
 	if (state.currentDigestionComfort && state.currentDigestionComfort <= 2) {
-		mappedSymptoms.push("digestive");
+		mappedConcerns.push("digestive");
 	}
 	if (state.stressLevel === "high") {
-		mappedSymptoms.push("anxiety");
+		mappedConcerns.push("anxiety");
 	}
 
 	return {
@@ -65,7 +65,7 @@ export const mapOnboardingToProfile = (state: OnboardingState) => {
 		primaryGoal:
 			(state.overallPriority && goalMap[state.overallPriority]) || "energy",
 		secondaryGoal: "longevity" as const,
-		symptoms: (mappedSymptoms.length > 0 ? mappedSymptoms : ["fatigue"]) as (
+		concerns: (mappedConcerns.length > 0 ? mappedConcerns : ["fatigue"]) as (
 			| "fatigue"
 			| "digestive"
 			| "anxiety"

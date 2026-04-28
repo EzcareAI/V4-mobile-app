@@ -711,7 +711,7 @@ export default function ResultsPreviewScreen() {
 									PubMed Information Studies
 								</Text>
 								<Text className="mt-0.5 font-medium text-[#94A3B8] text-[13px]">
-									Nutrition and lifestyle tips
+									Nutrition and daily tips
 								</Text>
 							</View>
 							<ChevronRight color="#CBD5E1" size={20} />

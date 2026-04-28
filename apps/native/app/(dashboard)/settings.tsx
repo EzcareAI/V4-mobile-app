@@ -220,7 +220,7 @@ export default function SettingsScreen() {
 						<View style={{ flex: 1 }}>
 							<Text style={styles.listText}>Push Notifications</Text>
 							<Text style={styles.listSub}>
-								Daily reminders and lifestyle tips
+								Daily reminders and tips
 							</Text>
 						</View>
 						<Switch

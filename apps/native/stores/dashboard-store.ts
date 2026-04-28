@@ -192,14 +192,14 @@ export const useDashboardStore = create<DashboardState>()(
 					};
 				});
 
-				// Bump lifestyle score in onboarding store based on check-in quality
+				// Bump daily score in onboarding store based on check-in quality
 				const avg =
 					(metrics.sleep +
 						metrics.energy +
 						(6 - metrics.stress) +
 						metrics.digestion) /
 					4;
-				// avg is 1–5, map it to a small +0 to +2 lifestyle score bump
+				// avg is 1–5, map it to a small +0 to +2 daily score bump
 				const checkInBonus = Math.round(((avg - 1) / 4) * 2 * 10) / 10;
 				const currentScore = useOnboardingStore.getState().lifestyleScore ?? 50;
 				// Round to 1 decimal to avoid IEEE-754 drift (e.g. 77.09999999999998)

@@ -664,7 +664,7 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 	},
 
-	// Lifestyle Score card
+	// Daily Score card
 	scoreCard: {
 		marginHorizontal: 20,
 		marginBottom: 20,

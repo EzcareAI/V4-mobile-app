@@ -50,7 +50,7 @@ export function DisclaimerScreen() {
 
 				<View style={styles.card}>
 					<Text style={styles.bodyText}>
-						EZCare AI is a <Text style={styles.bold}>lifestyle companion</Text>.
+						EZCare AI is a <Text style={styles.bold}>daily companion</Text>.
 						It is designed to help you build daily habits and routines.
 					</Text>
 
@@ -90,7 +90,7 @@ export function DisclaimerScreen() {
 						{accepted && <Ionicons color="#FFFFFF" name="checkmark" size={16} />}
 					</View>
 					<Text style={styles.checkboxLabel}>
-						I understand that EZCare AI is a lifestyle companion and does not
+						I understand that EZCare AI is a daily companion and does not
 						provide professional advice
 					</Text>
 				</TouchableOpacity>

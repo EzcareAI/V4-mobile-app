@@ -64,7 +64,7 @@ export default function AboutScreen() {
 				<View style={styles.card}>
 					<Text style={styles.missionTitle}>About This App</Text>
 					<Text style={styles.missionBody}>
-						EZCare AI is a lifestyle companion. It is not a device for measuring
+						EZCare AI is a daily companion. It is not a device for measuring
 						or assessing anything related to your body. It does not provide
 						professional advice of any kind. For any concern about your
 						wellbeing, please consult a qualified professional.

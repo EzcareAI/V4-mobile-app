@@ -724,7 +724,7 @@ const styles = StyleSheet.create({
 		elevation: 3,
 	},
 
-	// Lifestyle Score & Body
+	// Daily Score & Body
 	sectionTitle: {
 		fontSize: 20,
 		fontWeight: "800",

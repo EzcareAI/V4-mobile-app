@@ -13,9 +13,6 @@ import {
 } from "react-native-apptrove";
 import { env } from "@ezcare/env/native";
 
-const APPTROVE_SDK_KEY_IOS = "ff84ab36-6665-46c1-a3bf-fbd4df1199a0";
-const APPTROVE_SDK_KEY_ANDROID = "59b0d897-e2e7-4ce5-b6a6-b3684bc33a40";
-
 // Event IDs from Apptrove dashboard (My Apps > Events)
 // CRITICAL: use the exact IDs with correct casing — I (capital i) vs l (lowercase L)
 const EVENT_ID_APP_OPEN = "o91gt1Q0PK";
@@ -42,13 +39,24 @@ class ApptroveService {
 		}
 		try {
 			const sdkKey = Platform.OS === "android"
-				? APPTROVE_SDK_KEY_ANDROID
-				: APPTROVE_SDK_KEY_IOS;
+				? env.EXPO_PUBLIC_APPTROVE_APP_TOKEN_ANDROID
+				: env.EXPO_PUBLIC_APPTROVE_APP_TOKEN_IOS;
 			const environment =
 				env.EXPO_PUBLIC_APPTROVE_ENV === "production"
 					? ApptroveConfig.EnvironmentProduction
 					: ApptroveConfig.EnvironmentDevelopment;
 			const config = new ApptroveConfig(sdkKey, environment);
+
+			// SDK Signing — must be called BEFORE initialize()
+			const secretId = env.EXPO_PUBLIC_APPTROVE_SECRET_ID;
+			const secretKey = env.EXPO_PUBLIC_APPTROVE_SECRET_KEY;
+			if (secretId && secretKey) {
+				config.setAppSecret(secretId, secretKey);
+				console.log("[Apptrove] SDK signing enabled");
+			} else {
+				console.warn("[Apptrove] SDK signing skipped — missing SECRET_ID or SECRET_KEY");
+			}
+
 			ApptroveSDK.initialize(config);
 			this.initialized = true;
 			console.log(

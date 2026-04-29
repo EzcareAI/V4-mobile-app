@@ -38,9 +38,16 @@ class ApptroveService {
 			return;
 		}
 		try {
-			const sdkKey = Platform.OS === "android"
+			const isAndroid = Platform.OS === "android";
+			const sdkKey = isAndroid
 				? env.EXPO_PUBLIC_APPTROVE_APP_TOKEN_ANDROID
 				: env.EXPO_PUBLIC_APPTROVE_APP_TOKEN_IOS;
+			const secretId = isAndroid
+				? env.EXPO_PUBLIC_APPTROVE_SECRET_ID_ANDROID
+				: env.EXPO_PUBLIC_APPTROVE_SECRET_ID_IOS;
+			const secretKey = isAndroid
+				? env.EXPO_PUBLIC_APPTROVE_SECRET_KEY_ANDROID
+				: env.EXPO_PUBLIC_APPTROVE_SECRET_KEY_IOS;
 			const environment =
 				env.EXPO_PUBLIC_APPTROVE_ENV === "production"
 					? ApptroveConfig.EnvironmentProduction
@@ -48,13 +55,11 @@ class ApptroveService {
 			const config = new ApptroveConfig(sdkKey, environment);
 
 			// SDK Signing — must be called BEFORE initialize()
-			const secretId = env.EXPO_PUBLIC_APPTROVE_SECRET_ID;
-			const secretKey = env.EXPO_PUBLIC_APPTROVE_SECRET_KEY;
 			if (secretId && secretKey) {
 				config.setAppSecret(secretId, secretKey);
-				console.log("[Apptrove] SDK signing enabled");
+				console.log(`[Apptrove] SDK signing enabled (${Platform.OS})`);
 			} else {
-				console.warn("[Apptrove] SDK signing skipped — missing SECRET_ID or SECRET_KEY");
+				console.warn(`[Apptrove] SDK signing skipped (${Platform.OS}) — missing SECRET_ID or SECRET_KEY`);
 			}
 
 			ApptroveSDK.initialize(config);

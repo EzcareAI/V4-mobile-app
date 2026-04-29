@@ -44,7 +44,7 @@
       "reactCompiler": false
     },
     "ios": {
-      "buildNumber": "26",
+      "buildNumber": "27",
       "bundleIdentifier": "app.rork.zvfley8yoowwhncate9z5",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "EZCare needs access to your microphone for voice-to-text with EZBuddy.",

@@ -29,3 +29,5 @@ android/
 ios/
 .env
 google-play-service-account.json
+*.pem
+*.keystore

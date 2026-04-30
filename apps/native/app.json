@@ -38,7 +38,7 @@
         }
       ]
     ],
-    "version": "1.1.0",
+    "version": "1.4.4",
     "experiments": {
       "typedRoutes": false,
       "reactCompiler": false
@@ -55,8 +55,8 @@
       }
     },
     "android": {
-      "package": "com.ezcareai.app",
-      "versionCode": 1,
+      "package": "com.ezcareaiolder",
+      "versionCode": 18,
       "navigationBar": {
         "backgroundColor": "#FFFFFF",
         "barStyle": "dark-content"

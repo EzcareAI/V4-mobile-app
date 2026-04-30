@@ -35,6 +35,7 @@
     "db:migrate": "turbo -F @ezcare/db db:migrate",
     "prebuild": "bun --cwd apps/native expo prebuild",
     "expo": "bun --cwd apps/native expo",
+    "eas-build-pre-install": "bun install --no-frozen-lockfile",
     "postinstall": "node apps/native/scripts/patch-voice-gradle.js && node apps/native/scripts/patch-metro-cache.js"
   },
   "dependencies": {

@@ -299,7 +299,34 @@ function ChatScreen() {
 		[]
 	);
 
-	// ── Send with streaming ─────────────────────────────────
+	// ── Non-streaming fallback (Android Hermes may lack ReadableStream) ──
+	const sendNonStreaming = async (
+		systemPrompt: string,
+		apiMessages: { role: "user" | "assistant"; content: any }[],
+	): Promise<string> => {
+		const response = await fetch("https://api.anthropic.com/v1/messages", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"x-api-key": apiKey!,
+				"anthropic-version": "2023-06-01",
+			},
+			body: JSON.stringify({
+				model: "claude-haiku-4-5-20251001",
+				max_tokens: 1024,
+				system: systemPrompt,
+				messages: apiMessages,
+			}),
+		});
+		if (!response.ok) {
+			const errBody = await response.text();
+			throw new Error(`API ${response.status}: ${errBody.slice(0, 200)}`);
+		}
+		const data = (await response.json()) as { content: { type: string; text: string }[] };
+		return data.content[0]?.text ?? "";
+	};
+
+	// ── Send with streaming (fallback to non-streaming on error) ─────
 	const handleSend = async (overrideText?: string) => {
 		const fromSuggestion = overrideText !== undefined;
 		const userText = (overrideText ?? input).trim();
@@ -327,7 +354,7 @@ function ChatScreen() {
 			setMessages((prev) => [
 				...prev,
 				{ id: Date.now().toString(), role: "user", content: userText, imageUri: imgSnap?.uri },
-				{ id: `${Date.now()}-err`, role: "assistant", content: "⚠️ API key missing. Please set EXPO_PUBLIC_ANTHROPIC_API_KEY and rebuild." },
+				{ id: `${Date.now()}-err`, role: "assistant", content: "API key missing. Please set EXPO_PUBLIC_ANTHROPIC_API_KEY and rebuild." },
 			]);
 			return;
 		}
@@ -382,26 +409,35 @@ function ChatScreen() {
 			const memoryContext = getMemoryContext();
 			const fullSystemPrompt = SYSTEM_PROMPT + memoryContext;
 
-			// Use streaming for progressive output
-			const stream = anthropic.messages.stream({
-				model: "claude-haiku-4-5-20251001",
-				max_tokens: 1024,
-				system: fullSystemPrompt,
-				messages: [...priorApiMessages, { role: "user", content: userContent }],
-			});
+			const apiMessages = [...priorApiMessages, { role: "user" as const, content: userContent }];
 
-			let fullText = "";
+			let rawReply = "";
 
-			stream.on("text", (text) => {
-				fullText += text;
-				setStreamingText(fullText);
-				// Auto-scroll as text streams in
-				scrollRef.current?.scrollToEnd({ animated: false });
-			});
+			// Try streaming first, fall back to non-streaming if it fails
+			try {
+				const stream = anthropic.messages.stream({
+					model: "claude-haiku-4-5-20251001",
+					max_tokens: 1024,
+					system: fullSystemPrompt,
+					messages: apiMessages,
+				});
 
-			const finalMessage = await stream.finalMessage();
+				let fullText = "";
 
-			const rawReply = finalMessage.content[0].type === "text" ? finalMessage.content[0].text : fullText;
+				stream.on("text", (text) => {
+					fullText += text;
+					setStreamingText(fullText);
+					scrollRef.current?.scrollToEnd({ animated: false });
+				});
+
+				const finalMessage = await stream.finalMessage();
+				rawReply = finalMessage.content[0].type === "text" ? finalMessage.content[0].text : fullText;
+			} catch (streamErr) {
+				console.warn("[Chat] Streaming failed, using non-streaming fallback:", streamErr);
+				setStreamingText("");
+				rawReply = await sendNonStreaming(fullSystemPrompt, apiMessages);
+			}
+
 			const { body: assistantReply, suggestions, memoryFacts } = extractSuggestions(rawReply);
 
 			// Save memory facts from the AI's response
@@ -427,14 +463,19 @@ function ChatScreen() {
 				},
 			]);
 			setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
-		} catch (_error) {
+		} catch (error) {
+			console.error("[Chat] Send failed:", error);
 			setStreamingText("");
+			const errMsg = error instanceof Error ? error.message : String(error);
+			const isNetwork = errMsg.includes("network") || errMsg.includes("fetch") || errMsg.includes("timeout") || errMsg.includes("Network");
 			setMessages((prev) => [
 				...prev,
 				{
 					id: `${Date.now()}-err`,
 					role: "assistant",
-					content: "Oops, I couldn't connect right now. Check your internet and try again! 🔄",
+					content: isNetwork
+						? "Network error. Please check your internet connection and try again."
+						: "Oops, something went wrong. Please try again in a moment.",
 				},
 			]);
 		} finally {

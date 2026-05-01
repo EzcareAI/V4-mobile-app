@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
@@ -295,6 +296,22 @@ export const useOnboardingStore = create<OnboardingState>()(
 		}
 	)
 );
+
+// Hook to check if zustand has finished hydrating from AsyncStorage
+export const useOnboardingHydrated = () => {
+	const [hydrated, setHydrated] = useState(false);
+	useEffect(() => {
+		const unsub = useOnboardingStore.persist.onFinishHydration(() => {
+			setHydrated(true);
+		});
+		// If already hydrated (e.g. sync storage or fast restore)
+		if (useOnboardingStore.persist.hasHydrated()) {
+			setHydrated(true);
+		}
+		return unsub;
+	}, []);
+	return hydrated;
+};
 
 // Helper functions for score calculation to keep complexity low
 function computeLifestyleFactors(state: OnboardingState): number {

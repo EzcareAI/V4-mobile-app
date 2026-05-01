@@ -12,7 +12,7 @@ import { apptroveService } from "@/lib/apptrove-service";
 import { authClient } from "@/lib/auth-client";
 import { mixpanelService } from "@/lib/mixpanel-service";
 import { revenueCatService } from "@/lib/revenuecat-service";
-import { useOnboardingStore } from "@/stores/onboarding-store";
+import { useOnboardingStore, useOnboardingHydrated } from "@/stores/onboarding-store";
 import { queryClient } from "@/utils/trpc";
 
 const APP_INSTALLED_KEY = "__ezcare_app_installed_at";
@@ -71,6 +71,7 @@ function StackLayout() {
 	const router = useRouter();
 	const pathname = usePathname();
 	const { isPending } = authClient.useSession();
+	const hydrated = useOnboardingHydrated();
 
 	// For Phase 1, we use local state to determine if onboarding is finished
 	const onboardingComplete = useOnboardingStore(
@@ -84,7 +85,8 @@ function StackLayout() {
 		currentStep > 0 && currentStep <= totalSteps && !onboardingComplete;
 
 	useEffect(() => {
-		if (isPending) {
+		// Wait for both auth and zustand hydration before routing
+		if (isPending || !hydrated) {
 			return;
 		}
 
@@ -114,7 +116,7 @@ function StackLayout() {
 			// (users should be able to navigate steps even after completing onboarding)
 			router.replace("/(dashboard)");
 		}
-	}, [isPending, onboardingComplete, onboardingInProgress, pathname, router]);
+	}, [isPending, hydrated, onboardingComplete, onboardingInProgress, pathname, router]);
 
 	return (
 		<Stack screenOptions={{ headerShown: false }}>

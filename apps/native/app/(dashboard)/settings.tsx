@@ -17,6 +17,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { TimePickerModal } from "@/components/common/time-picker-modal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "@/lib/supabase";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
@@ -349,7 +350,9 @@ export default function SettingsScreen() {
 														} catch {
 															// If the RPC doesn't exist yet, fall through to sign-out
 														}
-														await supabase.auth.signOut();
+														try { await supabase.auth.signOut(); } catch {}
+														useOnboardingStore.getState().reset();
+														try { await AsyncStorage.clear(); } catch {}
 														router.replace("/(onboarding)");
 													},
 												},
@@ -374,7 +377,9 @@ export default function SettingsScreen() {
 								text: "Sign Out",
 								style: "destructive",
 								onPress: async () => {
-									await supabase.auth.signOut();
+									try { await supabase.auth.signOut(); } catch (e) { console.warn("[Settings] signOut:", e); }
+									useOnboardingStore.getState().reset();
+									try { await AsyncStorage.clear(); } catch {}
 									router.replace("/(onboarding)");
 								},
 							},
@@ -386,7 +391,7 @@ export default function SettingsScreen() {
 					<Text style={styles.dangerText}>Sign Out</Text>
 				</TouchableOpacity>
 
-				<Text style={styles.version}>EZCare AI · v1.0.0</Text>
+				<Text style={styles.version}>EZCare AI · v1.4.4</Text>
 			</ScrollView>
 
 			<TimePickerModal

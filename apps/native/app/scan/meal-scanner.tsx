@@ -2,13 +2,20 @@ import Anthropic from "@anthropic-ai/sdk";
 import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
+import {
+	launchImageLibraryAsync,
+	requestMediaLibraryPermissionsAsync,
+} from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useRef, useState } from "react";
 import {
 	ActivityIndicator,
+	Alert,
 	Dimensions,
 	Image,
+	Linking,
+	Modal,
 	Platform,
 	ScrollView,
 	StyleSheet,
@@ -59,6 +66,8 @@ function getScoreGradient(score: number): string[] {
 	return SCORE_COLORS.poor;
 }
 
+const NUTRITION_DISCLAIMER = "Nutritional values shown are AI-generated estimates based on visual analysis. Not a replacement for a registered dietitian. For personalized nutrition advice, consult a healthcare professional.\n\nSource: WHO Healthy Diet Guidelines: https://www.who.int/news-room/fact-sheets/detail/healthy-diet";
+
 export default function MealScannerScreen() {
 	const [permission, requestPermission] = useCameraPermissions();
 	const [mode, setMode] = useState<"camera" | "analyzing" | "result">("camera");
@@ -67,6 +76,7 @@ export default function MealScannerScreen() {
 	const [result, setResult] = useState<AnalysisResult | null>(null);
 	const [rawAnalysis, setRawAnalysis] = useState("");
 	const [streamText, setStreamText] = useState("");
+	const [showSourcePicker, setShowSourcePicker] = useState(false);
 	const cameraRef = useRef<CameraView>(null);
 
 	const takePhoto = async () => {
@@ -91,18 +101,62 @@ export default function MealScannerScreen() {
 		}
 	};
 
-	const analyzePhoto = async (base64: string) => {
-		if (!apiKey) {
-			setRawAnalysis("API key missing. Set EXPO_PUBLIC_ANTHROPIC_API_KEY.");
-			setMode("result");
+	const pickFromGallery = async () => {
+		setShowSourcePicker(false);
+		const { status } = await requestMediaLibraryPermissionsAsync();
+		if (status !== "granted") {
+			Alert.alert("Permission required", "Photo library access is needed to pick a photo.");
 			return;
 		}
+		const result = await launchImageLibraryAsync({
+			base64: true,
+			quality: 0.7,
+			mediaTypes: "images",
+		});
+		if (!result.canceled && result.assets[0]) {
+			const asset = result.assets[0];
+			setPhotoUri(asset.uri);
+			setPhotoBase64(asset.base64 ?? null);
+			setMode("analyzing");
+			analyzePhoto(asset.base64 ?? "");
+		}
+	};
 
-		try {
-			const stream = anthropic.messages.stream({
+	const pickFromCamera = () => {
+		setShowSourcePicker(false);
+		// Camera is already the default view — just dismiss the modal
+	};
+
+	// Non-streaming fallback for Android compatibility
+	const analyzeNonStreaming = async (base64: string, systemPrompt: string): Promise<string> => {
+		const response = await fetch("https://api.anthropic.com/v1/messages", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"x-api-key": apiKey!,
+				"anthropic-version": "2023-06-01",
+			},
+			body: JSON.stringify({
 				model: "claude-haiku-4-5-20251001",
 				max_tokens: 1024,
-				system: `You are a food and product analyzer for the EZCare lifestyle app. When shown a photo of food, a meal, or a packaged product:
+				system: systemPrompt,
+				messages: [{
+					role: "user",
+					content: [
+						{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64 } },
+						{ type: "text", text: "Analyze this food/product photo." },
+					],
+				}],
+			}),
+		});
+		if (!response.ok) {
+			throw new Error(`API error ${response.status}`);
+		}
+		const data = (await response.json()) as { content: { type: string; text: string }[] };
+		return data.content[0]?.text ?? "";
+	};
+
+	const MEAL_SYSTEM_PROMPT = `You are a food and product analyzer for the EZCare lifestyle app. When shown a photo of food, a meal, or a packaged product:
 
 1. Identify what's in the photo
 2. Estimate the nutritional breakdown (approximate, educational only)
@@ -128,36 +182,51 @@ Respond in this exact JSON format (no markdown, no code blocks, just raw JSON):
 }
 
 If it's a packaged product, analyze the likely nutritional content and ingredients.
-If the photo is not food-related, still respond with the JSON but set plateScore to 0, scoreLabel to "Not Food", and explain in summary.`,
-				messages: [
-					{
-						role: "user",
-						content: [
-							{
-								type: "image",
-								source: { type: "base64", media_type: "image/jpeg", data: base64 },
-							},
-							{ type: "text", text: "Analyze this food/product photo." },
-						],
-					},
-				],
-			});
+If the photo is not food-related, still respond with the JSON but set plateScore to 0, scoreLabel to "Not Food", and explain in summary.`;
 
-			let fullText = "";
-			stream.on("text", (text) => {
-				fullText += text;
-				setStreamText(fullText);
-			});
+	const analyzePhoto = async (base64: string) => {
+		if (!apiKey) {
+			setRawAnalysis("API key missing. Set EXPO_PUBLIC_ANTHROPIC_API_KEY.");
+			setMode("result");
+			return;
+		}
 
-			await stream.finalMessage();
+		let fullText = "";
+		try {
+			// Try streaming first, fall back to non-streaming on failure
+			try {
+				const stream = anthropic.messages.stream({
+					model: "claude-haiku-4-5-20251001",
+					max_tokens: 1024,
+					system: MEAL_SYSTEM_PROMPT,
+					messages: [
+						{
+							role: "user",
+							content: [
+								{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64 } },
+								{ type: "text", text: "Analyze this food/product photo." },
+							],
+						},
+					],
+				});
+
+				stream.on("text", (text) => {
+					fullText += text;
+					setStreamText(fullText);
+				});
+
+				await stream.finalMessage();
+			} catch (streamErr) {
+				console.warn("[MealScanner] Streaming failed, using fallback:", streamErr);
+				setStreamText("");
+				fullText = await analyzeNonStreaming(base64, MEAL_SYSTEM_PROMPT);
+			}
 
 			try {
-				// Try to parse JSON from the response
 				const jsonMatch = fullText.match(/\{[\s\S]*\}/);
 				if (jsonMatch) {
 					const parsed = JSON.parse(jsonMatch[0]) as AnalysisResult;
 					setResult(parsed);
-					// Track meal scan for gamification
 					const gamStore = useGamificationStore.getState();
 					gamStore.incrementStat("totalMealsScanned");
 					gamStore.addXp(50);
@@ -171,7 +240,8 @@ If the photo is not food-related, still respond with the JSON but set plateScore
 			}
 			setMode("result");
 		} catch (err) {
-			setRawAnalysis("Could not analyze. Check your connection and try again.");
+			console.error("[MealScanner] Analysis failed:", err);
+			setRawAnalysis("Could not analyze. Please check your connection and try again.");
 			setMode("result");
 		}
 	};
@@ -297,9 +367,9 @@ If the photo is not food-related, still respond with the JSON but set plateScore
 
 							{/* Disclaimer */}
 							<View style={styles.disclaimer}>
-								<Ionicons color="#D97706" name="information-circle" size={16} />
+								<Ionicons color="#D97706" name="information-circle" size={18} />
 								<Text style={styles.disclaimerText}>
-									Educational estimate only. Not a substitute for professional dietary advice.
+									{NUTRITION_DISCLAIMER}
 								</Text>
 							</View>
 						</>
@@ -331,7 +401,7 @@ If the photo is not food-related, still respond with the JSON but set plateScore
 
 					{/* Educational Disclaimer */}
 					<Text style={{ color: "rgba(255,255,255,0.35)", fontSize: 10, textAlign: "center", marginTop: 16, marginHorizontal: 20, lineHeight: 14 }}>
-						For educational purposes only. Nutritional estimates are approximate and not a substitute for professional dietary advice.
+						{NUTRITION_DISCLAIMER}
 					</Text>
 				</ScrollView>
 			</SafeAreaView>
@@ -426,6 +496,10 @@ If the photo is not food-related, still respond with the JSON but set plateScore
 						/>
 					</TouchableOpacity>
 					<Text style={styles.shutterLabel}>Tap to Scan</Text>
+					<TouchableOpacity activeOpacity={0.8} onPress={pickFromGallery} style={styles.galleryBtn}>
+						<Ionicons color="#FFFFFF" name="images-outline" size={24} />
+						<Text style={styles.galleryBtnText}>Gallery</Text>
+					</TouchableOpacity>
 				</View>
 			</SafeAreaView>
 		</View>
@@ -495,6 +569,12 @@ const styles = StyleSheet.create({
 	},
 	shutterInner: { ...StyleSheet.absoluteFillObject },
 	shutterLabel: { color: "#94A3B8", fontSize: 13, fontWeight: "600", marginTop: 12 },
+	galleryBtn: {
+		flexDirection: "row", alignItems: "center", gap: 6, marginTop: 16,
+		backgroundColor: "rgba(255,255,255,0.15)", paddingHorizontal: 20, paddingVertical: 10,
+		borderRadius: 20, borderWidth: 1, borderColor: "rgba(255,255,255,0.25)",
+	},
+	galleryBtnText: { color: "#FFFFFF", fontSize: 14, fontWeight: "600" },
 	// Analyzing
 	analyzingContainer: { flex: 1, position: "relative" },
 	analyzingPhoto: { ...StyleSheet.absoluteFillObject },

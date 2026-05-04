@@ -17,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { useGamificationStore } from "@/stores/gamification-store";
+import { levelsService } from "@/lib/levels-service";
 
 const { width: SW } = Dimensions.get("window");
 const CARD_W = SW - 48;
@@ -108,6 +109,12 @@ export default function VibeCardScreen() {
 			gamStore.addXp(30);
 			gamStore.addCoins(5);
 			gamStore.updateChallengeProgress("dc_vibe", 1);
+
+			// Award Supabase XP for mood log
+			const uid = useOnboardingStore.getState().userId;
+			if (uid) {
+				levelsService.addXp(uid, 15, "mood_log", { mood: selected.vibe }).catch(() => {});
+			}
 		} catch {}
 	};
 

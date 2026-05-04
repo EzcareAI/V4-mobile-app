@@ -42,6 +42,7 @@ import Markdown from "react-native-markdown-display";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { useCompanionStore } from "@/stores/companion-store";
+import { levelsService } from "@/lib/levels-service";
 
 const apiKey = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
 
@@ -473,6 +474,16 @@ function ChatScreen() {
 				},
 			]);
 			setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 150);
+
+			// Award XP for AI chat (max 5/day)
+			const uid = useOnboardingStore.getState().userId;
+			if (uid) {
+				levelsService.getTodayCountForSource(uid, "ai_chat").then((count) => {
+					if (count < 5) {
+						levelsService.addXp(uid, 10, "ai_chat").catch(() => {});
+					}
+				}).catch(() => {});
+			}
 		} catch (error) {
 			console.error("[Chat] Send failed:", error);
 			setStreamingText("");

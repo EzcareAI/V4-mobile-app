@@ -23,6 +23,9 @@ import { useDashboardStore } from "@/stores/dashboard-store";
 import { useFoodDiaryStore } from "@/stores/food-diary-store";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { useGamificationStore } from "@/stores/gamification-store";
+import { levelsService, type LevelInfo } from "@/lib/levels-service";
+import { streakService, type StreakInfo } from "@/lib/streak-service";
+import { questGenerator, type DailyQuestsData, type Quest } from "@/lib/quest-generator";
 
 // ── Dark Premium Design Tokens ──────────────────────
 const BG = "#0A0A0F";
@@ -301,41 +304,48 @@ function AvatarEvolution({ level }: { level: number }) {
 }
 
 // ── Awakening Level Bar ──────────────────────────────
-function AwakeningLevel({ level, xpProgress, totalXp }: { level: number; xpProgress: number; totalXp: number }) {
-	const XP_PER_LEVEL = 500;
-	const currentLevelXp = totalXp - (level - 1) * XP_PER_LEVEL;
-	const xpNeeded = XP_PER_LEVEL;
+function AwakeningLevelCard({ levelInfo }: { levelInfo: LevelInfo | null }) {
+	const level = levelInfo?.currentLevel ?? 1;
+	const title = levelInfo?.levelTitle ?? "Sleeper";
+	const currentXp = levelInfo?.currentXp ?? 0;
+	const xpForNext = levelInfo?.xpForNext ?? 100;
+	const progressPct = levelInfo?.progressPct ?? 0;
 
 	return (
 		<View style={styles.levelCard}>
-			<Text style={styles.levelTitle}>Awakening Level {level}</Text>
+			<View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+				<Text style={styles.levelTitle}>Awakening Level {level}</Text>
+				<Text style={{ color: PURPLE, fontSize: 12, fontWeight: "700" }}>{title}</Text>
+			</View>
 			<View style={styles.levelBarBg}>
 				<LinearGradient
 					colors={[PURPLE, GREEN]}
 					start={{ x: 0, y: 0 }}
 					end={{ x: 1, y: 0 }}
-					style={[styles.levelBarFill, { width: `${Math.min(xpProgress * 100, 100)}%` as any }]}
+					style={[styles.levelBarFill, { width: `${Math.min(progressPct * 100, 100)}%` as any }]}
 				/>
 			</View>
 			<Text style={styles.levelXpText}>
-				{currentLevelXp} / {xpNeeded} XP to next level
+				{currentXp} / {xpForNext} XP to next level
 			</Text>
 		</View>
 	);
 }
 
 // ── Streak Display ───────────────────────────────────
-function StreakDisplay({ streak }: { streak: number }) {
-	const isActive = streak > 0;
+function StreakDisplay({ streakInfo }: { streakInfo: StreakInfo | null }) {
+	const currentStreak = streakInfo?.currentStreak ?? 0;
+	const freezes = streakInfo?.freezesAvailable ?? 0;
+	const isActive = currentStreak > 0;
 
 	return (
 		<View style={[styles.streakCard, isActive && { borderColor: `${GOLD}30` }]}>
 			<View style={styles.streakRow}>
 				<View style={styles.streakMain}>
-					<Text style={[styles.streakNumber, isActive && { color: GOLD }]}>{streak}</Text>
+					<Text style={[styles.streakNumber, isActive && { color: GOLD }]}>{currentStreak}</Text>
 					<View>
 						<Text style={styles.streakLabel}>day streak</Text>
-						<Text style={styles.streakFreezes}>0 freezes available</Text>
+						<Text style={styles.streakFreezes}>{freezes} freeze{freezes !== 1 ? "s" : ""} available</Text>
 					</View>
 				</View>
 				{isActive && (
@@ -348,26 +358,34 @@ function StreakDisplay({ streak }: { streak: number }) {
 	);
 }
 
-// ── Daily Quests ─────────────────────────────────────
-function DailyQuests({
-	checkInDone,
-	mealScanned,
-	chatUsed,
+// ── Daily Quests (real AI-generated) ─────────────────
+function DailyQuestsCard({
+	quests,
+	completedIds,
+	onComplete,
 }: {
-	checkInDone: boolean;
-	mealScanned: boolean;
-	chatUsed: boolean;
+	quests: Quest[];
+	completedIds: string[];
+	onComplete: (questId: string) => void;
 }) {
 	const router = useRouter();
-	const questStates = [checkInDone, mealScanned, chatUsed];
-	const completedCount = questStates.filter(Boolean).length;
+	const completedCount = completedIds.length;
 
-	const handleQuestTap = (questId: string) => {
+	const handleQuestTap = (quest: Quest) => {
 		if (Platform.OS === "ios") {
 			impactAsync(ImpactFeedbackStyle.Light).catch(() => {});
 		}
-		if (questId === "q_scan") router.push("/scan/meal-scanner");
-		else if (questId === "q_chat") router.push("/chat");
+		if (completedIds.includes(quest.id)) return;
+
+		// Navigate to relevant screen or mark as self-report
+		if (quest.category === "nutrition") {
+			router.push("/scan/meal-scanner");
+		} else if (quest.category === "reflection") {
+			router.push("/chat");
+		} else {
+			// Self-report: mark complete on tap
+			onComplete(quest.id);
+		}
 	};
 
 	return (
@@ -375,25 +393,25 @@ function DailyQuests({
 			<View style={styles.questHeader}>
 				<Text style={styles.questTitle}>Today's Quests</Text>
 				<View style={styles.questCountBadge}>
-					<Text style={styles.questCountText}>{completedCount}/{SPRINT1_QUESTS.length}</Text>
+					<Text style={styles.questCountText}>{completedCount}/{quests.length}</Text>
 				</View>
 			</View>
-			{SPRINT1_QUESTS.map((quest, i) => {
-				const done = questStates[i];
+			{quests.map((quest, i) => {
+				const done = completedIds.includes(quest.id);
 				return (
 					<TouchableOpacity
 						key={quest.id}
 						activeOpacity={0.7}
-						onPress={() => !done && handleQuestTap(quest.id)}
-						style={[styles.questRow, i < SPRINT1_QUESTS.length - 1 && { borderBottomWidth: 1, borderBottomColor: BORDER }]}
+						onPress={() => handleQuestTap(quest)}
+						style={[styles.questRow, i < quests.length - 1 && { borderBottomWidth: 1, borderBottomColor: BORDER }]}
 					>
 						<View style={[styles.questCheck, done && styles.questCheckDone]}>
 							{done && <Ionicons name="checkmark" size={14} color={BG} />}
 						</View>
-						<Ionicons name={quest.icon} size={18} color={done ? TEXT_DIM : GREEN} style={{ marginRight: 10 }} />
+						<Ionicons name={(quest.icon || "star-outline") as any} size={18} color={done ? TEXT_DIM : GREEN} style={{ marginRight: 10 }} />
 						<Text style={[styles.questLabel, done && styles.questLabelDone]}>{quest.label}</Text>
 						<View style={[styles.questXpBadge, done && { backgroundColor: `${TEXT_DIM}20` }]}>
-							<Text style={[styles.questXpText, done && { color: TEXT_DIM }]}>+{quest.xp}</Text>
+							<Text style={[styles.questXpText, done && { color: TEXT_DIM }]}>+{quest.xp_reward}</Text>
 						</View>
 					</TouchableOpacity>
 				);
@@ -451,7 +469,7 @@ function formatCountdown(ms: number): string {
 // ── HOME SCREEN ───────────────────────────────────────
 // ═══════════════════════════════════════════════════════
 export default function HomeScreen() {
-	const { firstName } = useOnboardingStore();
+	const { firstName, userId } = useOnboardingStore();
 	const {
 		canCheckIn,
 		saveCheckIn,
@@ -464,8 +482,6 @@ export default function HomeScreen() {
 
 	const lastCheckInValues = useDashboardStore((s) => s.lastCheckInValues);
 	const gamLevel = useGamificationStore((s) => s.getLevel());
-	const gamXpProgress = useGamificationStore((s) => s.getXpProgress());
-	const gamTotalXp = useGamificationStore((s) => s.totalXp);
 	const todayTotals = useFoodDiaryStore((s) => s.getTodayTotals());
 	const goals = useFoodDiaryStore((s) => s.goals);
 	const todayLog = useFoodDiaryStore((s) => s.getTodayLog());
@@ -475,6 +491,46 @@ export default function HomeScreen() {
 	const [saved, setSaved] = useState(false);
 	const [nextMs, setNextMs] = useState(getNextCheckInMs());
 	const router = useRouter();
+
+	// ── Real Supabase-backed state ──
+	const [levelInfo, setLevelInfo] = useState<LevelInfo | null>(null);
+	const [streakInfo, setStreakInfo] = useState<StreakInfo | null>(null);
+	const [questsData, setQuestsData] = useState<DailyQuestsData | null>(null);
+	const [xpToast, setXpToast] = useState<{ amount: number; visible: boolean }>({ amount: 0, visible: false });
+
+	// ── Fetch real data from Supabase on mount ──
+	useEffect(() => {
+		if (!userId) return;
+
+		const loadData = async () => {
+			try {
+				const [level, streakData, quests] = await Promise.all([
+					levelsService.getLevelInfo(userId),
+					streakService.getStreakInfo(userId),
+					questGenerator.getTodayQuests(userId),
+				]);
+				setLevelInfo(level);
+				setStreakInfo(streakData);
+				setQuestsData(quests);
+			} catch (err) {
+				console.warn("[Home] Failed to load Sprint 2 data:", err);
+			}
+		};
+		loadData();
+	}, [userId]);
+
+	// ── Show XP toast ──
+	const showXpGain = (amount: number) => {
+		setXpToast({ amount, visible: true });
+		setTimeout(() => setXpToast({ amount: 0, visible: false }), 2000);
+	};
+
+	// ── Refresh level info after XP change ──
+	const refreshLevel = async () => {
+		if (!userId) return;
+		const info = await levelsService.getLevelInfo(userId);
+		setLevelInfo(info);
+	};
 
 	useEffect(() => {
 		resetDailyMissions();
@@ -490,22 +546,78 @@ export default function HomeScreen() {
 		setValues((prev) => ({ ...prev, [key]: val }));
 	};
 
-	const handleSave = () => {
+	const handleSave = async () => {
 		if (!allFilled || saved) return;
 		saveCheckIn(values);
 		setSaved(true);
 		if (Platform.OS === "ios") {
 			impactAsync(ImpactFeedbackStyle.Medium).catch(() => {});
 		}
+
+		// Award XP for daily check-in
+		if (userId) {
+			try {
+				const result = await levelsService.addXp(userId, 50, "daily_check_in", { values });
+				showXpGain(50);
+				setLevelInfo(result.levelInfo);
+
+				// Update streak
+				const streakResult = await streakService.recordActivity(userId);
+				setStreakInfo(streakResult.streakInfo);
+
+				// Award streak milestone XP if applicable
+				if (streakResult.milestoneXp > 0) {
+					const milestoneResult = await levelsService.addXp(
+						userId,
+						streakResult.milestoneXp,
+						"streak_milestone",
+						{ days: streakResult.milestoneReached }
+					);
+					setLevelInfo(milestoneResult.levelInfo);
+				}
+			} catch (err) {
+				console.warn("[Home] XP award failed:", err);
+			}
+		}
 	};
 
-	// Calculate day count from first check-in (approximate with streak for Sprint 1)
-	const dayCount = Math.max(streak, 1);
+	// ── Handle quest completion ──
+	const handleQuestComplete = async (questId: string) => {
+		if (!userId || !questsData) return;
 
-	// Quest completion states (Sprint 1: derive from existing data)
-	const checkInDone = !canSave || saved;
-	const mealScanned = todayTotals.mealCount > 0;
-	const chatUsed = false; // TODO Sprint 2: track chat usage
+		try {
+			const result = await questGenerator.completeQuest(userId, questId);
+			setQuestsData((prev) => prev ? { ...prev, completedQuestIds: result.completedQuestIds, bonusCompleted: result.bonusCompleted } : prev);
+
+			// Award XP
+			if (result.xpAwarded > 0) {
+				const xpResult = await levelsService.addXp(userId, result.xpAwarded, "quest_completion", { quest_id: questId });
+				showXpGain(result.xpAwarded);
+				setLevelInfo(xpResult.levelInfo);
+
+				// Update streak on quest completion
+				const streakResult = await streakService.recordActivity(userId);
+				setStreakInfo(streakResult.streakInfo);
+			}
+
+			// Bonus for completing all 3
+			if (result.allCompleted) {
+				const bonusResult = await levelsService.addXp(userId, 500, "daily_hero_bonus");
+				setTimeout(() => showXpGain(500), 1000);
+				setLevelInfo(bonusResult.levelInfo);
+			}
+
+			if (Platform.OS === "ios") {
+				impactAsync(ImpactFeedbackStyle.Medium).catch(() => {});
+			}
+		} catch (err) {
+			console.warn("[Home] Quest completion failed:", err);
+		}
+	};
+
+	// Use real level or fallback to local gamification store
+	const displayLevel = levelInfo?.currentLevel ?? gamLevel;
+	const dayCount = Math.max(streakInfo?.currentStreak ?? streak, 1);
 
 	// FAB bounce animation
 	const fabBounce = useRef(new Animated.Value(0)).current;
@@ -562,20 +674,48 @@ export default function HomeScreen() {
 						</View>
 					</View>
 
+					{/* ── XP Toast ── */}
+					{xpToast.visible && (
+						<View style={styles.xpToast}>
+							<Text style={styles.xpToastText}>+{xpToast.amount} XP</Text>
+						</View>
+					)}
+
 					{/* ── Avatar Evolution ── */}
-					<AvatarEvolution level={gamLevel} />
+					<AvatarEvolution level={displayLevel} />
 
 					{/* ── Awakening Level ── */}
-					<AwakeningLevel level={gamLevel} xpProgress={gamXpProgress} totalXp={gamTotalXp} />
+					<AwakeningLevelCard levelInfo={levelInfo} />
 
 					{/* ── Streak Display ── */}
-					<StreakDisplay streak={streak} />
+					<StreakDisplay streakInfo={streakInfo} />
 
 					{/* ── Today's Quests ── */}
-					<DailyQuests checkInDone={checkInDone} mealScanned={mealScanned} chatUsed={chatUsed} />
+					{questsData && questsData.quests.length > 0 ? (
+						<DailyQuestsCard
+							quests={questsData.quests}
+							completedIds={questsData.completedQuestIds}
+							onComplete={handleQuestComplete}
+						/>
+					) : (
+						<DailyQuestsCard
+							quests={SPRINT1_QUESTS.map((q, i) => ({
+								id: q.id,
+								difficulty: (["easy", "medium", "hard"] as const)[i],
+								category: "mindfulness" as const,
+								icon: q.icon,
+								label: q.label,
+								description: "",
+								xp_reward: q.xp,
+								measurable_goal: { type: "self_report" as const, value: 1 },
+							}))}
+							completedIds={[]}
+							onComplete={handleQuestComplete}
+						/>
+					)}
 
 					{/* ── League Position ── */}
-					<LeagueCard totalXp={gamTotalXp} />
+					<LeagueCard totalXp={levelInfo?.totalXpEarned ?? 0} />
 
 					{/* ── Nutrition Card ── */}
 					<View style={styles.nutritionCard}>
@@ -733,7 +873,7 @@ export default function HomeScreen() {
 								<Text style={styles.buddyActionText}>Profile</Text>
 							</TouchableOpacity>
 							<View style={styles.buddyXpPill}>
-								<Text style={styles.buddyXpText}>Lv {gamLevel}</Text>
+								<Text style={styles.buddyXpText}>Lv {displayLevel}</Text>
 							</View>
 						</View>
 					</TouchableOpacity>
@@ -805,6 +945,26 @@ const styles = StyleSheet.create({
 	safe: { flex: 1 },
 	scroll: { flex: 1 },
 	content: { paddingBottom: 32 },
+
+	// ── XP Toast ──
+	xpToast: {
+		position: "absolute",
+		top: 60,
+		alignSelf: "center",
+		backgroundColor: `${GREEN}20`,
+		borderWidth: 1,
+		borderColor: `${GREEN}40`,
+		paddingHorizontal: 20,
+		paddingVertical: 8,
+		borderRadius: 20,
+		zIndex: 100,
+	},
+	xpToastText: {
+		color: GREEN,
+		fontSize: 16,
+		fontWeight: "900",
+		fontVariant: ["tabular-nums"],
+	},
 
 	// ── Top Bar ──
 	topBarWrap: { paddingBottom: 8, overflow: "hidden" },

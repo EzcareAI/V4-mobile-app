@@ -26,6 +26,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
 import { useFoodDiaryStore } from "@/stores/food-diary-store";
 import { useGamificationStore } from "@/stores/gamification-store";
+import { useOnboardingStore } from "@/stores/onboarding-store";
+import { levelsService } from "@/lib/levels-service";
+import { streakService } from "@/lib/streak-service";
 
 const apiKey = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
 const anthropic = new Anthropic({
@@ -303,6 +306,13 @@ Rules:
 					gamStore.addXp(50);
 					gamStore.addCoins(10);
 					gamStore.updateChallengeProgress("dc_scan", 1);
+
+					// Award Supabase XP for meal scan
+					const uid = useOnboardingStore.getState().userId;
+					if (uid) {
+						levelsService.addXp(uid, 20, "meal_log", { meal: parsed.mealName }).catch(() => {});
+						streakService.recordActivity(uid).catch(() => {});
+					}
 				} else {
 					setRawAnalysis(fullText);
 				}

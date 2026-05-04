@@ -63,7 +63,7 @@ class MixpanelService {
 		}
 	}
 
-	private track(name: string, props?: Record<string, unknown>): void {
+	track(name: string, props?: Record<string, unknown>): void {
 		if (!this.mp) {
 			return;
 		}

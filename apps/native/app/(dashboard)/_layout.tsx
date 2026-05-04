@@ -5,10 +5,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
-// Design tokens — light theme
-const TEAL = "#3EC9B5";
-const GREY = "#94A3B8";
-const BG = "#FFFFFF";
+// Design tokens — dark premium theme
+const PURPLE = "#9D4EDD";
+const GREEN = "#06FFA5";
+const GREY = "#8E8E93";
+const BG = "#0A0A0F";
+const SURFACE = "#1A1A24";
 
 function TabBarIcon({
 	Icon,
@@ -34,10 +36,6 @@ export default function DashboardLayout() {
 		return <Redirect href="/settings/subscription" />;
 	}
 
-	// On Android, add the system bottom inset (gesture nav bar height). Floor of 16
-	// ensures a visible separation from the nav bar on devices that report a 0 inset
-	// under certain edge-to-edge modes.
-	// On iOS, use the standard home indicator padding.
 	const bottomPad = Platform.OS === "ios" ? 28 : Math.max(insets.bottom, 16);
 	const tabBarHeight = Platform.OS === "ios" ? 88 : 60 + bottomPad;
 
@@ -45,19 +43,19 @@ export default function DashboardLayout() {
 		<Tabs
 			screenOptions={{
 				headerShown: false,
-				tabBarActiveTintColor: TEAL,
+				tabBarActiveTintColor: GREEN,
 				tabBarInactiveTintColor: GREY,
 				tabBarStyle: {
-					backgroundColor: BG,
+					backgroundColor: SURFACE,
 					borderTopWidth: 1,
-					borderTopColor: "rgba(0,0,0,0.06)",
+					borderTopColor: "rgba(255,255,255,0.06)",
 					height: tabBarHeight,
 					paddingBottom: bottomPad,
 					paddingTop: 8,
 					elevation: 8,
 					shadowColor: "#000",
 					shadowOffset: { width: 0, height: -2 },
-					shadowOpacity: 0.04,
+					shadowOpacity: 0.3,
 					shadowRadius: 8,
 				},
 				tabBarLabelStyle: {
@@ -120,6 +118,6 @@ const styles = StyleSheet.create({
 		borderRadius: 12,
 	},
 	iconWrapActive: {
-		backgroundColor: "rgba(62,201,181,0.12)",
+		backgroundColor: "rgba(6,255,165,0.12)",
 	},
 });

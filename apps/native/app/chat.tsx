@@ -299,17 +299,19 @@ function ChatScreen() {
 		[]
 	);
 
-	// ── Non-streaming fallback (Android Hermes may lack ReadableStream) ──
-	const sendNonStreaming = async (
+	// ── Direct fetch to Anthropic API (bypasses SDK for Android/Hermes compatibility) ──
+	const sendViaFetch = async (
 		systemPrompt: string,
 		apiMessages: { role: "user" | "assistant"; content: any }[],
 	): Promise<string> => {
+		console.log("[Chat] sendViaFetch: apiKey length =", apiKey?.length ?? 0);
 		const response = await fetch("https://api.anthropic.com/v1/messages", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 				"x-api-key": apiKey!,
 				"anthropic-version": "2023-06-01",
+				"anthropic-dangerous-direct-browser-access": "true",
 			},
 			body: JSON.stringify({
 				model: "claude-haiku-4-5-20251001",
@@ -318,8 +320,10 @@ function ChatScreen() {
 				messages: apiMessages,
 			}),
 		});
+		console.log("[Chat] sendViaFetch: status =", response.status);
 		if (!response.ok) {
 			const errBody = await response.text();
+			console.error("[Chat] sendViaFetch error body:", errBody.slice(0, 500));
 			throw new Error(`API ${response.status}: ${errBody.slice(0, 200)}`);
 		}
 		const data = (await response.json()) as { content: { type: string; text: string }[] };
@@ -413,29 +417,35 @@ function ChatScreen() {
 
 			let rawReply = "";
 
-			// Try streaming first, fall back to non-streaming if it fails
-			try {
-				const stream = anthropic.messages.stream({
-					model: "claude-haiku-4-5-20251001",
-					max_tokens: 1024,
-					system: fullSystemPrompt,
-					messages: apiMessages,
-				});
+			// Use direct fetch on Android (Hermes lacks ReadableStream for streaming)
+			// Also use fetch on iOS for consistency and reliability
+			if (Platform.OS === "android") {
+				rawReply = await sendViaFetch(fullSystemPrompt, apiMessages);
+			} else {
+				// iOS: try streaming via SDK, fall back to fetch
+				try {
+					const stream = anthropic.messages.stream({
+						model: "claude-haiku-4-5-20251001",
+						max_tokens: 1024,
+						system: fullSystemPrompt,
+						messages: apiMessages,
+					});
 
-				let fullText = "";
+					let fullText = "";
 
-				stream.on("text", (text) => {
-					fullText += text;
-					setStreamingText(fullText);
-					scrollRef.current?.scrollToEnd({ animated: false });
-				});
+					stream.on("text", (text) => {
+						fullText += text;
+						setStreamingText(fullText);
+						scrollRef.current?.scrollToEnd({ animated: false });
+					});
 
-				const finalMessage = await stream.finalMessage();
-				rawReply = finalMessage.content[0].type === "text" ? finalMessage.content[0].text : fullText;
-			} catch (streamErr) {
-				console.warn("[Chat] Streaming failed, using non-streaming fallback:", streamErr);
-				setStreamingText("");
-				rawReply = await sendNonStreaming(fullSystemPrompt, apiMessages);
+					const finalMessage = await stream.finalMessage();
+					rawReply = finalMessage.content[0].type === "text" ? finalMessage.content[0].text : fullText;
+				} catch (streamErr) {
+					console.warn("[Chat] Streaming failed, using fetch fallback:", streamErr);
+					setStreamingText("");
+					rawReply = await sendViaFetch(fullSystemPrompt, apiMessages);
+				}
 			}
 
 			const { body: assistantReply, suggestions, memoryFacts } = extractSuggestions(rawReply);
@@ -475,7 +485,7 @@ function ChatScreen() {
 					role: "assistant",
 					content: isNetwork
 						? "Network error. Please check your internet connection and try again."
-						: "Oops, something went wrong. Please try again in a moment.",
+						: `Something went wrong: ${errMsg.slice(0, 120)}. Please try again.`,
 				},
 			]);
 		} finally {

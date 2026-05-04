@@ -14,8 +14,6 @@ import {
 	Alert,
 	Dimensions,
 	Image,
-	Linking,
-	Modal,
 	Platform,
 	ScrollView,
 	StyleSheet,
@@ -25,6 +23,8 @@ import {
 } from "react-native";
 import Markdown from "react-native-markdown-display";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Svg, { Circle } from "react-native-svg";
+import { useFoodDiaryStore } from "@/stores/food-diary-store";
 import { useGamificationStore } from "@/stores/gamification-store";
 
 const apiKey = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
@@ -35,38 +35,91 @@ const anthropic = new Anthropic({
 
 const { width: SCREEN_W } = Dimensions.get("window");
 
-interface MacroData {
-	label: string;
-	value: string;
+// ── Cal AI-style data model ──
+interface FoodItem {
+	name: string;
+	calories: number;
+	servingSize: string;
+}
+
+interface MacroInfo {
+	grams: number;
+	goalGrams: number;
 	color: string;
-	percent: number;
-	icon: string;
 }
 
 interface AnalysisResult {
-	plateScore: number;
-	scoreLabel: string;
-	summary: string;
-	macros: MacroData[];
+	totalCalories: number;
+	mealName: string;
+	foods: FoodItem[];
+	protein: MacroInfo;
+	carbs: MacroInfo;
+	fat: MacroInfo;
 	tips: string[];
-	lifestyleImpact: string;
 }
 
-const SCORE_COLORS: Record<string, string[]> = {
-	great: ["#10B981", "#34D399"],
-	good: ["#3EC9B5", "#6EE7B7"],
-	fair: ["#F59E0B", "#FBBF24"],
-	poor: ["#EF4444", "#F87171"],
+const MACRO_COLORS = {
+	protein: "#FF6B6B",
+	carbs: "#4ECDC4",
+	fat: "#FFD93D",
 };
 
-function getScoreGradient(score: number): string[] {
-	if (score >= 80) return SCORE_COLORS.great;
-	if (score >= 60) return SCORE_COLORS.good;
-	if (score >= 40) return SCORE_COLORS.fair;
-	return SCORE_COLORS.poor;
-}
+const NUTRITION_DISCLAIMER = "Nutritional values shown are AI-generated estimates based on visual analysis. For personalized nutrition advice, consult a healthcare professional.";
 
-const NUTRITION_DISCLAIMER = "Nutritional values shown are AI-generated estimates based on visual analysis. Not a replacement for a registered dietitian. For personalized nutrition advice, consult a healthcare professional.\n\nSource: WHO Healthy Diet Guidelines: https://www.who.int/news-room/fact-sheets/detail/healthy-diet";
+// ── Circular Progress Ring Component ──
+function MacroRing({
+	label,
+	grams,
+	goalGrams,
+	color,
+	size = 90,
+}: {
+	label: string;
+	grams: number;
+	goalGrams: number;
+	color: string;
+	size?: number;
+}) {
+	const strokeWidth = 7;
+	const radius = (size - strokeWidth) / 2;
+	const circumference = 2 * Math.PI * radius;
+	const progress = Math.min(grams / goalGrams, 1);
+	const strokeDashoffset = circumference * (1 - progress);
+
+	return (
+		<View style={{ alignItems: "center" }}>
+			<View style={{ width: size, height: size }}>
+				<Svg width={size} height={size}>
+					<Circle
+						cx={size / 2}
+						cy={size / 2}
+						r={radius}
+						stroke="rgba(255,255,255,0.08)"
+						strokeWidth={strokeWidth}
+						fill="transparent"
+					/>
+					<Circle
+						cx={size / 2}
+						cy={size / 2}
+						r={radius}
+						stroke={color}
+						strokeWidth={strokeWidth}
+						fill="transparent"
+						strokeDasharray={`${circumference} ${circumference}`}
+						strokeDashoffset={strokeDashoffset}
+						strokeLinecap="round"
+						rotation="-90"
+						origin={`${size / 2}, ${size / 2}`}
+					/>
+				</Svg>
+				<View style={[StyleSheet.absoluteFill, { alignItems: "center", justifyContent: "center" }]}>
+					<Text style={{ color: "#FFFFFF", fontSize: 18, fontWeight: "800" }}>{grams}g</Text>
+				</View>
+			</View>
+			<Text style={{ color: "#94A3B8", fontSize: 12, fontWeight: "600", marginTop: 6 }}>{label}</Text>
+		</View>
+	);
+}
 
 export default function MealScannerScreen() {
 	const [permission, requestPermission] = useCameraPermissions();
@@ -76,7 +129,6 @@ export default function MealScannerScreen() {
 	const [result, setResult] = useState<AnalysisResult | null>(null);
 	const [rawAnalysis, setRawAnalysis] = useState("");
 	const [streamText, setStreamText] = useState("");
-	const [showSourcePicker, setShowSourcePicker] = useState(false);
 	const cameraRef = useRef<CameraView>(null);
 
 	const takePhoto = async () => {
@@ -84,7 +136,6 @@ export default function MealScannerScreen() {
 		if (Platform.OS === "ios") {
 			try { await impactAsync(ImpactFeedbackStyle.Heavy); } catch {}
 		}
-
 		try {
 			const photo = await cameraRef.current.takePictureAsync({
 				quality: 0.7,
@@ -102,19 +153,18 @@ export default function MealScannerScreen() {
 	};
 
 	const pickFromGallery = async () => {
-		setShowSourcePicker(false);
 		const { status } = await requestMediaLibraryPermissionsAsync();
 		if (status !== "granted") {
 			Alert.alert("Permission required", "Photo library access is needed to pick a photo.");
 			return;
 		}
-		const result = await launchImageLibraryAsync({
+		const pickerResult = await launchImageLibraryAsync({
 			base64: true,
 			quality: 0.7,
 			mediaTypes: "images",
 		});
-		if (!result.canceled && result.assets[0]) {
-			const asset = result.assets[0];
+		if (!pickerResult.canceled && pickerResult.assets[0]) {
+			const asset = pickerResult.assets[0];
 			setPhotoUri(asset.uri);
 			setPhotoBase64(asset.base64 ?? null);
 			setMode("analyzing");
@@ -122,19 +172,16 @@ export default function MealScannerScreen() {
 		}
 	};
 
-	const pickFromCamera = () => {
-		setShowSourcePicker(false);
-		// Camera is already the default view — just dismiss the modal
-	};
-
-	// Non-streaming fallback for Android compatibility
-	const analyzeNonStreaming = async (base64: string, systemPrompt: string): Promise<string> => {
+	// Direct fetch to Anthropic API (bypasses SDK for Android/Hermes compatibility)
+	const analyzeViaFetch = async (base64: string, systemPrompt: string): Promise<string> => {
+		console.log("[MealScanner] analyzeViaFetch: apiKey length =", apiKey?.length ?? 0);
 		const response = await fetch("https://api.anthropic.com/v1/messages", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
 				"x-api-key": apiKey!,
 				"anthropic-version": "2023-06-01",
+				"anthropic-dangerous-direct-browser-access": "true",
 			},
 			body: JSON.stringify({
 				model: "claude-haiku-4-5-20251001",
@@ -144,82 +191,89 @@ export default function MealScannerScreen() {
 					role: "user",
 					content: [
 						{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64 } },
-						{ type: "text", text: "Analyze this food/product photo." },
+						{ type: "text", text: "Analyze this food photo." },
 					],
 				}],
 			}),
 		});
+		console.log("[MealScanner] analyzeViaFetch: status =", response.status);
 		if (!response.ok) {
-			throw new Error(`API error ${response.status}`);
+			const errBody = await response.text();
+			console.error("[MealScanner] API error body:", errBody.slice(0, 500));
+			throw new Error(`API error ${response.status}: ${errBody.slice(0, 200)}`);
 		}
 		const data = (await response.json()) as { content: { type: string; text: string }[] };
 		return data.content[0]?.text ?? "";
 	};
 
-	const MEAL_SYSTEM_PROMPT = `You are a food and product analyzer for the EZCare lifestyle app. When shown a photo of food, a meal, or a packaged product:
+	const MEAL_SYSTEM_PROMPT = `You are a food calorie and macro analyzer. When shown a photo of food or a meal, identify each food item and estimate calories and macros.
 
-1. Identify what's in the photo
-2. Estimate the nutritional breakdown (approximate, educational only)
-3. Give a "Plate Score" from 1-100 based on overall nutritional balance
-4. Provide a lifestyle impact assessment (positive/negative habits)
-5. Give 2-3 actionable tips
-
-IMPORTANT: This is for EDUCATIONAL purposes only. You are NOT providing professional dietary advice. Always frame as "learning about nutrition" not "measuring health".
+IMPORTANT: This is for EDUCATIONAL and TRACKING purposes only. Estimates are approximate.
 
 Respond in this exact JSON format (no markdown, no code blocks, just raw JSON):
 {
-  "plateScore": 75,
-  "scoreLabel": "Good Balance",
-  "summary": "A brief 1-sentence description of what you see",
-  "macros": [
-    {"label": "Protein", "value": "~25g", "color": "#EF4444", "percent": 30, "icon": "💪"},
-    {"label": "Carbs", "value": "~45g", "color": "#3B82F6", "percent": 40, "icon": "🌾"},
-    {"label": "Fats", "value": "~15g", "color": "#F59E0B", "percent": 20, "icon": "🥑"},
-    {"label": "Fiber", "value": "~8g", "color": "#10B981", "percent": 10, "icon": "🥬"}
+  "totalCalories": 680,
+  "mealName": "Grilled Chicken Bowl",
+  "foods": [
+    {"name": "Grilled Chicken Breast", "calories": 230, "servingSize": "6 oz"},
+    {"name": "Brown Rice", "calories": 180, "servingSize": "1 cup"},
+    {"name": "Mixed Vegetables", "calories": 80, "servingSize": "1 cup"},
+    {"name": "Olive Oil Drizzle", "calories": 120, "servingSize": "1 tbsp"},
+    {"name": "Side Salad", "calories": 70, "servingSize": "1 cup"}
   ],
-  "tips": ["Tip 1", "Tip 2", "Tip 3"],
-  "lifestyleImpact": "A fun, encouraging 1-sentence lifestyle impact like 'This meal fuels a productive afternoon!' or 'Swap the soda for water to level up your energy game.'"
+  "protein": {"grams": 38, "goalGrams": 50, "color": "#FF6B6B"},
+  "carbs": {"grams": 52, "goalGrams": 75, "color": "#4ECDC4"},
+  "fat": {"grams": 33, "goalGrams": 65, "color": "#FFD93D"},
+  "tips": ["Great protein source!", "Consider adding more greens"]
 }
 
-If it's a packaged product, analyze the likely nutritional content and ingredients.
-If the photo is not food-related, still respond with the JSON but set plateScore to 0, scoreLabel to "Not Food", and explain in summary.`;
+Rules:
+- totalCalories must equal the sum of individual food calories
+- Be realistic with portion sizes based on what you see
+- goalGrams should use standard daily macro targets (protein: 50g per meal, carbs: 75g, fat: 65g)
+- Keep food names short and clear
+- If the photo is not food, set totalCalories to 0, mealName to "Not Food", empty foods array`;
 
 	const analyzePhoto = async (base64: string) => {
-		if (!apiKey) {
-			setRawAnalysis("API key missing. Set EXPO_PUBLIC_ANTHROPIC_API_KEY.");
+		if (!apiKey || apiKey === "dummy") {
+			setRawAnalysis("API key missing. Set EXPO_PUBLIC_ANTHROPIC_API_KEY and rebuild.");
 			setMode("result");
 			return;
 		}
 
 		let fullText = "";
 		try {
-			// Try streaming first, fall back to non-streaming on failure
-			try {
-				const stream = anthropic.messages.stream({
-					model: "claude-haiku-4-5-20251001",
-					max_tokens: 1024,
-					system: MEAL_SYSTEM_PROMPT,
-					messages: [
-						{
-							role: "user",
-							content: [
-								{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64 } },
-								{ type: "text", text: "Analyze this food/product photo." },
-							],
-						},
-					],
-				});
+			// Use direct fetch on Android (Hermes lacks ReadableStream for SDK streaming)
+			if (Platform.OS === "android") {
+				fullText = await analyzeViaFetch(base64, MEAL_SYSTEM_PROMPT);
+			} else {
+				try {
+					const stream = anthropic.messages.stream({
+						model: "claude-haiku-4-5-20251001",
+						max_tokens: 1024,
+						system: MEAL_SYSTEM_PROMPT,
+						messages: [
+							{
+								role: "user",
+								content: [
+									{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64 } },
+									{ type: "text", text: "Analyze this food photo." },
+								],
+							},
+						],
+					});
 
-				stream.on("text", (text) => {
-					fullText += text;
-					setStreamText(fullText);
-				});
+					stream.on("text", (text) => {
+						fullText += text;
+						setStreamText(fullText);
+					});
 
-				await stream.finalMessage();
-			} catch (streamErr) {
-				console.warn("[MealScanner] Streaming failed, using fallback:", streamErr);
-				setStreamText("");
-				fullText = await analyzeNonStreaming(base64, MEAL_SYSTEM_PROMPT);
+					await stream.finalMessage();
+				} catch (streamErr) {
+					console.warn("[MealScanner] Streaming failed, using fetch fallback:", streamErr);
+					setStreamText("");
+					fullText = await analyzeViaFetch(base64, MEAL_SYSTEM_PROMPT);
+				}
 			}
 
 			try {
@@ -227,6 +281,23 @@ If the photo is not food-related, still respond with the JSON but set plateScore
 				if (jsonMatch) {
 					const parsed = JSON.parse(jsonMatch[0]) as AnalysisResult;
 					setResult(parsed);
+
+					// Auto-log to food diary
+					useFoodDiaryStore.getState().logMeal({
+						mealName: parsed.mealName,
+						photoUri: photoUri,
+						foods: parsed.foods.map((f, i) => ({
+							id: `${Date.now()}-${i}`,
+							name: f.name,
+							calories: f.calories,
+							servingSize: f.servingSize,
+						})),
+						totalCalories: parsed.totalCalories,
+						protein: parsed.protein.grams,
+						carbs: parsed.carbs.grams,
+						fat: parsed.fat.grams,
+					});
+
 					const gamStore = useGamificationStore.getState();
 					gamStore.incrementStat("totalMealsScanned");
 					gamStore.addXp(50);
@@ -241,7 +312,8 @@ If the photo is not food-related, still respond with the JSON but set plateScore
 			setMode("result");
 		} catch (err) {
 			console.error("[MealScanner] Analysis failed:", err);
-			setRawAnalysis("Could not analyze. Please check your connection and try again.");
+			const errMsg = err instanceof Error ? err.message : String(err);
+			setRawAnalysis(`Could not analyze: ${errMsg.slice(0, 150)}. Please check your connection and try again.`);
 			setMode("result");
 		}
 	};
@@ -266,7 +338,7 @@ If the photo is not food-related, still respond with the JSON but set plateScore
 					</View>
 					<Text style={styles.permTitle}>Camera Access</Text>
 					<Text style={styles.permSub}>
-						EZCare needs camera access to scan your meals and products for educational insights.
+						EZCare needs camera access to scan your meals for calorie and macro estimates.
 					</Text>
 					<TouchableOpacity onPress={requestPermission} style={styles.permBtn}>
 						<LinearGradient colors={["#28B898", "#3EC9B5"]} style={StyleSheet.absoluteFill} />
@@ -280,131 +352,136 @@ If the photo is not food-related, still respond with the JSON but set plateScore
 		);
 	}
 
-	// ── Result Screen ──
+	// ── Result Screen (Cal AI Style) ──
 	if (mode === "result") {
 		return (
-			<SafeAreaView edges={["top"]} style={styles.resultSafe}>
-				<ScrollView contentContainerStyle={styles.resultContent} showsVerticalScrollIndicator={false}>
-					{/* Header */}
-					<View style={styles.resultHeader}>
-						<TouchableOpacity onPress={() => router.back()} style={styles.closeBtn}>
-							<Ionicons color="#FFFFFF" name="close" size={22} />
-						</TouchableOpacity>
-						<Text style={styles.resultHeaderTitle}>Meal Insights</Text>
-						<TouchableOpacity onPress={retake} style={styles.retakeBtn}>
-							<Ionicons color="#3EC9B5" name="camera-outline" size={20} />
-						</TouchableOpacity>
-					</View>
-
-					{/* Photo */}
+			<View style={styles.resultBg}>
+				<ScrollView contentContainerStyle={styles.resultScroll} showsVerticalScrollIndicator={false}>
+					{/* Food Photo - full width at top */}
 					{photoUri && (
-						<View style={styles.photoCard}>
+						<View style={styles.photoContainer}>
 							<Image source={{ uri: photoUri }} style={styles.resultPhoto} resizeMode="cover" />
+							<LinearGradient
+								colors={["transparent", "rgba(11,14,23,0.6)", "#0B0E17"]}
+								style={styles.photoGradient}
+								pointerEvents="none"
+							/>
+							<SafeAreaView edges={["top"]} style={styles.resultHeaderOverlay}>
+								<TouchableOpacity onPress={() => router.back()} style={styles.resultBackBtn}>
+									<Ionicons color="#FFFFFF" name="chevron-back" size={22} />
+								</TouchableOpacity>
+								<TouchableOpacity onPress={retake} style={styles.resultRetakeBtn}>
+									<Ionicons color="#FFFFFF" name="camera-outline" size={20} />
+								</TouchableOpacity>
+							</SafeAreaView>
 						</View>
 					)}
 
 					{result ? (
-						<>
-							{/* Plate Score */}
-							<View style={styles.scoreCard}>
-								<LinearGradient
-									colors={getScoreGradient(result.plateScore)}
-									style={styles.scoreGradient}
-									start={{ x: 0, y: 0 }}
-									end={{ x: 1, y: 1 }}
-								>
-									<Text style={styles.scoreNumber}>{result.plateScore}</Text>
-									<Text style={styles.scoreMax}>/100</Text>
-								</LinearGradient>
-								<View style={styles.scoreInfo}>
-									<Text style={styles.scoreLabel}>{result.scoreLabel}</Text>
-									<Text style={styles.scoreSummary}>{result.summary}</Text>
+						<View style={styles.resultBody}>
+							{/* Meal Name & Total Calories */}
+							<View style={styles.calHeader}>
+								<Text style={styles.mealName}>{result.mealName}</Text>
+								<View style={styles.calRow}>
+									<Text style={styles.calNumber}>{result.totalCalories}</Text>
+									<Text style={styles.calUnit}>cal</Text>
 								</View>
 							</View>
 
-							{/* Lifestyle Impact */}
-							<View style={styles.impactCard}>
-								<Text style={styles.impactIcon}>⚡</Text>
-								<Text style={styles.impactText}>{result.lifestyleImpact}</Text>
+							{/* Macro Rings */}
+							<View style={styles.macroRingsRow}>
+								<MacroRing
+									label="Protein"
+									grams={result.protein.grams}
+									goalGrams={result.protein.goalGrams}
+									color={MACRO_COLORS.protein}
+								/>
+								<MacroRing
+									label="Carbs"
+									grams={result.carbs.grams}
+									goalGrams={result.carbs.goalGrams}
+									color={MACRO_COLORS.carbs}
+								/>
+								<MacroRing
+									label="Fat"
+									grams={result.fat.grams}
+									goalGrams={result.fat.goalGrams}
+									color={MACRO_COLORS.fat}
+								/>
 							</View>
 
-							{/* Macro Breakdown */}
-							<Text style={styles.sectionTitle}>Nutritional Breakdown</Text>
-							<View style={styles.macroGrid}>
-								{result.macros.map((macro) => (
-									<View key={macro.label} style={styles.macroCard}>
-										<Text style={styles.macroIcon}>{macro.icon}</Text>
-										<Text style={styles.macroLabel}>{macro.label}</Text>
-										<Text style={[styles.macroValue, { color: macro.color }]}>
-											{macro.value}
-										</Text>
-										<View style={styles.macroBar}>
-											<View
-												style={[
-													styles.macroBarFill,
-													{
-														backgroundColor: macro.color,
-														width: `${Math.min(macro.percent, 100)}%`,
-													},
-												]}
-											/>
+							{/* Food Items List */}
+							<View style={styles.foodListCard}>
+								<Text style={styles.foodListTitle}>Food Items</Text>
+								{result.foods.map((food, i) => (
+									<View
+										key={i}
+										style={[
+											styles.foodItem,
+											i < result.foods.length - 1 && styles.foodItemBorder,
+										]}
+									>
+										<View style={styles.foodItemDot} />
+										<View style={styles.foodItemInfo}>
+											<Text style={styles.foodItemName}>{food.name}</Text>
+											<Text style={styles.foodItemServing}>{food.servingSize}</Text>
 										</View>
-										<Text style={styles.macroPercent}>{macro.percent}%</Text>
+										<Text style={styles.foodItemCal}>{food.calories} cal</Text>
 									</View>
 								))}
 							</View>
 
 							{/* Tips */}
-							<Text style={styles.sectionTitle}>Tips to Level Up</Text>
-							{result.tips.map((tip, i) => (
-								<View key={i} style={styles.tipCard}>
-									<View style={styles.tipNumber}>
-										<Text style={styles.tipNumberText}>{i + 1}</Text>
+							{result.tips.length > 0 && (
+								<View style={styles.tipsCard}>
+									<Ionicons color="#3EC9B5" name="bulb-outline" size={18} />
+									<View style={{ flex: 1 }}>
+										{result.tips.map((tip, i) => (
+											<Text key={i} style={styles.tipText}>{tip}</Text>
+										))}
 									</View>
-									<Text style={styles.tipText}>{tip}</Text>
 								</View>
-							))}
+							)}
+
+							{/* Action Buttons */}
+							<View style={styles.actionRow}>
+								<TouchableOpacity onPress={retake} style={styles.scanAgainBtn}>
+									<Ionicons color="#0B0E17" name="camera" size={20} />
+									<Text style={styles.scanAgainText}>Scan Another</Text>
+								</TouchableOpacity>
+								<TouchableOpacity onPress={() => router.back()} style={styles.homeBtn}>
+									<Ionicons color="#3EC9B5" name="home-outline" size={20} />
+								</TouchableOpacity>
+							</View>
 
 							{/* Disclaimer */}
-							<View style={styles.disclaimer}>
-								<Ionicons color="#D97706" name="information-circle" size={18} />
-								<Text style={styles.disclaimerText}>
-									{NUTRITION_DISCLAIMER}
-								</Text>
-							</View>
-						</>
+							<Text style={styles.disclaimerText}>{NUTRITION_DISCLAIMER}</Text>
+						</View>
 					) : (
-						<View style={styles.rawCard}>
-							<Markdown
-								style={{
-									body: { color: "#E2E8F0", fontSize: 15, lineHeight: 22 },
-									strong: { fontWeight: "bold", color: "#FFFFFF" },
-								}}
-							>
-								{rawAnalysis}
-							</Markdown>
+						<View style={styles.resultBody}>
+							<View style={styles.rawCard}>
+								<Markdown
+									style={{
+										body: { color: "#E2E8F0", fontSize: 15, lineHeight: 22 },
+										strong: { fontWeight: "bold", color: "#FFFFFF" },
+									}}
+								>
+									{rawAnalysis}
+								</Markdown>
+							</View>
+							<View style={styles.actionRow}>
+								<TouchableOpacity onPress={retake} style={styles.scanAgainBtn}>
+									<Ionicons color="#0B0E17" name="camera" size={20} />
+									<Text style={styles.scanAgainText}>Try Again</Text>
+								</TouchableOpacity>
+								<TouchableOpacity onPress={() => router.back()} style={styles.homeBtn}>
+									<Ionicons color="#3EC9B5" name="home-outline" size={20} />
+								</TouchableOpacity>
+							</View>
 						</View>
 					)}
-
-					{/* Action Buttons */}
-					<View style={styles.actionRow}>
-						<TouchableOpacity onPress={retake} style={styles.actionBtn}>
-							<LinearGradient colors={["#28B898", "#3EC9B5"]} style={StyleSheet.absoluteFill} />
-							<Ionicons color="#0B0E17" name="camera" size={20} />
-							<Text style={styles.actionBtnText}>Scan Another</Text>
-						</TouchableOpacity>
-						<TouchableOpacity onPress={() => router.back()} style={styles.actionBtnOutline}>
-							<Ionicons color="#3EC9B5" name="home" size={20} />
-							<Text style={styles.actionBtnOutlineText}>Home</Text>
-						</TouchableOpacity>
-					</View>
-
-					{/* Educational Disclaimer */}
-					<Text style={{ color: "rgba(255,255,255,0.35)", fontSize: 10, textAlign: "center", marginTop: 16, marginHorizontal: 20, lineHeight: 14 }}>
-						{NUTRITION_DISCLAIMER}
-					</Text>
 				</ScrollView>
-			</SafeAreaView>
+			</View>
 		);
 	}
 
@@ -424,11 +501,11 @@ If the photo is not food-related, still respond with the JSON but set plateScore
 					<View style={styles.analyzingOverlay}>
 						<View style={styles.analyzingCard}>
 							<ActivityIndicator color="#3EC9B5" size="large" />
-							<Text style={styles.analyzingTitle}>Analyzing your meal...</Text>
+							<Text style={styles.analyzingTitle}>Scanning your meal...</Text>
 							<Text style={styles.analyzingSub}>
 								{streamText.length > 0
 									? "Almost done..."
-									: "Our AI is identifying ingredients and nutrients"}
+									: "Identifying foods and estimating calories"}
 							</Text>
 						</View>
 					</View>
@@ -442,13 +519,11 @@ If the photo is not food-related, still respond with the JSON but set plateScore
 		<View style={styles.cameraWrap}>
 			<CameraView facing="back" ref={cameraRef} style={StyleSheet.absoluteFill} />
 
-			{/* Top gradient */}
 			<LinearGradient
 				colors={["rgba(11,14,23,0.85)", "transparent"]}
 				pointerEvents="none"
 				style={styles.topGrad}
 			/>
-			{/* Bottom gradient */}
 			<LinearGradient
 				colors={["transparent", "rgba(11,14,23,0.9)", "#0B0E17"]}
 				pointerEvents="none"
@@ -476,18 +551,13 @@ If the photo is not food-related, still respond with the JSON but set plateScore
 						<View style={[styles.corner, styles.bl]} />
 						<View style={[styles.corner, styles.br]} />
 					</View>
-					<Text style={styles.cameraHint}>
-						Point at your meal or product
-					</Text>
+					<Text style={styles.cameraHint}>Point at your meal</Text>
 				</View>
 
 				{/* Bottom controls */}
 				<View style={styles.cameraBottom}>
 					<TouchableOpacity activeOpacity={0.8} onPress={takePhoto} style={styles.shutterBtn}>
-						<LinearGradient
-							colors={["#28B898", "#3EC9B5"]}
-							style={styles.shutterInner}
-						/>
+						<LinearGradient colors={["#28B898", "#3EC9B5"]} style={styles.shutterInner} />
 						<Ionicons
 							color="#0B0E17"
 							name="scan-outline"
@@ -497,7 +567,7 @@ If the photo is not food-related, still respond with the JSON but set plateScore
 					</TouchableOpacity>
 					<Text style={styles.shutterLabel}>Tap to Scan</Text>
 					<TouchableOpacity activeOpacity={0.8} onPress={pickFromGallery} style={styles.galleryBtn}>
-						<Ionicons color="#FFFFFF" name="images-outline" size={24} />
+						<Ionicons color="#FFFFFF" name="images-outline" size={22} />
 						<Text style={styles.galleryBtnText}>Gallery</Text>
 					</TouchableOpacity>
 				</View>
@@ -590,103 +660,90 @@ const styles = StyleSheet.create({
 	},
 	analyzingTitle: { color: "#FFFFFF", fontSize: 18, fontWeight: "800" },
 	analyzingSub: { color: "#94A3B8", fontSize: 14, textAlign: "center" },
-	// Result
-	resultSafe: { flex: 1, backgroundColor: "#0B0E17" },
-	resultContent: { padding: 20, paddingBottom: 40 },
-	resultHeader: {
-		flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-		marginBottom: 20,
+	// Result (Cal AI inspired)
+	resultBg: { flex: 1, backgroundColor: "#0B0E17" },
+	resultScroll: { paddingBottom: 40 },
+	photoContainer: { position: "relative", width: "100%", height: 280 },
+	resultPhoto: { width: "100%", height: "100%" },
+	photoGradient: { position: "absolute", bottom: 0, left: 0, right: 0, height: 120 },
+	resultHeaderOverlay: {
+		position: "absolute", top: 0, left: 0, right: 0,
+		flexDirection: "row", justifyContent: "space-between",
+		paddingHorizontal: 16, paddingTop: 8, zIndex: 10,
 	},
-	resultHeaderTitle: { color: "#FFFFFF", fontSize: 18, fontWeight: "800" },
-	retakeBtn: {
+	resultBackBtn: {
 		width: 40, height: 40, borderRadius: 20,
-		backgroundColor: "rgba(62,201,181,0.15)",
+		backgroundColor: "rgba(0,0,0,0.4)",
 		alignItems: "center", justifyContent: "center",
 	},
-	photoCard: { borderRadius: 20, overflow: "hidden", marginBottom: 20 },
-	resultPhoto: { width: "100%", height: 200, borderRadius: 20 },
-	// Score
-	scoreCard: {
-		flexDirection: "row", alignItems: "center", gap: 16,
+	resultRetakeBtn: {
+		width: 40, height: 40, borderRadius: 20,
+		backgroundColor: "rgba(0,0,0,0.4)",
+		alignItems: "center", justifyContent: "center",
+	},
+	resultBody: { paddingHorizontal: 20, paddingTop: 4 },
+	// Calorie Header
+	calHeader: { alignItems: "center", marginBottom: 24 },
+	mealName: { color: "#94A3B8", fontSize: 15, fontWeight: "600", marginBottom: 4 },
+	calRow: { flexDirection: "row", alignItems: "baseline" },
+	calNumber: { color: "#FFFFFF", fontSize: 56, fontWeight: "900", letterSpacing: -2 },
+	calUnit: { color: "#94A3B8", fontSize: 22, fontWeight: "700", marginLeft: 4 },
+	// Macro Rings
+	macroRingsRow: {
+		flexDirection: "row", justifyContent: "space-around",
+		backgroundColor: "#1A2138", borderRadius: 20, padding: 20,
+		marginBottom: 20, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)",
+	},
+	// Food Items
+	foodListCard: {
 		backgroundColor: "#1A2138", borderRadius: 20, padding: 20,
 		marginBottom: 16, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)",
 	},
-	scoreGradient: {
-		width: 80, height: 80, borderRadius: 40,
-		alignItems: "center", justifyContent: "center",
+	foodListTitle: { color: "#FFFFFF", fontSize: 16, fontWeight: "800", marginBottom: 16 },
+	foodItem: {
+		flexDirection: "row", alignItems: "center",
+		paddingVertical: 12,
 	},
-	scoreNumber: { color: "#FFFFFF", fontSize: 32, fontWeight: "900", lineHeight: 36 },
-	scoreMax: { color: "rgba(255,255,255,0.6)", fontSize: 12, fontWeight: "700" },
-	scoreInfo: { flex: 1 },
-	scoreLabel: { color: "#FFFFFF", fontSize: 18, fontWeight: "800", marginBottom: 4 },
-	scoreSummary: { color: "#94A3B8", fontSize: 14, lineHeight: 20 },
-	// Impact
-	impactCard: {
-		flexDirection: "row", alignItems: "center", gap: 12,
-		backgroundColor: "rgba(62,201,181,0.1)", borderRadius: 16,
-		padding: 16, marginBottom: 24, borderWidth: 1,
-		borderColor: "rgba(62,201,181,0.2)",
+	foodItemBorder: {
+		borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.06)",
 	},
-	impactIcon: { fontSize: 24 },
-	impactText: { flex: 1, color: "#3EC9B5", fontSize: 14, fontWeight: "600", lineHeight: 20 },
-	// Macros
-	sectionTitle: {
-		color: "#FFFFFF", fontSize: 18, fontWeight: "800", marginBottom: 12,
+	foodItemDot: {
+		width: 8, height: 8, borderRadius: 4,
+		backgroundColor: "#3EC9B5", marginRight: 12,
 	},
-	macroGrid: {
-		flexDirection: "row", flexWrap: "wrap", gap: 12, marginBottom: 24,
-	},
-	macroCard: {
-		width: (SCREEN_W - 52) / 2, backgroundColor: "#1A2138",
-		borderRadius: 16, padding: 16, borderWidth: 1,
-		borderColor: "rgba(255,255,255,0.06)",
-	},
-	macroIcon: { fontSize: 20, marginBottom: 8 },
-	macroLabel: { color: "#94A3B8", fontSize: 12, fontWeight: "600", marginBottom: 4 },
-	macroValue: { fontSize: 20, fontWeight: "800", marginBottom: 8 },
-	macroBar: {
-		height: 6, backgroundColor: "rgba(255,255,255,0.06)",
-		borderRadius: 3, overflow: "hidden", marginBottom: 4,
-	},
-	macroBarFill: { height: "100%", borderRadius: 3 },
-	macroPercent: { color: "#94A3B8", fontSize: 11, fontWeight: "600" },
+	foodItemInfo: { flex: 1 },
+	foodItemName: { color: "#FFFFFF", fontSize: 15, fontWeight: "600" },
+	foodItemServing: { color: "#64748B", fontSize: 12, fontWeight: "500", marginTop: 2 },
+	foodItemCal: { color: "#3EC9B5", fontSize: 15, fontWeight: "700" },
 	// Tips
-	tipCard: {
-		flexDirection: "row", alignItems: "flex-start", gap: 12,
-		backgroundColor: "#1A2138", borderRadius: 16, padding: 16,
-		marginBottom: 10, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)",
+	tipsCard: {
+		flexDirection: "row", alignItems: "flex-start", gap: 10,
+		backgroundColor: "rgba(62,201,181,0.08)", borderRadius: 16,
+		padding: 16, marginBottom: 20, borderWidth: 1,
+		borderColor: "rgba(62,201,181,0.15)",
 	},
-	tipNumber: {
-		width: 28, height: 28, borderRadius: 14,
-		backgroundColor: "rgba(62,201,181,0.15)",
+	tipText: { color: "#94A3B8", fontSize: 13, lineHeight: 20, marginBottom: 2 },
+	// Actions
+	actionRow: { flexDirection: "row", gap: 12, marginBottom: 16 },
+	scanAgainBtn: {
+		flex: 1, height: 52, borderRadius: 26,
+		backgroundColor: "#3EC9B5",
+		flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,
+	},
+	scanAgainText: { color: "#0B0E17", fontSize: 15, fontWeight: "800" },
+	homeBtn: {
+		width: 52, height: 52, borderRadius: 26,
+		borderWidth: 1.5, borderColor: "#3EC9B5",
 		alignItems: "center", justifyContent: "center",
 	},
-	tipNumberText: { color: "#3EC9B5", fontSize: 14, fontWeight: "800" },
-	tipText: { flex: 1, color: "#E2E8F0", fontSize: 14, lineHeight: 20 },
 	// Disclaimer
-	disclaimer: {
-		flexDirection: "row", alignItems: "center", gap: 8,
-		backgroundColor: "rgba(217,119,6,0.1)", borderRadius: 12,
-		padding: 12, marginTop: 16, marginBottom: 24,
+	disclaimerText: {
+		color: "rgba(255,255,255,0.3)", fontSize: 10,
+		textAlign: "center", lineHeight: 14, marginHorizontal: 10,
 	},
-	disclaimerText: { flex: 1, color: "#D97706", fontSize: 11, lineHeight: 16 },
 	// Raw fallback
 	rawCard: {
 		backgroundColor: "#1A2138", borderRadius: 16, padding: 20,
 		marginBottom: 24, borderWidth: 1, borderColor: "rgba(255,255,255,0.06)",
 	},
-	// Actions
-	actionRow: { flexDirection: "row", gap: 12 },
-	actionBtn: {
-		flex: 1, height: 52, borderRadius: 26,
-		flexDirection: "row", alignItems: "center", justifyContent: "center",
-		gap: 8, overflow: "hidden",
-	},
-	actionBtnText: { color: "#0B0E17", fontSize: 15, fontWeight: "800" },
-	actionBtnOutline: {
-		flex: 1, height: 52, borderRadius: 26,
-		flexDirection: "row", alignItems: "center", justifyContent: "center",
-		gap: 8, borderWidth: 1.5, borderColor: "#3EC9B5",
-	},
-	actionBtnOutlineText: { color: "#3EC9B5", fontSize: 15, fontWeight: "800" },
 });

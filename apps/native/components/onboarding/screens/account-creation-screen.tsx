@@ -92,6 +92,7 @@ export function AccountCreationScreen() {
 			mixpanelService.identify(emailUserId, { email });
 		}
 		mixpanelService.trackOnboardingComplete({ method: "email", user_id: emailUserId });
+		setAnswer("onboardingComplete", true);
 		nextStep();
 		router.push("/(onboarding)/23");
 	};
@@ -164,6 +165,7 @@ export function AccountCreationScreen() {
 						apptroveService.trackRegistration(tokenSession.user.id, userEmail, provider);
 						mixpanelService.identify(tokenSession.user.id, userEmail ? { email: userEmail } : undefined);
 						mixpanelService.trackOnboardingComplete({ method: provider, user_id: tokenSession.user.id });
+						setAnswer("onboardingComplete", true);
 						nextStep();
 						router.push("/(onboarding)/23");
 					}
@@ -183,6 +185,7 @@ export function AccountCreationScreen() {
 				apptroveService.trackRegistration(sessionData.user.id, userEmail, provider);
 				mixpanelService.identify(sessionData.user.id, userEmail ? { email: userEmail } : undefined);
 				mixpanelService.trackOnboardingComplete({ method: provider, user_id: sessionData.user.id });
+				setAnswer("onboardingComplete", true);
 				nextStep();
 				router.push("/(onboarding)/23");
 			}

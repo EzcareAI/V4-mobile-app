@@ -303,7 +303,7 @@ export default function ProgressScreen() {
 				match.value = avg * 2;
 			}
 		}
-		return res.map((r) => ({ label: r.label, value: r.value })).reverse();
+		return res.map((r) => ({ label: r.label, value: r.value }));
 	};
 
 	const getWeekData = () => {
@@ -480,6 +480,29 @@ export default function ProgressScreen() {
 							})}
 						</View>
 					</View>
+				</View>
+
+				{/* Trend Chart */}
+				<View style={styles.card}>
+					<Text style={styles.cardTitle}>Trend Overview</Text>
+					<View style={styles.rangePicker}>
+						{(["Day", "Week", "12 Months"] as TimeRange[]).map((r) => (
+							<TouchableOpacity
+								key={r}
+								onPress={() => setRange(r)}
+								style={[styles.rangeBtn, range === r && styles.rangeBtnActive]}
+							>
+								<Text style={[styles.rangeBtnText, range === r && styles.rangeBtnTextActive]}>{r}</Text>
+							</TouchableOpacity>
+						))}
+					</View>
+					{chartData.some((d) => d.value > 0) ? (
+						<LineChart data={chartData} />
+					) : (
+						<View style={{ alignItems: "center", paddingVertical: 24 }}>
+							<Text style={{ color: GREY, fontSize: 14 }}>Complete check-ins to see your trend chart</Text>
+						</View>
+					)}
 				</View>
 
 				{/* Check-in Journal */}

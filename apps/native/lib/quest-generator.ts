@@ -94,8 +94,12 @@ class QuestGenerator {
 
 	/**
 	 * Get today's quests for the user. Generates via AI if not cached.
+	 * Optional ritualContext from Awakening Ritual for better personalization.
 	 */
-	async getTodayQuests(userId: string): Promise<DailyQuestsData> {
+	async getTodayQuests(
+		userId: string,
+		ritualContext?: { sleepScore: number; energyScore: number; intention: string }
+	): Promise<DailyQuestsData> {
 		const today = this.todayStr();
 
 		// 1. Check cache
@@ -116,7 +120,7 @@ class QuestGenerator {
 		}
 
 		// 2. Generate new quests
-		const quests = await this.generateQuests(userId);
+		const quests = await this.generateQuests(userId, ritualContext);
 
 		// 3. Store in DB
 		const expiresAt = new Date();
@@ -212,7 +216,10 @@ class QuestGenerator {
 	/**
 	 * Generate quests via Anthropic Claude API.
 	 */
-	private async generateQuests(userId: string): Promise<Quest[]> {
+	private async generateQuests(
+		userId: string,
+		ritualContext?: { sleepScore: number; energyScore: number; intention: string }
+	): Promise<Quest[]> {
 		if (!apiKey) {
 			console.warn("[QuestGenerator] No API key, using fallback quests");
 			return FALLBACK_QUESTS;
@@ -224,6 +231,10 @@ class QuestGenerator {
 
 			const dayOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date().getDay()];
 
+			const ritualInfo = ritualContext
+				? `\n- Morning sleep quality: ${ritualContext.sleepScore}/5\n- Morning energy: ${ritualContext.energyScore}/10\n- Today's intention: ${ritualContext.intention}`
+				: "";
+
 			const systemPrompt = `You are EZBuddy, the AI for EzCare AI lifestyle app.
 
 Generate exactly 3 personalized daily quests for a user.
@@ -233,7 +244,7 @@ User profile:
 - Awakening level: ${context.level} (${context.levelTitle})
 - Current streak: ${context.streak} days
 - Meals logged today: ${context.mealsToday}
-- Today is: ${dayOfWeek}
+- Today is: ${dayOfWeek}${ritualInfo}
 
 Requirements:
 - 1 easy quest (5 minutes effort, achievable for anyone) worth 50 XP

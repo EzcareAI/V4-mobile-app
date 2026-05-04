@@ -26,6 +26,10 @@ import { useGamificationStore } from "@/stores/gamification-store";
 import { levelsService, type LevelInfo } from "@/lib/levels-service";
 import { streakService, type StreakInfo } from "@/lib/streak-service";
 import { questGenerator, type DailyQuestsData, type Quest } from "@/lib/quest-generator";
+import { insightsEngine, type Insight } from "@/lib/insights-engine";
+import { leaguesService, type LeagueInfo } from "@/lib/leagues-service";
+import { achievementsService } from "@/lib/achievements-service";
+import { supabase } from "@/lib/supabase";
 
 // ── Dark Premium Design Tokens ──────────────────────
 const BG = "#0A0A0F";
@@ -497,6 +501,10 @@ export default function HomeScreen() {
 	const [streakInfo, setStreakInfo] = useState<StreakInfo | null>(null);
 	const [questsData, setQuestsData] = useState<DailyQuestsData | null>(null);
 	const [xpToast, setXpToast] = useState<{ amount: number; visible: boolean }>({ amount: 0, visible: false });
+	const [ritualDoneToday, setRitualDoneToday] = useState(false);
+	const [leagueInfo, setLeagueInfo] = useState<LeagueInfo | null>(null);
+	const [insightCard, setInsightCard] = useState<Insight | null>(null);
+	const [showInsight, setShowInsight] = useState(false);
 
 	// ── Fetch real data from Supabase on mount ──
 	useEffect(() => {
@@ -504,16 +512,21 @@ export default function HomeScreen() {
 
 		const loadData = async () => {
 			try {
-				const [level, streakData, quests] = await Promise.all([
+				const today = new Date().toISOString().split("T")[0];
+				const [level, streakData, quests, ritualCheck, league] = await Promise.all([
 					levelsService.getLevelInfo(userId),
 					streakService.getStreakInfo(userId),
 					questGenerator.getTodayQuests(userId),
+					supabase.from("awakening_rituals").select("id").eq("user_id", userId).eq("date", today).single(),
+					leaguesService.getLeagueInfo(userId).catch(() => null),
 				]);
 				setLevelInfo(level);
 				setStreakInfo(streakData);
 				setQuestsData(quests);
+				setRitualDoneToday(!!ritualCheck.data);
+				if (league) setLeagueInfo(league);
 			} catch (err) {
-				console.warn("[Home] Failed to load Sprint 2 data:", err);
+				console.warn("[Home] Failed to load data:", err);
 			}
 		};
 		loadData();
@@ -575,6 +588,11 @@ export default function HomeScreen() {
 					);
 					setLevelInfo(milestoneResult.levelInfo);
 				}
+
+				// Check streak achievements
+				achievementsService
+					.checkAchievements(userId, "streak_update", { streak: streakResult.streakInfo.currentStreak })
+					.catch(() => {});
 			} catch (err) {
 				console.warn("[Home] XP award failed:", err);
 			}
@@ -605,6 +623,34 @@ export default function HomeScreen() {
 				const bonusResult = await levelsService.addXp(userId, 500, "daily_hero_bonus");
 				setTimeout(() => showXpGain(500), 1000);
 				setLevelInfo(bonusResult.levelInfo);
+
+				// Check daily_all_quests achievement
+				achievementsService.checkAchievements(userId, "daily_all_quests").catch(() => {});
+			}
+
+			// Check quest achievements
+			achievementsService.checkAchievements(userId, "quest_complete").catch(() => {});
+
+			// Generate AI insight (non-blocking)
+			const quest = questsData?.quests.find((q) => q.id === questId);
+			if (quest) {
+				insightsEngine
+					.generateInsight(userId, {
+						questLabel: quest.label,
+						questCategory: quest.category,
+						questDifficulty: quest.difficulty,
+						userLevel: levelInfo?.currentLevel ?? 1,
+						streakDays: streakInfo?.currentStreak ?? 0,
+						weeklyXp: leagueInfo?.weekXp ?? 0,
+					})
+					.then((insight) => {
+						if (insight) {
+							setInsightCard(insight);
+							setShowInsight(true);
+							setTimeout(() => setShowInsight(false), 6000);
+						}
+					})
+					.catch(() => {});
 			}
 
 			if (Platform.OS === "ios") {
@@ -715,7 +761,46 @@ export default function HomeScreen() {
 					)}
 
 					{/* ── League Position ── */}
+					{leagueInfo ? (
+					<View style={[styles.leagueCard, { borderColor: `${leagueInfo.currentLeague.color}30` }]}>
+						<View style={styles.leagueHeader}>
+							<View style={styles.leagueLeft}>
+								<Text style={{ fontSize: 24 }}>🏆</Text>
+								<View>
+									<Text style={[styles.leagueName, { color: leagueInfo.currentLeague.color }]}>
+										{leagueInfo.currentLeague.label} League
+									</Text>
+									<Text style={styles.leagueRank}>
+										#{leagueInfo.rank ?? "?"} of {leagueInfo.groupSize}
+									</Text>
+								</View>
+							</View>
+							<View style={styles.leagueResetBadge}>
+								<Text style={styles.leagueResetText}>
+									{leaguesService.getTimeUntilReset()}
+								</Text>
+							</View>
+						</View>
+						<View style={styles.leagueZones}>
+							<View style={styles.leagueZone}>
+								<Ionicons name="arrow-up" size={12} color={GREEN} />
+								<Text style={[styles.leagueZoneText, { color: GREEN }]}>
+									{leagueInfo.inPromotionZone ? "Promotion zone!" : `Top ${leagueInfo.currentLeague.promotionTop} advance`}
+								</Text>
+							</View>
+							{leagueInfo.currentLeague.relegationBottom > 0 && (
+								<View style={styles.leagueZone}>
+									<Ionicons name="arrow-down" size={12} color="#FF6B6B" />
+									<Text style={[styles.leagueZoneText, { color: "#FF6B6B" }]}>
+										{leagueInfo.inRelegationZone ? "Relegation zone" : `Bottom ${leagueInfo.currentLeague.relegationBottom} demote`}
+									</Text>
+								</View>
+							)}
+						</View>
+					</View>
+				) : (
 					<LeagueCard totalXp={levelInfo?.totalXpEarned ?? 0} />
+				)}
 
 					{/* ── Nutrition Card ── */}
 					<View style={styles.nutritionCard}>
@@ -775,7 +860,71 @@ export default function HomeScreen() {
 					</View>
 
 					{/* ── Daily Check-In ── */}
-					{canSave && !saved ? (
+					{/* Insight Card (slides up after quest completion) */}
+					{showInsight && insightCard && (
+						<TouchableOpacity
+							activeOpacity={0.9}
+							onPress={() => setShowInsight(false)}
+							style={styles.insightCard}
+						>
+							<LinearGradient
+								colors={[`${PURPLE}15`, `${GREEN}08`]}
+								style={[StyleSheet.absoluteFill, { borderRadius: 16 }]}
+								start={{ x: 0, y: 0 }}
+								end={{ x: 1, y: 1 }}
+							/>
+							<View style={styles.insightHeader}>
+								<Ionicons name="sparkles" size={16} color={PURPLE} />
+								<Text style={styles.insightHeaderText}>EZBuddy noticed</Text>
+							</View>
+							<Text style={styles.insightText}>{insightCard.insight}</Text>
+							{insightCard.patternDetected && (
+								<View style={styles.insightPattern}>
+									<Ionicons name="trending-up" size={12} color={GREEN} />
+									<Text style={styles.insightPatternText}>{insightCard.patternDetected}</Text>
+								</View>
+							)}
+						</TouchableOpacity>
+					)}
+
+					{/* Awakening Ritual Banner */}
+					{!ritualDoneToday && canSave && !saved && (
+						<TouchableOpacity
+							activeOpacity={0.85}
+							onPress={() => router.push("/awakening-ritual")}
+							style={styles.ritualBanner}
+						>
+							<LinearGradient
+								colors={["#1A0A2E", "#2D1052", "#FF6B3520"]}
+								start={{ x: 0, y: 0 }}
+								end={{ x: 1, y: 1 }}
+								style={[StyleSheet.absoluteFill, { borderRadius: 16 }]}
+							/>
+							<View style={styles.ritualBannerContent}>
+								<View style={styles.ritualBannerLeft}>
+									<Text style={styles.ritualBannerEmoji}>🌅</Text>
+									<View>
+										<Text style={styles.ritualBannerTitle}>Start Your Awakening</Text>
+										<Text style={styles.ritualBannerSub}>60-second guided ritual +100 XP</Text>
+									</View>
+								</View>
+								<View style={styles.ritualBannerArrow}>
+									<Ionicons name="arrow-forward" size={18} color={PURPLE} />
+								</View>
+							</View>
+						</TouchableOpacity>
+					)}
+
+					{ritualDoneToday && (
+						<View style={styles.ritualCompleteBadge}>
+							<Ionicons name="checkmark-circle" size={16} color={GREEN} />
+							<Text style={styles.ritualCompleteText}>Awakening ritual complete</Text>
+							<Text style={styles.ritualCompleteXp}>+100 XP</Text>
+						</View>
+					)}
+
+					{/* Daily Check-In (shows only if ritual not done) */}
+					{canSave && !saved && !ritualDoneToday ? (
 						<View style={styles.card}>
 							<View style={styles.cardRow}>
 								<View style={styles.cardIconWrap}>
@@ -1345,4 +1494,79 @@ const styles = StyleSheet.create({
 		width: 60, height: 60, borderRadius: 30,
 		alignItems: "center", justifyContent: "center",
 	},
+
+	// ── Ritual Banner ──
+	ritualBanner: {
+		marginHorizontal: 20,
+		marginBottom: 16,
+		borderRadius: 16,
+		overflow: "hidden",
+		borderWidth: 1,
+		borderColor: `${PURPLE}30`,
+	},
+	ritualBannerContent: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "space-between",
+		padding: 16,
+	},
+	ritualBannerLeft: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 12,
+	},
+	ritualBannerEmoji: { fontSize: 32 },
+	ritualBannerTitle: { fontSize: 16, fontWeight: "800", color: TEXT },
+	ritualBannerSub: { fontSize: 13, color: TEXT_DIM, marginTop: 2 },
+	ritualBannerArrow: {
+		width: 36, height: 36, borderRadius: 18,
+		backgroundColor: `${PURPLE}20`,
+		alignItems: "center", justifyContent: "center",
+	},
+
+	// ── Ritual Complete ──
+	ritualCompleteBadge: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 8,
+		marginHorizontal: 20,
+		marginBottom: 16,
+		padding: 12,
+		borderRadius: 12,
+		backgroundColor: `${GREEN}08`,
+		borderWidth: 1,
+		borderColor: `${GREEN}20`,
+		overflow: "hidden",
+	},
+	ritualCompleteText: { color: GREEN, fontSize: 13, fontWeight: "700", flex: 1 },
+	ritualCompleteXp: { color: GREEN, fontSize: 12, fontWeight: "800" },
+
+	// ── Insight Card ──
+	insightCard: {
+		marginHorizontal: 20,
+		marginBottom: 16,
+		borderRadius: 16,
+		padding: 16,
+		borderWidth: 1,
+		borderColor: `${PURPLE}20`,
+		overflow: "hidden",
+	},
+	insightHeader: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 6,
+		marginBottom: 8,
+	},
+	insightHeaderText: { fontSize: 13, fontWeight: "800", color: PURPLE },
+	insightText: { fontSize: 14, fontWeight: "500", color: TEXT, lineHeight: 21 },
+	insightPattern: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 6,
+		marginTop: 10,
+		paddingTop: 10,
+		borderTopWidth: 1,
+		borderTopColor: BORDER,
+	},
+	insightPatternText: { fontSize: 12, color: GREEN, fontWeight: "600" },
 });

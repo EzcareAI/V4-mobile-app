@@ -7,6 +7,9 @@
 
 import { supabase } from "./supabase";
 import { mixpanelService } from "./mixpanel-service";
+import { leaguesService } from "./leagues-service";
+import { achievementsService } from "./achievements-service";
+import { avatarService } from "./avatar-service";
 
 // ── XP formula: floor(100 * level^1.5) ──────────────────────
 export function xpForNextLevel(level: number): number {
@@ -40,7 +43,10 @@ export type XpSource =
 	| "streak_milestone"
 	| "ai_chat"
 	| "mood_log"
-	| "daily_hero_bonus";
+	| "daily_hero_bonus"
+	| "achievement_bonus"
+	| "league_promotion"
+	| "awakening_ritual";
 
 export interface LevelInfo {
 	currentLevel: number;
@@ -201,6 +207,17 @@ class LevelsService {
 		mixpanelService.track("xp_gained", { amount, source, new_total: newTotalXp });
 		if (leveledUp) {
 			mixpanelService.track("level_up", { new_level: newLevel, title: tier.title });
+			// Trigger avatar evolution check
+			avatarService.onLevelUp(userId, newLevel).catch(() => {});
+			// Check level-based achievements
+			achievementsService
+				.checkAchievements(userId, "level_up", { level: newLevel })
+				.catch(() => {});
+		}
+
+		// 6. Pipe XP to weekly league tally (skip for achievement/league sources to avoid loops)
+		if (source !== "achievement_bonus" && source !== "league_promotion") {
+			leaguesService.addWeeklyXp(userId, amount).catch(() => {});
 		}
 
 		const xpNeeded = xpForNextLevel(newLevel);

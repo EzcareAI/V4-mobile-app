@@ -400,8 +400,23 @@ export default function PaywallScreen() {
 					</View>
 				</View>
 
+				{/* Family Plan Teaser */}
+				<View className="mx-6 mt-8 rounded-2xl border border-yellow-200 bg-yellow-50/50 p-4">
+					<View className="flex-row items-center gap-x-3">
+						<Text className="text-2xl">👨‍👩‍👧‍👦</Text>
+						<View className="flex-1">
+							<Text className="font-bold text-[#29303D] text-[15px]">
+								Family Plan Available
+							</Text>
+							<Text className="mt-1 text-[#73808C] text-[12px] leading-4">
+								Share with up to 4 members — $79.99/year. Upgrade anytime in Settings.
+							</Text>
+						</View>
+					</View>
+				</View>
+
 				{/* Trust Badges */}
-				<View className="mt-12 flex-row justify-between px-8">
+				<View className="mt-8 flex-row justify-between px-8">
 					<View className="items-center">
 						<View className="mb-3 h-12 w-12 items-center justify-center rounded-2xl bg-slate-50">
 							<Text className="text-2xl">🛡️</Text>

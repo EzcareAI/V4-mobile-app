@@ -57,6 +57,7 @@ export interface OnboardingState {
 
 	// Phase 5: Payment & Account
 	subscriptionStatus?: "active" | "pending" | "failed" | "cancelled";
+	subscriptionTier?: "free" | "pro" | "family";
 	discountWheelShown?: boolean; // Flag to show only once
 	paymentAttempted?: boolean;
 	isPro: boolean;

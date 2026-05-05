@@ -22,13 +22,80 @@ import {
 	inferPlanFromPackageType,
 	mixpanelService,
 } from "@/lib/mixpanel-service";
-import { revenueCatService } from "@/lib/revenuecat-service";
+import { revenueCatService, type SubscriptionTier } from "@/lib/revenuecat-service";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
 // Design Tokens
-const TEAL = "#3EC9B5";
-const DARK = "#1A1A2E";
-const BG = "#F4F6F8";
+const BG = "#0A0A0F";
+const SURFACE = "#1A1A24";
+const PURPLE = "#9D4EDD";
+const GREEN = "#06FFA5";
+const GOLD = "#FFD60A";
+const TEXT_COLOR = "#F5F5F7";
+const TEXT_DIM = "#8E8E93";
+const BORDER = "rgba(255,255,255,0.06)";
+
+const TIERS: {
+	key: SubscriptionTier;
+	name: string;
+	tagline: string;
+	price: string;
+	period: string;
+	color: string;
+	features: string[];
+	icon: string;
+}[] = [
+	{
+		key: "free",
+		name: "Free",
+		tagline: "Get started",
+		price: "$0",
+		period: "forever",
+		color: TEXT_DIM,
+		icon: "person-outline",
+		features: [
+			"Daily check-in",
+			"3 AI quests per day",
+			"Basic streak tracking",
+			"EZBuddy chat (5/day)",
+		],
+	},
+	{
+		key: "pro",
+		name: "Pro",
+		tagline: "Full experience",
+		price: "",
+		period: "",
+		color: GREEN,
+		icon: "star",
+		features: [
+			"Everything in Free",
+			"Unlimited EZBuddy chat",
+			"AI meal scanner",
+			"Awakening Ritual",
+			"Leagues & achievements",
+			"Advanced insights",
+			"Vibe cards",
+		],
+	},
+	{
+		key: "family",
+		name: "Family",
+		tagline: "Up to 4 members",
+		price: "$79.99",
+		period: "/year",
+		color: GOLD,
+		icon: "people",
+		features: [
+			"Everything in Pro",
+			"4 family profiles",
+			"Family dashboard",
+			"Family challenges",
+			"Shared progress tracking",
+			"Invite code system",
+		],
+	},
+];
 
 export default function SubscriptionScreen() {
 	const router = useRouter();
@@ -36,6 +103,7 @@ export default function SubscriptionScreen() {
 	const [offering, setOffering] = useState<PurchasesOffering | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [purchasing, setPurchasing] = useState(false);
+	const [currentTier, setCurrentTier] = useState<SubscriptionTier>("free");
 
 	const handleSignOut = async () => {
 		await authClient.signOut();
@@ -44,21 +112,22 @@ export default function SubscriptionScreen() {
 	};
 
 	useEffect(() => {
-		async function loadOfferings() {
+		async function loadData() {
 			try {
 				await revenueCatService.initialize();
-				const currentOffering = await revenueCatService.getOfferings();
-				if (!currentOffering) {
-					console.warn("RevenueCat: No current offering found. Check your RevenueCat dashboard.");
-				}
+				const [currentOffering, tier] = await Promise.all([
+					revenueCatService.getOfferings(),
+					revenueCatService.getSubscriptionTier(),
+				]);
 				setOffering(currentOffering);
+				setCurrentTier(tier);
 			} catch (err) {
 				console.error("Load Offerings Error:", err);
 			} finally {
 				setLoading(false);
 			}
 		}
-		loadOfferings();
+		loadData();
 	}, []);
 
 	const handlePurchase = async (pkg: PurchasesPackage) => {
@@ -80,9 +149,17 @@ export default function SubscriptionScreen() {
 					revenue: pkg.product.price,
 					currency: pkg.product.currencyCode,
 				});
+
+				// Refresh tier
+				const tier = await revenueCatService.getSubscriptionTier();
+				setCurrentTier(tier);
+				useOnboardingStore.getState().setAnswer("subscriptionTier", tier);
+
 				Alert.alert(
-					"Welcome to Pro!",
-					"Your premium features are now unlocked."
+					tier === "family" ? "Welcome to Family!" : "Welcome to Pro!",
+					tier === "family"
+						? "Your family features are now unlocked. Invite up to 3 members!"
+						: "Your premium features are now unlocked."
 				);
 				router.back();
 			}
@@ -99,6 +176,9 @@ export default function SubscriptionScreen() {
 			const success = await revenueCatService.restorePurchases();
 			if (success) {
 				setPro(true);
+				const tier = await revenueCatService.getSubscriptionTier();
+				setCurrentTier(tier);
+				useOnboardingStore.getState().setAnswer("subscriptionTier", tier);
 				Alert.alert("Success", "Restored your previous purchases.");
 				router.back();
 			} else {
@@ -112,17 +192,38 @@ export default function SubscriptionScreen() {
 		}
 	};
 
+	// Get pricing from RevenueCat packages
+	const monthlyPkg = offering?.availablePackages.find(
+		(p) => p.packageType === "MONTHLY"
+	);
+	const annualPkgs = offering?.availablePackages
+		.filter((p) => p.packageType === "ANNUAL")
+		.sort((a, b) => b.product.price - a.product.price);
+	const annualPkg = annualPkgs?.[0];
+
+	// Update tier pricing from live data
+	const tiersWithPricing = TIERS.map((tier) => {
+		if (tier.key === "pro" && annualPkg) {
+			return {
+				...tier,
+				price: annualPkg.product.priceString,
+				period: "/year",
+			};
+		}
+		return tier;
+	});
+
 	if (loading) {
 		return (
 			<View style={styles.center}>
-				<ActivityIndicator color={TEAL} size="large" />
+				<ActivityIndicator color={PURPLE} size="large" />
 			</View>
 		);
 	}
 
 	return (
 		<SafeAreaView edges={["top"]} style={styles.container}>
-			<ScrollView contentContainerStyle={styles.scroll}>
+			<ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 				{/* Header */}
 				<View style={styles.header}>
 					<TouchableOpacity
@@ -135,92 +236,182 @@ export default function SubscriptionScreen() {
 						}}
 						style={styles.backBtn}
 					>
-						<Ionicons color={DARK} name="chevron-back" size={24} />
+						<Ionicons color={TEXT_COLOR} name="chevron-back" size={24} />
 					</TouchableOpacity>
-					<Text style={styles.headerTitle}>Upgrade to Pro</Text>
-					<View style={{ width: 24 }} />
+					<Text style={styles.headerTitle}>Choose Your Plan</Text>
+					<View style={{ width: 40 }} />
 				</View>
 
-				{/* Hero Section */}
-				<LinearGradient colors={["#3EC9B5", "#2BA999"]} style={styles.hero}>
-					<Ionicons color="#FFF" name="sparkles" size={50} />
-					<Text style={styles.heroTitle}>Level Up Your Awareness</Text>
-					<Text style={styles.heroSub}>
-						Get unlimited AI body awareness reflections, personalized guidance,
-						and advanced learning features.
-					</Text>
-				</LinearGradient>
+				{/* Current tier badge */}
+				{currentTier !== "free" && (
+					<View style={[styles.currentBadge, { borderColor: currentTier === "family" ? GOLD : GREEN }]}>
+						<Ionicons
+							name={currentTier === "family" ? "people" : "star"}
+							size={16}
+							color={currentTier === "family" ? GOLD : GREEN}
+						/>
+						<Text style={[styles.currentBadgeText, { color: currentTier === "family" ? GOLD : GREEN }]}>
+							Current: {currentTier === "family" ? "Family" : "Pro"}
+						</Text>
+					</View>
+				)}
 
 				{/* Discount Banner */}
 				{appliedDiscount && (
 					<View style={styles.discountBanner}>
-						<Ionicons color="#F5A623" name="gift" size={18} />
+						<Ionicons color={GOLD} name="gift" size={18} />
 						<Text style={styles.discountText}>
 							Exclusive {appliedDiscount}% OFF Applied
 						</Text>
 					</View>
 				)}
 
-				{/* Features list */}
-				<View style={styles.featureSection}>
-					<FeatureItem icon="body-outline" text="Unlimited AI Insights" />
-					<FeatureItem
-						icon="chatbubble-ellipses-outline"
-						text="Infinite EZBuddy Chat"
-					/>
-					<FeatureItem icon="analytics-outline" text="Advanced Trend Reports" />
-				</View>
+				{/* Tier Cards */}
+				{tiersWithPricing.map((tier) => {
+					const isCurrent = tier.key === currentTier;
+					const isHighlighted = tier.key === "pro";
 
-				{/* Pricing Cards */}
-				<View style={styles.pricingSection}>
-					{offering?.availablePackages
-					.filter((pkg) => {
-						if (pkg.packageType === "ANNUAL") {
-							const allAnnuals = offering.availablePackages
-								.filter(p => p.packageType === "ANNUAL")
-								.sort((a, b) => b.product.price - a.product.price);
-							return pkg.identifier === allAnnuals[0].identifier;
-						}
-						return pkg.packageType === "MONTHLY" || pkg.packageType === "WEEKLY";
-					})
-					.map((pkg) => (
-						<TouchableOpacity
-							activeOpacity={0.9}
-							key={pkg.identifier}
-							onPress={() => handlePurchase(pkg)}
+					return (
+						<View
+							key={tier.key}
 							style={[
-								styles.pricingCard,
-								pkg.packageType === "ANNUAL" && styles.bestValueCard,
+								styles.tierCard,
+								isHighlighted && styles.tierCardHighlighted,
+								isCurrent && { borderColor: tier.color, borderWidth: 2 },
 							]}
 						>
-							<View>
-								<Text style={styles.pkgTitle}>
-									{pkg.packageType === "ANNUAL" ? "Annual" : "Monthly"}
-								</Text>
-								<Text style={styles.pkgSubtitle}>
-									{pkg.packageType === "ANNUAL"
-										? "Yearly Discounted Rate"
-										: "Zero commitment"}
-								</Text>
-							</View>
-							<View style={styles.priceWrap}>
-								<Text style={styles.price}>{pkg.product.currencyCode === "USD" ? pkg.product.priceString : `$${pkg.product.price}`}</Text>
-								<Text style={styles.pricePeriod}>
-									/{pkg.packageType === "ANNUAL" ? "yr" : "mo"}
-								</Text>
-							</View>
-						</TouchableOpacity>
-					))}
+							{isHighlighted && (
+								<View style={styles.popularBadge}>
+									<Text style={styles.popularText}>MOST POPULAR</Text>
+								</View>
+							)}
+							{tier.key === "family" && (
+								<View style={[styles.popularBadge, { backgroundColor: GOLD }]}>
+									<Text style={[styles.popularText, { color: "#000" }]}>NEW</Text>
+								</View>
+							)}
 
-					{/* Fallback if no offerings found in sandbox */}
-					{!offering && (
-						<View style={styles.placeholder}>
-							<Text style={styles.placeholderText}>
-								Waiting for RevenueCat Sandbox configuration...
-							</Text>
+							<View style={styles.tierHeader}>
+								<View style={[styles.tierIcon, { backgroundColor: tier.color + "20" }]}>
+									<Ionicons name={tier.icon as any} size={22} color={tier.color} />
+								</View>
+								<View style={{ flex: 1 }}>
+									<Text style={styles.tierName}>{tier.name}</Text>
+									<Text style={styles.tierTagline}>{tier.tagline}</Text>
+								</View>
+								<View style={styles.tierPriceWrap}>
+									<Text style={[styles.tierPrice, { color: tier.color }]}>{tier.price}</Text>
+									{tier.period ? (
+										<Text style={styles.tierPeriod}>{tier.period}</Text>
+									) : null}
+								</View>
+							</View>
+
+							<View style={styles.tierFeatures}>
+								{tier.features.map((f) => (
+									<View key={f} style={styles.featureRow}>
+										<Ionicons name="checkmark-circle" size={16} color={tier.color} />
+										<Text style={styles.featureText}>{f}</Text>
+									</View>
+								))}
+							</View>
+
+							{/* CTA */}
+							{tier.key === "free" ? (
+								isCurrent ? (
+									<View style={styles.currentLabel}>
+										<Text style={styles.currentLabelText}>Current Plan</Text>
+									</View>
+								) : null
+							) : tier.key === "pro" ? (
+								isCurrent ? (
+									<View style={styles.currentLabel}>
+										<Text style={styles.currentLabelText}>Current Plan</Text>
+									</View>
+								) : (
+									<View style={styles.tierBtns}>
+										{monthlyPkg && (
+											<TouchableOpacity
+												style={styles.tierBtnSecondary}
+												onPress={() => handlePurchase(monthlyPkg)}
+												disabled={purchasing}
+											>
+												<Text style={styles.tierBtnSecondaryText}>
+													Monthly {monthlyPkg.product.priceString}/mo
+												</Text>
+											</TouchableOpacity>
+										)}
+										{annualPkg && (
+											<TouchableOpacity
+												style={styles.tierBtnPrimary}
+												onPress={() => handlePurchase(annualPkg)}
+												disabled={purchasing}
+											>
+												<LinearGradient
+													colors={[GREEN, "#00CC88"]}
+													start={{ x: 0, y: 0 }}
+													end={{ x: 1, y: 0 }}
+													style={styles.tierBtnGrad}
+												>
+													<Text style={styles.tierBtnPrimaryText}>
+														Annual {annualPkg.product.priceString}/yr
+													</Text>
+												</LinearGradient>
+											</TouchableOpacity>
+										)}
+									</View>
+								)
+							) : tier.key === "family" ? (
+								isCurrent ? (
+									<View style={styles.currentLabel}>
+										<Text style={styles.currentLabelText}>Current Plan</Text>
+									</View>
+								) : (
+									<TouchableOpacity
+										style={styles.tierBtnPrimary}
+										onPress={() => {
+											// Family plan uses the family annual package if available,
+											// otherwise show alert that it'll be available soon
+											const familyPkg = offering?.availablePackages.find(
+												(p) => p.product.identifier.toLowerCase().includes("family")
+											);
+											if (familyPkg) {
+												handlePurchase(familyPkg);
+											} else {
+												Alert.alert(
+													"Coming Soon",
+													"The Family plan will be available shortly. Stay tuned!"
+												);
+											}
+										}}
+										disabled={purchasing}
+									>
+										<LinearGradient
+											colors={[GOLD, "#FFAA00"]}
+											start={{ x: 0, y: 0 }}
+											end={{ x: 1, y: 0 }}
+											style={styles.tierBtnGrad}
+										>
+											<Ionicons name="people" size={18} color="#000" />
+											<Text style={[styles.tierBtnPrimaryText, { color: "#000" }]}>
+												Get Family Plan
+											</Text>
+										</LinearGradient>
+									</TouchableOpacity>
+								)
+							) : null}
 						</View>
-					)}
-				</View>
+					);
+				})}
+
+				{/* No offerings fallback */}
+				{!offering && !__DEV__ && (
+					<View style={styles.placeholder}>
+						<Text style={styles.placeholderText}>
+							Could not load plans. Check your connection.
+						</Text>
+					</View>
+				)}
 
 				{/* Footer */}
 				<TouchableOpacity onPress={handleRestore} style={styles.restoreBtn}>
@@ -228,19 +419,18 @@ export default function SubscriptionScreen() {
 				</TouchableOpacity>
 
 				<Text style={styles.legalText}>
-					Subscriptions will automatically renew unless canceled 24 hours before
-					the end of the period. You can manage your subscription in your App
-					Store settings.
+					Subscriptions renew automatically unless canceled 24 hours before the end
+					of the period. Manage in Apple/Google Play settings.
 				</Text>
 
 				<View style={{ flexDirection: "row", justifyContent: "center", marginTop: 12, gap: 16 }}>
 					<TouchableOpacity onPress={() => router.push("/terms-of-service")}>
-						<Text style={{ color: "#64748B", fontSize: 12, textDecorationLine: "underline" }}>
+						<Text style={{ color: TEXT_DIM, fontSize: 12, textDecorationLine: "underline" }}>
 							Terms of Use
 						</Text>
 					</TouchableOpacity>
 					<TouchableOpacity onPress={() => router.push("/privacy-policy")}>
-						<Text style={{ color: "#64748B", fontSize: 12, textDecorationLine: "underline" }}>
+						<Text style={{ color: TEXT_DIM, fontSize: 12, textDecorationLine: "underline" }}>
 							Privacy Policy
 						</Text>
 					</TouchableOpacity>
@@ -251,6 +441,8 @@ export default function SubscriptionScreen() {
 						Sign Out
 					</Text>
 				</TouchableOpacity>
+
+				<View style={{ height: 40 }} />
 			</ScrollView>
 
 			{purchasing && (
@@ -263,123 +455,143 @@ export default function SubscriptionScreen() {
 	);
 }
 
-function FeatureItem({ icon, text }: { icon: any; text: string }) {
-	return (
-		<View style={styles.featureItem}>
-			<View style={styles.iconCircle}>
-				<Ionicons color={TEAL} name={icon} size={20} />
-			</View>
-			<Text style={styles.featureText}>{text}</Text>
-		</View>
-	);
-}
-
 const styles = StyleSheet.create({
 	container: { flex: 1, backgroundColor: BG },
-	scroll: { paddingBottom: 40 },
-	center: { flex: 1, justifyContent: "center", alignItems: "center" },
+	scroll: { paddingHorizontal: 20, paddingBottom: 40 },
+	center: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: BG },
+
 	header: {
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
-		paddingHorizontal: 20,
-		paddingVertical: 15,
+		paddingVertical: 12,
 	},
-	backBtn: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
-		backgroundColor: "#FFF",
-		justifyContent: "center",
-		alignItems: "center",
-	},
-	headerTitle: { fontSize: 18, fontWeight: "700", color: DARK },
-	hero: {
-		marginHorizontal: 20,
-		borderRadius: 24,
-		padding: 30,
-		alignItems: "center",
-		elevation: 5,
-		shadowColor: TEAL,
-		shadowOffset: { width: 0, height: 10 },
-		shadowOpacity: 0.3,
-		shadowRadius: 20,
-	},
-	heroTitle: {
-		color: "#FFF",
-		fontSize: 24,
-		fontWeight: "800",
-		marginTop: 15,
-		textAlign: "center",
-	},
-	heroSub: {
-		color: "rgba(255,255,255,0.9)",
-		fontSize: 14,
-		textAlign: "center",
-		marginTop: 10,
-		lineHeight: 20,
-	},
-	featureSection: {
-		paddingHorizontal: 25,
-		marginTop: 30,
-	},
-	featureItem: {
+	backBtn: { width: 40, height: 40, justifyContent: "center" },
+	headerTitle: { fontSize: 20, fontWeight: "700", color: TEXT_COLOR },
+
+	currentBadge: {
 		flexDirection: "row",
 		alignItems: "center",
+		alignSelf: "center",
+		gap: 6,
+		paddingHorizontal: 14,
+		paddingVertical: 6,
+		borderRadius: 12,
+		borderWidth: 1,
 		marginBottom: 16,
 	},
-	iconCircle: {
-		width: 36,
-		height: 36,
-		borderRadius: 18,
-		backgroundColor: "rgba(62, 201, 181, 0.1)",
-		justifyContent: "center",
-		alignItems: "center",
-		marginRight: 15,
-	},
-	featureText: { fontSize: 16, color: DARK, fontWeight: "500" },
-	pricingSection: { marginTop: 20, paddingHorizontal: 20 },
-	pricingCard: {
-		backgroundColor: "#FFF",
-		borderRadius: 20,
-		padding: 24,
+	currentBadgeText: { fontSize: 13, fontWeight: "700" },
+
+	discountBanner: {
+		backgroundColor: `${GOLD}15`,
+		padding: 12,
+		borderRadius: 12,
 		flexDirection: "row",
-		justifyContent: "space-between",
 		alignItems: "center",
-		marginBottom: 12,
+		justifyContent: "center",
+		gap: 8,
 		borderWidth: 1,
-		borderColor: "rgba(0,0,0,0.05)",
+		borderColor: `${GOLD}30`,
+		marginBottom: 16,
 	},
-	bestValueCard: {
-		borderColor: TEAL,
-		borderWidth: 2,
-		backgroundColor: "rgba(62, 201, 181, 0.02)",
+	discountText: { color: GOLD, fontWeight: "700", fontSize: 14 },
+
+	// Tier cards
+	tierCard: {
+		backgroundColor: SURFACE,
+		borderRadius: 20,
+		padding: 20,
+		marginBottom: 16,
+		borderWidth: 1,
+		borderColor: BORDER,
+		overflow: "hidden",
 	},
-	pkgTitle: { fontSize: 18, fontWeight: "700", color: DARK },
-	pkgSubtitle: { fontSize: 12, color: TEAL, fontWeight: "600", marginTop: 2 },
-	priceWrap: { alignItems: "flex-end" },
-	price: { fontSize: 20, fontWeight: "800", color: DARK },
-	pricePeriod: { fontSize: 12, color: "#64748B" },
-	restoreBtn: { marginTop: 20, alignSelf: "center" },
-	restoreText: { color: "#64748B", fontSize: 14, fontWeight: "600" },
-	legalText: {
-		fontSize: 11,
-		color: "#94A3B8",
-		textAlign: "center",
-		paddingHorizontal: 40,
-		marginTop: 30,
-		lineHeight: 16,
+	tierCardHighlighted: {
+		borderColor: `${GREEN}40`,
+		borderWidth: 1,
 	},
+
+	popularBadge: {
+		position: "absolute",
+		top: 0,
+		right: 0,
+		backgroundColor: GREEN,
+		paddingHorizontal: 12,
+		paddingVertical: 4,
+		borderBottomLeftRadius: 12,
+	},
+	popularText: { fontSize: 10, fontWeight: "800", color: "#000", letterSpacing: 1 },
+
+	tierHeader: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 12,
+		marginBottom: 16,
+	},
+	tierIcon: {
+		width: 44,
+		height: 44,
+		borderRadius: 14,
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	tierName: { fontSize: 18, fontWeight: "700", color: TEXT_COLOR },
+	tierTagline: { fontSize: 13, color: TEXT_DIM, marginTop: 2 },
+	tierPriceWrap: { alignItems: "flex-end" },
+	tierPrice: { fontSize: 20, fontWeight: "800" },
+	tierPeriod: { fontSize: 11, color: TEXT_DIM },
+
+	tierFeatures: { gap: 8, marginBottom: 16 },
+	featureRow: { flexDirection: "row", alignItems: "center", gap: 8 },
+	featureText: { fontSize: 14, color: TEXT_COLOR },
+
+	tierBtns: { gap: 8 },
+	tierBtnPrimary: { borderRadius: 14, overflow: "hidden" },
+	tierBtnGrad: {
+		flexDirection: "row",
+		alignItems: "center",
+		justifyContent: "center",
+		gap: 8,
+		paddingVertical: 14,
+	},
+	tierBtnPrimaryText: { fontSize: 15, fontWeight: "700", color: "#000" },
+	tierBtnSecondary: {
+		paddingVertical: 12,
+		borderRadius: 14,
+		borderWidth: 1,
+		borderColor: BORDER,
+		alignItems: "center",
+	},
+	tierBtnSecondaryText: { fontSize: 14, fontWeight: "600", color: TEXT_DIM },
+
+	currentLabel: {
+		paddingVertical: 10,
+		borderRadius: 14,
+		backgroundColor: `${GREEN}15`,
+		alignItems: "center",
+	},
+	currentLabelText: { fontSize: 14, fontWeight: "600", color: GREEN },
+
 	placeholder: {
 		padding: 40,
-		backgroundColor: "rgba(0,0,0,0.02)",
 		borderRadius: 20,
 		borderStyle: "dashed",
 		borderWidth: 1,
-		borderColor: "#CBD5E1",
+		borderColor: BORDER,
 		alignItems: "center",
 	},
-	placeholderText: { color: "#94A3B8", textAlign: "center", fontSize: 13 },
+	placeholderText: { color: TEXT_DIM, textAlign: "center", fontSize: 13 },
+
+	restoreBtn: { marginTop: 20, alignSelf: "center" },
+	restoreText: { color: TEXT_DIM, fontSize: 14, fontWeight: "600" },
+	legalText: {
+		fontSize: 11,
+		color: TEXT_DIM,
+		textAlign: "center",
+		paddingHorizontal: 20,
+		marginTop: 20,
+		lineHeight: 16,
+	},
 	overlay: {
 		...StyleSheet.absoluteFillObject,
 		backgroundColor: "rgba(0,0,0,0.6)",
@@ -388,22 +600,4 @@ const styles = StyleSheet.create({
 		zIndex: 100,
 	},
 	overlayText: { color: "#FFF", marginTop: 15, fontWeight: "600" },
-	discountBanner: {
-		backgroundColor: "rgba(245, 166, 35, 0.1)",
-		marginHorizontal: 20,
-		marginTop: 15,
-		padding: 12,
-		borderRadius: 12,
-		flexDirection: "row",
-		alignItems: "center",
-		justifyContent: "center",
-		gap: 8,
-		borderWidth: 1,
-		borderColor: "rgba(245, 166, 35, 0.2)",
-	},
-	discountText: {
-		color: "#D97706",
-		fontWeight: "700",
-		fontSize: 14,
-	},
 });

@@ -30,6 +30,7 @@ import { insightsEngine, type Insight } from "@/lib/insights-engine";
 import { leaguesService, type LeagueInfo } from "@/lib/leagues-service";
 import { achievementsService } from "@/lib/achievements-service";
 import { supabase } from "@/lib/supabase";
+import { familyService, type FamilyGroup } from "@/lib/family-service";
 
 // ── Dark Premium Design Tokens ──────────────────────
 const BG = "#0A0A0F";
@@ -505,6 +506,8 @@ export default function HomeScreen() {
 	const [leagueInfo, setLeagueInfo] = useState<LeagueInfo | null>(null);
 	const [insightCard, setInsightCard] = useState<Insight | null>(null);
 	const [showInsight, setShowInsight] = useState(false);
+	const [familyGroup, setFamilyGroup] = useState<FamilyGroup | null>(null);
+	const [familyMemberCount, setFamilyMemberCount] = useState(0);
 
 	// ── Fetch real data from Supabase on mount ──
 	useEffect(() => {
@@ -525,6 +528,15 @@ export default function HomeScreen() {
 				setQuestsData(quests);
 				setRitualDoneToday(!!ritualCheck.data);
 				if (league) setLeagueInfo(league);
+
+				// Load family info
+				familyService.getMyFamily(userId).then(async (fam) => {
+					setFamilyGroup(fam);
+					if (fam) {
+						const members = await familyService.getFamilyMembers(fam.id);
+						setFamilyMemberCount(members.length);
+					}
+				}).catch(() => {});
 			} catch (err) {
 				console.warn("[Home] Failed to load data:", err);
 			}
@@ -1027,6 +1039,34 @@ export default function HomeScreen() {
 						</View>
 					</TouchableOpacity>
 
+					{/* ── Family Card ── */}
+					<TouchableOpacity
+						activeOpacity={0.85}
+						onPress={() => router.push("/family-dashboard")}
+						style={styles.familyCard}
+					>
+						<LinearGradient
+							colors={[`${PURPLE}20`, `${GREEN}10`]}
+							start={{ x: 0, y: 0 }}
+							end={{ x: 1, y: 1 }}
+							style={[StyleSheet.absoluteFill, { borderRadius: 16 }]}
+						/>
+						<View style={styles.familyCardContent}>
+							<Text style={{ fontSize: 28 }}>👨‍👩‍👧‍👦</Text>
+							<View style={{ flex: 1 }}>
+								<Text style={styles.familyCardTitle}>
+									{familyGroup ? familyGroup.name : "Family Mode"}
+								</Text>
+								<Text style={styles.familyCardSub}>
+									{familyGroup
+										? `${familyMemberCount} member${familyMemberCount !== 1 ? "s" : ""}`
+										: "Track progress together"}
+								</Text>
+							</View>
+							<Ionicons name="chevron-forward" size={18} color={TEXT_DIM} />
+						</View>
+					</TouchableOpacity>
+
 					{/* ── Explore ── */}
 					<Text style={styles.sectionTitle}>Explore</Text>
 					<View style={styles.featureRow}>
@@ -1470,6 +1510,17 @@ const styles = StyleSheet.create({
 	},
 
 	// ── Disclaimer ──
+	// ── Family Card ──
+	familyCard: {
+		marginHorizontal: 20, marginBottom: 16, borderRadius: 16,
+		borderWidth: 1, borderColor: BORDER, overflow: "hidden",
+	},
+	familyCardContent: {
+		flexDirection: "row", alignItems: "center", padding: 16, gap: 12,
+	},
+	familyCardTitle: { fontSize: 16, fontWeight: "700", color: TEXT },
+	familyCardSub: { fontSize: 13, color: TEXT_DIM, marginTop: 2 },
+
 	disclaimerBanner: {
 		flexDirection: "row", alignItems: "center",
 		backgroundColor: `${GOLD}08`, marginHorizontal: 20, marginBottom: 16,

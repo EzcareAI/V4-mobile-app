@@ -10,7 +10,10 @@ const REVENUECAT_GOOGLE_KEY = process.env.EXPO_PUBLIC_REVENUECAT_GOOGLE_KEY || "
 
 // Entitlement IDs from RevenueCat dashboard
 // User is "pro" if they have EITHER the monthly or yearly entitlement
-const ENTITLEMENT_IDS = ["monthly", "yearly"] as const;
+// "family" entitlement grants pro to owner + up to 4 family members
+const ENTITLEMENT_IDS = ["monthly", "yearly", "family"] as const;
+
+export type SubscriptionTier = "free" | "pro" | "family";
 
 class RevenueCatService {
 	private static instance: RevenueCatService;
@@ -162,6 +165,27 @@ class RevenueCatService {
 				console.error("RevenueCat: Purchase Error:", error);
 			}
 			return false;
+		}
+	}
+
+	/**
+	 * Get the current subscription tier.
+	 */
+	async getSubscriptionTier(): Promise<SubscriptionTier> {
+		if (!this.initialized) {
+			await this.initialize();
+		}
+		if (!this.initialized) return "free";
+		if (this.isSimulator) return "pro";
+
+		try {
+			const customerInfo = await Purchases.getCustomerInfo();
+			const active = customerInfo.entitlements.active;
+			if (active.family !== undefined) return "family";
+			if (active.monthly !== undefined || active.yearly !== undefined) return "pro";
+			return "free";
+		} catch {
+			return "free";
 		}
 	}
 

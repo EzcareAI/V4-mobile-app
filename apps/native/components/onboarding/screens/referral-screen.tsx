@@ -95,7 +95,7 @@ export const ReferralScreen = () => {
 									</View>
 									<View className="flex-1">
 										<Text className="mb-1 font-bold text-[#0d2137] text-base">
-											7-day Premium Trial
+											3-day Premium Trial
 										</Text>
 										<Text className="text-[#73808C] text-sm leading-5">
 											Access all advanced features

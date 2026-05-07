@@ -2,11 +2,15 @@
   "expo": {
     "extra": {
       "eas": {
-        "projectId": "3bc4fe3b-6d6d-43dd-832f-23a08e52e4c5"
+        "projectId": "2b317ecc-08be-4986-a58f-c9d2bcbc1995"
       }
     },
+    "ios": {
+      "bundleIdentifier": "app.rork.zvfley8yoowwhncate9z5"
+    },
     "android": {
-      "package": "com.ezcare_ai4.ezcare"
-    }
+      "package": "com.ezcareaiolder"
+    },
+    "owner": "ezcare.15"
   }
 }

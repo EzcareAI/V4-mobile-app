@@ -32,16 +32,16 @@ import { achievementsService } from "@/lib/achievements-service";
 import { supabase } from "@/lib/supabase";
 import { familyService, type FamilyGroup } from "@/lib/family-service";
 
-// ── Dark Premium Design Tokens ──────────────────────
-const BG = "#0A0A0F";
-const SURFACE = "#1A1A24";
-const SURFACE_LIGHT = "#242430";
-const PURPLE = "#9D4EDD";
-const GREEN = "#06FFA5";
-const GOLD = "#FFD60A";
-const TEXT = "#F5F5F7";
+// ── Light Wellness Design Tokens ────────────────────
+const BG = "#F0F7FA";
+const SURFACE = "#FFFFFF";
+const SURFACE_LIGHT = "#E8F4F8";
+const PURPLE = "#5B9BD5";
+const GREEN = "#34C759";
+const GOLD = "#FF9500";
+const TEXT = "#1C1C1E";
 const TEXT_DIM = "#8E8E93";
-const BORDER = "rgba(255,255,255,0.06)";
+const BORDER = "rgba(0,0,0,0.06)";
 
 // ── Metric slider config ────────────────────────────
 type MetricKey = "sleep" | "energy" | "stress" | "digestion";
@@ -53,10 +53,10 @@ const METRICS: {
 	lowLabel: string;
 	highLabel: string;
 }[] = [
-	{ key: "sleep", label: "Sleep Quality", icon: "moon", color: "#9D4EDD", lowLabel: "Poor", highLabel: "Excellent" },
-	{ key: "energy", label: "Energy Level", icon: "flash", color: "#FFD60A", lowLabel: "Low", highLabel: "High" },
+	{ key: "sleep", label: "Sleep Quality", icon: "moon", color: "#7C5CFC", lowLabel: "Poor", highLabel: "Excellent" },
+	{ key: "energy", label: "Energy Level", icon: "flash", color: "#FF9500", lowLabel: "Low", highLabel: "High" },
 	{ key: "stress", label: "Stress Level", icon: "heart", color: "#FF6B8A", lowLabel: "Calm", highLabel: "Stressed" },
-	{ key: "digestion", label: "Digestion", icon: "leaf", color: "#06FFA5", lowLabel: "Poor", highLabel: "Great" },
+	{ key: "digestion", label: "Digestion", icon: "leaf", color: "#34C759", lowLabel: "Poor", highLabel: "Great" },
 ];
 
 const SCORE_LABELS: Record<MetricKey, string[]> = {
@@ -211,7 +211,7 @@ function MiniRing({ current, goal, color, size = 52, unit = "g" }: { current: nu
 	return (
 		<View style={{ width: size, height: size }}>
 			<Svg width={size} height={size}>
-				<Circle cx={size / 2} cy={size / 2} r={radius} stroke="rgba(255,255,255,0.08)" strokeWidth={strokeWidth} fill="transparent" />
+				<Circle cx={size / 2} cy={size / 2} r={radius} stroke="rgba(0,0,0,0.08)" strokeWidth={strokeWidth} fill="transparent" />
 				<Circle cx={size / 2} cy={size / 2} r={radius} stroke={color} strokeWidth={strokeWidth} fill="transparent"
 					strokeDasharray={`${circumference} ${circumference}`} strokeDashoffset={strokeDashoffset}
 					strokeLinecap="round" rotation="-90" origin={`${size / 2}, ${size / 2}`} />
@@ -255,7 +255,7 @@ function AvatarEvolution({ level }: { level: number }) {
 				transform: [{ scale: pulseAnim }],
 			}]}>
 				<LinearGradient
-					colors={[`${PURPLE}40`, `${PURPLE}00`]}
+					colors={[`${PURPLE}30`, `${PURPLE}00`]}
 					style={StyleSheet.absoluteFill}
 					start={{ x: 0.5, y: 0.5 }}
 					end={{ x: 0, y: 0 }}
@@ -486,10 +486,19 @@ export default function HomeScreen() {
 	} = useDashboardStore();
 
 	const lastCheckInValues = useDashboardStore((s) => s.lastCheckInValues);
-	const gamLevel = useGamificationStore((s) => s.getLevel());
-	const todayTotals = useFoodDiaryStore((s) => s.getTodayTotals());
-	const goals = useFoodDiaryStore((s) => s.goals);
-	const todayLog = useFoodDiaryStore((s) => s.getTodayLog());
+	const gamLevel = useGamificationStore((s) => Math.floor(s.totalXp / 500) + 1);
+	const foodGoals = useFoodDiaryStore((s) => s.goals);
+	const dayLogs = useFoodDiaryStore((s) => s.dayLogs);
+	const todayStr = new Date().toISOString().split("T")[0];
+	const todayLog = dayLogs.find((d) => d.date === todayStr) || { date: todayStr, meals: [] as any[] };
+	const todayTotals = { calories: 0, protein: 0, carbs: 0, fat: 0, mealCount: todayLog.meals.length };
+	for (const meal of todayLog.meals) {
+		todayTotals.calories += meal.totalCalories;
+		todayTotals.protein += meal.protein;
+		todayTotals.carbs += meal.carbs;
+		todayTotals.fat += meal.fat;
+	}
+	const goals = foodGoals;
 	const calRemaining = Math.max(0, goals.calories - todayTotals.calories);
 
 	const [values, setValues] = useState({ sleep: 3, energy: 3, stress: 3, digestion: 3 });
@@ -1429,7 +1438,7 @@ const styles = StyleSheet.create({
 	},
 	saveBtnActive: { backgroundColor: GREEN },
 	saveBtnText: { fontSize: 16, fontWeight: "700", color: TEXT_DIM },
-	saveBtnTextActive: { color: BG },
+	saveBtnTextActive: { color: "#FFFFFF" },
 
 	// ── Completed Check-In ──
 	completedBadge: {

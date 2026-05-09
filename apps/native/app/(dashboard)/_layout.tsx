@@ -5,12 +5,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
-// Design tokens — dark premium theme
-const PURPLE = "#9D4EDD";
-const GREEN = "#06FFA5";
+// Design tokens — light wellness theme
+const PURPLE = "#5B9BD5";
+const GREEN = "#34C759";
 const GREY = "#8E8E93";
-const BG = "#0A0A0F";
-const SURFACE = "#1A1A24";
+const BG = "#F0F7FA";
+const SURFACE = "#FFFFFF";
 
 function TabBarIcon({
 	Icon,
@@ -48,7 +48,7 @@ export default function DashboardLayout() {
 				tabBarStyle: {
 					backgroundColor: SURFACE,
 					borderTopWidth: 1,
-					borderTopColor: "rgba(255,255,255,0.06)",
+					borderTopColor: "rgba(0,0,0,0.06)",
 					height: tabBarHeight,
 					paddingBottom: bottomPad,
 					paddingTop: 8,
@@ -118,6 +118,6 @@ const styles = StyleSheet.create({
 		borderRadius: 12,
 	},
 	iconWrapActive: {
-		backgroundColor: "rgba(6,255,165,0.12)",
+		backgroundColor: "rgba(52,199,89,0.12)",
 	},
 });

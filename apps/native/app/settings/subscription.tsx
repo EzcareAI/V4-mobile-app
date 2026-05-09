@@ -1,5 +1,4 @@
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -22,80 +21,17 @@ import {
 	inferPlanFromPackageType,
 	mixpanelService,
 } from "@/lib/mixpanel-service";
-import { revenueCatService, type SubscriptionTier } from "@/lib/revenuecat-service";
+import { revenueCatService } from "@/lib/revenuecat-service";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 
-// Design Tokens
-const BG = "#0A0A0F";
-const SURFACE = "#1A1A24";
-const PURPLE = "#9D4EDD";
-const GREEN = "#06FFA5";
-const GOLD = "#FFD60A";
-const TEXT_COLOR = "#F5F5F7";
+const BG = "#F0F7FA";
+const SURFACE = "#FFFFFF";
+const GREEN = "#34C759";
+const PURPLE = "#5B9BD5";
+const GOLD = "#FF9500";
+const TEXT_COLOR = "#1C1C1E";
 const TEXT_DIM = "#8E8E93";
-const BORDER = "rgba(255,255,255,0.06)";
-
-const TIERS: {
-	key: SubscriptionTier;
-	name: string;
-	tagline: string;
-	price: string;
-	period: string;
-	color: string;
-	features: string[];
-	icon: string;
-}[] = [
-	{
-		key: "free",
-		name: "Free",
-		tagline: "Get started",
-		price: "$0",
-		period: "forever",
-		color: TEXT_DIM,
-		icon: "person-outline",
-		features: [
-			"Daily check-in",
-			"3 AI quests per day",
-			"Basic streak tracking",
-			"EZBuddy chat (5/day)",
-		],
-	},
-	{
-		key: "pro",
-		name: "Pro",
-		tagline: "Full experience",
-		price: "",
-		period: "",
-		color: GREEN,
-		icon: "star",
-		features: [
-			"Everything in Free",
-			"Unlimited EZBuddy chat",
-			"AI meal scanner",
-			"Awakening Ritual",
-			"Leagues & achievements",
-			"Advanced insights",
-			"Vibe cards",
-		],
-	},
-	{
-		key: "family",
-		name: "Family",
-		tagline: "Up to 4 members",
-		price: "$79.99",
-		period: "/year",
-		color: GOLD,
-		icon: "people",
-		features: [
-			"Everything in Pro",
-			"4 family profiles",
-			"Family dashboard",
-			"Family challenges",
-			"Shared progress tracking",
-			"Invite code system",
-		],
-	},
-];
+const BORDER = "rgba(0,0,0,0.06)";
 
 export default function SubscriptionScreen() {
 	const router = useRouter();
@@ -103,7 +39,7 @@ export default function SubscriptionScreen() {
 	const [offering, setOffering] = useState<PurchasesOffering | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [purchasing, setPurchasing] = useState(false);
-	const [currentTier, setCurrentTier] = useState<SubscriptionTier>("free");
+	const [activeTier, setActiveTier] = useState<string>("none");
 
 	const handleSignOut = async () => {
 		await authClient.signOut();
@@ -120,7 +56,7 @@ export default function SubscriptionScreen() {
 					revenueCatService.getSubscriptionTier(),
 				]);
 				setOffering(currentOffering);
-				setCurrentTier(tier);
+				setActiveTier(tier);
 			} catch (err) {
 				console.error("Load Offerings Error:", err);
 			} finally {
@@ -150,9 +86,8 @@ export default function SubscriptionScreen() {
 					currency: pkg.product.currencyCode,
 				});
 
-				// Refresh tier
 				const tier = await revenueCatService.getSubscriptionTier();
-				setCurrentTier(tier);
+				setActiveTier(tier);
 				useOnboardingStore.getState().setAnswer("subscriptionTier", tier);
 
 				Alert.alert(
@@ -177,7 +112,7 @@ export default function SubscriptionScreen() {
 			if (success) {
 				setPro(true);
 				const tier = await revenueCatService.getSubscriptionTier();
-				setCurrentTier(tier);
+				setActiveTier(tier);
 				useOnboardingStore.getState().setAnswer("subscriptionTier", tier);
 				Alert.alert("Success", "Restored your previous purchases.");
 				router.back();
@@ -192,7 +127,6 @@ export default function SubscriptionScreen() {
 		}
 	};
 
-	// Get pricing from RevenueCat packages
 	const monthlyPkg = offering?.availablePackages.find(
 		(p) => p.packageType === "MONTHLY"
 	);
@@ -200,18 +134,115 @@ export default function SubscriptionScreen() {
 		.filter((p) => p.packageType === "ANNUAL")
 		.sort((a, b) => b.product.price - a.product.price);
 	const annualPkg = annualPkgs?.[0];
+	const discountedAnnualPkg = offering?.availablePackages.find(
+		(p) => p.product.identifier.toLowerCase().includes("discount")
+	);
+	const familyPkg = offering?.availablePackages.find(
+		(p) => p.product.identifier.toLowerCase().includes("family")
+	);
 
-	// Update tier pricing from live data
-	const tiersWithPricing = TIERS.map((tier) => {
-		if (tier.key === "pro" && annualPkg) {
-			return {
-				...tier,
-				price: annualPkg.product.priceString,
-				period: "/year",
-			};
-		}
-		return tier;
+	type PlanCard = {
+		id: string;
+		name: string;
+		tagline: string;
+		priceLabel: string;
+		periodLabel: string;
+		color: string;
+		icon: keyof typeof Ionicons.glyphMap;
+		badge: string | null;
+		features: string[];
+		pkg: PurchasesPackage | undefined;
+	};
+
+	const plans: PlanCard[] = [];
+
+	plans.push({
+		id: "monthly",
+		name: "Monthly",
+		tagline: "Flexible, cancel anytime",
+		priceLabel: monthlyPkg?.product.priceString || "$9.99",
+		periodLabel: "/month",
+		color: PURPLE,
+		icon: "calendar-outline",
+		badge: null,
+		features: [
+			"Unlimited EZBuddy chat",
+			"AI meal scanner",
+			"Awakening Ritual",
+			"Leagues & achievements",
+			"Advanced insights",
+		],
+		pkg: monthlyPkg,
 	});
+
+	const annualMonthly = annualPkg
+		? `${(annualPkg.product.price / 12).toFixed(2)}`
+		: "4.16";
+	const currSymbol = annualPkg?.product.priceString?.replace(/[\d.,\s]/g, "") || "$";
+
+	plans.push({
+		id: "yearly",
+		name: "Yearly",
+		tagline: `Just ${currSymbol}${annualMonthly}/mo`,
+		priceLabel: annualPkg?.product.priceString || "$49.99",
+		periodLabel: "/year",
+		color: GREEN,
+		icon: "star",
+		badge: "3 DAYS FREE",
+		features: [
+			"Everything in Monthly",
+			"3-day free trial",
+			"Save over 50%",
+			"Priority support",
+			"Vibe cards",
+		],
+		pkg: annualPkg,
+	});
+
+	if (discountedAnnualPkg) {
+		plans.push({
+			id: "yearly_promo",
+			name: "Yearly Promo",
+			tagline: "Limited-time offer",
+			priceLabel: discountedAnnualPkg.product.priceString,
+			periodLabel: "/year",
+			color: "#FF6B35",
+			icon: "gift",
+			badge: appliedDiscount ? `${appliedDiscount}% OFF` : "PROMO",
+			features: [
+				"Everything in Yearly",
+				"Exclusive discount price",
+				"3-day free trial",
+				"All premium features",
+			],
+			pkg: discountedAnnualPkg,
+		});
+	}
+
+	plans.push({
+		id: "family",
+		name: "Family",
+		tagline: "Up to 4 members",
+		priceLabel: familyPkg?.product.priceString || "$79.99",
+		periodLabel: "/year",
+		color: GOLD,
+		icon: "people",
+		badge: "NEW",
+		features: [
+			"Everything in Yearly",
+			"4 family profiles",
+			"Family dashboard & challenges",
+			"Shared progress tracking",
+			"Invite code system",
+		],
+		pkg: familyPkg,
+	});
+
+	const isCurrent = (planId: string) => {
+		if (activeTier === "family" && planId === "family") return true;
+		if (activeTier === "pro" && (planId === "monthly" || planId === "yearly")) return true;
+		return false;
+	};
 
 	if (loading) {
 		return (
@@ -224,7 +255,6 @@ export default function SubscriptionScreen() {
 	return (
 		<SafeAreaView edges={["top"]} style={styles.container}>
 			<ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-				{/* Header */}
 				<View style={styles.header}>
 					<TouchableOpacity
 						onPress={() => {
@@ -242,21 +272,19 @@ export default function SubscriptionScreen() {
 					<View style={{ width: 40 }} />
 				</View>
 
-				{/* Current tier badge */}
-				{currentTier !== "free" && (
-					<View style={[styles.currentBadge, { borderColor: currentTier === "family" ? GOLD : GREEN }]}>
+				{activeTier !== "free" && (
+					<View style={[styles.currentBadge, { borderColor: activeTier === "family" ? GOLD : GREEN }]}>
 						<Ionicons
-							name={currentTier === "family" ? "people" : "star"}
+							name={activeTier === "family" ? "people" : "star"}
 							size={16}
-							color={currentTier === "family" ? GOLD : GREEN}
+							color={activeTier === "family" ? GOLD : GREEN}
 						/>
-						<Text style={[styles.currentBadgeText, { color: currentTier === "family" ? GOLD : GREEN }]}>
-							Current: {currentTier === "family" ? "Family" : "Pro"}
+						<Text style={[styles.currentBadgeText, { color: activeTier === "family" ? GOLD : GREEN }]}>
+							Current: {activeTier === "family" ? "Family" : "Pro"}
 						</Text>
 					</View>
 				)}
 
-				{/* Discount Banner */}
 				{appliedDiscount && (
 					<View style={styles.discountBanner}>
 						<Ionicons color={GOLD} name="gift" size={18} />
@@ -266,145 +294,91 @@ export default function SubscriptionScreen() {
 					</View>
 				)}
 
-				{/* Tier Cards */}
-				{tiersWithPricing.map((tier) => {
-					const isCurrent = tier.key === currentTier;
-					const isHighlighted = tier.key === "pro";
+				{plans.map((plan) => {
+					const current = isCurrent(plan.id);
+					const isRecommended = plan.id === "yearly";
 
 					return (
 						<View
-							key={tier.key}
+							key={plan.id}
 							style={[
-								styles.tierCard,
-								isHighlighted && styles.tierCardHighlighted,
-								isCurrent && { borderColor: tier.color, borderWidth: 2 },
+								styles.planCard,
+								isRecommended && { borderColor: GREEN, borderWidth: 2 },
+								current && { borderColor: plan.color, borderWidth: 2 },
 							]}
 						>
-							{isHighlighted && (
-								<View style={styles.popularBadge}>
-									<Text style={styles.popularText}>MOST POPULAR</Text>
+							{plan.badge && (
+								<View style={[styles.badge, { backgroundColor: plan.color }]}>
+									<Text style={styles.badgeText}>{plan.badge}</Text>
 								</View>
 							)}
-							{tier.key === "family" && (
-								<View style={[styles.popularBadge, { backgroundColor: GOLD }]}>
-									<Text style={[styles.popularText, { color: "#000" }]}>NEW</Text>
+							{isRecommended && !plan.badge && (
+								<View style={[styles.badge, { backgroundColor: GREEN }]}>
+									<Text style={styles.badgeText}>BEST VALUE</Text>
 								</View>
 							)}
 
-							<View style={styles.tierHeader}>
-								<View style={[styles.tierIcon, { backgroundColor: tier.color + "20" }]}>
-									<Ionicons name={tier.icon as any} size={22} color={tier.color} />
+							<View style={styles.planHeader}>
+								<View style={[styles.planIcon, { backgroundColor: `${plan.color}15` }]}>
+									<Ionicons name={plan.icon as any} size={22} color={plan.color} />
 								</View>
 								<View style={{ flex: 1 }}>
-									<Text style={styles.tierName}>{tier.name}</Text>
-									<Text style={styles.tierTagline}>{tier.tagline}</Text>
+									<Text style={styles.planName}>{plan.name}</Text>
+									<Text style={styles.planTagline}>{plan.tagline}</Text>
 								</View>
-								<View style={styles.tierPriceWrap}>
-									<Text style={[styles.tierPrice, { color: tier.color }]}>{tier.price}</Text>
-									{tier.period ? (
-										<Text style={styles.tierPeriod}>{tier.period}</Text>
-									) : null}
+								<View style={styles.planPriceWrap}>
+									<Text style={[styles.planPrice, { color: plan.color }]}>
+										{plan.priceLabel}
+									</Text>
+									<Text style={styles.planPeriod}>{plan.periodLabel}</Text>
 								</View>
 							</View>
 
-							<View style={styles.tierFeatures}>
-								{tier.features.map((f) => (
+							<View style={styles.planFeatures}>
+								{plan.features.map((f) => (
 									<View key={f} style={styles.featureRow}>
-										<Ionicons name="checkmark-circle" size={16} color={tier.color} />
+										<Ionicons name="checkmark-circle" size={16} color={plan.color} />
 										<Text style={styles.featureText}>{f}</Text>
 									</View>
 								))}
 							</View>
 
-							{/* CTA */}
-							{tier.key === "free" ? (
-								isCurrent ? (
-									<View style={styles.currentLabel}>
-										<Text style={styles.currentLabelText}>Current Plan</Text>
-									</View>
-								) : null
-							) : tier.key === "pro" ? (
-								isCurrent ? (
-									<View style={styles.currentLabel}>
-										<Text style={styles.currentLabelText}>Current Plan</Text>
-									</View>
-								) : (
-									<View style={styles.tierBtns}>
-										{monthlyPkg && (
-											<TouchableOpacity
-												style={styles.tierBtnSecondary}
-												onPress={() => handlePurchase(monthlyPkg)}
-												disabled={purchasing}
-											>
-												<Text style={styles.tierBtnSecondaryText}>
-													Monthly {monthlyPkg.product.priceString}/mo
-												</Text>
-											</TouchableOpacity>
-										)}
-										{annualPkg && (
-											<TouchableOpacity
-												style={styles.tierBtnPrimary}
-												onPress={() => handlePurchase(annualPkg)}
-												disabled={purchasing}
-											>
-												<LinearGradient
-													colors={[GREEN, "#00CC88"]}
-													start={{ x: 0, y: 0 }}
-													end={{ x: 1, y: 0 }}
-													style={styles.tierBtnGrad}
-												>
-													<Text style={styles.tierBtnPrimaryText}>
-														Annual {annualPkg.product.priceString}/yr
-													</Text>
-												</LinearGradient>
-											</TouchableOpacity>
-										)}
-									</View>
-								)
-							) : tier.key === "family" ? (
-								isCurrent ? (
-									<View style={styles.currentLabel}>
-										<Text style={styles.currentLabelText}>Current Plan</Text>
-									</View>
-								) : (
-									<TouchableOpacity
-										style={styles.tierBtnPrimary}
-										onPress={() => {
-											// Family plan uses the family annual package if available,
-											// otherwise show alert that it'll be available soon
-											const familyPkg = offering?.availablePackages.find(
-												(p) => p.product.identifier.toLowerCase().includes("family")
-											);
-											if (familyPkg) {
-												handlePurchase(familyPkg);
-											} else {
-												Alert.alert(
-													"Coming Soon",
-													"The Family plan will be available shortly. Stay tuned!"
-												);
-											}
-										}}
-										disabled={purchasing}
-									>
-										<LinearGradient
-											colors={[GOLD, "#FFAA00"]}
-											start={{ x: 0, y: 0 }}
-											end={{ x: 1, y: 0 }}
-											style={styles.tierBtnGrad}
-										>
-											<Ionicons name="people" size={18} color="#000" />
-											<Text style={[styles.tierBtnPrimaryText, { color: "#000" }]}>
-												Get Family Plan
-											</Text>
-										</LinearGradient>
-									</TouchableOpacity>
-								)
-							) : null}
+							{current ? (
+								<View style={[styles.currentLabel, { backgroundColor: `${plan.color}15` }]}>
+									<Text style={[styles.currentLabelText, { color: plan.color }]}>
+										Current Plan
+									</Text>
+								</View>
+							) : plan.pkg ? (
+								<TouchableOpacity
+									style={[styles.purchaseBtn, { backgroundColor: plan.color }]}
+									onPress={() => handlePurchase(plan.pkg!)}
+									disabled={purchasing}
+								>
+									<Text style={styles.purchaseBtnText}>
+										{plan.id === "family" ? "Get Family Plan" : `Subscribe — ${plan.priceLabel}${plan.periodLabel}`}
+									</Text>
+								</TouchableOpacity>
+							) : (
+								<TouchableOpacity
+									style={[styles.purchaseBtn, { backgroundColor: plan.color }]}
+									onPress={() =>
+										Alert.alert(
+											"Coming Soon",
+											"This plan will be available shortly. Stay tuned!"
+										)
+									}
+									disabled={purchasing}
+								>
+									<Text style={styles.purchaseBtnText}>
+										{plan.id === "family" ? "Get Family Plan" : "Subscribe"}
+									</Text>
+								</TouchableOpacity>
+							)}
 						</View>
 					);
 				})}
 
-				{/* No offerings fallback */}
 				{!offering && !__DEV__ && (
 					<View style={styles.placeholder}>
 						<Text style={styles.placeholderText}>
@@ -413,7 +387,6 @@ export default function SubscriptionScreen() {
 					</View>
 				)}
 
-				{/* Footer */}
 				<TouchableOpacity onPress={handleRestore} style={styles.restoreBtn}>
 					<Text style={styles.restoreText}>Restore Purchases</Text>
 				</TouchableOpacity>
@@ -496,8 +469,7 @@ const styles = StyleSheet.create({
 	},
 	discountText: { color: GOLD, fontWeight: "700", fontSize: 14 },
 
-	// Tier cards
-	tierCard: {
+	planCard: {
 		backgroundColor: SURFACE,
 		borderRadius: 20,
 		padding: 20,
@@ -505,72 +477,60 @@ const styles = StyleSheet.create({
 		borderWidth: 1,
 		borderColor: BORDER,
 		overflow: "hidden",
-	},
-	tierCardHighlighted: {
-		borderColor: `${GREEN}40`,
-		borderWidth: 1,
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.06,
+		shadowRadius: 8,
+		elevation: 2,
 	},
 
-	popularBadge: {
+	badge: {
 		position: "absolute",
 		top: 0,
 		right: 0,
-		backgroundColor: GREEN,
 		paddingHorizontal: 12,
 		paddingVertical: 4,
 		borderBottomLeftRadius: 12,
 	},
-	popularText: { fontSize: 10, fontWeight: "800", color: "#000", letterSpacing: 1 },
+	badgeText: { fontSize: 10, fontWeight: "800", color: "#FFF", letterSpacing: 1 },
 
-	tierHeader: {
+	planHeader: {
 		flexDirection: "row",
 		alignItems: "center",
 		gap: 12,
 		marginBottom: 16,
 	},
-	tierIcon: {
+	planIcon: {
 		width: 44,
 		height: 44,
 		borderRadius: 14,
 		alignItems: "center",
 		justifyContent: "center",
 	},
-	tierName: { fontSize: 18, fontWeight: "700", color: TEXT_COLOR },
-	tierTagline: { fontSize: 13, color: TEXT_DIM, marginTop: 2 },
-	tierPriceWrap: { alignItems: "flex-end" },
-	tierPrice: { fontSize: 20, fontWeight: "800" },
-	tierPeriod: { fontSize: 11, color: TEXT_DIM },
+	planName: { fontSize: 18, fontWeight: "700", color: TEXT_COLOR },
+	planTagline: { fontSize: 13, color: TEXT_DIM, marginTop: 2 },
+	planPriceWrap: { alignItems: "flex-end" },
+	planPrice: { fontSize: 20, fontWeight: "800" },
+	planPeriod: { fontSize: 11, color: TEXT_DIM },
 
-	tierFeatures: { gap: 8, marginBottom: 16 },
+	planFeatures: { gap: 8, marginBottom: 16 },
 	featureRow: { flexDirection: "row", alignItems: "center", gap: 8 },
 	featureText: { fontSize: 14, color: TEXT_COLOR },
 
-	tierBtns: { gap: 8 },
-	tierBtnPrimary: { borderRadius: 14, overflow: "hidden" },
-	tierBtnGrad: {
-		flexDirection: "row",
+	purchaseBtn: {
+		borderRadius: 14,
+		paddingVertical: 14,
 		alignItems: "center",
 		justifyContent: "center",
-		gap: 8,
-		paddingVertical: 14,
 	},
-	tierBtnPrimaryText: { fontSize: 15, fontWeight: "700", color: "#000" },
-	tierBtnSecondary: {
-		paddingVertical: 12,
-		borderRadius: 14,
-		borderWidth: 1,
-		borderColor: BORDER,
-		alignItems: "center",
-	},
-	tierBtnSecondaryText: { fontSize: 14, fontWeight: "600", color: TEXT_DIM },
+	purchaseBtnText: { fontSize: 15, fontWeight: "700", color: "#FFF" },
 
 	currentLabel: {
 		paddingVertical: 10,
 		borderRadius: 14,
-		backgroundColor: `${GREEN}15`,
 		alignItems: "center",
 	},
-	currentLabelText: { fontSize: 14, fontWeight: "600", color: GREEN },
+	currentLabelText: { fontSize: 14, fontWeight: "600" },
 
 	placeholder: {
 		padding: 40,

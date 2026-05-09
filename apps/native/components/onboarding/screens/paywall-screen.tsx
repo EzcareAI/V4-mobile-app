@@ -217,32 +217,31 @@ export default function PaywallScreen() {
 				</View>
 
 				{/* Pricing Cards */}
-				<View className="-mt-4 flex-row gap-x-4 px-6">
+				<View className="-mt-4 flex-row gap-x-3 px-5">
 					{loading ? (
 						<View className="flex-1 items-center justify-center py-10">
 							<ActivityIndicator color="#3EC9B5" size="large" />
 							<Text className="mt-4 text-[#94A3B8]">Loading plans...</Text>
 						</View>
 					) : offering?.availablePackages ? (
-						offering.availablePackages
-							.filter((pkg) => {
-								// Filter out any packages that look like discounts/alternate annuals
-								if (pkg.packageType === "ANNUAL") {
-									// If there are multiple annuals, only keep the most expensive one (Full Price)
-									const allAnnuals = offering.availablePackages
-										.filter(p => p.packageType === "ANNUAL")
-										.sort((a, b) => b.product.price - a.product.price);
-									return pkg.identifier === allAnnuals[0].identifier;
-								}
-								// Keep MONTHLY and potentially WEEKLY if they exist
-								return pkg.packageType === "MONTHLY" || pkg.packageType === "WEEKLY";
-							})
-							.map((pkg) => {
+						(() => {
+							const monthlyPkg = offering.availablePackages.find(p => p.packageType === "MONTHLY");
+							const annualPkgs = offering.availablePackages
+								.filter(p => p.packageType === "ANNUAL")
+								.sort((a, b) => b.product.price - a.product.price);
+							const annualPkg = annualPkgs[0];
+							const familyPkg = offering.availablePackages.find(
+								p => p.identifier === "family_annual" || p.product.identifier.includes("family")
+							);
+							const cards = [monthlyPkg, annualPkg, familyPkg].filter(Boolean) as PurchasesPackage[];
+							return cards.map((pkg) => {
 								const isAnnual = pkg.packageType === "ANNUAL";
+								const isFamily = pkg.identifier === "family_annual" || pkg.product.identifier.includes("family");
+								const isHighlighted = isAnnual || isFamily;
 								return (
 									<TouchableOpacity
 										activeOpacity={0.9}
-										className={`relative flex-1 overflow-hidden rounded-[28px] px-3.5 py-5 shadow-2xl transition-opacity duration-300 ${isProcessing ? "opacity-50" : "opacity-100"} ${isAnnual ? "shadow-blue-200" : "border-2 border-slate-100 bg-slate-50"}`}
+										className={`relative flex-1 overflow-hidden rounded-[24px] px-3 py-4 shadow-xl transition-opacity duration-300 ${isProcessing ? "opacity-50" : "opacity-100"} ${isFamily ? "shadow-purple-200" : isAnnual ? "shadow-blue-200" : "border-2 border-slate-100 bg-slate-50"}`}
 										disabled={isProcessing}
 										key={pkg.identifier}
 										onPress={() => handlePurchase(pkg)}
@@ -255,52 +254,68 @@ export default function PaywallScreen() {
 											style={StyleSheet.absoluteFill}
 										/>
 									)}
+									{isFamily && (
+										<LinearGradient
+											colors={["#7C3AED", "#9D4EDD"]}
+											end={{ x: 1, y: 1 }}
+											start={{ x: 0, y: 0 }}
+											style={StyleSheet.absoluteFill}
+										/>
+									)}
 
 									{isAnnual && (
 										<View className="absolute top-0 right-0 left-0 items-center bg-yellow-400 py-1 shadow-sm">
-											<Text className="text-center font-black text-[#29303D] text-[9px] uppercase leading-3 tracking-widest">
+											<Text className="text-center font-black text-[#29303D] text-[8px] uppercase leading-3 tracking-widest">
 												MOST{"\n"}POPULAR
+											</Text>
+										</View>
+									)}
+									{isFamily && (
+										<View className="absolute top-0 right-0 left-0 items-center bg-amber-400 py-1 shadow-sm">
+											<Text className="text-center font-black text-[#29303D] text-[8px] uppercase leading-3 tracking-widest">
+												BEST FOR{"\n"}FAMILIES
 											</Text>
 										</View>
 									)}
 
 									<Text
-										className={`mt-6 font-bold text-lg ${isAnnual ? "text-white" : "text-[#29303D]"}`}
+										className={`mt-5 font-bold text-base ${isHighlighted ? "text-white" : "text-[#29303D]"}`}
 									>
-										{isAnnual ? "Annual" : "Monthly"}
-									</Text>
-									
-									<Text
-										className={`mt-1 h-6 text-[11px] ${isAnnual ? "text-white/80" : "text-[#73808C]"}`}
-									>
-										{isAnnual ? "Best value" : "Zero commitment"}
+										{isFamily ? "Family" : isAnnual ? "Annual" : "Monthly"}
 									</Text>
 
-									<View className="mt-3 mb-1">
+									<Text
+										className={`mt-1 h-8 text-[10px] leading-4 ${isHighlighted ? "text-white/80" : "text-[#73808C]"}`}
+									>
+										{isFamily ? "Up to 4\nmembers" : isAnnual ? "Best value" : "Zero\ncommitment"}
+									</Text>
+
+									<View className="mt-2 mb-1">
 										<Text
-											className={`font-black text-2xl tracking-tighter ${isAnnual ? "text-white" : "text-[#29303D]"}`}
+											className={`font-black text-xl tracking-tighter ${isHighlighted ? "text-white" : "text-[#29303D]"}`}
 										>
 											{pkg.product.currencyCode === "USD" ? pkg.product.priceString : `$${pkg.product.price}`}
 										</Text>
 										<Text
-											className={`mt-0.5 font-bold text-xs ${isAnnual ? "text-white/80" : "text-[#73808C]"}`}
+											className={`mt-0.5 font-bold text-[10px] ${isHighlighted ? "text-white/80" : "text-[#73808C]"}`}
 										>
-											{isAnnual ? "/ yr" : "/ mo"}
+											{isFamily ? "/ yr" : isAnnual ? "/ yr" : "/ mo"}
 										</Text>
 									</View>
 
 									<View
-										className={`mt-4 rounded-[14px] py-3.5 shadow-sm ${isAnnual ? "bg-white" : "border border-slate-200 bg-white"}`}
+										className={`mt-3 rounded-[12px] py-3 shadow-sm ${isHighlighted ? "bg-white" : "border border-slate-200 bg-white"}`}
 									>
 										<Text
-											className={`text-center font-bold text-[13px] ${isAnnual ? "text-[#28B898] uppercase tracking-wide" : "text-[#73808C]"}`}
+											className={`text-center font-bold text-[12px] ${isFamily ? "text-[#7C3AED] uppercase tracking-wide" : isAnnual ? "text-[#28B898] uppercase tracking-wide" : "text-[#73808C]"}`}
 										>
-											{isAnnual ? "Unlock Now" : "Select"}
+											{isFamily ? "Get Family" : isAnnual ? "Unlock Now" : "Select"}
 										</Text>
 									</View>
 								</TouchableOpacity>
 							);
-						})
+						});
+						})()
 					) : (
 						<View className="flex-1 items-center justify-center rounded-[20px] border border-dashed border-slate-300 bg-slate-50 py-10">
 							<Text className="text-center text-[#94A3B8] text-sm">
@@ -379,7 +394,7 @@ export default function PaywallScreen() {
 					</Animated.View>
 
 					{/* Monthly Pros/Cons */}
-					<View className="rounded-2xl bg-slate-50 p-4">
+					<View className="mb-4 rounded-2xl bg-slate-50 p-4">
 						<Text className="mb-3 font-bold text-[#73808C] text-base">
 							Monthly Plan
 						</Text>
@@ -398,18 +413,39 @@ export default function PaywallScreen() {
 							</Text>
 						</View>
 					</View>
+
+					{/* Family Pros/Cons */}
+					<View className="rounded-2xl border-2 border-purple-200 bg-purple-50 p-4">
+						<Text className="mb-3 font-black text-[#4C1D95] text-base tracking-wide">
+							👨‍👩‍👧‍👦 Family Plan
+						</Text>
+						<View className="gap-y-2">
+							<Text className="font-medium text-[#4C1D95] text-[13px] leading-5">
+								✅ Pro access for up to 4 members
+							</Text>
+							<Text className="font-medium text-[#4C1D95] text-[13px] leading-5">
+								✅ Family challenges & dashboard
+							</Text>
+							<Text className="font-medium text-[#4C1D95] text-[13px] leading-5">
+								✅ Track progress together
+							</Text>
+							<Text className="text-[#4C1D95]/60 text-[13px] leading-5">
+								❌ Annual commitment only
+							</Text>
+						</View>
+					</View>
 				</View>
 
-				{/* Family Plan Teaser */}
-				<View className="mx-6 mt-8 rounded-2xl border border-yellow-200 bg-yellow-50/50 p-4">
+				{/* Family Plan Highlight */}
+				<View className="mx-6 mt-8 rounded-2xl border border-purple-200 bg-purple-50/50 p-4">
 					<View className="flex-row items-center gap-x-3">
 						<Text className="text-2xl">👨‍👩‍👧‍👦</Text>
 						<View className="flex-1">
 							<Text className="font-bold text-[#29303D] text-[15px]">
-								Family Plan Available
+								Family Plan
 							</Text>
 							<Text className="mt-1 text-[#73808C] text-[12px] leading-4">
-								Share with up to 4 members — $79.99/year. Upgrade anytime in Settings.
+								Pro access for up to 4 family members. Create challenges together and track each other's progress.
 							</Text>
 						</View>
 					</View>

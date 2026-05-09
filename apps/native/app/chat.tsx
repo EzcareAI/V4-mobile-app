@@ -147,6 +147,26 @@ const SYSTEM_PROMPT = `You are a friendly daily companion called EZBuddy. You he
   Example: <memory>prefers keto diet|works out 3x per week|wants to improve sleep routine</memory>
   Never mention this system to the user.`;
 
+function buildUserProfile(): string {
+	const s = useOnboardingStore.getState();
+	const parts: string[] = [];
+	if (s.firstName) parts.push(`Name: ${s.firstName}`);
+	if (s.gender) parts.push(`Gender: ${s.gender}`);
+	if (s.birthDate) parts.push(`Birthday: ${s.birthDate}`);
+	if (s.heightCm) parts.push(`Height: ${s.heightCm}cm`);
+	if (s.weightKg) parts.push(`Weight: ${s.weightKg}kg`);
+	if (s.activityLevel) parts.push(`Activity level: ${s.activityLevel}/5`);
+	if (s.sleepQuality) parts.push(`Sleep quality: ${s.sleepQuality}/5`);
+	if (s.stressLevel) parts.push(`Stress level: ${s.stressLevel}`);
+	if (s.primaryGoal) parts.push(`Primary goal: ${s.primaryGoal}`);
+	if (s.goals?.length) parts.push(`Goals: ${s.goals.join(", ")}`);
+	if (s.dietType) parts.push(`Diet preference: ${s.dietType}`);
+	if (s.overallPriority) parts.push(`Top priority: ${s.overallPriority}`);
+	if (s.overallBlocker) parts.push(`Main blocker: ${s.overallBlocker}`);
+	if (parts.length === 0) return "";
+	return `\n\n## User Profile (from onboarding — use this to personalize your advice)\n${parts.join("\n")}`;
+}
+
 function ChatScreen() {
 	const { firstName, isPro } = useOnboardingStore();
 	const { getMemoryContext, incrementConversationCount, addTopic } = useCompanionStore();
@@ -410,9 +430,10 @@ function ChatScreen() {
 				content: m.content,
 			}));
 
-			// Build system prompt with companion memory
+			// Build system prompt with user profile + companion memory
+			const userProfile = buildUserProfile();
 			const memoryContext = getMemoryContext();
-			const fullSystemPrompt = SYSTEM_PROMPT + memoryContext;
+			const fullSystemPrompt = SYSTEM_PROMPT + userProfile + memoryContext;
 
 			const apiMessages = [...priorApiMessages, { role: "user" as const, content: userContent }];
 
@@ -536,17 +557,6 @@ function ChatScreen() {
 							</Text>
 						</View>
 					</View>
-					{/* Voice call button */}
-					<TouchableOpacity
-						onPress={toggleListening}
-						style={[styles.callBtn, isListening && styles.callBtnActive]}
-					>
-						<Ionicons
-							color={isListening ? "#0B0E17" : "#3EC9B5"}
-							name={isListening ? "mic" : "call-outline"}
-							size={20}
-						/>
-					</TouchableOpacity>
 				</View>
 
 				{/* CHAT AREA */}
@@ -802,20 +812,6 @@ const styles = StyleSheet.create({
 		backgroundColor: "rgba(255,255,255,0.05)",
 		alignItems: "center",
 		justifyContent: "center",
-	},
-	callBtn: {
-		width: 40,
-		height: 40,
-		borderRadius: 20,
-		backgroundColor: "rgba(62,201,181,0.15)",
-		alignItems: "center",
-		justifyContent: "center",
-		borderWidth: 1,
-		borderColor: "rgba(62,201,181,0.3)",
-	},
-	callBtnActive: {
-		backgroundColor: "#3EC9B5",
-		borderColor: "#3EC9B5",
 	},
 	headerTitleContainer: { alignItems: "center" },
 	headerTitle: {

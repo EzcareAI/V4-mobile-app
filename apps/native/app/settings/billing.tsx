@@ -54,8 +54,8 @@ export default function BillingScreen() {
 						setActivePlan("free");
 					}
 				}
-			} catch (e) {
-				console.error("Failed to fetch live subscription data", e);
+			} catch {
+				// Silently ignore — local state is the fallback
 			} finally {
 				setLoading(false);
 			}

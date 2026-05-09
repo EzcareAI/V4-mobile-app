@@ -85,6 +85,9 @@ export interface DashboardState {
 	missions: Mission[];
 	missionsResetDate: string | null; // YYYY-MM-DD
 
+	// Welcome guide
+	hasSeenWelcomeGuide: boolean;
+
 	// Computed helpers (not persisted, derived)
 	canCheckIn: () => boolean;
 	getNextCheckInMs: () => number;
@@ -94,6 +97,7 @@ export interface DashboardState {
 	getLevel: () => number;
 	getXpInCurrentLevel: () => number;
 	resetDailyMissions: () => void;
+	dismissWelcomeGuide: () => void;
 	syncToSupabase: () => Promise<void>;
 }
 
@@ -108,6 +112,7 @@ export const useDashboardStore = create<DashboardState>()(
 			dailyHabitScoreDelta: 0,
 			missions: DAILY_MISSIONS.map((m) => ({ ...m, completed: false })),
 			missionsResetDate: null,
+			hasSeenWelcomeGuide: false,
 
 			canCheckIn: () => {
 				const { lastCheckInAt } = get();
@@ -286,30 +291,26 @@ export const useDashboardStore = create<DashboardState>()(
 				});
 			},
 
+			dismissWelcomeGuide: () => {
+				set({ hasSeenWelcomeGuide: true });
+			},
+
 			syncToSupabase: async () => {
 				const state = get();
 				const recordId = useOnboardingStore.getState().onboardingRecordId;
 
-				if (!recordId) {
-					return;
-				}
-
-				const payload = {
-					dashboard_streak: state.streak,
-					updated_at: new Date().toISOString(),
-				};
+				if (!recordId) return;
 
 				try {
-					const { error } = await supabase
+					await supabase
 						.from("onboarding_profiles")
-						.update(payload)
+						.update({
+							dashboard_streak: state.streak,
+							updated_at: new Date().toISOString(),
+						})
 						.eq("id", recordId);
-
-					if (error) {
-						console.error("❌ SUPABASE DASHBOARD SYNC ERROR:", error);
-					}
-				} catch (err) {
-					console.error("❌ SUPABASE DASHBOARD SYNC CRITICAL EXCEPTION:", err);
+				} catch {
+					// Best-effort sync
 				}
 			},
 		}),

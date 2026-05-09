@@ -36,7 +36,12 @@ export const ProgressHeader = () => {
 		return null;
 	}
 
+	// Hide back arrow on payment screens — users must choose a plan
+	const hideBackArrow = displayStep === 19 || displayStep === 20;
+
 	const handleBack = () => {
+		if (hideBackArrow) return;
+
 		if (Platform.OS === "ios") {
 			try {
 				selectionAsync();
@@ -45,21 +50,11 @@ export const ProgressHeader = () => {
 			}
 		}
 
-		// Intercept Paywall (Step 20) Back Action to show Discount Wheel
-		if (displayStep === 20) {
-			const state = useOnboardingStore.getState();
-			if (!state.discountWheelShown) {
-				// Don't mark it shown here so if they back out of the wheel, they aren't trapped
-				// The wheel screen sets this itself when they skip/claim
-				router.replace("/(onboarding)/21");
-				return;
-			}
-		}
 		if (displayStep > 1) {
+			const prevStepNumber = displayStep - 1;
 			prevStep();
-			router.back();
+			router.push(`/(onboarding)/${prevStepNumber}`);
 		} else {
-			// If at first step or somehow currentStep is 0/1, go to onboarding start
 			router.replace("/(onboarding)");
 		}
 	};
@@ -70,9 +65,13 @@ export const ProgressHeader = () => {
 	return (
 		<SafeAreaView className="bg-background" edges={["top"]}>
 			<View className="flex-row items-center px-4 py-2">
-				<Pressable className="-ml-2 p-2 active:opacity-60" onPress={handleBack}>
-					<ChevronLeft color="#28B898" size={24} />
-				</Pressable>
+				{hideBackArrow ? (
+					<View className="-ml-2 p-2" style={{ width: 40 }} />
+				) : (
+					<Pressable className="-ml-2 p-2 active:opacity-60" onPress={handleBack}>
+						<ChevronLeft color="#28B898" size={24} />
+					</Pressable>
+				)}
 
 				<View className="flex-1 px-4">
 					<View className="h-1.5 w-full overflow-hidden rounded-full bg-[#E8F0F2]">

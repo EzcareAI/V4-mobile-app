@@ -1,8 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
+	Animated,
 	Dimensions,
+	Image,
 	Modal,
 	ScrollView,
 	StyleSheet,
@@ -13,6 +16,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle, Line, Path, Text as SvgText } from "react-native-svg";
 import { useDashboardStore } from "@/stores/dashboard-store";
+
+const buddyLogo = require("@/assets/images/EZCare_Logo.jpg");
 
 // ── Design tokens ──────────────────────────────────
 const BG = "#F4F6F8";
@@ -428,9 +433,12 @@ export default function ProgressScreen() {
 			>
 				{/* Header */}
 				<View style={styles.header}>
-					<View>
-						<Text style={styles.title}>Your Progress 📈</Text>
-						<Text style={styles.sub}>Track your daily habits</Text>
+					<View style={styles.headerLeft}>
+						<Image source={buddyLogo} style={styles.headerLogo} />
+						<View>
+							<Text style={styles.title}>Your Progress</Text>
+							<Text style={styles.sub}>Track your daily habits</Text>
+						</View>
 					</View>
 					<TouchableOpacity
 						activeOpacity={0.8}
@@ -508,28 +516,40 @@ export default function ProgressScreen() {
 				{/* Check-in Journal */}
 				<View style={[styles.card, { borderColor: TEAL, borderWidth: 1 }]}>
 					<Text style={styles.cardTitle}>Check-in Journal</Text>
-					{activeMetrics.map((s) => (
-						<View
-							key={s.key}
-							style={[
-								styles.metricRow,
-								{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" },
-							]}
-						>
-							<View
-								style={[styles.metricIcon, { backgroundColor: "#FFFFFF" }]}
+					{activeMetrics.map((s) => {
+						const trendColor = s.trend === "Improving" ? "#10B981" : s.trend === "Needs Attention" ? "#EF4444" : GREY;
+						const trendIcon = s.trend === "Improving" ? "trending-up" : s.trend === "Needs Attention" ? "trending-down" : "remove";
+						return (
+							<TouchableOpacity
+								key={s.key}
+								activeOpacity={0.7}
+								onPress={() => router.push("/(dashboard)")}
+								style={[
+									styles.metricRow,
+									{ backgroundColor: "#F8FAFC", borderColor: "#E2E8F0" },
+								]}
 							>
-								<Text style={{ fontSize: 20 }}>{s.icon}</Text>
-							</View>
-							<View style={styles.metricContent}>
-								<Text style={styles.metricTitle}>{s.label}</Text>
-								<Text style={styles.metricDesc}>{s.desc}</Text>
-								<Text style={styles.metricDays}>
-									{s.daysTracked} days tracked
-								</Text>
-							</View>
-						</View>
-					))}
+								<View
+									style={[styles.metricIcon, { backgroundColor: "#FFFFFF" }]}
+								>
+									<Text style={{ fontSize: 20 }}>{s.icon}</Text>
+								</View>
+								<View style={styles.metricContent}>
+									<View style={styles.metricTitleRow}>
+										<Text style={styles.metricTitle}>{s.label}</Text>
+										<View style={[styles.trendBadge, { backgroundColor: `${trendColor}15` }]}>
+											<Ionicons name={trendIcon as any} size={12} color={trendColor} />
+											<Text style={[styles.trendText, { color: trendColor }]}>{s.trend}</Text>
+										</View>
+									</View>
+									<Text style={styles.metricDesc}>{s.desc}</Text>
+									<Text style={styles.metricDays}>
+										{s.daysTracked} days tracked
+									</Text>
+								</View>
+							</TouchableOpacity>
+						);
+					})}
 					<Text style={styles.metricFooter}>
 						Based on your last 30 days of daily check-ins.
 					</Text>
@@ -676,8 +696,20 @@ const styles = StyleSheet.create({
 		paddingTop: 16,
 		marginBottom: 20,
 	},
-	title: { fontSize: 24, fontWeight: "800", color: DARK },
-	sub: { fontSize: 14, color: GREY, marginTop: 2 },
+	headerLeft: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 12,
+	},
+	headerLogo: {
+		width: 40,
+		height: 40,
+		borderRadius: 20,
+		borderWidth: 2,
+		borderColor: `${TEAL}30`,
+	},
+	title: { fontSize: 22, fontWeight: "800", color: DARK },
+	sub: { fontSize: 13, color: GREY, marginTop: 2 },
 	headerIcon: {
 		width: 44,
 		height: 44,
@@ -817,11 +849,23 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 	},
 	metricContent: { flex: 1 },
+	metricTitleRow: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+	},
 	metricTitle: { fontSize: 14, fontWeight: "700", color: DARK },
 	metricDesc: { fontSize: 12, color: GREY, marginTop: 1 },
 	metricDays: { fontSize: 11, color: GREY, marginTop: 2 },
-	trendBadge: { flexDirection: "row", alignItems: "center", gap: 3 },
-	trendText: { fontSize: 12, fontWeight: "700" },
+	trendBadge: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 3,
+		paddingHorizontal: 8,
+		paddingVertical: 3,
+		borderRadius: 8,
+	},
+	trendText: { fontSize: 10, fontWeight: "700" },
 	metricFooter: {
 		textAlign: "center",
 		fontSize: 12,

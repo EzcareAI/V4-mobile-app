@@ -54,17 +54,17 @@ export default function PerfectPlanScreen() {
 					<View className="px-6 pt-8">
 						{/* Premium Header Visualization */}
 						<View className="mb-6 items-center">
-							<View className="relative h-32 w-32 items-center justify-center">
+							<View className="relative h-24 w-24 items-center justify-center">
 								<LinearGradient
-									className="h-28 w-28 items-center justify-center rounded-[36px] shadow-blue-200 shadow-lg"
+									className="h-20 w-20 items-center justify-center rounded-[24px] shadow-blue-200 shadow-lg"
 									colors={["#28B898", "#2DE2E2"]}
 									start={{ x: 0, y: 0 }}
 								>
-									<TrendingUp color="white" size={48} strokeWidth={2.5} />
+									<TrendingUp color="white" size={36} strokeWidth={2.5} />
 								</LinearGradient>
 
-								<View className="absolute -right-2 -bottom-2 h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-amber-400 shadow-md">
-									<Zap color="white" fill="white" size={20} />
+								<View className="absolute -right-1 -bottom-1 h-9 w-9 items-center justify-center rounded-full border-[3px] border-[#EBF5F4] bg-amber-400 shadow-sm">
+									<Zap color="white" fill="white" size={16} />
 								</View>
 							</View>
 						</View>
@@ -76,8 +76,8 @@ export default function PerfectPlanScreen() {
 						/>
 
 						{/* Habit Consistency Card */}
-						<View className="mt-8 rounded-[40px] border border-slate-50 bg-white p-8 shadow-2xl shadow-blue-100/50">
-							<View className="mb-8 flex-row items-center justify-start gap-x-4">
+						<View className="mt-6 rounded-[28px] border border-slate-50 bg-white p-6 shadow-2xl shadow-blue-100/50">
+							<View className="mb-4 flex-row items-center justify-start gap-x-4">
 								<View>
 									<Text className="font-bold text-[#29303D] text-lg">
 										Habit Consistency
@@ -129,27 +129,27 @@ export default function PerfectPlanScreen() {
 							</View>
 						</View>
 
-						<View className="mt-10 overflow-hidden rounded-[40px] shadow-2xl shadow-blue-200">
+						<View className="mt-10 overflow-hidden rounded-[28px] shadow-2xl shadow-blue-200">
 							<LinearGradient
-								className="p-10"
+								className="p-7"
 								colors={["#28B898", "#2DE2E2"]}
 								end={{ x: 1, y: 1 }}
 								start={{ x: 0, y: 0 }}
 							>
-								<View className="mb-8 flex-row items-center gap-3">
-									<View className="h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/20">
-										<Heart color="white" fill="white" size={28} />
+								<View className="mb-4 flex-row items-center gap-3">
+									<View className="h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/20">
+										<Heart color="white" fill="white" size={22} />
 									</View>
 									<Text
 										adjustsFontSizeToFit
-										className="flex-1 font-black text-2xl text-white tracking-tight"
+										className="flex-1 font-black text-xl text-white tracking-tight"
 										numberOfLines={1}
 									>
 										Keep Going!
 									</Text>
 								</View>
-								<View className="mb-6 h-1.5 w-16 rounded-full bg-white/30" />
-								<Text className="font-semibold text-[22px] text-white leading-8">
+								<View className="mb-4 h-1 w-12 rounded-full bg-white/30" />
+								<Text className="font-semibold text-[15px] text-white leading-6">
 									Your body is responding beautifully. Every small action today
 									creates a massive ripple for your future wellbeing.
 								</Text>

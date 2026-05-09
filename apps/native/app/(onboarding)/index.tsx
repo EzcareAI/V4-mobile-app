@@ -39,7 +39,6 @@ export default function OnboardingIndex() {
 			style={styles.gradient}
 		>
 			<SafeAreaView style={styles.safeArea}>
-				{" "}
 				{/* Logo Section */}
 				<View style={styles.logoSection}>
 					<View style={styles.logoCard}>
@@ -129,10 +128,8 @@ const styles = StyleSheet.create({
 		justifyContent: "center",
 	},
 	logoCard: {
-		width: 200,
-		height: 200,
-		borderRadius: 48,
-		backgroundColor: "#3BAFDA",
+		width: 220,
+		height: 220,
 		alignItems: "center",
 		justifyContent: "center",
 		shadowColor: "#3BAFDA",
@@ -140,11 +137,11 @@ const styles = StyleSheet.create({
 		shadowOpacity: 0.25,
 		shadowRadius: 40,
 		elevation: 15,
-		overflow: "hidden",
 	},
 	logoImage: {
 		width: "100%",
 		height: "100%",
+		borderRadius: 110,
 	},
 	// Branding
 	brandSection: {

@@ -1,9 +1,10 @@
-import { useRouter } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
 	ActivityIndicator,
 	Alert,
 	Animated,
+	BackHandler,
 	Dimensions,
 	Easing,
 	Platform,
@@ -169,6 +170,14 @@ export function DiscountWheelScreen() {
 	const [loading, setLoading] = useState(true);
 	const { setAnswer, nextStep, currentStep, onboardingRecordId, setPro } = useOnboardingStore();
 
+	// Block Android back button — user must choose a plan
+	useFocusEffect(
+		useCallback(() => {
+			const sub = BackHandler.addEventListener("hardwareBackPress", () => true);
+			return () => sub.remove();
+		}, [])
+	);
+
 	useEffect(() => {
 		async function loadOfferings() {
 			try {
@@ -222,6 +231,16 @@ export function DiscountWheelScreen() {
 
 	const handlePurchase = async (priceLabel: string) => {
 		if (!offering?.availablePackages) {
+			if (__DEV__) {
+				setPro(true);
+				setAnswer("subscriptionStatus", "active");
+				setAnswer("paymentAttempted", true);
+				setAnswer("discountWheelShown", true);
+				const targetStep = 21;
+				setAnswer("currentStep", targetStep);
+				router.push(`/(onboarding)/${targetStep}`);
+				return;
+			}
 			Alert.alert("Error", "Pricing information is not available.");
 			return;
 		}
@@ -284,23 +303,19 @@ export function DiscountWheelScreen() {
 				setAnswer("paymentAttempted", true);
 				setAnswer("discountWheelShown", true);
 
-				// Log success
 				await supabase.from("events").insert([
 					{
 						event_type: `checkout_success_wheel_${pkg.packageType}`,
 						session_id: onboardingRecordId,
 						timestamp: new Date().toISOString(),
 					},
-				]);
+				]).then();
 
-				// Go to Account Creation (Step 22)
-				nextStep();
-				const targetStep = 22;
+				const targetStep = 21;
 				setAnswer("currentStep", targetStep);
 				router.push(`/(onboarding)/${targetStep}`);
 			}
-		} catch (err) {
-			console.error("Purchase Error [Wheel]:", err);
+		} catch (_err) {
 			Alert.alert("Error", "Could not complete purchase. Please try again.");
 		} finally {
 			setIsProcessing(false);
@@ -425,11 +440,11 @@ export function DiscountWheelScreen() {
 								{spinning ? "???" : "80% OFF"}
 							</Text>
 							<Text className="mb-2 text-center font-bold text-[#29303D] text-xl">
-								{spinning ? "Spinning..." : "for solely $2.49/month!"}
+								{spinning ? "Spinning..." : "3-Day FREE Trial!"}
 							</Text>
 							{!spinning && (
 								<Text className="text-center font-medium text-[#73808C] text-sm">
-									$39.99 → $29.99/year
+									Then $29.99/year ($2.49/mo) instead of $39.99
 								</Text>
 							)}
 						</View>
@@ -456,7 +471,7 @@ export function DiscountWheelScreen() {
 						onPress={handleClaimDiscount}
 					>
 						<Text className="font-black text-[#422006] text-[18px] uppercase tracking-widest">
-							✨ Get Yearly For $29.99
+							✨ Start Free Trial
 						</Text>
 					</TouchableOpacity>
 				</Animated.View>

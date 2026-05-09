@@ -192,12 +192,13 @@ export const useOnboardingStore = create<OnboardingState>()(
 
 			syncToSupabase: async () => {
 				const state = get();
-				// Ensure at least step 1 has been started before syncing junk
-				if (state.currentStep < 1) {
-					return;
-				}
+				if (state.currentStep < 1) return;
+
+				// Skip sync until user has authenticated (step 21+) — RLS blocks anonymous writes
+				if (!state.userId) return;
 
 				const payload = {
+					first_name: state.firstName,
 					gender: state.gender,
 					birthday: state.birthDate,
 					height_cm: state.heightCm,
@@ -230,12 +231,11 @@ export const useOnboardingStore = create<OnboardingState>()(
 							.single();
 
 						if (error) {
-							console.error("❌ SUPABASE UPDATE ERROR:", error);
+							console.warn("[onboarding-sync] update failed:", error.message);
 						} else if (data?.referral_code && !state.myReferralCode) {
 							set({ myReferralCode: data.referral_code });
 						}
 					} else {
-						// Create new draft
 						const { data, error } = await supabase
 							.from("onboarding_profiles")
 							.insert([payload])
@@ -243,17 +243,16 @@ export const useOnboardingStore = create<OnboardingState>()(
 							.single();
 
 						if (error) {
-							console.error("❌ SUPABASE INSERT ERROR:", error);
+							console.warn("[onboarding-sync] insert failed:", error.message);
 						} else if (data?.id) {
-							// Save the newly generated row ID and the Postgres-generated referral_code
 							set({
 								onboardingRecordId: data.id,
 								myReferralCode: data.referral_code || undefined,
 							});
 						}
 					}
-				} catch (err) {
-					console.error("❌ SUPABASE CRITICAL EXCEPTION:", err);
+				} catch {
+					// Silently ignore — sync is best-effort and must not break the flow
 				}
 			},
 

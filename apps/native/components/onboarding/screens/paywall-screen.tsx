@@ -1,10 +1,9 @@
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
 	ActivityIndicator,
 	Alert,
-	Animated,
 	BackHandler,
 	Platform,
 	ScrollView,
@@ -51,22 +50,12 @@ export default function PaywallScreen() {
 		loadOfferings();
 	}, []);
 
+	// Block Android back button — user must choose a plan
 	useFocusEffect(
 		useCallback(() => {
-			const onBackPress = () => {
-				const state = useOnboardingStore.getState();
-				if (!state.discountWheelShown) {
-					router.replace("/(onboarding)/18");
-					return true;
-				}
-				return false;
-			};
-			const backSubscription = BackHandler.addEventListener(
-				"hardwareBackPress",
-				onBackPress
-			);
-			return () => backSubscription.remove();
-		}, [router])
+			const sub = BackHandler.addEventListener("hardwareBackPress", () => true);
+			return () => sub.remove();
+		}, [])
 	);
 
 	useEffect(() => {
@@ -97,7 +86,8 @@ export default function PaywallScreen() {
 	);
 
 	const activePkg = selectedPlan === "yearly" ? annualPkg : monthlyPkg;
-	const yearlyMonthlyPrice = annualPkg ? (annualPkg.product.price / 12).toFixed(2) : "0";
+	const yearlyTotalPrice = annualPkg?.product.priceString || "$39.99";
+	const yearlyMonthlyPrice = annualPkg ? (annualPkg.product.price / 12).toFixed(2) : "3.33";
 	const currencySymbol = annualPkg?.product.priceString?.replace(/[\d.,\s]/g, "").trim() || "$";
 
 	const handlePurchase = async () => {
@@ -198,10 +188,6 @@ export default function PaywallScreen() {
 		}
 	};
 
-	const handleBack = () => {
-		router.replace("/(onboarding)/18");
-	};
-
 	const handleSkipToWheel = () => {
 		setAnswer("paymentAttempted", false);
 		setAnswer("subscriptionStatus", "skipped");
@@ -211,11 +197,6 @@ export default function PaywallScreen() {
 	return (
 		<View style={s.container}>
 			<ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
-				{/* Back button */}
-				<TouchableOpacity style={s.backBtn} onPress={handleBack} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}>
-					<Text style={s.backArrow}>{"<"}</Text>
-				</TouchableOpacity>
-
 				{/* Header */}
 				<Text style={s.title}>
 					Start your 3-day{"\n"}FREE trial.
@@ -257,7 +238,7 @@ export default function PaywallScreen() {
 					>
 						<Text style={[s.planName, selectedPlan === "monthly" && s.planNameSelected]}>Monthly</Text>
 						<Text style={[s.planPrice, selectedPlan === "monthly" && s.planPriceSelected]}>
-							{monthlyPkg?.product.priceString || `${currencySymbol}9.99`}/mo
+							{monthlyPkg?.product.priceString || `${currencySymbol}11.99`}/mo
 						</Text>
 						<View style={[s.radio, selectedPlan === "monthly" && s.radioSelected]} />
 					</TouchableOpacity>
@@ -274,7 +255,7 @@ export default function PaywallScreen() {
 						)}
 						<Text style={[s.planName, selectedPlan === "yearly" && s.planNameSelected]}>Yearly</Text>
 						<Text style={[s.planPrice, selectedPlan === "yearly" && s.planPriceSelected]}>
-							{currencySymbol}{yearlyMonthlyPrice}/mo
+							{currencySymbol}0/mo
 						</Text>
 						<View style={[s.radio, selectedPlan === "yearly" && s.radioSelected]}>
 							{selectedPlan === "yearly" && <View style={s.radioInner} />}
@@ -325,8 +306,8 @@ export default function PaywallScreen() {
 				{/* Price detail */}
 				<Text style={s.priceDetail}>
 					{selectedPlan === "yearly"
-						? `3 days free, then ${annualPkg?.product.priceString || `${currencySymbol}49.99`}/year (${currencySymbol}${yearlyMonthlyPrice}/mo)`
-						: `Just ${monthlyPkg?.product.priceString || `${currencySymbol}9.99`} per month`
+						? `3 days free, then ${yearlyTotalPrice}/year (${currencySymbol}${yearlyMonthlyPrice}/mo)`
+						: `Just ${monthlyPkg?.product.priceString || `${currencySymbol}11.99`} per month`
 					}
 				</Text>
 
@@ -384,20 +365,12 @@ const s = StyleSheet.create({
 	container: { flex: 1, backgroundColor: "#FFFFFF" },
 	scroll: { paddingBottom: 40 },
 
-	backBtn: {
-		paddingTop: Platform.OS === "ios" ? 60 : 40,
-		paddingLeft: 20,
-		paddingBottom: 8,
-		alignSelf: "flex-start",
-	},
-	backArrow: { fontSize: 28, color: "#8E8E93", fontWeight: "300" },
-
 	title: {
 		fontSize: 28,
 		fontWeight: "900",
 		color: "#1C1C1E",
 		textAlign: "center",
-		marginTop: 8,
+		marginTop: 24,
 		marginBottom: 32,
 		lineHeight: 36,
 	},

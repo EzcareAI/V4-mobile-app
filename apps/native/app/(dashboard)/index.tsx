@@ -9,6 +9,7 @@ import {
 } from "react";
 import {
 	Animated,
+	Image,
 	PanResponder,
 	Platform,
 	ScrollView,
@@ -31,6 +32,8 @@ import { leaguesService, type LeagueInfo } from "@/lib/leagues-service";
 import { achievementsService } from "@/lib/achievements-service";
 import { supabase } from "@/lib/supabase";
 import { familyService, type FamilyGroup } from "@/lib/family-service";
+
+const buddyLogo = require("@/assets/images/EZCare_Logo.jpg");
 
 // ── Light Wellness Design Tokens ────────────────────
 const BG = "#F0F7FA";
@@ -223,116 +226,120 @@ function MiniRing({ current, goal, color, size = 52, unit = "g" }: { current: nu
 	);
 }
 
-// ── Avatar Evolution ─────────────────────────────────
-function AvatarEvolution({ level }: { level: number }) {
+// ── Daily Energy Ring ────────────────────────────────
+function DailyEnergyRing({
+	checkedIn,
+	questsDone,
+	questsTotal,
+	mealsLogged,
+	streakActive,
+	level,
+	levelInfo,
+}: {
+	checkedIn: boolean;
+	questsDone: number;
+	questsTotal: number;
+	mealsLogged: number;
+	streakActive: boolean;
+	level: number;
+	levelInfo: LevelInfo | null;
+}) {
 	const pulseAnim = useRef(new Animated.Value(1)).current;
-	const particleAnim = useRef(new Animated.Value(0)).current;
+
+	const checkInScore = checkedIn ? 25 : 0;
+	const questScore = questsTotal > 0 ? Math.round((questsDone / questsTotal) * 25) : 0;
+	const mealScore = Math.min(mealsLogged, 3) > 0 ? Math.min(Math.round((mealsLogged / 3) * 25), 25) : 0;
+	const streakScore = streakActive ? 25 : 0;
+	const totalScore = checkInScore + questScore + mealScore + streakScore;
+
+	const ringColor = totalScore >= 75 ? GREEN : totalScore >= 40 ? GOLD : PURPLE;
+	const statusLabel = totalScore >= 75 ? "Thriving" : totalScore >= 40 ? "Building" : "Getting Started";
+	const statusEmoji = totalScore >= 75 ? "🔥" : totalScore >= 40 ? "⚡" : "💫";
 
 	useEffect(() => {
 		Animated.loop(
 			Animated.sequence([
-				Animated.timing(pulseAnim, { toValue: 1.08, duration: 2000, useNativeDriver: true }),
+				Animated.timing(pulseAnim, { toValue: 1.03, duration: 2000, useNativeDriver: true }),
 				Animated.timing(pulseAnim, { toValue: 1, duration: 2000, useNativeDriver: true }),
 			])
 		).start();
-		Animated.loop(
-			Animated.timing(particleAnim, { toValue: 1, duration: 4000, useNativeDriver: true })
-		).start();
-	}, [pulseAnim, particleAnim]);
+	}, [pulseAnim]);
 
-	// Evolution stage: dim (<5), glowing (5-14), radiant (15+)
-	const stage = level >= 15 ? 2 : level >= 5 ? 1 : 0;
-	const glowOpacity = [0.3, 0.6, 1][stage];
-	const coreSize = [60, 70, 80][stage];
-	const auraSize = coreSize + 60;
+	const ringSize = 140;
+	const strokeWidth = 10;
+	const radius = (ringSize - strokeWidth) / 2;
+	const circumference = 2 * Math.PI * radius;
+	const progress = totalScore / 100;
+	const strokeDashoffset = circumference * (1 - progress);
 
-	return (
-		<View style={styles.avatarContainer}>
-			{/* Glow aura */}
-			<Animated.View style={[styles.avatarAura, {
-				width: auraSize, height: auraSize, borderRadius: auraSize / 2,
-				opacity: glowOpacity,
-				transform: [{ scale: pulseAnim }],
-			}]}>
-				<LinearGradient
-					colors={[`${PURPLE}30`, `${PURPLE}00`]}
-					style={StyleSheet.absoluteFill}
-					start={{ x: 0.5, y: 0.5 }}
-					end={{ x: 0, y: 0 }}
-				/>
-			</Animated.View>
-
-			{/* Floating particles */}
-			{[0, 1, 2, 3, 4, 5].map((i) => {
-				const angle = (i / 6) * Math.PI * 2;
-				const dist = auraSize / 2 - 5;
-				const particleX = Math.cos(angle) * dist;
-				const particleY = Math.sin(angle) * dist;
-				const rotate = particleAnim.interpolate({
-					inputRange: [0, 1],
-					outputRange: [`${i * 60}deg`, `${i * 60 + 360}deg`],
-				});
-				return (
-					<Animated.View
-						key={i}
-						style={[styles.particle, {
-							opacity: glowOpacity * 0.7,
-							transform: [
-								{ rotate },
-								{ translateX: dist },
-							],
-						}]}
-					/>
-				);
-			})}
-
-			{/* Core diamond shape */}
-			<Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
-				<LinearGradient
-					colors={stage === 2 ? [PURPLE, GREEN] : stage === 1 ? [PURPLE, `${PURPLE}88`] : [`${PURPLE}66`, `${PURPLE}33`]}
-					start={{ x: 0, y: 0 }}
-					end={{ x: 1, y: 1 }}
-					style={[styles.avatarCore, { width: coreSize, height: coreSize, borderRadius: coreSize / 4 }]}
-				>
-					<Text style={{ fontSize: coreSize * 0.4 }}>
-						{stage === 2 ? "✦" : stage === 1 ? "◆" : "◇"}
-					</Text>
-				</LinearGradient>
-			</Animated.View>
-
-			{/* Stage label */}
-			<Text style={styles.avatarStageLabel}>
-				{stage === 2 ? "Radiant" : stage === 1 ? "Glowing" : "Awakening"}
-			</Text>
-		</View>
-	);
-}
-
-// ── Awakening Level Bar ──────────────────────────────
-function AwakeningLevelCard({ levelInfo }: { levelInfo: LevelInfo | null }) {
-	const level = levelInfo?.currentLevel ?? 1;
-	const title = levelInfo?.levelTitle ?? "Sleeper";
 	const currentXp = levelInfo?.currentXp ?? 0;
 	const xpForNext = levelInfo?.xpForNext ?? 100;
 	const progressPct = levelInfo?.progressPct ?? 0;
+	const title = levelInfo?.levelTitle ?? "Beginner";
 
 	return (
-		<View style={styles.levelCard}>
-			<View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-				<Text style={styles.levelTitle}>Awakening Level {level}</Text>
-				<Text style={{ color: PURPLE, fontSize: 12, fontWeight: "700" }}>{title}</Text>
+		<View style={styles.energyRingContainer}>
+			<Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+				<View style={{ width: ringSize, height: ringSize }}>
+					<Svg width={ringSize} height={ringSize}>
+						<Circle cx={ringSize / 2} cy={ringSize / 2} r={radius}
+							stroke={`${ringColor}15`} strokeWidth={strokeWidth} fill="transparent" />
+						<Circle cx={ringSize / 2} cy={ringSize / 2} r={radius}
+							stroke={ringColor} strokeWidth={strokeWidth} fill="transparent"
+							strokeDasharray={`${circumference} ${circumference}`}
+							strokeDashoffset={strokeDashoffset}
+							strokeLinecap="round" rotation="-90"
+							origin={`${ringSize / 2}, ${ringSize / 2}`} />
+					</Svg>
+					<View style={[StyleSheet.absoluteFill, { alignItems: "center", justifyContent: "center" }]}>
+						<Text style={{ fontSize: 32, fontWeight: "900", color: TEXT }}>{totalScore}</Text>
+						<Text style={{ fontSize: 11, fontWeight: "600", color: TEXT_DIM }}>/ 100</Text>
+					</View>
+				</View>
+			</Animated.View>
+
+			<View style={styles.energyRingInfo}>
+				<Text style={{ fontSize: 20, fontWeight: "800", color: TEXT }}>
+					{statusEmoji} {statusLabel}
+				</Text>
+				<View style={styles.energyRingChecklist}>
+					<View style={styles.energyCheckItem}>
+						<Ionicons name={checkedIn ? "checkmark-circle" : "ellipse-outline"} size={16} color={checkedIn ? GREEN : TEXT_DIM} />
+						<Text style={[styles.energyCheckText, checkedIn && { color: TEXT }]}>Check-in</Text>
+					</View>
+					<View style={styles.energyCheckItem}>
+						<Ionicons name={questsDone > 0 ? "checkmark-circle" : "ellipse-outline"} size={16} color={questsDone > 0 ? GREEN : TEXT_DIM} />
+						<Text style={[styles.energyCheckText, questsDone > 0 && { color: TEXT }]}>Quests {questsDone}/{questsTotal}</Text>
+					</View>
+					<View style={styles.energyCheckItem}>
+						<Ionicons name={mealsLogged > 0 ? "checkmark-circle" : "ellipse-outline"} size={16} color={mealsLogged > 0 ? GREEN : TEXT_DIM} />
+						<Text style={[styles.energyCheckText, mealsLogged > 0 && { color: TEXT }]}>Meals logged</Text>
+					</View>
+					<View style={styles.energyCheckItem}>
+						<Ionicons name={streakActive ? "checkmark-circle" : "ellipse-outline"} size={16} color={streakActive ? GREEN : TEXT_DIM} />
+						<Text style={[styles.energyCheckText, streakActive && { color: TEXT }]}>Streak active</Text>
+					</View>
+				</View>
 			</View>
-			<View style={styles.levelBarBg}>
-				<LinearGradient
-					colors={[PURPLE, GREEN]}
-					start={{ x: 0, y: 0 }}
-					end={{ x: 1, y: 0 }}
-					style={[styles.levelBarFill, { width: `${Math.min(progressPct * 100, 100)}%` as any }]}
-				/>
+
+			{/* Level progress bar below */}
+			<View style={styles.levelCard}>
+				<View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+					<Text style={styles.levelTitle}>Level {level}</Text>
+					<Text style={{ color: PURPLE, fontSize: 12, fontWeight: "700" }}>{title}</Text>
+				</View>
+				<View style={styles.levelBarBg}>
+					<LinearGradient
+						colors={[PURPLE, GREEN]}
+						start={{ x: 0, y: 0 }}
+						end={{ x: 1, y: 0 }}
+						style={[styles.levelBarFill, { width: `${Math.min(progressPct * 100, 100)}%` as any }]}
+					/>
+				</View>
+				<Text style={styles.levelXpText}>
+					{currentXp} / {xpForNext} XP to next level
+				</Text>
 			</View>
-			<Text style={styles.levelXpText}>
-				{currentXp} / {xpForNext} XP to next level
-			</Text>
 		</View>
 	);
 }
@@ -462,6 +469,101 @@ function LeagueCard({ totalXp }: { totalXp: number }) {
 	);
 }
 
+// ── Quick Stats Row ─────────────────────────────────
+function QuickStatsRow({
+	streak,
+	level,
+	xp,
+	leagueName,
+	onStatPress,
+}: {
+	streak: number;
+	level: number;
+	xp: number;
+	leagueName: string;
+	onStatPress?: (stat: string) => void;
+}) {
+	const stats = [
+		{ key: "streak", emoji: "🔥", value: `${streak}`, label: "Streak", color: GOLD },
+		{ key: "level", emoji: "⭐", value: `Lv ${level}`, label: "Level", color: PURPLE },
+		{ key: "xp", emoji: "⚡", value: `${xp}`, label: "XP", color: GREEN },
+		{ key: "league", emoji: "🏆", value: leagueName, label: "League", color: "#FFD700" },
+	];
+
+	return (
+		<View style={styles.quickStatsRow}>
+			{stats.map((s) => (
+				<TouchableOpacity
+					key={s.key}
+					activeOpacity={0.7}
+					onPress={() => onStatPress?.(s.key)}
+					style={styles.quickStatPill}
+				>
+					<Text style={styles.quickStatEmoji}>{s.emoji}</Text>
+					<Text style={[styles.quickStatValue, { color: s.color }]}>{s.value}</Text>
+					<Text style={styles.quickStatLabel}>{s.label}</Text>
+				</TouchableOpacity>
+			))}
+		</View>
+	);
+}
+
+// ── Welcome Guide ───────────────────────────────────
+function WelcomeGuide({ onDismiss }: { onDismiss: () => void }) {
+	const fadeAnim = useRef(new Animated.Value(0)).current;
+	const slideAnim = useRef(new Animated.Value(30)).current;
+
+	useEffect(() => {
+		Animated.parallel([
+			Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
+			Animated.spring(slideAnim, { toValue: 0, damping: 15, stiffness: 120, useNativeDriver: true }),
+		]).start();
+	}, [fadeAnim, slideAnim]);
+
+	const features = [
+		{ icon: "sunny" as const, title: "Daily Check-in", desc: "Track sleep, energy & stress daily", color: GOLD },
+		{ icon: "camera" as const, title: "AI Meal Scanner", desc: "Snap a photo, get nutrition facts", color: PURPLE },
+		{ icon: "chatbubble-ellipses" as const, title: "Chat with EZBuddy", desc: "Personalized wellness coaching", color: GREEN },
+		{ icon: "trophy" as const, title: "Earn Rewards", desc: "Level up, complete quests & more", color: "#FFD700" },
+	];
+
+	return (
+		<Animated.View style={[styles.welcomeGuide, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
+			<LinearGradient
+				colors={[`${GREEN}08`, `${PURPLE}05`, SURFACE]}
+				start={{ x: 0, y: 0 }}
+				end={{ x: 1, y: 1 }}
+				style={[StyleSheet.absoluteFill, { borderRadius: 20 }]}
+			/>
+			<View style={styles.welcomeHeader}>
+				<Image source={buddyLogo} style={styles.welcomeLogo} />
+				<View style={{ flex: 1 }}>
+					<Text style={styles.welcomeTitle}>Welcome to EZCare!</Text>
+					<Text style={styles.welcomeSub}>I'm EZBuddy, your wellness companion. Here's what we can do together:</Text>
+				</View>
+			</View>
+			<View style={styles.welcomeFeatures}>
+				{features.map((f) => (
+					<View key={f.title} style={styles.welcomeFeatureRow}>
+						<View style={[styles.welcomeFeatureIcon, { backgroundColor: `${f.color}15` }]}>
+							<Ionicons name={f.icon} size={18} color={f.color} />
+						</View>
+						<View style={{ flex: 1 }}>
+							<Text style={styles.welcomeFeatureTitle}>{f.title}</Text>
+							<Text style={styles.welcomeFeatureDesc}>{f.desc}</Text>
+						</View>
+					</View>
+				))}
+			</View>
+			<TouchableOpacity activeOpacity={0.85} onPress={onDismiss} style={styles.welcomeBtn}>
+				<LinearGradient colors={[GREEN, "#28B898"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.welcomeBtnGrad}>
+					<Text style={styles.welcomeBtnText}>Let's Go!</Text>
+				</LinearGradient>
+			</TouchableOpacity>
+		</Animated.View>
+	);
+}
+
 // ── Countdown helper ─────────────────────────────────
 function formatCountdown(ms: number): string {
 	if (ms <= 0) return "now";
@@ -483,6 +585,8 @@ export default function HomeScreen() {
 		resetDailyMissions,
 		missions,
 		toggleMission,
+		hasSeenWelcomeGuide,
+		dismissWelcomeGuide,
 	} = useDashboardStore();
 
 	const lastCheckInValues = useDashboardStore((s) => s.lastCheckInValues);
@@ -523,32 +627,27 @@ export default function HomeScreen() {
 		if (!userId) return;
 
 		const loadData = async () => {
-			try {
-				const today = new Date().toISOString().split("T")[0];
-				const [level, streakData, quests, ritualCheck, league] = await Promise.all([
-					levelsService.getLevelInfo(userId),
-					streakService.getStreakInfo(userId),
-					questGenerator.getTodayQuests(userId),
-					supabase.from("awakening_rituals").select("id").eq("user_id", userId).eq("date", today).single(),
-					leaguesService.getLeagueInfo(userId).catch(() => null),
-				]);
-				setLevelInfo(level);
-				setStreakInfo(streakData);
-				setQuestsData(quests);
-				setRitualDoneToday(!!ritualCheck.data);
-				if (league) setLeagueInfo(league);
+			const today = new Date().toISOString().split("T")[0];
+			const [level, streakData, quests, ritualCheck, league] = await Promise.allSettled([
+				levelsService.getLevelInfo(userId),
+				streakService.getStreakInfo(userId),
+				questGenerator.getTodayQuests(userId),
+				supabase.from("awakening_rituals").select("id").eq("user_id", userId).eq("date", today).single(),
+				leaguesService.getLeagueInfo(userId),
+			]);
+			if (level.status === "fulfilled") setLevelInfo(level.value);
+			if (streakData.status === "fulfilled") setStreakInfo(streakData.value);
+			if (quests.status === "fulfilled") setQuestsData(quests.value);
+			if (ritualCheck.status === "fulfilled") setRitualDoneToday(!!ritualCheck.value?.data);
+			if (league.status === "fulfilled" && league.value) setLeagueInfo(league.value);
 
-				// Load family info
-				familyService.getMyFamily(userId).then(async (fam) => {
-					setFamilyGroup(fam);
-					if (fam) {
-						const members = await familyService.getFamilyMembers(fam.id);
-						setFamilyMemberCount(members.length);
-					}
-				}).catch(() => {});
-			} catch (err) {
-				console.warn("[Home] Failed to load data:", err);
-			}
+			familyService.getMyFamily(userId).then(async (fam) => {
+				setFamilyGroup(fam);
+				if (fam) {
+					const members = await familyService.getFamilyMembers(fam.id);
+					setFamilyMemberCount(members.length);
+				}
+			}).catch(() => {});
 		};
 		loadData();
 	}, [userId]);
@@ -705,22 +804,28 @@ export default function HomeScreen() {
 					showsVerticalScrollIndicator={false}
 					style={styles.scroll}
 				>
-					{/* ── Top Bar with Glow ── */}
-					<View style={styles.topBarWrap}>
+					{/* ── Hero Section with Buddy ── */}
+					<View style={styles.heroSection}>
 						<LinearGradient
-							colors={[`${PURPLE}15`, `${GREEN}08`, "transparent"]}
+							colors={[`${GREEN}12`, `${PURPLE}08`, "transparent"]}
 							start={{ x: 0, y: 0 }}
 							end={{ x: 1, y: 1 }}
 							style={StyleSheet.absoluteFill}
 						/>
-						<View style={styles.topBar}>
-							<View style={{ flex: 1 }}>
-								<Text style={styles.greeting}>
-									{new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 17 ? "Hey" : "Good evening"}{firstName ? `, ${firstName}` : ""}
-								</Text>
-								<Text style={styles.greetingSub}>
-									Day {dayCount} of your awakening
-								</Text>
+						<View style={styles.heroTop}>
+							<View style={styles.heroLeft}>
+								<View style={styles.heroLogoWrap}>
+									<Image source={buddyLogo} style={styles.heroLogo} />
+									<View style={styles.heroOnlineDot} />
+								</View>
+								<View style={{ flex: 1 }}>
+									<Text style={styles.greeting}>
+										{new Date().getHours() < 12 ? "Good morning" : new Date().getHours() < 17 ? "Hey" : "Good evening"}{firstName ? `, ${firstName}` : ""}
+									</Text>
+									<Text style={styles.greetingSub}>
+										Day {dayCount} — keep going
+									</Text>
+								</View>
 							</View>
 							<TouchableOpacity
 								onPress={() => router.push("/settings/subscription")}
@@ -739,6 +844,19 @@ export default function HomeScreen() {
 								)}
 							</TouchableOpacity>
 						</View>
+
+						{/* Quick Stats Row */}
+						<QuickStatsRow
+							streak={dayCount}
+							level={displayLevel}
+							xp={levelInfo?.currentXp ?? 0}
+							leagueName={leagueInfo?.currentLeague?.label ?? "Bronze"}
+							onStatPress={(stat) => {
+								if (Platform.OS === "ios") impactAsync(ImpactFeedbackStyle.Light).catch(() => {});
+								if (stat === "league") router.push("/rewards");
+								else if (stat === "xp" || stat === "level") router.push("/rewards");
+							}}
+						/>
 					</View>
 
 					{/* ── XP Toast ── */}
@@ -748,11 +866,24 @@ export default function HomeScreen() {
 						</View>
 					)}
 
-					{/* ── Avatar Evolution ── */}
-					<AvatarEvolution level={displayLevel} />
+					{/* ── Welcome Guide (first visit) ── */}
+					{!hasSeenWelcomeGuide && (
+						<WelcomeGuide onDismiss={() => {
+							dismissWelcomeGuide();
+							if (Platform.OS === "ios") impactAsync(ImpactFeedbackStyle.Medium).catch(() => {});
+						}} />
+					)}
 
-					{/* ── Awakening Level ── */}
-					<AwakeningLevelCard levelInfo={levelInfo} />
+					{/* ── Daily Energy Ring ── */}
+					<DailyEnergyRing
+						checkedIn={!canSave || saved}
+						questsDone={questsData?.completedQuestIds.length ?? 0}
+						questsTotal={questsData?.quests.length ?? SPRINT1_QUESTS.length}
+						mealsLogged={todayTotals.mealCount}
+						streakActive={dayCount > 0}
+						level={displayLevel}
+						levelInfo={levelInfo}
+					/>
 
 					{/* ── Streak Display ── */}
 					<StreakDisplay streakInfo={streakInfo} />
@@ -916,7 +1047,7 @@ export default function HomeScreen() {
 							style={styles.ritualBanner}
 						>
 							<LinearGradient
-								colors={["#1A0A2E", "#2D1052", "#FF6B3520"]}
+								colors={["#FF9500", "#FF6B35", "#FFB347"]}
 								start={{ x: 0, y: 0 }}
 								end={{ x: 1, y: 1 }}
 								style={[StyleSheet.absoluteFill, { borderRadius: 16 }]}
@@ -925,12 +1056,12 @@ export default function HomeScreen() {
 								<View style={styles.ritualBannerLeft}>
 									<Text style={styles.ritualBannerEmoji}>🌅</Text>
 									<View>
-										<Text style={styles.ritualBannerTitle}>Start Your Awakening</Text>
-										<Text style={styles.ritualBannerSub}>60-second guided ritual +100 XP</Text>
+										<Text style={styles.ritualBannerTitle}>Morning Energy Boost</Text>
+										<Text style={styles.ritualBannerSub}>60-second guided routine +100 XP</Text>
 									</View>
 								</View>
 								<View style={styles.ritualBannerArrow}>
-									<Ionicons name="arrow-forward" size={18} color={PURPLE} />
+									<Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
 								</View>
 							</View>
 						</TouchableOpacity>
@@ -939,7 +1070,7 @@ export default function HomeScreen() {
 					{ritualDoneToday && (
 						<View style={styles.ritualCompleteBadge}>
 							<Ionicons name="checkmark-circle" size={16} color={GREEN} />
-							<Text style={styles.ritualCompleteText}>Awakening ritual complete</Text>
+							<Text style={styles.ritualCompleteText}>Morning routine complete</Text>
 							<Text style={styles.ritualCompleteXp}>+100 XP</Text>
 						</View>
 					)}
@@ -1005,17 +1136,7 @@ export default function HomeScreen() {
 					<TouchableOpacity activeOpacity={0.9} onPress={() => router.push("/(dashboard)/buddy")} style={styles.buddyCard}>
 						<View style={styles.buddyRow}>
 							<View style={styles.buddyAvatarWrap}>
-								<LinearGradient colors={[PURPLE, GREEN]} style={styles.buddyAvatar}>
-									<Text style={{ fontSize: 28 }}>
-										{(() => {
-											if (!lastCheckInValues) return "🤖";
-											const avg = (lastCheckInValues.sleep + lastCheckInValues.energy + (6 - lastCheckInValues.stress) + lastCheckInValues.digestion) / 4;
-											if (avg >= 4) return "😊";
-											if (avg >= 3) return "🙂";
-											return "🤔";
-										})()}
-									</Text>
-								</LinearGradient>
+								<Image source={buddyLogo} style={styles.buddyAvatarImg} />
 								<View style={styles.buddyOnline} />
 							</View>
 							<View style={styles.buddySpeech}>
@@ -1164,17 +1285,44 @@ const styles = StyleSheet.create({
 		fontVariant: ["tabular-nums"],
 	},
 
-	// ── Top Bar ──
-	topBarWrap: { paddingBottom: 8, overflow: "hidden" },
-	topBar: {
+	// ── Hero Section ──
+	heroSection: { paddingBottom: 8, overflow: "hidden" },
+	heroTop: {
 		flexDirection: "row",
 		alignItems: "center",
 		justifyContent: "space-between",
-		paddingHorizontal: 24,
+		paddingHorizontal: 20,
 		paddingTop: 12,
 	},
-	greeting: { fontSize: 24, fontWeight: "800", color: TEXT },
-	greetingSub: { fontSize: 14, color: TEXT_DIM, marginTop: 2 },
+	heroLeft: {
+		flexDirection: "row",
+		alignItems: "center",
+		flex: 1,
+		gap: 12,
+	},
+	heroLogoWrap: {
+		position: "relative",
+	},
+	heroLogo: {
+		width: 48,
+		height: 48,
+		borderRadius: 24,
+		borderWidth: 2,
+		borderColor: `${GREEN}40`,
+	},
+	heroOnlineDot: {
+		position: "absolute",
+		bottom: 0,
+		right: 0,
+		width: 14,
+		height: 14,
+		borderRadius: 7,
+		backgroundColor: GREEN,
+		borderWidth: 2.5,
+		borderColor: BG,
+	},
+	greeting: { fontSize: 22, fontWeight: "800", color: TEXT },
+	greetingSub: { fontSize: 13, color: TEXT_DIM, marginTop: 2 },
 	proBtn: { height: 32, justifyContent: "center", alignItems: "center" },
 	proBadge: {
 		flexDirection: "row", alignItems: "center",
@@ -1188,43 +1336,118 @@ const styles = StyleSheet.create({
 	},
 	upgradeText: { color: GREEN, fontSize: 10, fontWeight: "800" },
 
-	// ── Avatar ──
-	avatarContainer: {
+	// ── Quick Stats ──
+	quickStatsRow: {
+		flexDirection: "row",
+		paddingHorizontal: 16,
+		paddingTop: 16,
+		paddingBottom: 4,
+		gap: 8,
+	},
+	quickStatPill: {
+		flex: 1,
+		backgroundColor: SURFACE,
+		borderRadius: 14,
+		paddingVertical: 10,
+		alignItems: "center",
+		borderWidth: 1,
+		borderColor: BORDER,
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 1 },
+		shadowOpacity: 0.04,
+		shadowRadius: 4,
+		elevation: 1,
+	},
+	quickStatEmoji: { fontSize: 18, marginBottom: 4 },
+	quickStatValue: { fontSize: 14, fontWeight: "900", fontVariant: ["tabular-nums"] as any },
+	quickStatLabel: { fontSize: 9, fontWeight: "700", color: TEXT_DIM, marginTop: 2, textTransform: "uppercase" as any, letterSpacing: 0.5 },
+
+	// ── Welcome Guide ──
+	welcomeGuide: {
+		marginHorizontal: 20,
+		marginBottom: 16,
+		borderRadius: 20,
+		padding: 20,
+		borderWidth: 1,
+		borderColor: `${GREEN}25`,
+		backgroundColor: SURFACE,
+		overflow: "hidden",
+		shadowColor: GREEN,
+		shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.1,
+		shadowRadius: 12,
+		elevation: 4,
+	},
+	welcomeHeader: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 14,
+		marginBottom: 18,
+	},
+	welcomeLogo: {
+		width: 56,
+		height: 56,
+		borderRadius: 28,
+		borderWidth: 2,
+		borderColor: `${GREEN}30`,
+	},
+	welcomeTitle: { fontSize: 18, fontWeight: "900", color: TEXT, marginBottom: 4 },
+	welcomeSub: { fontSize: 13, color: TEXT_DIM, lineHeight: 18 },
+	welcomeFeatures: { gap: 10, marginBottom: 18 },
+	welcomeFeatureRow: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 12,
+		paddingVertical: 4,
+	},
+	welcomeFeatureIcon: {
+		width: 36,
+		height: 36,
+		borderRadius: 10,
 		alignItems: "center",
 		justifyContent: "center",
-		height: 180,
+	},
+	welcomeFeatureTitle: { fontSize: 14, fontWeight: "700", color: TEXT },
+	welcomeFeatureDesc: { fontSize: 12, color: TEXT_DIM, marginTop: 1 },
+	welcomeBtn: { borderRadius: 14, overflow: "hidden" },
+	welcomeBtnGrad: {
+		paddingVertical: 14,
+		alignItems: "center",
+		borderRadius: 14,
+	},
+	welcomeBtnText: { color: "#FFFFFF", fontSize: 16, fontWeight: "800" },
+
+	// ── Daily Energy Ring ──
+	energyRingContainer: {
+		alignItems: "center",
+		paddingVertical: 20,
+		paddingHorizontal: 20,
 		marginBottom: 8,
 	},
-	avatarAura: {
-		position: "absolute",
-		overflow: "hidden",
-	},
-	particle: {
-		position: "absolute",
-		width: 4,
-		height: 4,
-		borderRadius: 2,
-		backgroundColor: PURPLE,
-		top: "50%",
-		left: "50%",
-		marginLeft: -2,
-		marginTop: -2,
-	},
-	avatarCore: {
+	energyRingInfo: {
 		alignItems: "center",
-		justifyContent: "center",
-		transform: [{ rotate: "45deg" }],
+		marginTop: 16,
+		marginBottom: 16,
 	},
-	avatarStageLabel: {
+	energyRingChecklist: {
+		flexDirection: "row",
+		flexWrap: "wrap",
+		justifyContent: "center",
+		gap: 12,
 		marginTop: 12,
-		fontSize: 13,
-		fontWeight: "700",
+	},
+	energyCheckItem: {
+		flexDirection: "row",
+		alignItems: "center",
+		gap: 4,
+	},
+	energyCheckText: {
+		fontSize: 12,
+		fontWeight: "600",
 		color: TEXT_DIM,
-		letterSpacing: 2,
-		textTransform: "uppercase",
 	},
 
-	// ── Awakening Level ──
+	// ── Level ──
 	levelCard: {
 		marginHorizontal: 20,
 		marginBottom: 16,
@@ -1467,9 +1690,9 @@ const styles = StyleSheet.create({
 	},
 	buddyRow: { flexDirection: "row", alignItems: "flex-start", gap: 12, marginBottom: 12 },
 	buddyAvatarWrap: { position: "relative" },
-	buddyAvatar: {
+	buddyAvatarImg: {
 		width: 48, height: 48, borderRadius: 24,
-		alignItems: "center", justifyContent: "center",
+		borderWidth: 2, borderColor: `${GREEN}30`,
 	},
 	buddyOnline: {
 		position: "absolute", bottom: 0, right: 0,
@@ -1576,11 +1799,11 @@ const styles = StyleSheet.create({
 		gap: 12,
 	},
 	ritualBannerEmoji: { fontSize: 32 },
-	ritualBannerTitle: { fontSize: 16, fontWeight: "800", color: TEXT },
-	ritualBannerSub: { fontSize: 13, color: TEXT_DIM, marginTop: 2 },
+	ritualBannerTitle: { fontSize: 16, fontWeight: "800", color: "#FFFFFF" },
+	ritualBannerSub: { fontSize: 13, color: "rgba(255,255,255,0.85)", marginTop: 2 },
 	ritualBannerArrow: {
 		width: 36, height: 36, borderRadius: 18,
-		backgroundColor: `${PURPLE}20`,
+		backgroundColor: "rgba(255,255,255,0.25)",
 		alignItems: "center", justifyContent: "center",
 	},
 

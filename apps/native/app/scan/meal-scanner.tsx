@@ -67,6 +67,19 @@ const MACRO_COLORS = {
 	fat: "#FFD93D",
 };
 
+function prepareImageForApi(base64: string, uri: string): { data: string; mediaType: "image/jpeg" | "image/png" | "image/webp" | "image/gif" } {
+	let cleaned = base64.replace(/^data:image\/\w+;base64,/, "");
+	cleaned = cleaned.replace(/[\s\r\n]/g, "");
+
+	const ext = uri.split(".").pop()?.toLowerCase();
+	let mediaType: "image/jpeg" | "image/png" | "image/webp" | "image/gif" = "image/jpeg";
+	if (ext === "png") mediaType = "image/png";
+	else if (ext === "webp") mediaType = "image/webp";
+	else if (ext === "gif") mediaType = "image/gif";
+
+	return { data: cleaned, mediaType };
+}
+
 const NUTRITION_DISCLAIMER = "Nutritional values shown are AI-generated estimates based on visual analysis. For personalized nutrition advice, consult a healthcare professional.";
 
 // ── Circular Progress Ring Component ──
@@ -141,8 +154,9 @@ export default function MealScannerScreen() {
 		}
 		try {
 			const photo = await cameraRef.current.takePictureAsync({
-				quality: 0.7,
+				quality: 0.5,
 				base64: true,
+				imageType: "jpg",
 			});
 			if (photo) {
 				setPhotoUri(photo.uri);
@@ -163,7 +177,7 @@ export default function MealScannerScreen() {
 		}
 		const pickerResult = await launchImageLibraryAsync({
 			base64: true,
-			quality: 0.7,
+			quality: 0.5,
 			mediaTypes: "images",
 		});
 		if (!pickerResult.canceled && pickerResult.assets[0]) {
@@ -176,8 +190,8 @@ export default function MealScannerScreen() {
 	};
 
 	// Direct fetch to Anthropic API (bypasses SDK for Android/Hermes compatibility)
-	const analyzeViaFetch = async (base64: string, systemPrompt: string): Promise<string> => {
-		console.log("[MealScanner] analyzeViaFetch: apiKey length =", apiKey?.length ?? 0);
+	const analyzeViaFetch = async (base64Data: string, mediaType: string, systemPrompt: string): Promise<string> => {
+		console.log("[MealScanner] analyzeViaFetch: apiKey length =", apiKey?.length ?? 0, "base64 length =", base64Data.length, "mediaType =", mediaType);
 		const response = await fetch("https://api.anthropic.com/v1/messages", {
 			method: "POST",
 			headers: {
@@ -193,7 +207,7 @@ export default function MealScannerScreen() {
 				messages: [{
 					role: "user",
 					content: [
-						{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64 } },
+						{ type: "image", source: { type: "base64", media_type: mediaType, data: base64Data } },
 						{ type: "text", text: "Analyze this food photo." },
 					],
 				}],
@@ -202,7 +216,7 @@ export default function MealScannerScreen() {
 		console.log("[MealScanner] analyzeViaFetch: status =", response.status);
 		if (!response.ok) {
 			const errBody = await response.text();
-			console.error("[MealScanner] API error body:", errBody.slice(0, 500));
+			console.warn("[MealScanner] API error body:", errBody.slice(0, 500));
 			throw new Error(`API error ${response.status}: ${errBody.slice(0, 200)}`);
 		}
 		const data = (await response.json()) as { content: { type: string; text: string }[] };
@@ -244,11 +258,20 @@ Rules:
 			return;
 		}
 
+		if (!base64 || base64.length < 100) {
+			setRawAnalysis("Could not capture image data. Please try again.");
+			setMode("result");
+			return;
+		}
+
+		const { data: cleanedBase64, mediaType } = prepareImageForApi(base64, photoUri ?? "photo.jpg");
+		console.log("[MealScanner] Image prepared: mediaType =", mediaType, "base64 length =", cleanedBase64.length);
+
 		let fullText = "";
 		try {
 			// Use direct fetch on Android (Hermes lacks ReadableStream for SDK streaming)
 			if (Platform.OS === "android") {
-				fullText = await analyzeViaFetch(base64, MEAL_SYSTEM_PROMPT);
+				fullText = await analyzeViaFetch(cleanedBase64, mediaType, MEAL_SYSTEM_PROMPT);
 			} else {
 				try {
 					const stream = anthropic.messages.stream({
@@ -259,7 +282,7 @@ Rules:
 							{
 								role: "user",
 								content: [
-									{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: base64 } },
+									{ type: "image", source: { type: "base64", media_type: mediaType, data: cleanedBase64 } },
 									{ type: "text", text: "Analyze this food photo." },
 								],
 							},
@@ -275,7 +298,7 @@ Rules:
 				} catch (streamErr) {
 					console.warn("[MealScanner] Streaming failed, using fetch fallback:", streamErr);
 					setStreamText("");
-					fullText = await analyzeViaFetch(base64, MEAL_SYSTEM_PROMPT);
+					fullText = await analyzeViaFetch(cleanedBase64, mediaType, MEAL_SYSTEM_PROMPT);
 				}
 			}
 

@@ -62,11 +62,8 @@ export default function SettingsScreen() {
 						currentCode = data.referral_code;
 						setAnswer("myReferralCode", currentCode);
 					}
-				} catch (err) {
-					console.error(
-						"Failed to fetch referral code from onboarding_profiles",
-						err
-					);
+				} catch {
+					// Silently ignore — local store is the fallback
 				}
 			}
 
@@ -85,8 +82,8 @@ export default function SettingsScreen() {
 					if (!error && data !== null) {
 						setReferralCount(data as number);
 					}
-				} catch (err) {
-					console.error("Failed to fetch referral count", err);
+				} catch {
+					// Silently ignore
 				}
 			}
 		};

@@ -57,8 +57,8 @@ export default function PersonalInfoScreen() {
 				if (data && !error) {
 					setProfileData(data);
 				}
-			} catch (e) {
-				console.error("Failed to fetch live profile data", e);
+			} catch {
+				// Silently ignore — local state is the fallback
 			} finally {
 				setLoading(false);
 			}

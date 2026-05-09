@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
 	Animated,
 	Dimensions,
+	Image,
 	Platform,
 	ScrollView,
 	StyleSheet,
@@ -17,6 +18,8 @@ import { useDashboardStore } from "@/stores/dashboard-store";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { useCompanionStore } from "@/stores/companion-store";
 import { useGamificationStore } from "@/stores/gamification-store";
+
+const buddyLogo = require("@/assets/images/EZCare_Logo.jpg");
 
 const { width: SW } = Dimensions.get("window");
 const TEAL = "#3EC9B5";
@@ -123,13 +126,13 @@ export default function BuddyScreen() {
 				{/* ── Buddy Avatar + Greeting ── */}
 				<View style={styles.buddyHeader}>
 					<Animated.View style={[styles.avatarOuter, { transform: [{ scale: pulseAnim }] }]}>
-						<LinearGradient
-							colors={[TEAL, "#28B898"]}
-							style={styles.avatarGrad}
-						>
-							<Text style={styles.avatarEmoji}>{buddyMood.face}</Text>
-						</LinearGradient>
+						<View style={styles.avatarGrad}>
+							<Image source={buddyLogo} style={styles.avatarImage} />
+						</View>
 					</Animated.View>
+					<View style={styles.moodBadge}>
+						<Text style={styles.moodEmoji}>{buddyMood.face}</Text>
+					</View>
 					<View style={styles.statusPill}>
 						<View style={[styles.statusDot, { backgroundColor: buddyMood.color }]} />
 						<Text style={[styles.statusText, { color: buddyMood.color }]}>{buddyMood.status}</Text>
@@ -339,8 +342,28 @@ const styles = StyleSheet.create({
 		alignItems: "center", justifyContent: "center",
 		shadowColor: TEAL, shadowOffset: { width: 0, height: 6 },
 		shadowOpacity: 0.35, shadowRadius: 16, elevation: 8,
+		overflow: "hidden",
+		borderWidth: 3,
+		borderColor: `${TEAL}40`,
 	},
-	avatarEmoji: { fontSize: 44 },
+	avatarImage: { width: 82, height: 82, borderRadius: 41 },
+	moodBadge: {
+		backgroundColor: "#FFFFFF",
+		width: 32,
+		height: 32,
+		borderRadius: 16,
+		alignItems: "center",
+		justifyContent: "center",
+		marginTop: -18,
+		marginBottom: 6,
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.1,
+		shadowRadius: 4,
+		elevation: 3,
+		zIndex: 10,
+	},
+	moodEmoji: { fontSize: 18 },
 	statusPill: {
 		flexDirection: "row", alignItems: "center", gap: 6,
 		backgroundColor: "#FFFFFF",

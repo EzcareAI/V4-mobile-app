@@ -44,7 +44,7 @@
       "reactCompiler": false
     },
     "ios": {
-      "buildNumber": "29",
+      "buildNumber": "30",
       "bundleIdentifier": "app.rork.zvfley8yoowwhncate9z5",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "EZCare needs access to your microphone for voice-to-text with EZBuddy.",
@@ -56,7 +56,7 @@
     },
     "android": {
       "package": "com.ezcareaiolder",
-      "versionCode": 20,
+      "versionCode": 21,
       "navigationBar": {
         "backgroundColor": "#FFFFFF",
         "barStyle": "dark-content"

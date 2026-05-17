@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
 	ActivityIndicator,
+	Alert,
 	KeyboardAvoidingView,
 	Platform,
 	ScrollView,
@@ -51,7 +52,13 @@ export default function SignInScreen() {
 		});
 
 		if (error) {
-			setErrorMsg(error.message);
+			if (error.message.includes("Invalid login credentials")) {
+				setErrorMsg("The email or password you entered is incorrect. Please check and try again, or tap 'Get Started' to create a new account.");
+			} else if (error.message.includes("Email not confirmed")) {
+				setErrorMsg("Please check your email and confirm your account before signing in.");
+			} else {
+				setErrorMsg(error.message);
+			}
 			setLoading(false);
 			return;
 		}
@@ -136,6 +143,24 @@ export default function SignInScreen() {
 									value={password}
 								/>
 							</View>
+
+							<TouchableOpacity
+								onPress={async () => {
+									if (!email) {
+										setErrorMsg("Enter your email first, then tap Forgot Password.");
+										return;
+									}
+									try {
+										await supabase.auth.resetPasswordForEmail(email);
+										Alert.alert("Check Your Email", "If an account exists with that email, we've sent a password reset link.");
+									} catch {
+										Alert.alert("Error", "Could not send reset email. Please try again.");
+									}
+								}}
+								style={styles.forgotBtn}
+							>
+								<Text style={styles.forgotText}>Forgot Password?</Text>
+							</TouchableOpacity>
 
 							<TouchableOpacity
 								activeOpacity={0.88}
@@ -226,6 +251,8 @@ const styles = StyleSheet.create({
 		shadowRadius: 4,
 		elevation: 1,
 	},
+	forgotBtn: { alignSelf: "flex-end", paddingVertical: 4 },
+	forgotText: { fontSize: 13, fontWeight: "600", color: TEAL },
 	signInBtn: {
 		height: 56,
 		borderRadius: 16,

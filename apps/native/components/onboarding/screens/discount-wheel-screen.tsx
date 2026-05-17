@@ -32,12 +32,12 @@ import { useOnboardingStore } from "@/stores/onboarding-store";
 import { StepHeader } from "../common/step-header";
 
 const PRIZES = [
-	{ label: "🎁", color: "#FBBF24" }, // Winner (Index 0)
+	{ label: "🎁", color: "#FBBF24" },
 	{ label: "1 Mo", color: "#34D399" },
 	{ label: "10%", color: "#F87171" },
 	{ label: "$5", color: "#60A5FA" },
-	{ label: "50%", color: "#A78BFA" },
-	{ label: "20%", color: "#F472B6" },
+	{ label: "25%", color: "#A78BFA" },
+	{ label: "15%", color: "#F472B6" },
 ];
 
 const SLICE_ANGLE = 360 / PRIZES.length; // 60 degrees
@@ -352,8 +352,8 @@ export function DiscountWheelScreen() {
 					<View className="mt-2">
 						<StepHeader
 							align="center"
-							description="An exclusive one-time reward has been unlocked!"
-							title="🎡 Spin to Save!"
+							description="Spin the wheel and see what you get!"
+							title="🎡 Try Your Luck!"
 						/>
 					</View>
 
@@ -437,22 +437,22 @@ export function DiscountWheelScreen() {
 					>
 						<View className="mb-4 items-center">
 							<Text className="mb-2 font-black text-5xl text-yellow-500">
-								{spinning ? "???" : "80% OFF"}
+								{spinning ? "???" : "25% OFF"}
 							</Text>
 							<Text className="mb-2 text-center font-bold text-[#29303D] text-xl">
-								{spinning ? "Spinning..." : "3-Day FREE Trial!"}
+								{spinning ? "Spinning..." : "You unlocked a discount!"}
 							</Text>
 							{!spinning && (
 								<Text className="text-center font-medium text-[#73808C] text-sm">
-									Then $29.99/year ($2.49/mo) instead of $39.99
+									$29.99/year ($2.49/mo) — save 25% off the regular $39.99/year
 								</Text>
 							)}
 						</View>
 
 						{!spinning && (
-							<View className="rounded-2xl border border-red-200 bg-red-50 p-4">
-								<Text className="text-center font-bold text-[13px] text-red-600 tracking-tight">
-									⏰ This offer expires in 24 hours!
+							<View className="rounded-2xl border border-green-200 bg-green-50 p-4">
+								<Text className="text-center font-bold text-[13px] text-green-700 tracking-tight">
+									Includes a 3-day free trial. Cancel anytime.
 								</Text>
 							</View>
 						)}
@@ -481,7 +481,7 @@ export function DiscountWheelScreen() {
 					onPress={handlePayFullPrice}
 				>
 					<Text className="text-center font-bold text-[#73808C] text-[17px]">
-						I'll Pay Full Price
+						Continue at Full Price ($39.99/yr)
 					</Text>
 				</TouchableOpacity>
 			</View>

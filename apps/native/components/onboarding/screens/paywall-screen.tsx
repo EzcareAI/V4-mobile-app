@@ -255,7 +255,7 @@ export default function PaywallScreen() {
 						)}
 						<Text style={[s.planName, selectedPlan === "yearly" && s.planNameSelected]}>Yearly</Text>
 						<Text style={[s.planPrice, selectedPlan === "yearly" && s.planPriceSelected]}>
-							{currencySymbol}0/mo
+							{currencySymbol}{yearlyMonthlyPrice}/mo
 						</Text>
 						<View style={[s.radio, selectedPlan === "yearly" && s.radioSelected]}>
 							{selectedPlan === "yearly" && <View style={s.radioInner} />}

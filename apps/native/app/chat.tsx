@@ -1,4 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { Ionicons } from "@expo/vector-icons";
 import {
 	BottomSheetBackdrop,
@@ -43,13 +42,13 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { useCompanionStore } from "@/stores/companion-store";
 import { levelsService } from "@/lib/levels-service";
+import { supabase } from "@/lib/supabase";
+import { env } from "@ezcare/env/native";
 
-const apiKey = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
-
-const anthropic = new Anthropic({
-	apiKey: apiKey || "dummy_key_to_prevent_sdk_crash",
-	dangerouslyAllowBrowser: true,
-});
+// Endpoint of the Supabase Edge Function that proxies Anthropic. The real
+// ANTHROPIC_API_KEY lives only on the Supabase side; we never ship it in
+// the client bundle. See packages/db/supabase/functions/anthropic-proxy/.
+const PROXY_URL = `${env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/anthropic-proxy`;
 
 interface AttachedImage {
 	uri: string;
@@ -320,19 +319,24 @@ function ChatScreen() {
 		[]
 	);
 
-	// ── Direct fetch to Anthropic API (bypasses SDK for Android/Hermes compatibility) ──
+	// ── Fetch via Supabase Edge Function proxy (key stays on server) ──
+	// The mobile app never holds the Anthropic key. We send the user's
+	// Supabase JWT so the Edge Function can verify the request before
+	// forwarding to api.anthropic.com.
 	const sendViaFetch = async (
 		systemPrompt: string,
 		apiMessages: { role: "user" | "assistant"; content: any }[],
 	): Promise<string> => {
-		console.log("[Chat] sendViaFetch: apiKey length =", apiKey?.length ?? 0);
-		const response = await fetch("https://api.anthropic.com/v1/messages", {
+		const { data: { session } } = await supabase.auth.getSession();
+		if (!session) {
+			throw new Error("Not signed in. Please sign in again and retry.");
+		}
+		const response = await fetch(PROXY_URL, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				"x-api-key": apiKey!,
-				"anthropic-version": "2023-06-01",
-				"anthropic-dangerous-direct-browser-access": "true",
+				Authorization: `Bearer ${session.access_token}`,
+				apikey: env.EXPO_PUBLIC_SUPABASE_KEY,
 			},
 			body: JSON.stringify({
 				model: "claude-haiku-4-5-20251001",
@@ -375,11 +379,16 @@ function ChatScreen() {
 			try { await impactAsync(ImpactFeedbackStyle.Light); } catch {}
 		}
 
-		if (!apiKey || apiKey === "dummy_key_to_prevent_sdk_crash") {
+		// Require an active Supabase session — the proxy rejects requests
+		// without one. The user shouldn't normally hit this branch because
+		// the chat screen is behind the auth flow, but if their session
+		// expired mid-session, show a clear message instead of a 401.
+		const { data: { session: __session } } = await supabase.auth.getSession();
+		if (!__session) {
 			setMessages((prev) => [
 				...prev,
 				{ id: Date.now().toString(), role: "user", content: userText, imageUri: imgSnap?.uri },
-				{ id: `${Date.now()}-err`, role: "assistant", content: "API key missing. Please set EXPO_PUBLIC_ANTHROPIC_API_KEY and rebuild." },
+				{ id: `${Date.now()}-err`, role: "assistant", content: "You've been signed out. Please sign in again to continue chatting." },
 			]);
 			return;
 		}
@@ -439,36 +448,13 @@ function ChatScreen() {
 
 			let rawReply = "";
 
-			// Use direct fetch on Android (Hermes lacks ReadableStream for streaming)
-			// Also use fetch on iOS for consistency and reliability
-			if (Platform.OS === "android") {
-				rawReply = await sendViaFetch(fullSystemPrompt, apiMessages);
-			} else {
-				// iOS: try streaming via SDK, fall back to fetch
-				try {
-					const stream = anthropic.messages.stream({
-						model: "claude-haiku-4-5-20251001",
-						max_tokens: 1024,
-						system: fullSystemPrompt,
-						messages: apiMessages,
-					});
-
-					let fullText = "";
-
-					stream.on("text", (text) => {
-						fullText += text;
-						setStreamingText(fullText);
-						scrollRef.current?.scrollToEnd({ animated: false });
-					});
-
-					const finalMessage = await stream.finalMessage();
-					rawReply = finalMessage.content[0].type === "text" ? finalMessage.content[0].text : fullText;
-				} catch (streamErr) {
-					console.warn("[Chat] Streaming failed, using fetch fallback:", streamErr);
-					setStreamingText("");
-					rawReply = await sendViaFetch(fullSystemPrompt, apiMessages);
-				}
-			}
+			// Always go through the Supabase Edge Function proxy. We dropped the
+			// SDK streaming path on iOS because the SDK calls api.anthropic.com
+			// directly with a client-side key — the same architecture that
+			// caused the leaked-key incident this rewrite fixes. The proxy
+			// supports SSE streaming, but adding back streaming in the client
+			// is a follow-up; for now both platforms use the simple fetch path.
+			rawReply = await sendViaFetch(fullSystemPrompt, apiMessages);
 
 			const { body: assistantReply, suggestions, memoryFacts } = extractSuggestions(rawReply);
 

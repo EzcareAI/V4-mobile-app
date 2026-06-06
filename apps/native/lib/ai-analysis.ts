@@ -1,21 +1,4 @@
-import Anthropic from "@anthropic-ai/sdk";
-
-const apiKey = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
-
-// Create the client lazily to avoid throwing instantly on load if missing
-let anthropicClient: Anthropic | null = null;
-function getClient() {
-	if (!anthropicClient) {
-		if (!apiKey) {
-			throw new Error("Anthropic API key is not configured.");
-		}
-		anthropicClient = new Anthropic({
-			apiKey,
-			dangerouslyAllowBrowser: true, // required for React Native
-		});
-	}
-	return anthropicClient;
-}
+import { callAnthropic, extractText } from "./anthropic";
 
 export interface AnalysisRequest {
 	zones: string[];
@@ -93,8 +76,6 @@ Provide a 7-day general self-care idea list (Days 1 through 7) with activities l
 
 export const aiAnalysisService = {
 	async analyzeConcerns(request: AnalysisRequest): Promise<AnalysisResponse> {
-		const client = getClient();
-
 		const textPrompt = `
 User Data:
 - Selected Body Zones: ${request.zones.join(", ") || "General Body Awareness"}
@@ -124,16 +105,14 @@ Based on the above general lifestyle inputs (and the provided image if present),
 				text: textPrompt,
 			});
 
-			const response = await client.messages.create({
+			const response = await callAnthropic({
 				model: "claude-haiku-4-5-20251001",
 				max_tokens: 1024,
-				temperature: 0.1,
 				system: SYSTEM_PROMPT,
 				messages: [{ role: "user", content }],
 			});
 
-			const textResponse =
-				response.content[0].type === "text" ? response.content[0].text : "";
+			const textResponse = extractText(response);
 
 			// Strip potential markdown wrappers if Claude ignores the system prompt
 			const cleanJson = textResponse.replace(/^```json\n|\n```$/g, "").trim();

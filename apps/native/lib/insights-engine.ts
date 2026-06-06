@@ -8,8 +8,7 @@
 
 import { supabase } from "./supabase";
 import { mixpanelService } from "./mixpanel-service";
-
-const apiKey = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
+import { callAnthropic, extractText } from "./anthropic";
 
 // ── Types ────────────────────────────────────────────────────
 export interface Insight {
@@ -44,7 +43,10 @@ class InsightsEngine {
 	 * Returns null if generation fails (non-blocking).
 	 */
 	async generateInsight(userId: string, context: InsightContext): Promise<Insight | null> {
-		if (!apiKey) return null;
+		// Insights are best-effort; if the user has no Supabase session, skip
+		// silently rather than throwing.
+		const { data: { session } } = await supabase.auth.getSession();
+		if (!session) return null;
 
 		try {
 			const prompt = `You are EZBuddy, the AI companion for EzCare lifestyle app.
@@ -72,28 +74,18 @@ Return ONLY valid JSON:
   "next_action_suggestion": "optional next step or null"
 }`;
 
-			const response = await fetch("https://api.anthropic.com/v1/messages", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"x-api-key": apiKey,
-					"anthropic-version": "2023-06-01",
-					"anthropic-dangerous-direct-browser-access": "true",
-				},
-				body: JSON.stringify({
+			let text = "";
+			try {
+				const result = await callAnthropic({
 					model: "claude-haiku-4-5-20251001",
 					max_tokens: 300,
 					messages: [{ role: "user", content: prompt }],
-				}),
-			});
-
-			if (!response.ok) {
-				console.warn("[Insights] API error:", response.status);
+				});
+				text = extractText(result);
+			} catch (err) {
+				console.warn("[Insights] Proxy call failed:", err);
 				return null;
 			}
-
-			const result = await response.json();
-			const text = result.content?.[0]?.text ?? "";
 
 			const jsonMatch = text.match(/\{[\s\S]*\}/);
 			if (!jsonMatch) return null;

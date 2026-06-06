@@ -380,3 +380,8 @@ s3_region = "env(S3_REGION)"
 s3_access_key = "env(S3_ACCESS_KEY)"
 # Configures AWS_SECRET_ACCESS_KEY for S3 bucket
 s3_secret_key = "env(S3_SECRET_KEY)"
+
+[functions.anthropic-proxy]
+# Require a valid Supabase user JWT (default). Without this, anyone with the
+# function URL could spend the team's Anthropic budget.
+verify_jwt = true

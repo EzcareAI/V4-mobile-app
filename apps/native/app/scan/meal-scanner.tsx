@@ -1,4 +1,3 @@
-import Anthropic from "@anthropic-ai/sdk";
 import { Ionicons } from "@expo/vector-icons";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { ImpactFeedbackStyle, impactAsync } from "expo-haptics";
@@ -29,12 +28,12 @@ import { useGamificationStore } from "@/stores/gamification-store";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { levelsService } from "@/lib/levels-service";
 import { streakService } from "@/lib/streak-service";
+import { supabase } from "@/lib/supabase";
+import { env } from "@ezcare/env/native";
 
-const apiKey = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
-const anthropic = new Anthropic({
-	apiKey: apiKey || "dummy",
-	dangerouslyAllowBrowser: true,
-});
+// Supabase Edge Function that proxies Anthropic — keeps the API key off the
+// client. See packages/db/supabase/functions/anthropic-proxy/.
+const PROXY_URL = `${env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/anthropic-proxy`;
 
 const { width: SCREEN_W } = Dimensions.get("window");
 
@@ -189,16 +188,19 @@ export default function MealScannerScreen() {
 		}
 	};
 
-	// Direct fetch to Anthropic API (bypasses SDK for Android/Hermes compatibility)
+	// Fetch via Supabase Edge Function proxy. The Anthropic key lives on
+	// the server side; we authenticate via the user's Supabase session.
 	const analyzeViaFetch = async (base64Data: string, mediaType: string, systemPrompt: string): Promise<string> => {
-		console.log("[MealScanner] analyzeViaFetch: apiKey length =", apiKey?.length ?? 0, "base64 length =", base64Data.length, "mediaType =", mediaType);
-		const response = await fetch("https://api.anthropic.com/v1/messages", {
+		const { data: { session } } = await supabase.auth.getSession();
+		if (!session) {
+			throw new Error("Not signed in. Please sign in again and retry.");
+		}
+		const response = await fetch(PROXY_URL, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				"x-api-key": apiKey!,
-				"anthropic-version": "2023-06-01",
-				"anthropic-dangerous-direct-browser-access": "true",
+				Authorization: `Bearer ${session.access_token}`,
+				apikey: env.EXPO_PUBLIC_SUPABASE_KEY,
 			},
 			body: JSON.stringify({
 				model: "claude-haiku-4-5-20251001",
@@ -252,8 +254,11 @@ Rules:
 - If the photo is not food, set totalCalories to 0, mealName to "Not Food", empty foods array`;
 
 	const analyzePhoto = async (base64: string) => {
-		if (!apiKey || apiKey === "dummy") {
-			setRawAnalysis("API key missing. Set EXPO_PUBLIC_ANTHROPIC_API_KEY and rebuild.");
+		// Require an active Supabase session — the proxy rejects requests
+		// without one and a 401 in this flow renders an opaque "API error".
+		const { data: { session: __session } } = await supabase.auth.getSession();
+		if (!__session) {
+			setRawAnalysis("You've been signed out. Please sign in again to scan a meal.");
 			setMode("result");
 			return;
 		}
@@ -269,38 +274,11 @@ Rules:
 
 		let fullText = "";
 		try {
-			// Use direct fetch on Android (Hermes lacks ReadableStream for SDK streaming)
-			if (Platform.OS === "android") {
-				fullText = await analyzeViaFetch(cleanedBase64, mediaType, MEAL_SYSTEM_PROMPT);
-			} else {
-				try {
-					const stream = anthropic.messages.stream({
-						model: "claude-haiku-4-5-20251001",
-						max_tokens: 1024,
-						system: MEAL_SYSTEM_PROMPT,
-						messages: [
-							{
-								role: "user",
-								content: [
-									{ type: "image", source: { type: "base64", media_type: mediaType, data: cleanedBase64 } },
-									{ type: "text", text: "Analyze this food photo." },
-								],
-							},
-						],
-					});
-
-					stream.on("text", (text) => {
-						fullText += text;
-						setStreamText(fullText);
-					});
-
-					await stream.finalMessage();
-				} catch (streamErr) {
-					console.warn("[MealScanner] Streaming failed, using fetch fallback:", streamErr);
-					setStreamText("");
-					fullText = await analyzeViaFetch(cleanedBase64, mediaType, MEAL_SYSTEM_PROMPT);
-				}
-			}
+			// Always go through the Supabase Edge Function proxy. The SDK
+			// streaming path was removed when we moved the API key off the
+			// client. (Re-enabling streaming through the proxy is a follow-
+			// up; for now both platforms use the simple fetch path.)
+			fullText = await analyzeViaFetch(cleanedBase64, mediaType, MEAL_SYSTEM_PROMPT);
 
 			try {
 				const jsonMatch = fullText.match(/\{[\s\S]*\}/);

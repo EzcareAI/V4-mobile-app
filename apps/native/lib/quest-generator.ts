@@ -8,8 +8,7 @@
 import { Platform } from "react-native";
 import { supabase } from "./supabase";
 import { mixpanelService } from "./mixpanel-service";
-
-const apiKey = process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY;
+import { callAnthropic, extractText } from "./anthropic";
 
 // ── Types ────────────────────────────────────────────────────
 export interface QuestGoal {
@@ -220,8 +219,12 @@ class QuestGenerator {
 		userId: string,
 		ritualContext?: { sleepScore: number; energyScore: number; intention: string }
 	): Promise<Quest[]> {
-		if (!apiKey) {
-			console.warn("[QuestGenerator] No API key, using fallback quests");
+		// Auth check: the Anthropic proxy needs a Supabase session. If the
+		// user got here without one, fall back to the static quest pool
+		// rather than throwing.
+		const { data: { session } } = await supabase.auth.getSession();
+		if (!session) {
+			console.warn("[QuestGenerator] No Supabase session, using fallback quests");
 			return FALLBACK_QUESTS;
 		}
 
@@ -295,29 +298,19 @@ Return ONLY valid JSON:
 
 Valid icon values (Ionicons): water-outline, walk-outline, leaf-outline, bed-outline, restaurant-outline, happy-outline, book-outline, fitness-outline, heart-outline, moon-outline, sunny-outline, musical-notes-outline`;
 
-			const response = await fetch("https://api.anthropic.com/v1/messages", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"x-api-key": apiKey,
-					"anthropic-version": "2023-06-01",
-					"anthropic-dangerous-direct-browser-access": "true",
-				},
-				body: JSON.stringify({
+			let text = "";
+			try {
+				const result = await callAnthropic({
 					model: "claude-haiku-4-5-20251001",
 					max_tokens: 800,
 					system: systemPrompt,
 					messages: [{ role: "user", content: "Generate my 3 daily quests for today." }],
-				}),
-			});
-
-			if (!response.ok) {
-				console.warn("[QuestGenerator] API error:", response.status);
+				});
+				text = extractText(result);
+			} catch (err) {
+				console.warn("[QuestGenerator] Proxy call failed:", err);
 				return FALLBACK_QUESTS;
 			}
-
-			const result = await response.json();
-			const text = result.content?.[0]?.text ?? "";
 
 			// Extract JSON from response
 			const jsonMatch = text.match(/\{[\s\S]*\}/);

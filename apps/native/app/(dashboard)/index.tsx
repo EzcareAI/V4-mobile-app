@@ -1197,6 +1197,33 @@ export default function HomeScreen() {
 						</View>
 					</TouchableOpacity>
 
+					{/* ── Food Benefits Scanner (dedicated CTA) ── */}
+					<TouchableOpacity
+						activeOpacity={0.9}
+						onPress={() => {
+							if (Platform.OS === "ios") impactAsync(ImpactFeedbackStyle.Medium).catch(() => {});
+							router.push("/scan/food-benefits");
+						}}
+						style={styles.benefitsCta}
+					>
+						<LinearGradient
+							colors={["#28B898", "#3EC9B5", PURPLE]}
+							start={{ x: 0, y: 0 }}
+							end={{ x: 1, y: 1 }}
+							style={[StyleSheet.absoluteFill, { borderRadius: 18 }]}
+						/>
+						<View style={styles.benefitsCtaIcon}>
+							<Ionicons name="leaf" size={26} color="#FFFFFF" />
+						</View>
+						<View style={{ flex: 1 }}>
+							<Text style={styles.benefitsCtaTitle}>Scan Food Benefits</Text>
+							<Text style={styles.benefitsCtaSub}>
+								Snap a meal and see how each food supports your day
+							</Text>
+						</View>
+						<Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+					</TouchableOpacity>
+
 					{/* ── Explore ── */}
 					<Text style={styles.sectionTitle}>Explore</Text>
 					<View style={styles.featureRow}>
@@ -1722,6 +1749,22 @@ const styles = StyleSheet.create({
 		fontSize: 18, fontWeight: "800", color: TEXT,
 		marginBottom: 12, paddingHorizontal: 20,
 	},
+
+	// ── Food Benefits CTA ──
+	benefitsCta: {
+		flexDirection: "row", alignItems: "center", gap: 14,
+		marginHorizontal: 20, marginBottom: 20, padding: 16,
+		borderRadius: 18, overflow: "hidden",
+		shadowColor: "#3EC9B5", shadowOffset: { width: 0, height: 4 },
+		shadowOpacity: 0.3, shadowRadius: 10, elevation: 5,
+	},
+	benefitsCtaIcon: {
+		width: 48, height: 48, borderRadius: 24,
+		backgroundColor: "rgba(255,255,255,0.2)",
+		alignItems: "center", justifyContent: "center",
+	},
+	benefitsCtaTitle: { color: "#FFFFFF", fontSize: 16, fontWeight: "800" },
+	benefitsCtaSub: { color: "rgba(255,255,255,0.85)", fontSize: 12, lineHeight: 16, marginTop: 2 },
 
 	// ── Feature Hub ──
 	featureRow: {

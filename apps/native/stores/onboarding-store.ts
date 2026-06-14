@@ -75,6 +75,15 @@ export interface OnboardingState {
 	authMethod?: "google" | "email" | "apple";
 	referralCode?: string;
 
+	// In-onboarding rating prompt
+	ratingPromptShown?: boolean;
+	appRating?: number; // 1-5 stars the user gave
+
+	// Share-to-unlock promo (pre-paywall growth gate)
+	shareInviteCount?: number; // How many times the user tapped Share
+	shareUnlockComplete?: boolean; // Hit the 3-share threshold
+	promoTrialDays?: number; // Bonus trial days earned by sharing
+
 	// Completion
 	onboardingComplete?: boolean;
 	myReferralCode?: string; // Auto-generated unique code for this user

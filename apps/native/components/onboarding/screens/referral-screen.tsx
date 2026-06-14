@@ -31,14 +31,14 @@ export const ReferralScreen = () => {
 		setErrorMsg("");
 
 		try {
-			const { data, error } = await supabase
-				.from("profiles")
-				.select("id")
-				.eq("referral_code", referralCode.trim().toUpperCase())
-				.limit(1)
-				.single();
+			// Validate via a SECURITY DEFINER RPC so the lookup works regardless
+			// of row-level security on onboarding_profiles (a user can't read
+			// another user's row directly). Returns a plain boolean.
+			const { data, error } = await supabase.rpc("referral_code_exists", {
+				p_code: referralCode.trim(),
+			});
 
-			if (error || !data) {
+			if (error || data !== true) {
 				setErrorMsg("This referral code is not correct or available.");
 				return;
 			}

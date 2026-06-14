@@ -24,6 +24,7 @@ import { OverallMotivationScreen } from "@/components/onboarding/screens/overall
 import { OverallPriorityScreen } from "@/components/onboarding/screens/overall-priority-screen";
 import PaywallScreen from "@/components/onboarding/screens/paywall-screen";
 import { ReferralScreen } from "@/components/onboarding/screens/referral-screen";
+import { ShareUnlockScreen } from "@/components/onboarding/screens/share-unlock-screen";
 import { SleepScreen } from "@/components/onboarding/screens/sleep-screen";
 import { SmokingScreen } from "@/components/onboarding/screens/smoking-screen";
 import { StressLevelScreen } from "@/components/onboarding/screens/stress-level-screen";
@@ -154,6 +155,11 @@ const OnboardingStep = () => {
 				return <NotificationsScreen />;
 			case 25:
 				return <ReferralScreen />;
+			// Share-to-unlock gate. Routed into from Results Preview (18) and
+			// exits to the Paywall (19), so it sits "before the paywall" in the
+			// user flow without renumbering steps 19-25.
+			case 26:
+				return <ShareUnlockScreen />;
 			default:
 				return null;
 		}

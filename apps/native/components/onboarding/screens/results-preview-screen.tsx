@@ -264,9 +264,10 @@ export default function ResultsPreviewScreen() {
 				/* ignore */
 			}
 		}
-		// Always navigate forward
+		// Always navigate forward. Route to the share-to-unlock gate (step 26),
+		// which then continues to the paywall (step 19).
 		nextStep();
-		router.push(`/(onboarding)/${(currentStep || 0) + 1}`);
+		router.push("/(onboarding)/26");
 	};
 
 	const getPersonalInsights = () => {

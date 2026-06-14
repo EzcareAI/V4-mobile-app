@@ -1,10 +1,11 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Animated, ScrollView, StyleSheet, Text, View } from "react-native";
 import { THEME } from "@/lib/theme";
 import { useOnboardingStore } from "@/stores/onboarding-store";
 import { ContinueButton } from "../common/continue-button";
+import { RatingPopup } from "../common/rating-popup";
 import { StepHeader } from "../common/step-header";
 
 const BENEFITS = [
@@ -122,7 +123,16 @@ const Fireworks = () => {
 
 export function ConfidenceMomentScreen() {
 	const router = useRouter();
-	const { nextStep, currentStep } = useOnboardingStore();
+	const { nextStep, currentStep, ratingPromptShown } = useOnboardingStore();
+	const [showRating, setShowRating] = useState(false);
+
+	// Auto-show the rating popup once, shortly after this "great job" beat —
+	// peak positive sentiment, before results and the paywall.
+	useEffect(() => {
+		if (ratingPromptShown) return;
+		const t = setTimeout(() => setShowRating(true), 900);
+		return () => clearTimeout(t);
+	}, [ratingPromptShown]);
 
 	const handleContinue = () => {
 		nextStep();
@@ -131,6 +141,7 @@ export function ConfidenceMomentScreen() {
 
 	return (
 		<View className="flex-1 bg-[#EBF5F4]">
+			<RatingPopup visible={showRating} onClose={() => setShowRating(false)} />
 			<View className="flex-1 justify-between px-6 pb-10">
 				<ScrollView
 					className="flex-1"
